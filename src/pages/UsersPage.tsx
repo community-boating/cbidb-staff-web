@@ -5,6 +5,9 @@ import { validator } from "../async/staff/get-users"
 import { Card, CardHeader, CardTitle, CardBody } from 'reactstrap';
 import BootstrapTable from "react-bootstrap-table-next";
 import paginationFactory from "react-bootstrap-table2-paginator";
+import { NavLink } from 'react-router-dom';
+import { usersEditPageRoute } from '../app/routes/users';
+import {Edit as EditIcon} from 'react-feather'
 
 export interface Props {
 	users: t.TypeOf<typeof validator>
@@ -12,7 +15,13 @@ export interface Props {
 
 export default class UsersPage extends React.PureComponent<Props> {
 	render() {
+		const editWidth = "50px";
 		const columns = [{
+			dataField: "edit",
+			text: "",
+			style: {width: editWidth},
+			headerStyle: {width: editWidth}
+		}, {
 			dataField: "userId",
 			text: "ID",
 			sort: true
@@ -21,7 +30,10 @@ export default class UsersPage extends React.PureComponent<Props> {
 			text: "Username",
 			sort: true
 		}];
-		const data = this.props.users
+		const data = this.props.users.map(u => ({
+			...u,
+			edit: <NavLink to={usersEditPageRoute.getPathFromArgs({userId: String(u.userId)})}><EditIcon color="#777" size="1.4em"/></NavLink>
+		}))
 		return <Card>
 			<CardHeader>
 				<CardTitle tag="h5">Pagination</CardTitle>
@@ -37,7 +49,7 @@ export default class UsersPage extends React.PureComponent<Props> {
 					bootstrap4
 					bordered={false}
 					pagination={paginationFactory({
-						sizePerPage: 5,
+						sizePerPage: 10,
 						sizePerPageList: [5, 10, 25, 50]
 					})}
 				/>

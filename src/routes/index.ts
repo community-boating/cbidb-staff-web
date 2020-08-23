@@ -3,7 +3,7 @@ import async from "../components/Async";
 import {
 	Sliders as SlidersIcon,
 } from "react-feather";
-import { usersPageRoute } from "../app/routes/users";
+import { usersPageRoute, usersEditPageRoute } from "../app/routes/users";
 import RouteWrapper from "../core/RouteWrapper";
 
 export type SideBarCategory = {
@@ -18,6 +18,7 @@ const adminRoutes: SideBarCategory = {
 	name: "Admin",
 	icon: SlidersIcon,
 	children: [
+		usersEditPageRoute,
 		usersPageRoute
 	]
 };
