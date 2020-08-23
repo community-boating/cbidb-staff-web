@@ -1,0 +1,13 @@
+stripeKey=ask_jon
+hostNameDev=localhost
+port=8081
+
+# Shouldn't need these 
+#sentryDSN=ask_jon
+#hostName=workstation.community-boating.org
+
+# Connect to a local backend
+#devAPI=http://localhost:3000
+
+# Connect to remote backend
+devAPI=https://api-dev.community-boating.org/api

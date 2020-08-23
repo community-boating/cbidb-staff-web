@@ -1,0 +1,41 @@
+.landing-intro {
+  background: darken($dark, 5%);
+  color: $white;
+}
+
+.landing-intro-brand {
+  color: $primary;
+  width: 42px;
+  height: 42px;
+}
+
+.landing-intro-img {
+  position: relative;
+  height: 100%;
+  overflow: hidden;
+}
+
+.landing-intro-img-default,
+.landing-intro-img-analytics {
+  position: absolute;
+  bottom: 0;
+}
+
+.landing-intro-img-default {
+  width: 75%;
+  right: 0;
+  z-index: 2;
+  box-shadow: -10px 0px 15px 0px rgba($black, 0.25);
+}
+
+.landing-intro-img-analytics {
+  width: 75%;
+  left: 0;
+  z-index: 1;
+}
+
+.landing-features-icon {
+  width: 42px;
+  height: 42px;
+  color: darken($primary, 5%);
+}

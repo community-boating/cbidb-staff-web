@@ -1,0 +1,51 @@
+.card {
+  margin-bottom: 2rem;
+  box-shadow: $card-shadow;
+}
+
+.card-header {
+  border-bottom-width: 1px;
+}
+
+.card-actions {
+  a {
+    color: $body-color;
+    text-decoration: none;
+  }
+
+  svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .dropdown {
+    line-height: 1.4;
+  }
+}
+
+.card-title {
+  font-size: $font-size-lg;
+  font-weight: $card-title-font-weight;
+}
+
+.card-subtitle {
+  font-weight: $font-weight-normal;
+}
+
+.card-table {
+  margin-bottom: 0;
+}
+
+.card-table tr td:first-child,
+.card-table tr th:first-child {
+  padding-left: $card-spacer-x;
+}
+
+.card-table tr td:last-child,
+.card-table tr th:last-child {
+  padding-right: $card-spacer-x;
+}
+
+.card-img-top {
+  height: 100%;
+}
