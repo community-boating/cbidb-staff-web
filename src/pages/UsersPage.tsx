@@ -7,7 +7,11 @@ import BootstrapTable from "react-bootstrap-table-next";
 import paginationFactory from "react-bootstrap-table2-paginator";
 import { NavLink } from 'react-router-dom';
 import { usersEditPageRoute } from '../app/routes/users';
-import {Edit as EditIcon} from 'react-feather'
+import {
+	Edit as EditIcon,
+	Check as CheckIcon,
+	Lock as LockIcon
+} from 'react-feather'
 
 export interface Props {
 	users: t.TypeOf<typeof validator>
@@ -29,9 +33,38 @@ export default class UsersPage extends React.PureComponent<Props> {
 			dataField: "userName",
 			text: "Username",
 			sort: true
+		}, {
+			dataField: "nameFirst",
+			text: "First Name",
+			sort: true
+		}, {
+			dataField: "nameLast",
+			text: "Last Name",
+			sort: true
+		}, {
+			dataField: "email",
+			text: "email",
+			sort: true
+		}, {
+			dataField: "locked",
+			text: "Locked",
+			sort: true
+		}, {
+			dataField: "active",
+			text: "Active",
+			sort: true
+		}, {
+			dataField: "pwChangeRequired",
+			text: "Pw Change Reqd",
+			sort: true
 		}];
 		const data = this.props.users.map(u => ({
 			...u,
+			nameFirst: u.nameFirst.getOrElse(null),
+			nameLast: u.nameLast.getOrElse(null),
+			locked: u.locked ? <LockIcon color="#777" size="1.4em"/> : null,
+			active: u.active ? <CheckIcon color="#777" size="1.4em"/> : null,
+			pwChangeRequired : u.pwChangeRequired ? <CheckIcon color="#777" size="1.4em"/> : null,
 			edit: <NavLink to={usersEditPageRoute.getPathFromArgs({userId: String(u.userId)})}><EditIcon color="#777" size="1.4em"/></NavLink>
 		}))
 		return <Card>
