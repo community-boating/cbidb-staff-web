@@ -75,9 +75,10 @@ export class ButtonWrapper extends React.Component<Props, State>{
 	}
 
 	render() {
-		const maybeSpinner = this.props.forceSpinner || (this.state.clicked && this.props.spinnerOnClick) ? <span>&nbsp;&nbsp;<img height="14px" src="/images/spinner-white.gif" /></span> : "";
+		const spinner = <img height="14px" style={{marginTop: "-3px"}} src="/images/spinner-white.gif" />;
+		const maybeSpinner = this.props.forceSpinner || (this.state.clicked && this.props.spinnerOnClick) ? <span>&nbsp;&nbsp;{spinner}</span> : "";
 
-		return <Button {...this.propsForDOM} onClick={this.onClick}>
+		return <Button {...this.propsForDOM} onClick={this.onClick.bind(this)}>
 			{this.props.children}
 			{maybeSpinner}
 		</Button>
