@@ -10,7 +10,7 @@ import UserFormPage from '../../pages/UserFormPage';
 
 const usersPath = new PathWrapper("users");
 
-export const usersPageRoute = new RouteWrapper(true, usersPath, history => <PageWrapper
+export const usersPageRoute = new RouteWrapper({requiresAuth: true, exact: true, pathWrapper: usersPath, sidebarTitle: "Users"}, history => <PageWrapper
 	key="users"
 	history={history}
 	component={(urlProps: {}, async: t.TypeOf<typeof validator>) => <UsersPage
@@ -25,8 +25,8 @@ export const usersPageRoute = new RouteWrapper(true, usersPath, history => <Page
 
 const usersEditPath = usersPath.appendPathSegment<{userId: string}>(":userId")
 
-export const usersEditPageRoute = new RouteWrapper(true, usersEditPath, history => <PageWrapper
-	key="users"
+export const usersEditPageRoute = new RouteWrapper({requiresAuth: true, exact: true, pathWrapper: usersEditPath}, history => <PageWrapper
+	key="userEdit"
 	history={history}
 	component={(urlProps: {userId: number}, async: t.TypeOf<typeof validator>) => <UserFormPage
 		userId={urlProps.userId}

@@ -18,7 +18,6 @@ const adminRoutes: SideBarCategory = {
 	name: "Admin",
 	icon: SlidersIcon,
 	children: [
-		usersEditPageRoute,
 		usersPageRoute
 	]
 };

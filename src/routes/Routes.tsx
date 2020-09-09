@@ -12,8 +12,10 @@ import AuthLayout from "../layouts/Auth";
 import ScrollToTop from "../components/ScrollToTop";
 import { Option } from "fp-ts/lib/Option";
 import {History} from 'history'
+import { usersEditPageRoute } from "../app/routes/users";
 
 import SignIn from "../pages/auth/SignIn";
+
 
 const authenticatedRoutes = (history: History<any>) => (
 	<Route
@@ -22,7 +24,7 @@ const authenticatedRoutes = (history: History<any>) => (
 		component={() => (
 			<StandardLayout>
 			<Switch>
-			  {sideBarRoutes.map((category, index) =>
+			  {sideBarRoutes.flatMap((category, index) =>
 				// category.children ? (
 				  // Route item with children
 				  category.children.map(rw => rw.asRoute(history))
@@ -35,7 +37,7 @@ const authenticatedRoutes = (history: History<any>) => (
 				//     component={category.component}
 				//   />
 				// )
-			  )}
+			  ).concat([usersEditPageRoute.asRoute(history)])}
 			</Switch>
 		  </StandardLayout>
 		)}

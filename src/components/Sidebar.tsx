@@ -140,7 +140,7 @@ class Sidebar extends React.Component<any, any> {
 												{category.children.map((route, index) => (
 													<SidebarItem
 														key={index}
-														name={route.getPathFromArgs({})}
+														name={route.sidebarTitle}
 														to={route.getPathFromArgs({})}
 														icon={null}
 														isOpen={null}
