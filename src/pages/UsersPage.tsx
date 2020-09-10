@@ -60,8 +60,10 @@ export default class UsersPage extends React.PureComponent<Props> {
 		}];
 		const data = this.props.users.map(u => ({
 			...u,
-			nameFirst: u.nameFirst.getOrElse(null),
-			nameLast: u.nameLast.getOrElse(null),
+			email: u.email.getOrElse(""),
+			userName: u.userName.getOrElse(""),
+			nameFirst: u.nameFirst.getOrElse(""),
+			nameLast: u.nameLast.getOrElse(""),
 			locked: u.locked ? <LockIcon color="#777" size="1.4em"/> : null,
 			active: u.active ? <CheckIcon color="#777" size="1.4em"/> : null,
 			pwChangeRequired : u.pwChangeRequired ? <CheckIcon color="#777" size="1.4em"/> : null,
