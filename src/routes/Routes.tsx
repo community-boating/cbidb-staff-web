@@ -1,5 +1,5 @@
 import * as React from "react";
-import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
+import { Router, Route, Switch } from "react-router";
 import {
   sideBarRoutes,
   page as pageRoutes,
@@ -24,7 +24,7 @@ const authenticatedRoutes = (history: History<any>) => (
 		component={() => (
 			<StandardLayout>
 			<Switch>
-			  {sideBarRoutes.flatMap((category, index) =>
+			  {[usersEditPageRoute.asRoute(history)].concat(sideBarRoutes.flatMap((category, index) =>
 				// category.children ? (
 				  // Route item with children
 				  category.children.map(rw => rw.asRoute(history))
@@ -37,7 +37,7 @@ const authenticatedRoutes = (history: History<any>) => (
 				//     component={category.component}
 				//   />
 				// )
-			  ).concat([usersEditPageRoute.asRoute(history)])}
+			  ))}
 			</Switch>
 		  </StandardLayout>
 		)}
@@ -45,7 +45,7 @@ const authenticatedRoutes = (history: History<any>) => (
 )
 
 const Routes = (props: {authenticatedUserName: Option<string>, history: History<any>}) => (
-  <Router>
+  <Router history={props.history}>
     <ScrollToTop>
       <Switch>
 		{props.authenticatedUserName.isSome()

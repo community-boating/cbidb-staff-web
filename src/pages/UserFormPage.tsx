@@ -1,7 +1,7 @@
 import { History } from 'history';
 import * as React from "react";
 import * as t from 'io-ts';
-import { userValidator } from "../async/staff/get-users"
+import { validator } from "../async/staff/get-user"
 import { Card, CardHeader, CardTitle, CardBody, Form, FormGroup, Label, Col, Input, Button, CustomInput, Row } from 'reactstrap';
 import { NavLink } from 'react-router-dom';
 import { usersPageRoute } from '../app/routes/users';
@@ -9,7 +9,7 @@ import { Option, none } from 'fp-ts/lib/Option';
 import FormElementInput from '../core/form/FormElementInput';
 import formUpdateState from '../util/form-update-state';
 
-type FormData = t.TypeOf<typeof userValidator>
+type FormData = t.TypeOf<typeof validator>
 
 export interface Props {
 	userId: number
