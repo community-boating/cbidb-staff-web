@@ -46,16 +46,16 @@ export default class UsersPage extends React.PureComponent<Props> {
 			text: "email",
 			sort: true
 		}, {
-			dataField: "locked",
-			text: "Locked",
-			sort: true
-		}, {
 			dataField: "active",
 			text: "Active",
 			sort: true
 		}, {
 			dataField: "pwChangeRequired",
 			text: "Pw Change Reqd",
+			sort: true
+		}, {
+			dataField: "locked",
+			text: "Locked",
 			sort: true
 		}];
 		const data = this.props.users.map(u => ({
@@ -64,9 +64,9 @@ export default class UsersPage extends React.PureComponent<Props> {
 			userName: u.userName.getOrElse(""),
 			nameFirst: u.nameFirst.getOrElse(""),
 			nameLast: u.nameLast.getOrElse(""),
-			locked: u.locked ? <LockIcon color="#777" size="1.4em"/> : null,
-			active: u.active ? <CheckIcon color="#777" size="1.4em"/> : null,
-			pwChangeRequired : u.pwChangeRequired ? <CheckIcon color="#777" size="1.4em"/> : null,
+			locked: u.locked.getOrElse(false) ? <LockIcon color="#777" size="1.4em"/> : null,
+			active: u.active.getOrElse(false) ? <CheckIcon color="#777" size="1.4em"/> : null,
+			pwChangeRequired : u.pwChangeRequired.getOrElse(false) ? <CheckIcon color="#777" size="1.4em"/> : null,
 			edit: <NavLink to={usersEditPageRoute.getPathFromArgs({userId: String(u.userId)})}><EditIcon color="#777" size="1.4em"/></NavLink>
 		}))
 		return <Card>

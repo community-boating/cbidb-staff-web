@@ -1,7 +1,7 @@
 import * as t from 'io-ts';
 import APIWrapper from '../../core/APIWrapper';
 import { HttpMethod } from "../../core/HttpMethod";
-import { OptionalString } from '../../util/OptionalTypeValidators';
+import { OptionalString, OptionalBoolean } from '../../util/OptionalTypeValidators';
 
 export const validator = t.type({
 	userId: t.number,
@@ -9,10 +9,10 @@ export const validator = t.type({
 	nameFirst: OptionalString,
 	nameLast: OptionalString,
 	email: OptionalString,
-	locked: t.boolean,
-	pwChangeRequired: t.boolean,
-	active: t.boolean,
-	hideFromClose: t.boolean
+	locked: OptionalBoolean,
+	pwChangeRequired: OptionalBoolean,
+	active: OptionalBoolean,
+	hideFromClose: OptionalBoolean
 })
 
 const path = "/staff/get-user"

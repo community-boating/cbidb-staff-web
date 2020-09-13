@@ -5,14 +5,15 @@ import { validator } from "../async/staff/get-user"
 import { Card, CardHeader, CardTitle, CardBody, Form, FormGroup, Label, Col, Input, Button, CustomInput, Row } from 'reactstrap';
 import { NavLink } from 'react-router-dom';
 import { usersPageRoute } from '../app/routes/users';
-import { Option, none } from 'fp-ts/lib/Option';
-import FormElementInput from '../core/form/FormElementInput';
+import { Option, none, some } from 'fp-ts/lib/Option';
+import FormElementInput from '../components/form/FormElementInput';
 import formUpdateState from '../util/form-update-state';
+import FormElementCheckbox from '../components/form/FormElementCheckbox';
 
 type FormData = t.TypeOf<typeof validator>
 
 export interface Props {
-	userId: number
+	initialFormState: FormData
 }
 
 type State = {
@@ -20,22 +21,13 @@ type State = {
 }
 
 class FormInput extends FormElementInput<FormData> {}
+class FormCheckbox extends FormElementCheckbox<FormData> {}
 
 export default class UserFormPage extends React.PureComponent<Props, State> {
 	constructor(props) {
 		super(props);
 		this.state = {
-			formData: {
-				userId: this.props.userId,
-				userName: none,
-				nameFirst: none,
-				nameLast: none,
-				email: none,
-				locked: false,
-				pwChangeRequired: true,
-				active: true,
-				hideFromClose: false
-			}
+			formData: props.initialFormState
 		}
 	}
 	render() {
@@ -78,6 +70,30 @@ export default class UserFormPage extends React.PureComponent<Props, State> {
 						value={this.state.formData.nameLast}
 						updateAction={updateState}
 						formatElement={formatElement("Last Name")}
+					/>
+					<FormCheckbox
+						id="active"
+						value={this.state.formData.active}
+						updateAction={updateState}
+						formatElement={formatElement("Active")}
+					/>
+					<FormCheckbox
+						id="hideFromClose"
+						value={this.state.formData.hideFromClose}
+						updateAction={updateState}
+						formatElement={formatElement("Hide from Close")}
+					/>
+					<FormCheckbox
+						id="pwChangeRequired"
+						value={this.state.formData.pwChangeRequired}
+						updateAction={updateState}
+						formatElement={formatElement("PW Change Required")}
+					/>
+					<FormCheckbox
+						id="locked"
+						value={this.state.formData.locked}
+						updateAction={updateState}
+						formatElement={formatElement("Locked")}
 					/>
 					<FormGroup row>
 						<Label sm={2} className="text-sm-right pt-sm-0" />

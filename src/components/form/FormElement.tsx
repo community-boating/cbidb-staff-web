@@ -11,7 +11,7 @@ export interface FormElementProps<T_Form, T_ValueType> {
 	appendToElementCell?: React.ReactNode,
 	onChange?: (event: React.ChangeEvent) => void,
 	onEnter?: () => void,
-	updateAction?: (name: string, value: string) => void,
+	updateAction?: (name: string, value: T_ValueType) => void,
 	isRequired?: boolean,
 	formatElement?: (el: React.ReactNode) => React.ReactNode
 }
