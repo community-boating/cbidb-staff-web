@@ -9,6 +9,8 @@ import { Option, none, some } from 'fp-ts/lib/Option';
 import FormElementInput from '../components/form/FormElementInput';
 import formUpdateState from '../util/form-update-state';
 import FormElementCheckbox from '../components/form/FormElementCheckbox';
+import {postWrapper} from "../async/staff/put-user"
+import { makePostJSON } from '../core/APIWrapperUtil';
 
 type UserShapeAPI = t.TypeOf<typeof validator>
 
@@ -18,11 +20,13 @@ type FormData = UserShapeAPI & {
 }
 
 export interface Props {
+	history: History<any>,
 	initialFormState: UserShapeAPI
 }
 
 type State = {
-	formData: FormData
+	formData: FormData,
+	validationErrors: string[]
 }
 
 class FormInput extends FormElementInput<FormData> {}
@@ -36,9 +40,29 @@ export default class UserFormPage extends React.PureComponent<Props, State> {
 				...props.initialFormState,
 				pw1: none,
 				pw2: none
-			}
+			},
+			validationErrors: []
 		}
 	}
+
+	submit() {
+		const self = this;
+		return postWrapper.send(makePostJSON(self.state.formData)).then(
+			// api success
+			ret => {
+				if (ret.type == "Success") {
+					self.props.history.push(usersPageRoute.getPathFromArgs({}))
+				} else {
+					window.scrollTo(0, 0);
+					self.setState({
+						...self.state,
+						validationErrors: ret.message.split("\\n") // TODO
+					});
+				}
+			}
+		)
+	}
+
 	render() {
 		const updateState = formUpdateState(this.state, this.setState.bind(this), "formData");
 		const formatElement = (label: string) => (e: React.ReactNode) => <FormGroup row>
@@ -122,7 +146,7 @@ export default class UserFormPage extends React.PureComponent<Props, State> {
 					<Col sm={10}>
 						<div className="btn-list">
 							<NavLink to={usersPageRoute.getPathFromArgs({})}><Button outline color="primary" className="mr-1">Cancel</Button></NavLink>
-							<Button color="primary">Submit</Button>
+							<Button color="primary" onClick={this.submit.bind(this)}>Submit</Button>
 						</div>
 					</Col>
 				</FormGroup>

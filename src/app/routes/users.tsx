@@ -30,6 +30,7 @@ export const usersEditPageRoute = new RouteWrapper({requiresAuth: true, exact: f
 	key="userEdit"
 	history={history}
 	component={(urlProps: {userId: number}, async: t.TypeOf<typeof userValidator>) => <UserFormPage
+		history={history}
 		initialFormState={async}
 	/>}
 	urlProps={{userId: (function() {
