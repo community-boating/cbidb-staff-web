@@ -2,7 +2,7 @@ import { History } from 'history';
 import * as React from "react";
 import * as t from 'io-ts';
 import { validator } from "../async/staff/get-user"
-import { Card, CardHeader, CardTitle, CardBody, Form, FormGroup, Label, Col, Input, Button, CustomInput, Row } from 'reactstrap';
+import { Card, CardHeader, CardTitle, CardBody, Form, FormGroup, Label, Col, Input, Button, CustomInput, Row, UncontrolledAlert } from 'reactstrap';
 import { NavLink } from 'react-router-dom';
 import { usersPageRoute } from '../app/routes/users';
 import { Option, none, some } from 'fp-ts/lib/Option';
@@ -74,11 +74,20 @@ export default class UserFormPage extends React.PureComponent<Props, State> {
 			</Col>
 		</FormGroup>;
 
+		const errorDiv = <UncontrolledAlert color="warning" key="error">
+		<div className="alert-message">
+			<ul style={{margin: "0"}}>
+				{this.state.validationErrors.map((v, i) => <li key={`validation-err-${i}`}>{v}</li>)}
+			</ul>
+		</div>
+		</UncontrolledAlert>;
+
 		return <Card>
 			<CardHeader>
 				<CardTitle tag="h5" style={{ margin: "0" }}>Create/Edit User</CardTitle>
 			</CardHeader>
 			<CardBody>
+				{this.state.validationErrors.length ? errorDiv : null}
 				<FormInput
 					id="userName"
 					value={this.state.formData.userName}
