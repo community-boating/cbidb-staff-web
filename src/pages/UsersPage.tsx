@@ -2,15 +2,15 @@ import { History } from 'history';
 import * as React from "react";
 import * as t from 'io-ts';
 import { validator } from "../async/staff/get-users"
-import { Card, CardHeader, CardTitle, CardBody } from 'reactstrap';
+import { Card, CardHeader, CardTitle, CardBody, Button } from 'reactstrap';
 import BootstrapTable from "react-bootstrap-table-next";
 import paginationFactory from "react-bootstrap-table2-paginator";
-import { NavLink } from 'react-router-dom';
+import { NavLink, Link } from 'react-router-dom';
 import { usersEditPageRoute } from '../app/routes/users';
 import {
 	Edit as EditIcon,
 	Check as CheckIcon,
-	Lock as LockIcon
+	Lock as LockIcon,
 } from 'react-feather'
 
 export interface Props {
@@ -60,6 +60,7 @@ export default class UsersPage extends React.PureComponent<Props> {
 		}];
 		const data = this.props.users.map(u => ({
 			...u,
+			userId: u.userId.getOrElse(-1),
 			email: u.email.getOrElse(""),
 			userName: u.userName.getOrElse(""),
 			nameFirst: u.nameFirst.getOrElse(""),
@@ -67,14 +68,14 @@ export default class UsersPage extends React.PureComponent<Props> {
 			locked: u.locked.getOrElse(false) ? <LockIcon color="#777" size="1.4em"/> : null,
 			active: u.active.getOrElse(false) ? <CheckIcon color="#777" size="1.4em"/> : null,
 			pwChangeRequired : u.pwChangeRequired.getOrElse(false) ? <CheckIcon color="#777" size="1.4em"/> : null,
-			edit: <NavLink to={usersEditPageRoute.getPathFromArgs({userId: String(u.userId)})}><EditIcon color="#777" size="1.4em"/></NavLink>
+			edit: <NavLink to={usersEditPageRoute.getPathFromArgs({userId: String(u.userId.getOrElse(-1))})}><EditIcon color="#777" size="1.4em"/></NavLink>
 		}))
 		return <Card>
 			<CardHeader>
-				<CardTitle tag="h5">Pagination</CardTitle>
-				<h6 className="card-subtitle text-muted">
-					Pagination by react-bootstrap-table2
-		  </h6>
+				<div className="float-right pull-right">
+				<Link to={usersEditPageRoute.getPathFromArgs({userId: String("new")})}><Button color="primary" className="mr-1 mb-1">Create</Button></Link>
+				</div>
+				<CardTitle tag="h5" className="mb-0">Add/Edit Staff</CardTitle>
 			</CardHeader>
 			<CardBody>
 				<BootstrapTable

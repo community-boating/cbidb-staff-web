@@ -5,6 +5,7 @@ import { FormElement, FormElementProps } from "./FormElement";
 import { Input } from "reactstrap";
 
 interface Props {
+	disabled?: boolean,
 	isPassword?: boolean
 	maxLength?: number
 	placeholder?: string
@@ -33,6 +34,7 @@ export default class FormElementInput<T> extends FormElement<T, Props & FormElem
 			maxLength={this.props.maxLength || 100}
 			onChange={onChange}
 			onKeyPress={onKeyPress}
+			disabled={this.props.disabled}
 			value={(this.props.value || none).getOrElse("")}
 		/>;
 	}

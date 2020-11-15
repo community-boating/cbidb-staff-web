@@ -1,10 +1,10 @@
 import * as t from 'io-ts';
 import APIWrapper from '../../core/APIWrapper';
 import { HttpMethod } from "../../core/HttpMethod";
-import { OptionalString, OptionalBoolean } from '../../util/OptionalTypeValidators';
+import { OptionalString, OptionalBoolean, OptionalNumber } from '../../util/OptionalTypeValidators';
 
 export const validator = t.type({
-	userId: t.number,
+	userId: OptionalNumber,
 	userName: OptionalString,
 	nameFirst: OptionalString,
 	nameLast: OptionalString,
@@ -13,7 +13,9 @@ export const validator = t.type({
 	pwChangeRequired: OptionalBoolean,
 	active: OptionalBoolean,
 	hideFromClose: OptionalBoolean
-})
+});
+
+export const formDefault: t.TypeOf<typeof validator> = validator.decode({}).getOrElse(null)
 
 const path = "/staff/get-user"
 

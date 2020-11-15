@@ -3,7 +3,7 @@ import async from "../components/Async";
 import {
 	Sliders as SlidersIcon,
 } from "react-feather";
-import { usersPageRoute, usersEditPageRoute } from "../app/routes/users";
+import { usersPageRoute } from "../app/routes/users";
 import RouteWrapper from "../core/RouteWrapper";
 
 export type SideBarCategory = {

@@ -33,7 +33,7 @@ class FormInput extends FormElementInput<FormData> {}
 class FormCheckbox extends FormElementCheckbox<FormData> {}
 
 export default class UserFormPage extends React.PureComponent<Props, State> {
-	constructor(props) {
+	constructor(props: Props) {
 		super(props);
 		this.state = {
 			formData: {
@@ -64,6 +64,7 @@ export default class UserFormPage extends React.PureComponent<Props, State> {
 	}
 
 	render() {
+		const exists = this.props.initialFormState.userId.isSome();
 		const updateState = formUpdateState(this.state, this.setState.bind(this), "formData");
 		const formatElement = (label: string) => (e: React.ReactNode) => <FormGroup row>
 			<Label sm={2} className="text-sm-right">
@@ -90,6 +91,7 @@ export default class UserFormPage extends React.PureComponent<Props, State> {
 				{this.state.validationErrors.length ? errorDiv : null}
 				<FormInput
 					id="userName"
+					disabled={exists}
 					value={this.state.formData.userName}
 					updateAction={updateState}
 					formatElement={formatElement("Username")}

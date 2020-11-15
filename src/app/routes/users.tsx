@@ -6,8 +6,9 @@ import PageWrapper from '../../core/PageWrapper';
 import PathWrapper from '../../core/PathWrapper';
 import Loader from '../../components/Loader';
 import {apiw as getUsers, validator} from "../../async/staff/get-users"
-import {apiw as getUser, validator as userValidator} from "../../async/staff/get-user"
+import {apiw as getUser, validator as userValidator, formDefault} from "../../async/staff/get-user"
 import UserFormPage from '../../pages/UserFormPage';
+import { Option, some, none } from 'fp-ts/lib/Option';
 
 const usersPath = new PathWrapper("users");
 
@@ -26,7 +27,7 @@ export const usersPageRoute = new RouteWrapper({requiresAuth: true, exact: true,
 
 const usersEditPath = usersPath.appendPathSegment<{userId: string}>(":userId")
 
-export const usersEditPageRoute = new RouteWrapper({requiresAuth: true, exact: false, pathWrapper: usersEditPath}, history => <PageWrapper
+export const usersEditPageRoute = new RouteWrapper({requiresAuth: true, exact: true, pathWrapper: usersEditPath}, history => <PageWrapper
 	key="userEdit"
 	history={history}
 	component={(urlProps: {userId: number}, async: t.TypeOf<typeof userValidator>) => <UserFormPage
@@ -40,7 +41,24 @@ export const usersEditPageRoute = new RouteWrapper({requiresAuth: true, exact: f
 	}())}}
 	getAsyncProps={(urlProps: {userId: number}) => {
 		console.log(urlProps)
-		return getUser(urlProps.userId).send(null).catch(err => Promise.resolve(null));  // TODO: handle failure
+		return getUser(urlProps.userId).send(null).catch(err => {
+			console.log("failed to get user: ", err)
+			history.push(usersPath.getPathFromArgs({}));
+			return Promise.reject(null);
+		});  // TODO: handle failure
 	}}
+	shadowComponent={<Loader />}
+/>);
+
+const usersNewPath = usersPath.appendPathSegment("new")
+
+export const usersNewPageRoute = new RouteWrapper({requiresAuth: true, exact: true, pathWrapper: usersNewPath}, history => <PageWrapper
+	key="userNew"
+	history={history}
+	component={(urlProps: {}) => <UserFormPage
+		history={history}
+		initialFormState={formDefault}
+	/>}
+	urlProps={{}}
 	shadowComponent={<Loader />}
 />);
