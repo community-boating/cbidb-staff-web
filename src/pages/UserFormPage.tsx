@@ -90,9 +90,9 @@ export default class UserFormPage extends React.PureComponent<Props, State> {
 			<CardBody>
 				{this.state.validationErrors.length ? errorDiv : null}
 				<FormInput
-					id="userName"
+					id="username"
 					disabled={exists}
-					value={this.state.formData.userName}
+					value={this.state.formData.username}
 					updateAction={updateState}
 					formatElement={formatElement("Username")}
 				/>

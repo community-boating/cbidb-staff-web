@@ -30,7 +30,7 @@ export default class UsersPage extends React.PureComponent<Props> {
 			text: "ID",
 			sort: true
 		}, {
-			dataField: "userName",
+			dataField: "username",
 			text: "Username",
 			sort: true
 		}, {
@@ -59,10 +59,9 @@ export default class UsersPage extends React.PureComponent<Props> {
 			sort: true
 		}];
 		const data = this.props.users.map(u => ({
-			...u,
 			userId: u.userId.getOrElse(-1),
 			email: u.email.getOrElse(""),
-			userName: u.userName.getOrElse(""),
+			username: u.username.getOrElse(""),
 			nameFirst: u.nameFirst.getOrElse(""),
 			nameLast: u.nameLast.getOrElse(""),
 			locked: u.locked.getOrElse(false) ? <LockIcon color="#777" size="1.4em"/> : null,

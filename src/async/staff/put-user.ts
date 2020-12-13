@@ -5,7 +5,7 @@ import { OptionalString, OptionalBoolean, OptionalNumber } from '../../util/Opti
 
 export const validator = t.type({
 	userId: OptionalNumber,
-	userName: OptionalString,
+	username: OptionalString,
 	nameFirst: OptionalString,
 	nameLast: OptionalString,
 	email: OptionalString,
