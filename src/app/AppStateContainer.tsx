@@ -28,6 +28,7 @@ type State = {
 	login: {
 		authenticatedUserName: Option<string>
 	}
+	borderless: boolean
 }
 
 export class AppStateContainer {
@@ -42,6 +43,12 @@ export class AppStateContainer {
 		this.listener = listener
 	}
 	updateState = {
+		setBorderless: () => {
+			this.setState({
+				...this.state,
+				borderless: true
+			});
+		},
 		login: {
 			setLoggedIn: (function(userName: string) {
 				const self: AppStateContainer = this
@@ -87,7 +94,8 @@ export class AppStateContainer {
 			appProps: null,
 			login: {
 				authenticatedUserName: none
-			}
+			},
+			borderless: false
 		};
 	}
 }
