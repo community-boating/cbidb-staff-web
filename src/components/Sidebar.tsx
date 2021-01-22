@@ -1,6 +1,6 @@
 import * as React from "react";
 import { connect } from "react-redux";
-import { NavLink, useLocation, withRouter } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 
 import { Badge, Collapse } from "reactstrap";
 import * as PerfectScrollbarAll from "react-perfect-scrollbar";
@@ -8,8 +8,6 @@ import * as PerfectScrollbarAll from "react-perfect-scrollbar";
 import { Box } from "react-feather";
 
 import { sideBarRoutes } from "../routes/index";
-
-// withRouter<{ history: any, location: any, match: any, name: any, icon: any, isOpen: any, onClick: any, to: any }, any>
 
 const SidebarCategory = ({
 	name,
@@ -52,8 +50,6 @@ const SidebarCategory = ({
 		</li>
 	);
 };
-
-// withRouter<{ history: any, location: any, match: any, name: string, icon: React.ReactNode, isOpen: boolean, onClick: any, to: string }, any>
 
 const SidebarItem = ({ name, icon: Icon, to }) => {
 	const location = useLocation();
@@ -164,9 +160,7 @@ function Sidebar(props: {sidebar: any, layout: any}) {
 	);
 }
 
-export default withRouter(
-	connect((store: any) => ({
-		sidebar: store.sidebar,
-		layout: store.layout
-	}))(Sidebar) as any
-);
+export default connect((store: any) => ({
+	sidebar: store.sidebar,
+	layout: store.layout
+}))(Sidebar) as any;
