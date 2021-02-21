@@ -35,6 +35,9 @@ class SignIn extends React.PureComponent<{}, State> {
 			loginProcessing: false
 		}
 	}
+	componentDidMount() {
+		document.getElementById("username").focus()
+	}
 	render() {
 		const self = this;
 		const loginFunction = () => {
@@ -97,6 +100,7 @@ class SignIn extends React.PureComponent<{}, State> {
 								bsSize="lg"
 								type="text"
 								name="username"
+								id="username"
 								placeholder="Enter your username"
 								value={self.state.formData.username.getOrElse("")}
 								onChange={event => updateState("username", event.target.value)}
