@@ -1,13 +1,13 @@
 import * as React from 'react';
 import * as t from 'io-ts';
-import UsersPage from '../../pages/UsersPage';
+import UsersPage from '../../pages/users/UsersPage';
 import RouteWrapper from '../../core/RouteWrapper';
 import PageWrapper from '../../core/PageWrapper';
 import PathWrapper from '../../core/PathWrapper';
 import Loader from '../../components/Loader';
 import {apiw as getUsers, validator} from "../../async/staff/get-users"
 import {apiw as getUser, validator as userValidator, formDefault} from "../../async/staff/get-user"
-import UserFormPage from '../../pages/UserFormPage';
+import UserFormPage from '../../pages/users/UserFormPage';
 import { Option, some, none } from 'fp-ts/lib/Option';
 
 const usersPath = new PathWrapper("users");

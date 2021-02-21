@@ -14,7 +14,7 @@ import { Option } from "fp-ts/lib/Option";
 import { History } from 'history'
 import { usersEditPageRoute, usersNewPageRoute } from "../app/routes/users";
 
-import SignIn from "../pages/auth/SignIn";
+import SignIn from "../pages/SignIn";
 import asc from "../app/AppStateContainer";
 import { BorderlessLayout } from "../layouts/BorderlessLayout";
 

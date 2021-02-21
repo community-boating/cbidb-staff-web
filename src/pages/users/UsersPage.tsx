@@ -1,12 +1,12 @@
 import { History } from 'history';
 import * as React from "react";
 import * as t from 'io-ts';
-import { validator } from "../async/staff/get-users"
+import { validator } from "../../async/staff/get-users"
 import { Card, CardHeader, CardTitle, CardBody, Button } from 'reactstrap';
 import BootstrapTable from "react-bootstrap-table-next";
 import paginationFactory from "react-bootstrap-table2-paginator";
 import { NavLink, Link, useRouteMatch } from 'react-router-dom';
-import { usersEditPageRoute } from '../app/routes/users';
+import { usersEditPageRoute } from '../../app/routes/users';
 import {
 	Edit as EditIcon,
 	Check as CheckIcon,

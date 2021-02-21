@@ -8,12 +8,12 @@ import {
 	UncontrolledAlert
 } from "reactstrap";
 import { none, Option, some } from "fp-ts/lib/Option";
-import formUpdateState from "../../util/form-update-state";
-import asc from "../../app/AppStateContainer";
-import detectEnter from "../../util/detectEnterPress";
-import { ButtonWrapper } from "../../components/ButtonWrapper";
+import formUpdateState from "../util/form-update-state";
+import asc from "../app/AppStateContainer";
+import detectEnter from "../util/detectEnterPress";
+import { ButtonWrapper } from "../components/ButtonWrapper";
 
-const cbiLogo = require("../../assets/img/CBI_boat.jpg");
+const cbiLogo = require("../assets/img/CBI_boat.jpg");
 
 export const formDefault = {
 	username: none as Option<string>,

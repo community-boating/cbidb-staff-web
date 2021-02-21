@@ -1,16 +1,16 @@
 import { History } from 'history';
 import * as React from "react";
 import * as t from 'io-ts';
-import { validator } from "../async/staff/get-user"
+import { validator } from "../../async/staff/get-user"
 import { Card, CardHeader, CardTitle, CardBody, Form, FormGroup, Label, Col, Input, Button, CustomInput, Row, UncontrolledAlert } from 'reactstrap';
 import { NavLink } from 'react-router-dom';
-import { usersPageRoute } from '../app/routes/users';
+import { usersPageRoute } from '../../app/routes/users';
 import { Option, none, some } from 'fp-ts/lib/Option';
-import FormElementInput from '../components/form/FormElementInput';
-import formUpdateState from '../util/form-update-state';
-import FormElementCheckbox from '../components/form/FormElementCheckbox';
-import {postWrapper} from "../async/staff/put-user"
-import { makePostJSON } from '../core/APIWrapperUtil';
+import FormElementInput from '../../components/form/FormElementInput';
+import formUpdateState from '../../util/form-update-state';
+import FormElementCheckbox from '../../components/form/FormElementCheckbox';
+import {postWrapper} from "../../async/staff/put-user"
+import { makePostJSON } from '../../core/APIWrapperUtil';
 
 type UserShapeAPI = t.TypeOf<typeof validator>
 
