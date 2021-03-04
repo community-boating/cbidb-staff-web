@@ -13,7 +13,7 @@ import asc from "../app/AppStateContainer";
 import detectEnter from "../util/detectEnterPress";
 import { ButtonWrapper } from "../components/ButtonWrapper";
 
-const cbiLogo = require("../assets/img/CBI_boat.jpg");
+import cbiLogo from "../assets/img/CBI_boat.jpg"
 
 export const formDefault = {
 	username: none as Option<string>,
