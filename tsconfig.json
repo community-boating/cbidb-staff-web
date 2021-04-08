@@ -1,5 +1,6 @@
 {
 	"compilerOptions": {
+		"baseUrl": "./src",
 		"outDir": "./dist/test",
 		"sourceMap": true,
 	//	"noImplicitAny": true,
@@ -11,7 +12,15 @@
 			"es5",
 			"es6",
 			"dom"
-		]
+		],
+		"paths": {
+			"@async/*": ["async/*"],
+			"@routes/*": ["app/routes/*"],
+			"@app/*": ["app/*"],
+			"@components/*": ["components/*"],
+			"@core/*": ["core/*"],
+			"@util/*": ["util/*"]
+		}
 	},
 	"include": [
 		"./src/**/*",
