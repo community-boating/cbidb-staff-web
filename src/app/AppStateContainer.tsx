@@ -4,19 +4,19 @@ import { apiw } from "../async/authenticate-staff";
 import { PostURLEncoded, makePostString } from '../core/APIWrapperUtil';
 
 type ServerConfig = {
-    // TODO: dev vs prod config
+		// TODO: dev vs prod config
 
-    SELF: {
-        host: string,
-        https: boolean,
-        pathPrefix: string,
-        port: number
-    },
-    API: {
-        host: string,
-        https: boolean,
-        port: number
-    }
+		SELF: {
+				host: string,
+				https: boolean,
+				pathPrefix: string,
+				port: number
+		},
+		API: {
+				host: string,
+				https: boolean,
+				port: number
+		}
 }
 
 export interface AppProps {

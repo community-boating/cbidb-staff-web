@@ -119,7 +119,7 @@ function Sidebar(props: {sidebar: any, layout: any}) {
 							return (
 								<React.Fragment key={index}>
 									{/* {category.header ? (
-				  <li className="sidebar-header">{category.header}</li>
+					<li className="sidebar-header">{category.header}</li>
 				) : null} */}
 
 									{category.children ? (

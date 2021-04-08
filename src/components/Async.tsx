@@ -3,29 +3,29 @@ import * as React from "react";
 import Loader from "./Loader";
 
 export default function asyncComponent(importComponent) {
-  class AsyncComponent extends React.Component<any, any> {
-    constructor(props) {
-      super(props);
+	class AsyncComponent extends React.Component<any, any> {
+		constructor(props) {
+			super(props);
 
-      this.state = {
-        component: null
-      };
-    }
+			this.state = {
+				component: null
+			};
+		}
 
-    async componentDidMount() {
-      const { default: component } = await importComponent();
+		async componentDidMount() {
+			const { default: component } = await importComponent();
 
-      this.setState({
-        component: component
-      });
-    }
+			this.setState({
+				component: component
+			});
+		}
 
-    render() {
-      const C = this.state.component;
+		render() {
+			const C = this.state.component;
 
-      return C ? <C {...this.props} /> : <Loader />;
-    }
-  }
+			return C ? <C {...this.props} /> : <Loader />;
+		}
+	}
 
-  return AsyncComponent;
+	return AsyncComponent;
 }

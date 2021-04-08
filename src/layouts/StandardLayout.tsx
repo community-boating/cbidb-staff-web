@@ -8,14 +8,14 @@ import Content from "../components/Content";
 import Footer from "../components/Footer";
 
 export const StandardLayout = ({ children }) => (
-  <React.Fragment>
-    <Wrapper>
-      <Sidebar />
-      <Main className={null}>
-        <Navbar />
-        <Content>{children}</Content>
-        <Footer />
-      </Main>
-    </Wrapper>
-  </React.Fragment>
+	<React.Fragment>
+		<Wrapper>
+			<Sidebar />
+			<Main className={null}>
+				<Navbar />
+				<Content>{children}</Content>
+				<Footer />
+			</Main>
+		</Wrapper>
+	</React.Fragment>
 );

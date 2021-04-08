@@ -39,10 +39,10 @@ const authenticatedRoutes = (history: History<any>) => {
 							// ) : (
 							//   // Route item without children
 							//   <Route
-							//     key={index}
-							//     path={category.path}
-							//     exact
-							//     component={category.component}
+							//  	 key={index}
+							//  	 path={category.path}
+							//  	 exact
+							//  	 component={category.component}
 							//   />
 							// )
 						))}
