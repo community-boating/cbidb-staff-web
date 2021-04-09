@@ -2,9 +2,8 @@ import * as React from "react";
 import { Router, Route, Switch, Redirect } from "react-router";
 import {
 	sideBarRoutes,
-	page as pageRoutes,
 	SideBarCategory
-} from "./index";
+} from "./SidebarCategories";
 
 import { StandardLayout } from "../layouts/StandardLayout";
 import AuthLayout from "../layouts/Auth";
@@ -12,16 +11,22 @@ import AuthLayout from "../layouts/Auth";
 import ScrollToTop from "../components/ScrollToTop";
 import { Option } from "fp-ts/lib/Option";
 import { History } from 'history'
-import { usersEditPageRoute, usersNewPageRoute } from "../app/routes/users";
+import { usersEditPageRoute, usersNewPageRoute } from "./routes/users";
 
 import SignIn from "../pages/SignIn";
-import asc from "../app/AppStateContainer";
+import asc from "./AppStateContainer";
 import { BorderlessLayout } from "../layouts/BorderlessLayout";
+import RouteWrapper from "@core/RouteWrapper";
 
 
 const authenticatedRoutes = (history: History<any>) => {
 	const borderless = asc.state.borderless;
 	const Layout = borderless ? BorderlessLayout : StandardLayout;
+	const routes = sideBarRoutes.flatMap((category, index) => {
+		const rwAsRoute = (rw: RouteWrapper<any>) => rw.asRoute(history);
+		return category.children.map(rwAsRoute).concat((category.unrenderedChildren || []).map(rwAsRoute));
+	});
+	console.log(routes);
 	return (
 		<Route
 			path="/*"
@@ -29,23 +34,7 @@ const authenticatedRoutes = (history: History<any>) => {
 			component={() => (
 				<Layout>
 					<Switch>
-						{[
-							usersNewPageRoute.asRoute(history),
-							usersEditPageRoute.asRoute(history),
-						].concat(sideBarRoutes.flatMap((category, index) =>
-							// category.children ? (
-							// Route item with children
-							category.children.map(rw => rw.asRoute(history))
-							// ) : (
-							//   // Route item without children
-							//   <Route
-							//  	 key={index}
-							//  	 path={category.path}
-							//  	 exact
-							//  	 component={category.component}
-							//   />
-							// )
-						))}
+						{routes}
 					</Switch>
 				</Layout>
 			)}

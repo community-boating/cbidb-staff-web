@@ -7,7 +7,7 @@ import * as PerfectScrollbarAll from "react-perfect-scrollbar";
 
 import { Box } from "react-feather";
 
-import { sideBarRoutes } from "../routes/index";
+import { sideBarRoutes } from "../app/SidebarCategories";
 
 const SidebarCategory = ({
 	name,

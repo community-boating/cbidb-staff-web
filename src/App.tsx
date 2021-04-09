@@ -3,7 +3,7 @@ import { Provider } from "react-redux";
 import ReduxToastr from "react-redux-toastr";
 
 import store from "./redux/store/index";
-import Routes from "./routes/Routes";
+import Routes from "./app/routing";
 import asc from "./app/AppStateContainer";
 import {apiw as isLoggedInAsStaff} from './async/is-logged-in-as-staff';
 import {AppStateContainer} from "./app/AppStateContainer"
