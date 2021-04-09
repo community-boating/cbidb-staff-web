@@ -2,7 +2,7 @@ import {
 	Compass,
 	Sliders as SlidersIcon,
 } from "react-feather";
-import { usersEditPageRoute, usersPageRoute } from "./routes/users";
+import { usersEditPageRoute, usersNewPageRoute, usersPageRoute } from "./routes/users";
 import RouteWrapper from "../core/RouteWrapper";
 import { jpClassesPageRoute } from "@routes/jp-classes";
 
@@ -31,7 +31,8 @@ const admin: SideBarCategory = {
 		usersPageRoute
 	],
 	unrenderedChildren: [
-		usersEditPageRoute
+		usersNewPageRoute,
+		usersEditPageRoute,
 	]
 };
 
