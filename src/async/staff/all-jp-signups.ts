@@ -33,9 +33,17 @@ export const decoratedInstanceValidator = t.type({
 	week: t.number
 })
 
+export const weekValidator = t.type({
+	friday: t.string,
+	monday: t.string,
+	weekNumber: t.number,
+	weekTitle: t.string,
+})
+
 export const validator = t.type({
 	instances: t.array(decoratedInstanceValidator),
-	signups: t.array(signupValidator)
+	signups: t.array(signupValidator),
+	weeks: t.array(weekValidator),
 })
 
 const path = "/staff/all-jp-signups"

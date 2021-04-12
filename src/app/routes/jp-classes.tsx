@@ -15,9 +15,10 @@ const jpClassesPath = new PathWrapper("jp-classes");
 export const jpClassesPageRoute = new RouteWrapper({requiresAuth: true, exact: true, pathWrapper: jpClassesPath, sidebarTitle: "JP Classes"}, history => <PageWrapper
 	key="jpclasses"
 	history={history}
-	component={(urlProps: {}, asyncProps: t.TypeOf<typeof validator>) => <JpClassesPage
-		signups={asyncProps.signups}
-		instances={asyncProps.instances}
+	component={(urlProps: {}, {signups, instances, weeks}: t.TypeOf<typeof validator>) => <JpClassesPage
+		signups={signups}
+		instances={instances}
+		weeks={weeks}
 	/>}
 	urlProps={{}}
 	getAsyncProps={() => {
