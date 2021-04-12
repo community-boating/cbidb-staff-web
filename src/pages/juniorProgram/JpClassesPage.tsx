@@ -3,27 +3,22 @@ import * as React from "react";
 import * as t from 'io-ts';
 import { validator } from "../../async/staff/get-users"
 import { Card, CardHeader, CardTitle, CardBody, Button } from 'reactstrap';
-import BootstrapTable from "react-bootstrap-table-next";
-import paginationFactory from "react-bootstrap-table2-paginator";
 import { NavLink, Link, useRouteMatch } from 'react-router-dom';
-import { usersEditPageRoute } from '../../app/routes/users';
-import {
-	Edit as EditIcon,
-	Check as CheckIcon,
-	Lock as LockIcon,
-} from 'react-feather'
 
+import {decoratedInstanceValidator, signupValidator} from "@async/staff/all-jp-signups"
 
-export default function JpClassesPage() {
-	const {path, url} = useRouteMatch();
-	const editWidth = "50px";
-	
+type Props = {
+	signups: t.TypeOf<typeof signupValidator>[],
+	instances: t.TypeOf<typeof decoratedInstanceValidator>[]
+}
+
+export default function JpClassesPage(props: Props) {
 	return <Card>
 		<CardHeader>
 			<CardTitle tag="h5" className="mb-0">Jp Classes</CardTitle>
 		</CardHeader>
 		<CardBody>
-			
+			{JSON.stringify(props.signups)}
 		</CardBody>
 	</Card>;
 }
