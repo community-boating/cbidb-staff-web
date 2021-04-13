@@ -7,7 +7,7 @@ import { NavLink } from 'react-router-dom';
 import { usersPageRoute } from '../../app/routes/users';
 import { Option, none, some } from 'fp-ts/lib/Option';
 import FormElementInput from '../../components/form/FormElementInput';
-import formUpdateState from '../../util/form-update-state';
+import {formUpdateState} from '../../util/form-update-state';
 import FormElementCheckbox from '../../components/form/FormElementCheckbox';
 import {postWrapper} from "../../async/staff/put-user"
 import { makePostJSON } from '../../core/APIWrapperUtil';

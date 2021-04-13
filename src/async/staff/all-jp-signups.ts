@@ -30,7 +30,8 @@ export const decoratedInstanceValidator = t.type({
 	jpClassInstance: instanceValidator,
 	firstSession: t.string,
 	lastSession: t.string,
-	week: t.number
+	week: t.number,
+	spotsLeftHTML: t.string,
 })
 
 export const weekValidator = t.type({

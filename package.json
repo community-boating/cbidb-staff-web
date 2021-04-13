@@ -39,7 +39,7 @@
     "fs-extra": "^9.0.1",
     "html-webpack-plugin": "4.5.0",
     "io-ts": "^1.8.6",
-    "lodash": "^4.17.20",
+    "lodash": "^4.17.21",
     "mini-css-extract-plugin": "0.11.3",
     "moment": "^2.29.1",
     "node-sass": "^4.14.1",
@@ -81,6 +81,7 @@
     "workbox-webpack-plugin": "5.1.4"
   },
   "devDependencies": {
+    "@types/lodash": "^4.14.168",
     "@types/node": "^14.14.19",
     "@types/react": "^17.0.2",
     "@types/react-bootstrap-table-next": "^4.0.10",

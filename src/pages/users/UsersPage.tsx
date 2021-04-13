@@ -13,20 +13,20 @@ import {
 	Lock as LockIcon,
 	MoreHorizontal,
 } from 'react-feather'
+import { tableColWidth } from '@util/tableUtil';
 
 
 export default function UsersPage(props: { users: t.TypeOf<typeof validator> }) {
 	const { path, url } = useRouteMatch();
-	const editWidth = "50px";
 	const columns = [{
 		dataField: "edit",
 		text: "",
-		style: { width: editWidth },
-		headerStyle: { width: editWidth }
+		...tableColWidth(50),
 	}, {
 		dataField: "userId",
 		text: "ID",
-		sort: true
+		sort: true,
+		...tableColWidth(80),
 	}, {
 		dataField: "username",
 		text: "Username",
@@ -46,7 +46,8 @@ export default function UsersPage(props: { users: t.TypeOf<typeof validator> }) 
 	}, {
 		dataField: "active",
 		text: "Active",
-		sort: true
+		sort: true,
+		...tableColWidth(100),
 	}, {
 		dataField: "pwChangeRequired",
 		text: "Pw Change Reqd",

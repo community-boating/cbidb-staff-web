@@ -1,6 +1,6 @@
 import { some, none } from "fp-ts/lib/Option";
 
-const formUpdateState = <T extends object>(state: T, setState: (newState: T) => void, formPropName: string) => (id: string, value: any) => {
+export const formUpdateState = <T extends object>(state: T, setState: (newState: T) => void, formPropName: string) => (id: string, value: any) => {
 	var newFormPart: any = {};
 	const newValue = (String(value) == "") ? none : some(value);
 	newFormPart[id] = newValue;
@@ -18,4 +18,9 @@ const formUpdateState = <T extends object>(state: T, setState: (newState: T) => 
 	})
 };
 
-export default formUpdateState
+export const formUpdateStateHooks = <T extends object>(state: T, setState: (newState: T) => void) => (id: string, value: any) => {
+	setState({
+		...state,
+		[id]: (String(value) == "") ? none : some(value)
+	})
+}

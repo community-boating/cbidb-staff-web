@@ -8,7 +8,7 @@ import {
 	UncontrolledAlert
 } from "reactstrap";
 import { none, Option, some } from "fp-ts/lib/Option";
-import formUpdateState from "../util/form-update-state";
+import {formUpdateState} from "../util/form-update-state";
 import asc from "../app/AppStateContainer";
 import detectEnter from "../util/detectEnterPress";
 import { ButtonWrapper } from "../components/ButtonWrapper";
