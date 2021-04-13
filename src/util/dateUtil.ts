@@ -4,15 +4,10 @@ export function toMomentFromLocalDateTime(input: string): moment.Moment {
 	return moment(input, "YYYY-MM-DDTHH:mm:ss")
 }
 
-export function tableSortByDate(fieldName: string) {
-	return (a, b, order, dataField, rowA, rowB) => {
-		const momentA = rowA[fieldName] as moment.Moment;
-		const momentB = rowB[fieldName] as moment.Moment;
-		const delta = Number(momentA.format('X')) - Number(momentB.format('X'));
-		if (order === 'asc') {
-		  return delta;
-		} else {
-			return -1 * delta;
-		}
+export function sortOnMoment<T>(f: (e: T) => moment.Moment): ((a: T, b: T) => number) {
+	return (a: T, b: T) => {
+		const aMoment = f(a);
+		const bMoment = f(b);
+		return Number(aMoment.format('X')) - Number(bMoment.format('X'));
 	}
 }

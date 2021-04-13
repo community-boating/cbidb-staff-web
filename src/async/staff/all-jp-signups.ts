@@ -17,13 +17,20 @@ export const instanceValidator = t.type({
 	"$$jpClassType": typeValidator
 })
 
+export const personValidator = t.type({
+	NAME_FIRST: t.string,
+	NAME_LAST: t.string,
+	PERSON_ID: t.number,
+})
+
 export const signupValidator = t.type({
 	INSTANCE_ID: t.number,
 	PERSON_ID: t.number,
 	SIGNUP_DATETIME: t.string,
 	SIGNUP_ID: t.number,
 	SIGNUP_TYPE: t.string,
-	"$$jpClassInstance": instanceValidator
+	"$$jpClassInstance": instanceValidator,
+	"$$person": personValidator,
 })
 
 export const decoratedInstanceValidator = t.type({
@@ -39,12 +46,20 @@ export const weekValidator = t.type({
 	monday: t.string,
 	weekNumber: t.number,
 	weekTitle: t.string,
-})
+});
+
+export const staggerValidator = t.type({
+	INSTANCE_ID: t.number,
+	OCCUPANCY: t.number,
+	STAGGER_DATE: t.string,
+	STAGGER_ID: t.number,
+});
 
 export const validator = t.type({
 	instances: t.array(decoratedInstanceValidator),
 	signups: t.array(signupValidator),
 	weeks: t.array(weekValidator),
+	staggers: t.array(staggerValidator),
 })
 
 const path = "/staff/all-jp-signups"
