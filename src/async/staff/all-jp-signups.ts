@@ -1,4 +1,4 @@
-import { OptionalNumber } from '@util/OptionalTypeValidators';
+import { makeOptional, OptionalNumber } from '@util/OptionalTypeValidators';
 import * as t from 'io-ts';
 import APIWrapper from '../../core/APIWrapper';
 import { HttpMethod } from "../../core/HttpMethod";
@@ -7,6 +7,11 @@ export const typeValidator = t.type({
 	DISPLAY_ORDER: t.number,
 	TYPE_ID: t.number,
 	TYPE_NAME: t.string,
+});
+
+export const groupValidator = t.type({
+	GROUP_ID: t.number,
+	GROUP_NAME: t.string
 })
 
 export const instanceValidator = t.type({
@@ -23,14 +28,25 @@ export const personValidator = t.type({
 	PERSON_ID: t.number,
 })
 
+export const wlResultValidator = t.type({
+	OFFER_EXP_DATETIME: t.string,
+	SIGNUP_ID: t.number,
+	WL_RESULT: t.string,
+	statusString: t.string,
+})
+
 export const signupValidator = t.type({
 	INSTANCE_ID: t.number,
 	PERSON_ID: t.number,
 	SIGNUP_DATETIME: t.string,
 	SIGNUP_ID: t.number,
 	SIGNUP_TYPE: t.string,
+	SEQUENCE: t.number,
+	GROUP_ID: OptionalNumber,
 	"$$jpClassInstance": instanceValidator,
 	"$$person": personValidator,
+	"$$group": makeOptional(groupValidator, "group"),
+	"$$jpClassWlResult": makeOptional(wlResultValidator, "wlResult")
 })
 
 export const decoratedInstanceValidator = t.type({
@@ -39,6 +55,7 @@ export const decoratedInstanceValidator = t.type({
 	lastSession: t.string,
 	week: t.number,
 	spotsLeftHTML: t.string,
+	sessionLength: t.number,
 })
 
 export const weekValidator = t.type({

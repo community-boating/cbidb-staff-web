@@ -4,6 +4,7 @@ import BootstrapTable, { ColumnDescription } from 'react-bootstrap-table-next';
 import paginationFactory from 'react-bootstrap-table2-paginator';
 import {signupValidator} from "@async/staff/all-jp-signups"
 import { tableColWidth } from '@util/tableUtil';
+import { toMomentFromLocalDateTime } from '@util/dateUtil';
 
 type Signup = t.TypeOf<typeof signupValidator>;
 
@@ -12,16 +13,40 @@ type Props = {
 }
 
 export default function(props: Props) {
-	const data = props.signups.map(s => ({
+	function getSignupTypeText(signupType: string): React.ReactNode {
+		switch (signupType) {
+		case "E":
+			return <span style={{fontWeight: "bold", color: "green"}}>Enrolled</span>;
+		case "W":
+			return <span style={{fontWeight: "bold", color: "red"}}>Wait List</span>;
+		case "P":
+			return <span style={{fontWeight: "bold", color: "orange"}}>Reserved for Purchase</span>;
+		default:
+			return signupType;
+		}
+	}
+	const data = props.signups.sort((a, b) => a.SEQUENCE - b.SEQUENCE).map((s, i) => ({
 		signupId: s.SIGNUP_ID,
 		nameFirst: s.$$person.NAME_FIRST,
 		nameLast: s.$$person.NAME_LAST,
-		signupType: s.SIGNUP_TYPE
+		signupType: getSignupTypeText(s.SIGNUP_TYPE),
+		signupDatetime: toMomentFromLocalDateTime(s.SIGNUP_DATETIME),
+		signupDatetimeDisplay: toMomentFromLocalDateTime(s.SIGNUP_DATETIME).format("MM/DD/YYYY hh:mmA"),
+		seq: i + 1,
+		groupName: s.$$group.map(g => g.GROUP_NAME).getOrElse(null),
+		wlStatus: s.$$jpClassWlResult.map(wl => wl.statusString).getOrElse(null)
 	}));
 	const columns:  ColumnDescription<typeof data[0]>[] = [{
 		dataField: "signupId",
 		text: "ID",
 		...tableColWidth(80)
+	}, {
+		dataField: "seq",
+		text: "Seq",
+		...tableColWidth(60)
+	}, {
+		dataField: "groupName",
+		text: "Group"
 	}, {
 		dataField: "nameFirst",
 		text: "First Name"
@@ -31,6 +56,12 @@ export default function(props: Props) {
 	}, {
 		dataField: "signupType",
 		text: "Status"
+	}, {
+		dataField: "wlStatus",
+		text: "WL Status"
+	}, {
+		dataField: "signupDatetimeDisplay",
+		text: "Signup Time"
 	}]
 	return <BootstrapTable
 		keyField="instanceId"
@@ -38,9 +69,5 @@ export default function(props: Props) {
 		columns={columns}
 		bootstrap4
 		bordered={false}
-		pagination={paginationFactory({
-			sizePerPage: 5,
-			sizePerPageList: [5, 10, 25, 50]
-		})}
 	/>
 }

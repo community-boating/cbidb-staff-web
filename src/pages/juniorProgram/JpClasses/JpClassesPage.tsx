@@ -15,7 +15,7 @@ import FormElementSelect from '@components/form/FormElementSelect';
 import {formUpdateStateHooks} from '@util/form-update-state';
 import { tableColWidth } from '@util/tableUtil';
 import JpClassSignupsRegion from './JpClassSignupsRegion';
-import {faAngleRight, faAngleDown} from '@fortawesome/free-solid-svg-icons'
+import {faAngleRight, faAngleDown, faUsers} from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 type DecoratedInstance = t.TypeOf<typeof decoratedInstanceValidator>
@@ -93,32 +93,28 @@ export default function JpClassesPage(props: Props) {
 	const data = props.instances
 		.filter(filterByType(formData.classType))
 		.filter(filterByWeek(formData.week))
-		.map(i => ({
-			instanceId: i.jpClassInstance.INSTANCE_ID,
-			typeName: i.jpClassInstance.$$jpClassType.TYPE_NAME,
-			week: i.week,
-			firstDay: toMomentFromLocalDateTime(i.firstSession),
-			firstDayDisplay: generateDateDisplay(toMomentFromLocalDateTime(i.firstSession)),
-			firstDayTimestamp: Number(toMomentFromLocalDateTime(i.firstSession).format("X")),
-			lastDay: toMomentFromLocalDateTime(i.lastSession),
-			lastDayDisplay: generateDateDisplay(toMomentFromLocalDateTime(i.lastSession)),
-			classTime: generateTimeDisplay(toMomentFromLocalDateTime(i.lastSession), 1),
-			spotsLeftHTML: i.spotsLeftHTML,
-			staggers: findAndFormatStaggers(i, props.staggers),
-			selectMe: <FontAwesomeIcon
-				style={{cursor: "pointer"}}
-				color={selectedInstance.map(id => id == i.jpClassInstance.INSTANCE_ID).getOrElse(false) ? "#F00" : null}
-				icon={selectedInstance.map(id => id == i.jpClassInstance.INSTANCE_ID).getOrElse(false) ? faAngleDown : faAngleRight}
-				size="2x"
-				onClick={() => {
-					if (selectedInstance.map(id => id == i.jpClassInstance.INSTANCE_ID).getOrElse(false)) {
-						selectInstance(none)
-					} else {
-						selectInstance(some(i.jpClassInstance.INSTANCE_ID))
-					}
-				}}
-			/>,
-		})).sort((a, b) => {
+		.map(i => {
+			const firstSessionMoment = toMomentFromLocalDateTime(i.firstSession);
+			const lastSessionMoment = toMomentFromLocalDateTime(i.lastSession);
+			const hasGroupSignups = props.signups.filter(s => s.INSTANCE_ID == i.jpClassInstance.INSTANCE_ID && s.GROUP_ID.isSome()).length > 0;
+			return {
+				instanceId: i.jpClassInstance.INSTANCE_ID,
+				typeName: i.jpClassInstance.$$jpClassType.TYPE_NAME,
+				week: i.week,
+				firstDay: firstSessionMoment,
+				firstDayDisplay: generateDateDisplay(firstSessionMoment),
+				firstDayTimestamp: Number(firstSessionMoment.format("X")),
+				lastDay: lastSessionMoment,
+				lastDayDisplay: generateDateDisplay(lastSessionMoment),
+				classTime: generateTimeDisplay(lastSessionMoment, i.sessionLength),
+				spotsLeftHTML: i.spotsLeftHTML,
+				staggers: findAndFormatStaggers(i, props.staggers),
+				groups: hasGroupSignups ? <FontAwesomeIcon
+					icon={faUsers}
+					size="2x"
+				/> : null,
+			}
+		}).sort((a, b) => {
 			const timeDiff = a.firstDayTimestamp - b.firstDayTimestamp;
 			if (timeDiff != 0) {
 				return timeDiff;
@@ -147,6 +143,10 @@ export default function JpClassesPage(props: Props) {
 	}, {
 		dataField: "classTime",
 		text: "Time"
+	}, {
+		dataField: "groups",
+		text: "Groups",
+		...tableColWidth(80),
 	}, {
 		dataField: "spotsLeftHTML",
 		text: "Spots Left",
@@ -224,7 +224,7 @@ export default function JpClassesPage(props: Props) {
 						/>
 					}}
 					pagination={paginationFactory({
-						sizePerPage: 5,
+						sizePerPage: 10,
 						sizePerPageList: [5, 10, 25, 50]
 					})}
 				/>
