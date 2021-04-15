@@ -1,7 +1,10 @@
 import * as React from "react";
 
 const Main = ({ className, children }) => (
-	<div className={"main " + className}>{children}</div>
+	<React.Fragment>
+		<div className={"main " + className}>{children}</div>
+
+	</React.Fragment>
 );
 
 export default Main;

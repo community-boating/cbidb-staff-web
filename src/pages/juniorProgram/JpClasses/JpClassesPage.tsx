@@ -1,7 +1,7 @@
 import { History } from 'history';
 import * as React from "react";
 import * as t from 'io-ts';
-import { Card, CardHeader, CardTitle, CardBody, Button, FormGroup, Label, Col, Row, Form, CustomInput } from 'reactstrap';
+import { Card, CardHeader, CardTitle, CardBody, Button, FormGroup, Label, Col, Row, Form, CustomInput, UncontrolledDropdown, DropdownToggle, DropdownMenu, DropdownItem } from 'reactstrap';
 import { NavLink, Link, useRouteMatch } from 'react-router-dom';
 import * as _ from 'lodash';
 
@@ -17,7 +17,8 @@ import { tableColWidth } from '@util/tableUtil';
 import JpClassSignupsRegion from './JpClassSignupsRegion';
 import {faAngleRight, faAngleDown, faUsers, faToggleOff, faToggleOn} from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import {Printer} from 'react-feather'
+import {MoreHorizontal, Printer} from 'react-feather'
+import asc from '@app/AppStateContainer';
 
 type DecoratedInstance = t.TypeOf<typeof decoratedInstanceValidator>
 type Stagger = t.TypeOf<typeof staggerValidator>;
@@ -48,6 +49,7 @@ class FormSelect extends FormElementSelect<FormType> { }
 export default function JpClassesPage(props: Props) {
 	const [formData, setFormData] = React.useState(formDefault);
 	const [selectedInstance, selectInstance] = React.useState(none as Option<number>);
+	const [editMode, setEditMode] = React.useState(false);
 
 	const updateState = formUpdateStateHooks(formData, setFormData);
 
@@ -70,7 +72,7 @@ export default function JpClassesPage(props: Props) {
 			.sort(sortOnMoment(s => toMomentFromLocalDateTime(s.STAGGER_DATE)));
 
 		return <ul>
-			{staggers.map(s => <li>{generateStaggerDisplay(s)}</li>)}
+			{staggers.map((s, i) => <li key={"stagger_" + i}>{generateStaggerDisplay(s)}</li>)}
 		</ul>
 	}
 
@@ -82,7 +84,7 @@ export default function JpClassesPage(props: Props) {
 		}, {} as {[K: string]: number});
 		
 		return <ul>
-			{Object.keys(hashSectionCountsByName).map(name => <li>{`${name}: ${hashSectionCountsByName[name]}`}</li>)}
+			{Object.keys(hashSectionCountsByName).map((name, i) => <li key={"section_" + i}>{`${name}: ${hashSectionCountsByName[name]}`}</li>)}
 		</ul>;
 	}
 
@@ -208,13 +210,13 @@ export default function JpClassesPage(props: Props) {
 			<Label>
 				Print All
 			</Label>
-			<div className="mb-3 form-control">
+			<div className="mb-3 form-control" style={{border: "none"}}>
 				<a
 					style={{color: "black"}}
 					href={"/api/pdf/jp-roster?instanceIds=" + filteredInstances.map(i => i.jpClassInstance.INSTANCE_ID).join(",")}
 					target="_blank"
 				>
-					<Printer />3
+					<Printer />
 				</a>
 			</div>
 		</FormGroup>
@@ -224,7 +226,17 @@ export default function JpClassesPage(props: Props) {
 	return <React.Fragment>
 		<Card>
 			<CardHeader>
-				<CardTitle tag="h5" className="mb-0">JP Classes</CardTitle>
+				<div className="card-actions float-right">
+					<UncontrolledDropdown>
+						<DropdownToggle tag="a">
+							<MoreHorizontal />
+						</DropdownToggle>
+						<DropdownMenu right>
+							<DropdownItem onClick={() => asc.confirmSudo(() => setEditMode(true))}>Switch to Edit View</DropdownItem>
+						</DropdownMenu>
+					</UncontrolledDropdown>
+				</div>
+				<CardTitle tag="h5" className="mb-0">JP Classes {editMode ? "EDIT MODE" : ""}</CardTitle>
 			</CardHeader>
 			<CardBody>
 				<Form>

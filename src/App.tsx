@@ -7,6 +7,7 @@ import Routes from "./app/routing";
 import asc from "./app/AppStateContainer";
 import {apiw as isLoggedInAsStaff} from './async/is-logged-in-as-staff';
 import {AppStateContainer} from "./app/AppStateContainer"
+import SudoModal from "@components/SudoModal";
 
 interface Props {
 	history: any
@@ -18,6 +19,7 @@ class App extends React.Component<Props> {
 		super(props);
 		const self = this;
 		asc.setListener(() => {
+			console.log("forcing app to update")
 			self.forceUpdate();
 		})
 		isLoggedInAsStaff.send(null).then(usernameResult => {
@@ -28,7 +30,7 @@ class App extends React.Component<Props> {
 			}
 		}, () => {
 			// not logged in
-		})
+		});
 	}
 	render() {
 		return (
@@ -43,6 +45,7 @@ class App extends React.Component<Props> {
 					progressBar
 					closeOnToastrClick
 				/>
+				<SudoModal />
 			</Provider>
 		)
 	}

@@ -1,7 +1,7 @@
 import { none, Option, some } from 'fp-ts/lib/Option';
 
 import { apiw } from "../async/authenticate-staff";
-import { PostURLEncoded, makePostString } from '../core/APIWrapperUtil';
+import { makePostString } from '../core/APIWrapperUtil';
 
 type ServerConfig = {
 		// TODO: dev vs prod config
@@ -29,6 +29,7 @@ type State = {
 		authenticatedUserName: Option<string>
 	}
 	borderless: boolean
+	sudo: boolean
 }
 
 export class AppStateContainer {
@@ -42,7 +43,22 @@ export class AppStateContainer {
 	setListener=(listener: () => void) => {
 		this.listener = listener
 	}
+	sudoModalOpener: () => void
+	setSudoModalOpener=(sudoModalOpener: () => void) => {
+		this.sudoModalOpener = sudoModalOpener
+	}
+	confirmSudo = (then: () => void) => {
+		if (this.state.sudo) {
+			then();
+		} else {
+			this.sudoModalOpener();
+		}
+	}
 	updateState = {
+		setSudo: (on: boolean) => this.setState({
+			...this.state,
+			sudo: on
+		}),
 		setBorderless: () => {
 			this.setState({
 				...this.state,
@@ -95,7 +111,8 @@ export class AppStateContainer {
 			login: {
 				authenticatedUserName: none
 			},
-			borderless: false
+			borderless: false,
+			sudo: false
 		};
 	}
 }

@@ -2,6 +2,8 @@ import * as React from "react";
 import { connect } from "react-redux";
 import { toggleSidebar } from "../redux/actions/sidebarActions";
 import { logout } from "../async/logout";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faUser, faUserShield } from '@fortawesome/free-solid-svg-icons'
 
 import {
 	Navbar,
@@ -10,6 +12,10 @@ import {
 	DropdownToggle,
 	DropdownMenu,
 	DropdownItem,
+	ListGroup,
+	ListGroupItem,
+	Row,
+	Col,
 } from "reactstrap";
 
 import {
@@ -19,7 +25,18 @@ import {
 } from "react-feather";
 import asc from "../app/AppStateContainer";
 
+
+
 const NavbarComponent = ({ dispatch }) => {
+	const sudo = asc.state.sudo;
+
+	const suspendSudo = (
+		sudo
+		? <DropdownItem>
+			<span className="align-middle" onClick={() => asc.updateState.setSudo(false)}>Suspend Super Powers</span>
+		</DropdownItem>
+		: null
+	);
 	return (
 		<Navbar color="white" light expand>
 			<span
@@ -31,40 +48,25 @@ const NavbarComponent = ({ dispatch }) => {
 				<i className="hamburger align-self-center" />
 			</span>
 
-
-				<Nav className="ml-auto" navbar>
-					<UncontrolledDropdown nav inNavbar>
-						<span className="d-inline-block d-sm-none">
-							<DropdownToggle nav caret>
-								<Settings size={18} className="align-middle" />
-							</DropdownToggle>
-						</span>
-						<span className="d-none d-sm-inline-block">
-							<DropdownToggle nav caret>
-								<span className="text-dark">Menu</span>
-							</DropdownToggle>
-						</span>
-						<DropdownMenu right>
-							<DropdownItem>
-								<User size={18} className="align-middle mr-2" />
-								Profile
-							</DropdownItem>
-							<DropdownItem>
-								<PieChart size={18} className="align-middle mr-2" />
-								Analytics
-							</DropdownItem>
-							<DropdownItem divider />
-							<DropdownItem>Settings & Privacy</DropdownItem>
-							<DropdownItem>Help</DropdownItem>
-							<DropdownItem onClick={e => {
-										e.preventDefault();
-										logout.send({ type: "json", jsonData: {} }).then(() => {
-											asc.updateState.login.logout()
-										})
-									}}>Sign out</DropdownItem>
-						</DropdownMenu>
-					</UncontrolledDropdown>
-				</Nav>
+			<Nav className="ml-auto" navbar>
+				<UncontrolledDropdown nav inNavbar className="mr-2">
+					<DropdownToggle nav caret className="nav-flag">
+						<FontAwesomeIcon icon={sudo ? faUserShield : faUser} />
+					</DropdownToggle>
+					<DropdownMenu right>
+					<DropdownItem>
+						<span className="align-middle">Profile</span>
+					</DropdownItem>
+					{suspendSudo}
+					<DropdownItem onClick={e => {
+							e.preventDefault();
+							logout.send({ type: "json", jsonData: {} }).then(() => {
+								asc.updateState.login.logout()
+							})
+						}}>Sign out</DropdownItem>
+					</DropdownMenu>
+				</UncontrolledDropdown>
+			</Nav>
 		</Navbar>
 	);
 };

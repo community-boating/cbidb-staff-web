@@ -60,6 +60,15 @@ class SignIn extends React.PureComponent<{}, State> {
 							loginProcessing: false,
 							validationErrors: ["Login unsuccesful."]
 						})
+					} else {
+						self.setState({
+							...self.state,
+							formData: {
+								...self.state.formData,
+								password: none
+							},
+							loginProcessing: false,
+						})
 					}
 				})
 			}
