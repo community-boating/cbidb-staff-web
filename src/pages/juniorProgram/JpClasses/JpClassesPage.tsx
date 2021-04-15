@@ -1,7 +1,7 @@
 import { History } from 'history';
 import * as React from "react";
 import * as t from 'io-ts';
-import { Card, CardHeader, CardTitle, CardBody, Button, FormGroup, Label, Col, Row, Form } from 'reactstrap';
+import { Card, CardHeader, CardTitle, CardBody, Button, FormGroup, Label, Col, Row, Form, CustomInput } from 'reactstrap';
 import { NavLink, Link, useRouteMatch } from 'react-router-dom';
 import * as _ from 'lodash';
 
@@ -15,7 +15,7 @@ import FormElementSelect from '@components/form/FormElementSelect';
 import {formUpdateStateHooks} from '@util/form-update-state';
 import { tableColWidth } from '@util/tableUtil';
 import JpClassSignupsRegion from './JpClassSignupsRegion';
-import {faAngleRight, faAngleDown, faUsers} from '@fortawesome/free-solid-svg-icons'
+import {faAngleRight, faAngleDown, faUsers, faToggleOff, faToggleOn} from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {Printer} from 'react-feather'
 
@@ -61,7 +61,7 @@ export default function JpClassesPage(props: Props) {
 
 	function generateStaggerDisplay(s: Stagger): string {
 		const m = toMomentFromLocalDateTime(s.STAGGER_DATE)
-		return `${s.OCCUPANCY} seats - ${m.format("M/DD H:MMA")} (${m.format("ddd")})`.replace(' ', '\xa0');
+		return `${s.OCCUPANCY} seats - ${m.format("M/DD h:mm")} (${m.format("ddd")})`;
 	}
 
 	function findAndFormatStaggers(i: DecoratedInstance, ss: Stagger[]): React.ReactNode {
@@ -107,6 +107,13 @@ export default function JpClassesPage(props: Props) {
 		.filter(filterByType(formData.classType))
 		.filter(filterByWeek(formData.week));
 
+	const adminHoldSwitch = (checked: boolean) => <CustomInput
+		id="adminHold"
+		checked={checked}
+		disabled
+		type="switch"
+	/>;
+
 	const data = filteredInstances
 		.map(i => {
 			const firstSessionMoment = toMomentFromLocalDateTime(i.firstSession);
@@ -130,7 +137,8 @@ export default function JpClassesPage(props: Props) {
 					size="2x"
 				/> : null,
 				print: <a style={{color: "black"}} href={"/api/pdf/jp-roster?instanceIds=" + i.jpClassInstance.INSTANCE_ID} target="_blank"><Printer /></a>,
-				sectionData: groupSignupsBySection(signups.filter(s => s.SIGNUP_TYPE == "E"))
+				sectionData: groupSignupsBySection(signups.filter(s => s.SIGNUP_TYPE == "E")),
+				adminHoldDisplay: adminHoldSwitch(i.jpClassInstance.ADMIN_HOLD)
 			}
 		}).sort((a, b) => {
 			const timeDiff = a.firstDayTimestamp - b.firstDayTimestamp;
@@ -166,6 +174,10 @@ export default function JpClassesPage(props: Props) {
 		dataField: "classTime",
 		text: "Time"
 	}, {
+		dataField: "adminHoldDisplay",
+		text: "Hold",
+		...tableColWidth(90),
+	}, {
 		dataField: "groups",
 		text: "Groups",
 		...tableColWidth(80),
@@ -176,7 +188,6 @@ export default function JpClassesPage(props: Props) {
 	}, {
 		dataField: "staggers",
 		text: "Staggers",
-		...tableColWidth(280)
 	}, {
 		dataField: "sectionData",
 		text: "Sections"

@@ -32,6 +32,7 @@ export const instanceValidator = t.type({
 	INSTRUCTOR_ID: OptionalNumber,
 	LOCATION_ID: OptionalNumber,
 	TYPE_ID: t.number,
+	ADMIN_HOLD: t.boolean,
 	"$$jpClassType": typeValidator
 });
 
