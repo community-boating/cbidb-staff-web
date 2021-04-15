@@ -25,6 +25,15 @@ export default function(props: Props) {
 			return signupType;
 		}
 	}
+	function sectionDisplay(name: string, url: string) {
+		return <table><tbody><tr>
+			<td style={{border: "none"}}><img
+				src={url}
+				style={{height: "30px", border: "1px solid #777"}}
+			/></td>
+			<td style={{border: "none"}}>{name}</td>
+		</tr></tbody></table>
+	}
 	const data = props.signups.sort((a, b) => a.SEQUENCE - b.SEQUENCE).map((s, i) => ({
 		signupId: s.SIGNUP_ID,
 		nameFirst: s.$$person.NAME_FIRST,
@@ -34,7 +43,8 @@ export default function(props: Props) {
 		signupDatetimeDisplay: toMomentFromLocalDateTime(s.SIGNUP_DATETIME).format("MM/DD/YYYY hh:mmA"),
 		seq: i + 1,
 		groupName: s.$$group.map(g => g.GROUP_NAME).getOrElse(null),
-		wlStatus: s.$$jpClassWlResult.map(wl => wl.statusString).getOrElse(null)
+		wlStatus: s.$$jpClassWlResult.map(wl => wl.statusString).getOrElse(null),
+		sectionDisplay: s.$$section.map(sec => sectionDisplay(sec.$$sectionLookup.SECTION_NAME, sec.$$sectionLookup.SVG_URL)).getOrElse(null),
 	}));
 	const columns:  ColumnDescription<typeof data[0]>[] = [{
 		dataField: "signupId",
@@ -62,6 +72,9 @@ export default function(props: Props) {
 	}, {
 		dataField: "signupDatetimeDisplay",
 		text: "Signup Time"
+	}, {
+		dataField: "sectionDisplay",
+		text: "Section"
 	}]
 	return <BootstrapTable
 		keyField="instanceId"

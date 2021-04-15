@@ -17,13 +17,14 @@ import { tableColWidth } from '@util/tableUtil';
 import JpClassSignupsRegion from './JpClassSignupsRegion';
 import {faAngleRight, faAngleDown, faUsers} from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {Printer} from 'react-feather'
 
 type DecoratedInstance = t.TypeOf<typeof decoratedInstanceValidator>
-
 type Stagger = t.TypeOf<typeof staggerValidator>;
+type Signup = t.TypeOf<typeof signupValidator>;
 
 type Props = {
-	signups: t.TypeOf<typeof signupValidator>[],
+	signups: Signup[],
 	instances: DecoratedInstance[],
 	weeks: t.TypeOf<typeof weekValidator>[],
 	staggers: Stagger[],
@@ -73,6 +74,18 @@ export default function JpClassesPage(props: Props) {
 		</ul>
 	}
 
+	function groupSignupsBySection(signups: Signup[]) {
+		const hashSectionCountsByName = signups.reduce((agg, s) => {
+			const sectionName = s.$$section.map(sec => sec.$$sectionLookup.SECTION_NAME).getOrElse("(none)");
+			agg[sectionName] = (agg[sectionName] || 0) + 1;
+			return agg;
+		}, {} as {[K: string]: number});
+		
+		return <ul>
+			{Object.keys(hashSectionCountsByName).map(name => <li>{`${name}: ${hashSectionCountsByName[name]}`}</li>)}
+		</ul>;
+	}
+
 	const types = _.uniq(props.instances.map(i => i.jpClassInstance.TYPE_ID))
 		.map(id => props.instances.find(i => i.jpClassInstance.TYPE_ID == id))
 		.map(i => ({
@@ -90,13 +103,16 @@ export default function JpClassesPage(props: Props) {
 	const filterByType = (ot: Option<String>) => (i: DecoratedInstance) => ot.map(t => Number(t) == i.jpClassInstance.TYPE_ID).getOrElse(true);
 	const filterByWeek = (ow: Option<String>) => (i: DecoratedInstance) => ow.map(w => Number(w) == i.week).getOrElse(true);
 
-	const data = props.instances
+	const filteredInstances = props.instances
 		.filter(filterByType(formData.classType))
-		.filter(filterByWeek(formData.week))
+		.filter(filterByWeek(formData.week));
+
+	const data = filteredInstances
 		.map(i => {
 			const firstSessionMoment = toMomentFromLocalDateTime(i.firstSession);
 			const lastSessionMoment = toMomentFromLocalDateTime(i.lastSession);
-			const hasGroupSignups = props.signups.filter(s => s.INSTANCE_ID == i.jpClassInstance.INSTANCE_ID && s.GROUP_ID.isSome()).length > 0;
+			const signups = props.signups.filter(s => s.INSTANCE_ID == i.jpClassInstance.INSTANCE_ID);
+			const hasGroupSignups = signups.filter(s => s.GROUP_ID.isSome()).length > 0;
 			return {
 				instanceId: i.jpClassInstance.INSTANCE_ID,
 				typeName: i.jpClassInstance.$$jpClassType.TYPE_NAME,
@@ -113,6 +129,8 @@ export default function JpClassesPage(props: Props) {
 					icon={faUsers}
 					size="2x"
 				/> : null,
+				print: <a style={{color: "black"}} href={"/api/pdf/jp-roster?instanceIds=" + i.jpClassInstance.INSTANCE_ID} target="_blank"><Printer /></a>,
+				sectionData: groupSignupsBySection(signups.filter(s => s.SIGNUP_TYPE == "E"))
 			}
 		}).sort((a, b) => {
 			const timeDiff = a.firstDayTimestamp - b.firstDayTimestamp;
@@ -127,6 +145,10 @@ export default function JpClassesPage(props: Props) {
 		dataField: "instanceId",
 		text: "ID",
 		...tableColWidth(70),
+	}, {
+		dataField: "print",
+		text: "Print",
+		...tableColWidth(70)
 	}, {
 		dataField: "week",
 		text: "Week",
@@ -155,6 +177,9 @@ export default function JpClassesPage(props: Props) {
 		dataField: "staggers",
 		text: "Staggers",
 		...tableColWidth(280)
+	}, {
+		dataField: "sectionData",
+		text: "Sections"
 	}];
 
 	const signupsRegion = selectedInstance.map(id => <Card>
@@ -165,6 +190,25 @@ export default function JpClassesPage(props: Props) {
 			<JpClassSignupsRegion signups={props.signups.filter(s => s.INSTANCE_ID == id)}/>
 		</CardBody>
 	</Card>).getOrElse(null);
+
+	const printAll = (
+		formData.week.isSome()
+		? <FormGroup>
+			<Label>
+				Print All
+			</Label>
+			<div className="mb-3 form-control">
+				<a
+					style={{color: "black"}}
+					href={"/api/pdf/jp-roster?instanceIds=" + filteredInstances.map(i => i.jpClassInstance.INSTANCE_ID).join(",")}
+					target="_blank"
+				>
+					<Printer />3
+				</a>
+			</div>
+		</FormGroup>
+		: null
+	);
 
 	return <React.Fragment>
 		<Card>
@@ -201,6 +245,9 @@ export default function JpClassesPage(props: Props) {
 									nullDisplay="- Select -"
 								/>
 							</FormGroup>
+						</Col>
+						<Col>
+							{printAll}
 						</Col>
 					</Row>
 				</Form>
