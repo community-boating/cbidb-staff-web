@@ -9,11 +9,13 @@ import {apiw as getUsers, validator} from "../../async/staff/get-users"
 import {apiw as getUser, validator as userValidator, formDefault} from "../../async/staff/get-user"
 import UserFormPage from '../../pages/users/UserFormPage';
 import { Option, some, none } from 'fp-ts/lib/Option';
+import { PageName } from 'pages/pageNames';
 
 const usersPath = new PathWrapper("users");
 
 export const usersPageRoute = new RouteWrapper({requiresAuth: true, exact: true, pathWrapper: usersPath, sidebarTitle: "Users"}, history => <PageWrapper
 	key="users"
+	pageName={PageName.USERS}
 	history={history}
 	component={(urlProps: {}, async: t.TypeOf<typeof validator>) => <UsersPage
 		users={async}
@@ -29,6 +31,7 @@ const usersEditPath = usersPath.appendPathSegment<{userId: string}>(":userId")
 
 export const usersEditPageRoute = new RouteWrapper({requiresAuth: true, exact: true, pathWrapper: usersEditPath}, history => <PageWrapper
 	key="userEdit"
+	pageName={PageName.USERS_EDIT}
 	history={history}
 	component={(urlProps: {userId: number}, async: t.TypeOf<typeof userValidator>) => <UserFormPage
 		history={history}
@@ -54,6 +57,7 @@ const usersNewPath = usersPath.appendPathSegment("new")
 
 export const usersNewPageRoute = new RouteWrapper({requiresAuth: true, exact: true, pathWrapper: usersNewPath}, history => <PageWrapper
 	key="userNew"
+	pageName={PageName.USERS_NEW}
 	history={history}
 	component={(urlProps: {}) => <UserFormPage
 		history={history}

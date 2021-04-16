@@ -37,7 +37,7 @@ class App extends React.Component<Props> {
 			<Provider store={store}>
 				<Routes authenticatedUserName={asc.state.login.authenticatedUserName} history={this.props.history}/>
 				<ReduxToastr
-					timeOut={5000}
+					timeOut={15000}
 					newestOnTop={true}
 					position="top-right"
 					transitionIn="fadeIn"

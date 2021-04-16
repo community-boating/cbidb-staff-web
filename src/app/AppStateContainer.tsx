@@ -1,7 +1,11 @@
 import { none, Option, some } from 'fp-ts/lib/Option';
+import * as t from 'io-ts';
 
 import { apiw } from "../async/authenticate-staff";
 import { makePostString } from '../core/APIWrapperUtil';
+import {apiw as getPermissions, validator as permissionsValidator} from "@async/staff/user-permissions"
+
+type Permissions = t.TypeOf<typeof permissionsValidator>;
 
 type ServerConfig = {
 		// TODO: dev vs prod config
@@ -26,7 +30,8 @@ export interface AppProps {
 type State = {
 	appProps: AppProps
 	login: {
-		authenticatedUserName: Option<string>
+		authenticatedUserName: Option<string>,
+		permissions: Option<Permissions>
 	}
 	borderless: boolean
 	sudo: boolean
@@ -68,13 +73,28 @@ export class AppStateContainer {
 		login: {
 			setLoggedIn: (function(userName: string) {
 				const self: AppStateContainer = this
-				self.setState({
-					...self.state,
-					login: {
-						...self.state.login,
-						authenticatedUserName: some(userName)
+				getPermissions().send(null).then(res => {
+					if (res.type == "Success") {
+						self.setState({
+							...self.state,
+							login: {
+								...self.state.login,
+								authenticatedUserName: some(userName),
+								permissions: some(res.success)
+							}
+						});
+					} else {
+						self.setState({
+							...self.state,
+							login: {
+								...self.state.login,
+								authenticatedUserName: some(userName),
+								permissions: none
+							}
+						});
 					}
-				});
+				})
+				
 			//	Sentry.configureScope(function(scope) {
 			//		scope.setUser({"username": userName});
 			//	});
@@ -93,7 +113,8 @@ export class AppStateContainer {
 				this.setState({
 					...this.state,
 					login: {
-						authenticatedUserName: none
+						authenticatedUserName: none,
+						permissions: none
 					}
 				})
 			}
@@ -109,7 +130,8 @@ export class AppStateContainer {
 		this.state = {
 			appProps: null,
 			login: {
-				authenticatedUserName: none
+				authenticatedUserName: none,
+				permissions: none
 			},
 			borderless: false,
 			sudo: false

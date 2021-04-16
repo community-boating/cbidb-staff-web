@@ -9,11 +9,13 @@ import UserFormPage from '../../pages/users/UserFormPage';
 import { Option, some, none } from 'fp-ts/lib/Option';
 import JpClassesPage from 'pages/juniorProgram/JpClasses/JpClassesPage';
 import {apiw as getSignups, validator} from "@async/staff/all-jp-signups"
+import { PageName } from 'pages/pageNames';
 
 const jpClassesPath = new PathWrapper("jp-classes");
 
 export const jpClassesPageRoute = new RouteWrapper({requiresAuth: true, exact: true, pathWrapper: jpClassesPath, sidebarTitle: "JP Classes"}, history => <PageWrapper
 	key="jpclasses"
+	pageName={PageName.JP_CLASSES}
 	history={history}
 	component={(urlProps: {}, {signups, instances, weeks, staggers}: t.TypeOf<typeof validator>) => <JpClassesPage
 		signups={signups}
