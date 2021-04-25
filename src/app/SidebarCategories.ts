@@ -1,10 +1,12 @@
 import {
 	Compass,
 	Sliders as SlidersIcon,
+	HelpCircle
 } from "react-feather";
 import { usersEditPageRoute, usersNewPageRoute, usersPageRoute } from "./routes/users";
 import RouteWrapper from "../core/RouteWrapper";
 import { jpClassesPageRoute } from "@routes/jp-classes";
+import { staggeredOrderRoute } from "@routes/staggered-order";
 
 export type SideBarCategory = {
 	path: string,
@@ -36,8 +38,20 @@ const admin: SideBarCategory = {
 	]
 };
 
+const misc: SideBarCategory = {
+	path: "",
+	name: "Misc",
+	icon: HelpCircle,
+	children: [
+	],
+	unrenderedChildren: [
+		staggeredOrderRoute
+	]
+};
+
 // Dashboard specific routes
 export const sideBarRoutes = [
 	jp,
 	admin,
+	misc,
 ];

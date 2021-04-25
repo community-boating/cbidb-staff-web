@@ -4,6 +4,10 @@ export function toMomentFromLocalDateTime(input: string): moment.Moment {
 	return moment(input, "YYYY-MM-DDTHH:mm:ss")
 }
 
+export function toMomentFromLocalDate(input: string): moment.Moment {
+	return moment(input, "YYYY-MM-DD")
+}
+
 export function sortOnMoment<T>(f: (e: T) => moment.Moment): ((a: T, b: T) => number) {
 	return (a: T, b: T) => {
 		const aMoment = f(a);
