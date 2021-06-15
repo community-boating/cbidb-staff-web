@@ -1,8 +1,9 @@
 import { some, none } from "fp-ts/lib/Option";
 
-export const formUpdateState = <T extends object>(state: T, setState: (newState: T) => void, formPropName: string) => (id: string, value: any) => {
+export const formUpdateState = <T extends object>(state: T, setState: (newState: T) => void, formPropName: string, valueNullable?: boolean) =>
+(id: string, value: any) => {
 	var newFormPart: any = {};
-	const newValue = (String(value) == "") ? none : some(value);
+	const newValue = (String(value) == "") ? none : (valueNullable ? some(some(value)) : some(value));
 	newFormPart[id] = newValue;
 
 	var formPartOfState: any = {};

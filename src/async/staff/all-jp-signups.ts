@@ -59,9 +59,9 @@ export const signupValidator = t.type({
 	GROUP_ID: OptionalNumber,
 	"$$jpClassInstance": instanceValidator,
 	"$$person": personValidator,
-	"$$group": makeOptional(groupValidator, "group"),
-	"$$jpClassWlResult": makeOptional(wlResultValidator, "wlResult"),
-	"$$section": makeOptional(sectionValidator, "section"),
+	"$$group": makeOptional(groupValidator),
+	"$$jpClassWlResult": makeOptional(wlResultValidator),
+	"$$section": makeOptional(sectionValidator),
 });
 
 export const decoratedInstanceValidator = t.type({

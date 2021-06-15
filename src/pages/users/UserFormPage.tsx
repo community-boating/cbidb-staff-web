@@ -1,7 +1,7 @@
 import { History } from 'history';
 import * as React from "react";
 import * as t from 'io-ts';
-import { validator } from "../../async/staff/get-user"
+import { UserForm,  } from "../../async/staff/get-user"
 import { Card, CardHeader, CardTitle, CardBody, Form, FormGroup, Label, Col, Input, Button, CustomInput, Row, UncontrolledAlert } from 'reactstrap';
 import { NavLink } from 'react-router-dom';
 import { usersPageRoute } from '../../app/routes/users';
@@ -13,17 +13,16 @@ import {postWrapper} from "../../async/staff/put-user"
 import { makePostJSON } from '../../core/APIWrapperUtil';
 import FormElementSelect from '@components/form/FormElementSelect';
 import { UserType, userTypeDisplay, userTypes } from 'models/UserType';
+import { deoptionifyProps } from '@util/OptionifyObjectProps';
 
-type UserShapeAPI = t.TypeOf<typeof validator>
-
-type FormData = UserShapeAPI & {
+type FormData = UserForm & {
 	pw1: Option<string>,
 	pw2: Option<string>
 }
 
 export interface Props {
 	history: History<any>,
-	initialFormState: UserShapeAPI
+	initialFormState: UserForm
 }
 
 type State = {
@@ -50,7 +49,7 @@ export default class UserFormPage extends React.PureComponent<Props, State> {
 
 	submit() {
 		const self = this;
-		return postWrapper.send(makePostJSON(self.state.formData)).then(
+		return postWrapper.send(makePostJSON(deoptionifyProps(self.state.formData))).then(
 			// api success
 			ret => {
 				if (ret.type == "Success") {
@@ -67,8 +66,9 @@ export default class UserFormPage extends React.PureComponent<Props, State> {
 	}
 
 	render() {
-		const exists = this.props.initialFormState.userId.isSome();
+		const exists = this.props.initialFormState.USER_ID.isSome();
 		const updateState = formUpdateState(this.state, this.setState.bind(this), "formData");
+		const updateStateNullable = formUpdateState(this.state, this.setState.bind(this), "formData", true);
 		const formatElement = (label: string) => (e: React.ReactNode) => <FormGroup row>
 			<Label sm={2} className="text-sm-right">
 				{label}
@@ -93,34 +93,34 @@ export default class UserFormPage extends React.PureComponent<Props, State> {
 			<CardBody>
 				{this.state.validationErrors.length ? errorDiv : null}
 				<FormInput
-					id="username"
+					id="USER_NAME"
 					disabled={exists}
-					value={this.state.formData.username}
+					value={this.state.formData.USER_NAME}
 					updateAction={updateState}
 					formatElement={formatElement("Username")}
 				/>
 				<FormInput
-					id="email"
-					value={this.state.formData.email}
+					id="EMAIL"
+					value={this.state.formData.EMAIL}
 					updateAction={updateState}
 					formatElement={formatElement("Email")}
 				/>
 				<FormInput
-					id="nameFirst"
-					value={this.state.formData.nameFirst}
-					updateAction={updateState}
+					id="NAME_FIRST"
+					value={this.state.formData.NAME_FIRST.getOrElse(null)}
+					updateAction={updateStateNullable}
 					formatElement={formatElement("First Name")}
 				/>
 				<FormInput
-					id="nameLast"
-					value={this.state.formData.nameLast}
-					updateAction={updateState}
+					id="NAME_LAST"
+					value={this.state.formData.NAME_LAST.getOrElse(null)}
+					updateAction={updateStateNullable}
 					formatElement={formatElement("Last Name")}
 				/>
 				<FormSelect
-					id="userType"
-					value={some(this.state.formData.userType.getOrElse(UserType.User))}
-					updateAction={updateState}
+					id="USER_TYPE"
+					value={some(this.state.formData.USER_TYPE.getOrElse(null).getOrElse(UserType.User))}
+					updateAction={updateStateNullable}
 					options={userTypes.map(t => ({
 						key: t,
 						display: userTypeDisplay(t)
@@ -142,26 +142,26 @@ export default class UserFormPage extends React.PureComponent<Props, State> {
 					formatElement={formatElement("Confirm Password")}
 				/>
 				<FormCheckbox
-					id="active"
-					value={this.state.formData.active}
+					id="ACTIVE"
+					value={this.state.formData.ACTIVE}
 					updateAction={updateState}
 					formatElement={formatElement("Active")}
 				/>
 				<FormCheckbox
-					id="hideFromClose"
-					value={this.state.formData.hideFromClose}
+					id="HIDE_FROM_CLOSE"
+					value={this.state.formData.HIDE_FROM_CLOSE}
 					updateAction={updateState}
 					formatElement={formatElement("Hide from Close")}
 				/>
 				<FormCheckbox
-					id="pwChangeRequired"
-					value={this.state.formData.pwChangeRequired}
+					id="PW_CHANGE_REQD"
+					value={this.state.formData.PW_CHANGE_REQD}
 					updateAction={updateState}
 					formatElement={formatElement("PW Change Required")}
 				/>
 				<FormCheckbox
-					id="locked"
-					value={this.state.formData.locked}
+					id="LOCKED"
+					value={this.state.formData.LOCKED}
 					updateAction={updateState}
 					formatElement={formatElement("Locked")}
 				/>

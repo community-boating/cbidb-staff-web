@@ -10,6 +10,7 @@ import {apiw as getUser, validator as userValidator, formDefault} from "../../as
 import UserFormPage from '../../pages/users/UserFormPage';
 import { Option, some, none } from 'fp-ts/lib/Option';
 import { PageName } from 'pages/pageNames';
+import { optionifyProps } from '@util/OptionifyObjectProps';
 
 const usersPath = new PathWrapper("users");
 
@@ -35,7 +36,7 @@ export const usersEditPageRoute = new RouteWrapper({requiresAuth: true, exact: t
 	history={history}
 	component={(urlProps: {userId: number}, async: t.TypeOf<typeof userValidator>) => <UserFormPage
 		history={history}
-		initialFormState={async}
+		initialFormState={optionifyProps(async)}
 	/>}
 	urlProps={{userId: (function() {
 		console.log("hi")

@@ -63,16 +63,16 @@ export default function UsersPage(props: { users: t.TypeOf<typeof validator> }) 
 		sort: true
 	}];
 	const data = props.users.map(u => ({
-		userId: u.userId.getOrElse(-1),
-		email: u.email.getOrElse(""),
-		username: u.username.getOrElse(""),
-		nameFirst: u.nameFirst.getOrElse(""),
-		nameLast: u.nameLast.getOrElse(""),
-		role: userTypeDisplay(u.userType.getOrElse("")),
-		locked: u.locked.getOrElse(false) ? <LockIcon color="#777" size="1.4em" /> : null,
-		active: u.active.getOrElse(false) ? <CheckIcon color="#777" size="1.4em" /> : null,
-		pwChangeRequired: u.pwChangeRequired.getOrElse(false) ? <CheckIcon color="#777" size="1.4em" /> : null,
-		edit: <NavLink to={usersEditPageRoute.getPathFromArgs({ userId: String(u.userId.getOrElse(-1)) })}><EditIcon color="#777" size="1.4em" /></NavLink>
+		userId: u.USER_ID,
+		email: u.EMAIL,
+		username: u.USER_NAME,
+		nameFirst: u.NAME_FIRST.getOrElse(""),
+		nameLast: u.NAME_LAST.getOrElse(""),
+		role: userTypeDisplay(u.USER_TYPE.getOrElse("")),
+		locked: u.LOCKED ? <LockIcon color="#777" size="1.4em" /> : null,
+		active: u.ACTIVE ? <CheckIcon color="#777" size="1.4em" /> : null,
+		pwChangeRequired: u.PW_CHANGE_REQD ? <CheckIcon color="#777" size="1.4em" /> : null,
+		edit: <NavLink to={usersEditPageRoute.getPathFromArgs({ userId: String(u.USER_ID) })}><EditIcon color="#777" size="1.4em" /></NavLink>
 	}))
 	return <Card>
 		<CardHeader>
