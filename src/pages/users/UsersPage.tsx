@@ -14,6 +14,7 @@ import {
 	MoreHorizontal,
 } from 'react-feather'
 import { tableColWidth } from '@util/tableUtil';
+import { userTypeDisplay } from 'models/UserType';
 
 
 export default function UsersPage(props: { users: t.TypeOf<typeof validator> }) {
@@ -40,6 +41,10 @@ export default function UsersPage(props: { users: t.TypeOf<typeof validator> }) 
 		text: "Last Name",
 		sort: true
 	}, {
+		dataField: "role",
+		text: "Role",
+		sort: true,
+	}, {
 		dataField: "email",
 		text: "email",
 		sort: true
@@ -63,6 +68,7 @@ export default function UsersPage(props: { users: t.TypeOf<typeof validator> }) 
 		username: u.username.getOrElse(""),
 		nameFirst: u.nameFirst.getOrElse(""),
 		nameLast: u.nameLast.getOrElse(""),
+		role: userTypeDisplay(u.userType.getOrElse("")),
 		locked: u.locked.getOrElse(false) ? <LockIcon color="#777" size="1.4em" /> : null,
 		active: u.active.getOrElse(false) ? <CheckIcon color="#777" size="1.4em" /> : null,
 		pwChangeRequired: u.pwChangeRequired.getOrElse(false) ? <CheckIcon color="#777" size="1.4em" /> : null,
@@ -76,7 +82,7 @@ export default function UsersPage(props: { users: t.TypeOf<typeof validator> }) 
 						<MoreHorizontal />
 					</DropdownToggle>
 					<DropdownMenu right>
-						<DropdownItem><Link to={usersEditPageRoute.getPathFromArgs({ userId: String("new") })}>Create</Link></DropdownItem>
+					<Link to={usersEditPageRoute.getPathFromArgs({ userId: String("new") })}><DropdownItem>Create</DropdownItem></Link>
 					</DropdownMenu>
 				</UncontrolledDropdown>
 			</div>

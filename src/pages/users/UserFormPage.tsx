@@ -11,6 +11,8 @@ import {formUpdateState} from '../../util/form-update-state';
 import FormElementCheckbox from '../../components/form/FormElementCheckbox';
 import {postWrapper} from "../../async/staff/put-user"
 import { makePostJSON } from '../../core/APIWrapperUtil';
+import FormElementSelect from '@components/form/FormElementSelect';
+import { UserType, userTypeDisplay, userTypes } from 'models/UserType';
 
 type UserShapeAPI = t.TypeOf<typeof validator>
 
@@ -31,6 +33,7 @@ type State = {
 
 class FormInput extends FormElementInput<FormData> {}
 class FormCheckbox extends FormElementCheckbox<FormData> {}
+class FormSelect extends FormElementSelect<FormData> {}
 
 export default class UserFormPage extends React.PureComponent<Props, State> {
 	constructor(props: Props) {
@@ -113,6 +116,16 @@ export default class UserFormPage extends React.PureComponent<Props, State> {
 					value={this.state.formData.nameLast}
 					updateAction={updateState}
 					formatElement={formatElement("Last Name")}
+				/>
+				<FormSelect
+					id="userType"
+					value={some(this.state.formData.userType.getOrElse(UserType.User))}
+					updateAction={updateState}
+					options={userTypes.map(t => ({
+						key: t,
+						display: userTypeDisplay(t)
+					}))}
+					formatElement={formatElement("Role")}
 				/>
 				<FormInput
 					id="pw1"

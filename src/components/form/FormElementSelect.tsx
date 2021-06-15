@@ -32,7 +32,6 @@ export default class FormElementSelect<T> extends FormElement<T, Props & FormEle
 			id={this.props.id}
 			ref={this.props.innerRef}
 			name={this.props.id}
-			className="mb-3"
 			onChange={onChange}
 			disabled={this.props.disabled}
 			value={(this.props.value || none).getOrElse("")}

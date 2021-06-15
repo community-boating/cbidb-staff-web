@@ -12,7 +12,8 @@ export const validator = t.type({
 	locked: OptionalBoolean,
 	pwChangeRequired: OptionalBoolean,
 	active: OptionalBoolean,
-	hideFromClose: OptionalBoolean
+	hideFromClose: OptionalBoolean,
+	userType: OptionalString,
 });
 
 export const formDefault: t.TypeOf<typeof validator> = validator.decode({}).getOrElse(null)
