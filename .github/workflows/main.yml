@@ -1,0 +1,60 @@
+name: CI
+on:
+  push:
+    branches: 
+      - master
+      - release/*
+      - dev/*
+      - cluster/*
+  pull_request:
+    branches: 
+      - master
+      - release/*
+      - dev/*
+      - cluster/*
+  workflow_dispatch:
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+      - name: config
+        run: cp ini/config.ini.ci ini/config.ini
+      - name: install
+        run: npm install
+      - name: build
+        # circular dependencies are currently throwing warnings
+        run: CI=false npm run build
+      - name: tar
+        run: tar -zcvf build.tar.gz ./build
+      - name: save artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: build.tar.gz
+          path: build.tar.gz
+  image:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/checkout@v2
+      - name: Fetch artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: build.tar.gz
+      - name: unpack
+        run: tar -zxvf build.tar.gz && ls -l
+      - name: Install doctl 
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DO_ACCESS_TOKEN }}
+      - name: build image
+        run: docker build -t registry.digitalocean.com/community-boating-docker/cbidb-staff-web:latest .
+      - name: Log in to DO Container Registry 
+        run: doctl registry login --expiry-seconds 600
+      - name: push image
+        run: docker push registry.digitalocean.com/community-boating-docker/cbidb-staff-web:latest
+      - name: Image digest
+        run: echo ${{ steps.docker_build.outputs.digest }}
