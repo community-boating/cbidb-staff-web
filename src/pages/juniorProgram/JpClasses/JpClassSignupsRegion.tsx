@@ -36,8 +36,8 @@ export default function(props: Props) {
 	}
 	const data = props.signups.sort((a, b) => a.SEQUENCE - b.SEQUENCE).map((s, i) => ({
 		signupId: s.SIGNUP_ID,
-		nameFirst: s.$$person.NAME_FIRST,
-		nameLast: s.$$person.NAME_LAST,
+		nameFirst: s.$$person.NAME_FIRST.getOrElse(""),
+		nameLast: s.$$person.NAME_LAST.getOrElse(""),
 		signupType: getSignupTypeText(s.SIGNUP_TYPE),
 		signupDatetime: toMomentFromLocalDateTime(s.SIGNUP_DATETIME),
 		signupDatetimeDisplay: toMomentFromLocalDateTime(s.SIGNUP_DATETIME).format("MM/DD/YYYY hh:mmA"),

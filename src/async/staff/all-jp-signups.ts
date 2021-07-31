@@ -1,4 +1,4 @@
-import { makeOptional, OptionalNumber } from '@util/OptionalTypeValidators';
+import { makeOptional, OptionalNumber, OptionalString } from '@util/OptionalTypeValidators';
 import * as t from 'io-ts';
 import APIWrapper from '../../core/APIWrapper';
 import { HttpMethod } from "../../core/HttpMethod";
@@ -37,8 +37,8 @@ export const instanceValidator = t.type({
 });
 
 export const personValidator = t.type({
-	NAME_FIRST: t.string,
-	NAME_LAST: t.string,
+	NAME_FIRST: OptionalString,
+	NAME_LAST: OptionalString,
 	PERSON_ID: t.number,
 });
 
