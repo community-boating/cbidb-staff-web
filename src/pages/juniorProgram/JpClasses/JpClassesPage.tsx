@@ -42,6 +42,7 @@ export default function JpClassesPage(props: Props) {
 	const [formData, setFormData] = React.useState(formDefault);
 	const [selectedInstance, selectInstance] = React.useState(none as Option<number>);
 	const [editMode, setEditMode] = React.useState(false);
+	const signupsRegionRef = React.useRef(null);
 
 	const updateState = formUpdateStateHooks(formData, setFormData);
 
@@ -187,7 +188,7 @@ export default function JpClassesPage(props: Props) {
 		text: "Sections"
 	}];
 
-	const signupsRegion = selectedInstance.map(id => <Card>
+	const signupsRegion = selectedInstance.map(id => <Card innerRef={signupsRegionRef}>
 		<CardHeader>
 			<CardTitle tag="h5" className="mb-0">Selected Class</CardTitle>
 		</CardHeader>
@@ -278,6 +279,10 @@ export default function JpClassesPage(props: Props) {
 						bgColor: () => "#fff2f2",
 						onSelect: (row) => {
 							selectInstance(some(row.instanceId))
+							setTimeout(() => {
+								signupsRegionRef.current && signupsRegionRef.current.scrollIntoView();
+							}, 10)
+							
 						},
 						selectionRenderer: ({checked}) => <FontAwesomeIcon
 							style={{cursor: "pointer"}}

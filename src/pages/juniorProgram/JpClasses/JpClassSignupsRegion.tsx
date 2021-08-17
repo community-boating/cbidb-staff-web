@@ -76,7 +76,7 @@ export default function(props: Props) {
 		text: "Section"
 	}]
 	return <BootstrapTable
-		keyField="instanceId"
+		keyField="signupId"
 		data={data}
 		columns={columns}
 		bootstrap4
