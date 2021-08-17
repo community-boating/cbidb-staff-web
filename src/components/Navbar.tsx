@@ -17,12 +17,6 @@ import {
 	Row,
 	Col,
 } from "reactstrap";
-
-import {
-	PieChart,
-	Settings,
-	User,
-} from "react-feather";
 import asc from "../app/AppStateContainer";
 
 
@@ -30,12 +24,17 @@ import asc from "../app/AppStateContainer";
 const NavbarComponent = ({ dispatch }) => {
 	const sudo = asc.state.sudo;
 
-	const suspendSudo = (
+	const ifSudo = (
 		sudo
 		? <DropdownItem>
-			<span className="align-middle" onClick={() => asc.updateState.setSudo(false)}>Suspend Super Powers</span>
+			<span className="align-middle" onClick={() => asc.updateState.setSudo(false)}>Suspend Superpowers</span>
 		</DropdownItem>
-		: null
+		: <DropdownItem onClick={e => {
+			e.preventDefault();
+			asc.sudoModalOpener();
+		}}>
+			<span className="align-middle">Elevate Session</span>
+		</DropdownItem>
 	);
 	return (
 		<Navbar color="white" light expand>
@@ -54,16 +53,15 @@ const NavbarComponent = ({ dispatch }) => {
 						<FontAwesomeIcon icon={sudo ? faUserShield : faUser} />
 					</DropdownToggle>
 					<DropdownMenu right>
-					<DropdownItem>
-						<span className="align-middle">Profile</span>
-					</DropdownItem>
-					{suspendSudo}
+					{ifSudo}
 					<DropdownItem onClick={e => {
-							e.preventDefault();
-							logout.send({ type: "json", jsonData: {} }).then(() => {
-								asc.updateState.login.logout()
-							})
-						}}>Sign out</DropdownItem>
+						e.preventDefault();
+						logout.send({ type: "json", jsonData: {} }).then(() => {
+							asc.updateState.login.logout()
+						})
+					}}>
+						<span className="align-middle">Sign out</span>
+					</DropdownItem>
 					</DropdownMenu>
 				</UncontrolledDropdown>
 			</Nav>

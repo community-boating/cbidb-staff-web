@@ -1,5 +1,6 @@
 import { none, Option, some } from 'fp-ts/lib/Option';
 import * as t from 'io-ts';
+import { toastr } from "react-redux-toastr";
 
 import { apiw } from "../async/authenticate-staff";
 import { makePostString } from '../core/APIWrapperUtil';
@@ -56,7 +57,18 @@ export class AppStateContainer {
 		if (this.state.sudo) {
 			then();
 		} else {
-			this.sudoModalOpener();
+			const options = {
+				timeOut: 4000,
+				showCloseButton: true,
+				progressBar: true,
+				position: "top-center",
+			};
+		
+			toastr.warning(
+				"Elevate Session",
+				"That feature is locked, elevate session to continue.",
+				options
+			);
 		}
 	}
 	updateState = {

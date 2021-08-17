@@ -224,7 +224,7 @@ export default function JpClassesPage(props: Props) {
 	);
 
 	return <React.Fragment>
-		<Card>
+		<Card style={{minWidth: "1220px"}}>
 			<CardHeader>
 				<div className="card-actions float-right">
 					<UncontrolledDropdown>
