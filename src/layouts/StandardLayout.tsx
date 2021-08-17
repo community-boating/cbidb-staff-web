@@ -7,10 +7,10 @@ import Navbar from "../components/Navbar";
 import Content from "../components/Content";
 import Footer from "../components/Footer";
 
-export const StandardLayout = ({ children }) => (
+export const StandardLayout = ({ history, children }) => (
 	<React.Fragment>
 		<Wrapper>
-			<Sidebar />
+			<Sidebar history={history} />
 			<Main className={null}>
 				<Navbar />
 				<Content>{children}</Content>

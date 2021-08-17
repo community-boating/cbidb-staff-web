@@ -32,7 +32,7 @@ const authenticatedRoutes = (history: History<any>) => {
 			path="/*"
 			exact
 			component={() => (
-				<Layout>
+				<Layout history={history}>
 					<Switch>
 						{routes}
 					</Switch>

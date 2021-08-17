@@ -2,12 +2,14 @@ import * as React from 'react';
 import { History } from 'history';
 import PathWrapper, { StringObject } from './PathWrapper';
 import { Route } from 'react-router';
+import { PageName } from 'pages/pageNames';
 
 export type RouteWrapperConfig<T extends StringObject> = {
 	sidebarTitle?: string,
 	requiresAuth: boolean,
 	exact: boolean,
-	pathWrapper: PathWrapper<T>
+	pathWrapper: PathWrapper<T>,
+	pageName: PageName,
 }
 
 export default class RouteWrapper<T extends StringObject>{
@@ -18,6 +20,8 @@ export default class RouteWrapper<T extends StringObject>{
 
 	pathWrapper = this.config.pathWrapper;
 	sidebarTitle = this.config.sidebarTitle;
+
+	public pageName = this.config.pageName;
 
 	asRoute(history: History<any>) {
 		return <Route key={this.pathWrapper.path} path={this.pathWrapper.path} exact={this.config.exact} render={() => this.render(history)} />;

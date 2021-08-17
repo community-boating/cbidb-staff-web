@@ -1,6 +1,7 @@
 import * as React from "react";
 import { connect } from "react-redux";
 import { NavLink, useLocation } from "react-router-dom";
+import {History} from 'history';
 
 import { Badge, Collapse } from "reactstrap";
 import * as PerfectScrollbarAll from "react-perfect-scrollbar";
@@ -8,6 +9,8 @@ import * as PerfectScrollbarAll from "react-perfect-scrollbar";
 import { Box } from "react-feather";
 
 import { sideBarRoutes } from "../app/SidebarCategories";
+import { linkWithAccessControl } from "@core/LinkInterceptor";
+import RouteWrapper from "@core/RouteWrapper";
 
 const SidebarCategory = ({
 	name,
@@ -51,7 +54,14 @@ const SidebarCategory = ({
 	);
 };
 
-const SidebarItem = ({ name, icon: Icon, to }) => {
+const SidebarItem: (props: {
+	history: History<any>,
+	name: string,
+	icon: React.ComponentType<{size: number, className: string}>,
+	to?: RouteWrapper<any>,
+	pathString?: string,
+}) => JSX.Element = 
+({ history, name, icon: Icon, to, pathString }) => {
 	const location = useLocation();
 
 	const getSidebarItemClass = path => {
@@ -60,7 +70,10 @@ const SidebarItem = ({ name, icon: Icon, to }) => {
 
 	return (
 		<li className={"sidebar-item " + getSidebarItemClass(to)}>
-			<NavLink to={to} className="sidebar-link" activeClassName="active">
+			<NavLink to={pathString || to.getPathFromArgs({})} className="sidebar-link" activeClassName="active" onClick={e => {
+				e.preventDefault();
+				linkWithAccessControl(history, to, {}, pathString)
+			}}>
 				{Icon ? <Icon size={18} className="align-middle mr-3" /> : null}
 				{name}
 				{/* {badgeColor && badgeText ? (
@@ -73,7 +86,7 @@ const SidebarItem = ({ name, icon: Icon, to }) => {
 	);
 };
 
-function Sidebar(props: {sidebar: any, layout: any}) {
+function Sidebar(props: {sidebar: any, layout: any, history: History<any>}) {
 	const location = useLocation();
 	const pathName = location.pathname;
 
@@ -133,8 +146,9 @@ function Sidebar(props: {sidebar: any, layout: any}) {
 											{category.children.map((route, index) => (
 												<SidebarItem
 													key={index}
+													history={props.history}
 													name={route.sidebarTitle}
-													to={route.getPathFromArgs({})}
+													to={route}
 													icon={null}
 													// isOpen={null}
 													// onClick={null}
@@ -144,8 +158,9 @@ function Sidebar(props: {sidebar: any, layout: any}) {
 									) : (
 											<SidebarItem
 												name={category.name}
-												to={category.path}
-												icon={category.icon}
+												history={props.history}
+												pathString={category.path}
+												icon={category.icon as any}
 												// isOpen={null}
 												// onClick={null}
 											/>
