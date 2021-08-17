@@ -19,6 +19,7 @@ export const usersPageRoute = new RouteWrapper({
 	pathWrapper: usersPath,
 	sidebarTitle: "Users",
 	pageName: PageName.USERS,
+	requireSudo: true,
 }, history => <PageWrapper
 	key="users"
 	history={history}
@@ -39,6 +40,7 @@ export const usersEditPageRoute = new RouteWrapper({
 	exact: true,
 	pathWrapper: usersEditPath,
 	pageName: PageName.USERS_EDIT,
+	requireSudo: true,
 }, history => <PageWrapper
 	key="userEdit"
 	history={history}
@@ -69,6 +71,7 @@ export const usersNewPageRoute = new RouteWrapper({
 	exact: true,
 	pathWrapper: usersNewPath,
 	pageName: PageName.USERS_NEW,
+	requireSudo: true,
 }, history => <PageWrapper
 	key="userNew"
 	history={history}

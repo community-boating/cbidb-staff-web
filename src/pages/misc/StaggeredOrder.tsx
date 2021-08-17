@@ -1,7 +1,7 @@
 import { History } from 'history';
 import * as React from "react";
 import * as t from 'io-ts';
-import { Card, CardHeader, CardTitle, CardBody, Button, Col, Row, Modal, ModalHeader, ModalBody, ModalFooter, UncontrolledAlert } from 'reactstrap';
+import { Card, CardHeader, CardTitle, CardBody, Button, Col, Row, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 import BootstrapTable from "react-bootstrap-table-next";
 import { useRouteMatch } from 'react-router-dom';
 import {paymentValidator, validator} from "@async/staff/open-order-details"
@@ -11,6 +11,7 @@ import { ButtonWrapper } from '@components/ButtonWrapper';
 import {postWrapper as finishOrder} from "@async/staff/finish-open-order"
 import { makePostJSON } from '@core/APIWrapperUtil';
 import { relativeTimeThreshold } from 'moment';
+import { ErrorPopup } from '@components/ErrorPopup';
 
 type Payment = t.TypeOf<typeof paymentValidator>
 type PaymentList = t.TypeOf<typeof validator>
@@ -43,14 +44,6 @@ export default function StaggeredOrder(props: { history: History<any>, personId:
 		status: p.paid ? paid : (p.failedCron ? failed : "Unpaid")
 	}));
 
-	const errorPopup = <UncontrolledAlert color="warning" key="login-error">
-		<div className="alert-message">
-			<ul style={{margin: "0"}}>
-				{validationErrors.map((v, i) => <li key={`validation-err-${i}`}>{v}</li>)}
-			</ul>
-		</div>
-	</UncontrolledAlert>;
-
 	const confirmModal = <Modal
 		isOpen={isOpen}
 		toggle={abort}
@@ -60,7 +53,7 @@ export default function StaggeredOrder(props: { history: History<any>, personId:
 			Finish order
 		</ModalHeader>
 		<ModalBody className="text-center m-3">
-			{validationErrors.length ? errorPopup : null}
+			<ErrorPopup errors={validationErrors} />
 			<p className="mb-0">
 				This will immediately charge the member's card for the remaining payments on this order, and if successful, activate their membership.
 				Do you want to continue?

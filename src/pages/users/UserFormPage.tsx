@@ -2,7 +2,7 @@ import { History } from 'history';
 import * as React from "react";
 import * as t from 'io-ts';
 import { UserForm,  } from "../../async/staff/get-user"
-import { Card, CardHeader, CardTitle, CardBody, Form, FormGroup, Label, Col, Input, Button, CustomInput, Row, UncontrolledAlert } from 'reactstrap';
+import { Card, CardHeader, CardTitle, CardBody, Form, FormGroup, Label, Col, Input, Button } from 'reactstrap';
 import { NavLink } from 'react-router-dom';
 import { usersPageRoute } from '../../app/routes/users';
 import { Option, none, some } from 'fp-ts/lib/Option';
@@ -14,6 +14,7 @@ import { makePostJSON } from '../../core/APIWrapperUtil';
 import FormElementSelect from '@components/form/FormElementSelect';
 import { UserType, userTypeDisplay, userTypes } from 'models/UserType';
 import { deoptionifyProps } from '@util/OptionifyObjectProps';
+import { ErrorPopup } from '@components/ErrorPopup';
 
 type FormData = UserForm & {
 	pw1: Option<string>,
@@ -78,20 +79,12 @@ export default class UserFormPage extends React.PureComponent<Props, State> {
 			</Col>
 		</FormGroup>;
 
-		const errorDiv = <UncontrolledAlert color="warning" key="error">
-		<div className="alert-message">
-			<ul style={{margin: "0"}}>
-				{this.state.validationErrors.map((v, i) => <li key={`validation-err-${i}`}>{v}</li>)}
-			</ul>
-		</div>
-		</UncontrolledAlert>;
-
 		return <Card>
 			<CardHeader>
 				<CardTitle tag="h5" style={{ margin: "0" }}>Create/Edit User</CardTitle>
 			</CardHeader>
 			<CardBody>
-				{this.state.validationErrors.length ? errorDiv : null}
+				<ErrorPopup errors={this.state.validationErrors} />
 				<FormInput
 					id="USER_NAME"
 					disabled={exists}

@@ -26,7 +26,7 @@ class App extends React.Component<Props> {
 			console.log("is logged in came back....", usernameResult)
 			if (usernameResult.type == "Success") {
 				console.log("SETTING LOGGED IN:   " + usernameResult.success.value)
-				asc.updateState.login.setLoggedIn(usernameResult.success)
+				asc.updateState.login.setLoggedIn(usernameResult.success.value)
 			}
 		}, () => {
 			// not logged in

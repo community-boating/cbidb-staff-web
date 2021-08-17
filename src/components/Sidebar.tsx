@@ -72,7 +72,7 @@ const SidebarItem: (props: {
 		<li className={"sidebar-item " + getSidebarItemClass(to)}>
 			<NavLink to={pathString || to.getPathFromArgs({})} className="sidebar-link" activeClassName="active" onClick={e => {
 				e.preventDefault();
-				linkWithAccessControl(history, to, {}, pathString)
+				linkWithAccessControl(history, to, {}, (to && to.requireSudo), pathString)
 			}}>
 				{Icon ? <Icon size={18} className="align-middle mr-3" /> : null}
 				{name}

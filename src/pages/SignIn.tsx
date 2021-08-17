@@ -5,7 +5,6 @@ import {
 	CardBody,
 	Label,
 	Input,
-	UncontrolledAlert
 } from "reactstrap";
 import { none, Option, some } from "fp-ts/lib/Option";
 import {formUpdateState} from "../util/form-update-state";
@@ -14,6 +13,7 @@ import detectEnter from "../util/detectEnterPress";
 import { ButtonWrapper } from "../components/ButtonWrapper";
 
 import cbiLogo from "../assets/img/CBI_boat.jpg"
+import { ErrorPopup } from "@components/ErrorPopup";
 
 export const formDefault = {
 	username: none as Option<string>,
@@ -75,14 +75,6 @@ class SignIn extends React.PureComponent<{}, State> {
 			else return Promise.resolve();
 		};
 
-		const errorDiv = <UncontrolledAlert color="warning" key="login-error">
-			<div className="alert-message">
-				<ul style={{margin: "0"}}>
-					{self.state.validationErrors.map((v, i) => <li key={`validation-err-${i}`}>{v}</li>)}
-				</ul>
-			</div>
-		</UncontrolledAlert>;
-
 		const updateState = formUpdateState(this.state, this.setState.bind(this), "formData");
 
 		return (
@@ -103,7 +95,7 @@ class SignIn extends React.PureComponent<{}, State> {
 									height="132"
 								/>
 							</div>
-							{self.state.validationErrors.length > 0 ? errorDiv : null}
+							<ErrorPopup errors={self.state.validationErrors} />
 							<Label>Username</Label>
 							<Input
 								bsSize="lg"

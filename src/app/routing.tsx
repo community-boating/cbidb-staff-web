@@ -23,10 +23,8 @@ const authenticatedRoutes = (history: History<any>) => {
 	const borderless = asc.state.borderless;
 	const Layout = borderless ? BorderlessLayout : StandardLayout;
 	const routes = sideBarRoutes.flatMap((category, index) => {
-		const rwAsRoute = (rw: RouteWrapper<any>) => rw.asRoute(history);
-		return category.children.map(rwAsRoute).concat((category.unrenderedChildren || []).map(rwAsRoute));
-	});
-	console.log(routes);
+		return category.children.concat((category.unrenderedChildren || []));
+	}).filter(r => !r.requireSudo || asc.state.sudo).map(r => r.asRoute(history));
 	return (
 		<Route
 			path="/*"

@@ -1,10 +1,10 @@
 import { none, Option, some } from 'fp-ts/lib/Option';
 import * as t from 'io-ts';
-import { toastr } from "react-redux-toastr";
 
 import { apiw } from "../async/authenticate-staff";
 import { makePostString } from '../core/APIWrapperUtil';
 import {apiw as getPermissions, validator as permissionsValidator} from "@async/staff/user-permissions"
+import { showSudoToastr } from '@components/SudoModal';
 
 type Permissions = t.TypeOf<typeof permissionsValidator>;
 
@@ -57,18 +57,7 @@ export class AppStateContainer {
 		if (this.state.sudo) {
 			then();
 		} else {
-			const options = {
-				timeOut: 4000,
-				showCloseButton: true,
-				progressBar: true,
-				position: "top-center",
-			};
-		
-			toastr.warning(
-				"Elevate Session",
-				"That feature is locked, elevate session to continue.",
-				options
-			);
+			showSudoToastr();
 		}
 	}
 	updateState = {
@@ -84,6 +73,7 @@ export class AppStateContainer {
 		},
 		login: {
 			setLoggedIn: (function(userName: string) {
+				console.log("setting logged in as ", userName)
 				const self: AppStateContainer = this
 				getPermissions().send(null).then(res => {
 					if (res.type == "Success") {
