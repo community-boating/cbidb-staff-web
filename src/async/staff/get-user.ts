@@ -1,9 +1,8 @@
 import { OptionifiedProps, optionifyProps } from '@util/OptionifyObjectProps';
-import { none, some, Option } from 'fp-ts/lib/Option';
 import * as t from 'io-ts';
 import APIWrapper from '../../core/APIWrapper';
 import { HttpMethod } from "../../core/HttpMethod";
-import { OptionalString, OptionalBoolean, OptionalNumber, makeOptional } from '../../util/OptionalTypeValidators';
+import { OptionalString } from '../../util/OptionalTypeValidators';
 
 export const validator = t.type({
 	ACTIVE: t.boolean,

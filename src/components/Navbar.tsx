@@ -12,10 +12,6 @@ import {
 	DropdownToggle,
 	DropdownMenu,
 	DropdownItem,
-	ListGroup,
-	ListGroupItem,
-	Row,
-	Col,
 } from "reactstrap";
 import asc from "../app/AppStateContainer";
 

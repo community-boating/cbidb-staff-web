@@ -3,17 +3,14 @@ import * as React from "react";
 import * as t from 'io-ts';
 import { Card, CardHeader, CardTitle, CardBody, Button, Col, Row, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 import BootstrapTable from "react-bootstrap-table-next";
-import { useRouteMatch } from 'react-router-dom';
-import {paymentValidator, validator} from "@async/staff/open-order-details"
+import { validator} from "@async/staff/open-order-details"
 import Currency from '@util/Currency';
 import {toMomentFromLocalDate} from '@util/dateUtil'
 import { ButtonWrapper } from '@components/ButtonWrapper';
 import {postWrapper as finishOrder} from "@async/staff/finish-open-order"
 import { makePostJSON } from '@core/APIWrapperUtil';
-import { relativeTimeThreshold } from 'moment';
 import { ErrorPopup } from '@components/ErrorPopup';
 
-type Payment = t.TypeOf<typeof paymentValidator>
 type PaymentList = t.TypeOf<typeof validator>
 
 const paid = <span style={{color:"#22772d"}}>Paid</span>
@@ -25,7 +22,6 @@ export default function StaggeredOrder(props: { history: History<any>, personId:
 
 	const abort = () => doOpen(false);
 
-	const { path, url } = useRouteMatch();
 	const columns = [{
 		dataField: "expectedDateToShow",
 		text: "Date"

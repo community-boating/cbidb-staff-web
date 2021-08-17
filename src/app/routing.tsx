@@ -2,7 +2,6 @@ import * as React from "react";
 import { Router, Route, Switch, Redirect } from "react-router";
 import {
 	sideBarRoutes,
-	SideBarCategory
 } from "./SidebarCategories";
 
 import { StandardLayout } from "../layouts/StandardLayout";
@@ -11,12 +10,10 @@ import AuthLayout from "../layouts/Auth";
 import ScrollToTop from "../components/ScrollToTop";
 import { Option } from "fp-ts/lib/Option";
 import { History } from 'history'
-import { usersEditPageRoute, usersNewPageRoute } from "./routes/users";
 
 import SignIn from "../pages/SignIn";
 import asc from "./AppStateContainer";
 import { BorderlessLayout } from "../layouts/BorderlessLayout";
-import RouteWrapper from "@core/RouteWrapper";
 
 
 const authenticatedRoutes = (history: History<any>) => {
@@ -24,7 +21,8 @@ const authenticatedRoutes = (history: History<any>) => {
 	const Layout = borderless ? BorderlessLayout : StandardLayout;
 	const routes = sideBarRoutes.flatMap((category, index) => {
 		return category.children.concat((category.unrenderedChildren || []));
-	}).filter(r => !r.requireSudo || asc.state.sudo).map(r => r.asRoute(history));
+	}).filter(r => !r.requireSudo || asc.state.sudo)
+	.map(r => r.asRoute(history));
 	return (
 		<Route
 			path="/*"

@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Container, Row, Col } from "reactstrap";
+import { Container, Row } from "reactstrap";
 
 const Footer = () => (
 	<footer className="footer">

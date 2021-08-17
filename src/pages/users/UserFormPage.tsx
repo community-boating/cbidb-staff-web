@@ -1,8 +1,7 @@
 import { History } from 'history';
 import * as React from "react";
-import * as t from 'io-ts';
 import { UserForm,  } from "../../async/staff/get-user"
-import { Card, CardHeader, CardTitle, CardBody, Form, FormGroup, Label, Col, Input, Button } from 'reactstrap';
+import { Card, CardHeader, CardTitle, CardBody, FormGroup, Label, Col, Button } from 'reactstrap';
 import { NavLink } from 'react-router-dom';
 import { usersPageRoute } from '../../app/routes/users';
 import { Option, none, some } from 'fp-ts/lib/Option';

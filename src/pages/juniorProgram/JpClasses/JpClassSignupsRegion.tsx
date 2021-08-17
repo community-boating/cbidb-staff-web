@@ -1,7 +1,6 @@
 import * as React from 'react';
 import * as t from 'io-ts';
 import BootstrapTable, { ColumnDescription } from 'react-bootstrap-table-next';
-import paginationFactory from 'react-bootstrap-table2-paginator';
 import {signupValidator} from "@async/staff/all-jp-signups"
 import { tableColWidth } from '@util/tableUtil';
 import { toMomentFromLocalDateTime } from '@util/dateUtil';

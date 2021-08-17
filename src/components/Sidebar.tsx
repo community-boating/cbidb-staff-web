@@ -3,7 +3,7 @@ import { connect } from "react-redux";
 import { NavLink, useLocation } from "react-router-dom";
 import {History} from 'history';
 
-import { Badge, Collapse } from "reactstrap";
+import { Collapse } from "reactstrap";
 import * as PerfectScrollbarAll from "react-perfect-scrollbar";
 
 import { Box } from "react-feather";
@@ -90,7 +90,7 @@ function Sidebar(props: {sidebar: any, layout: any, history: History<any>}) {
 	const location = useLocation();
 	const pathName = location.pathname;
 
-	const {sidebar, layout} = props;
+	const {sidebar} = props;
 
 	const initialState = sideBarRoutes.map(route => {
 		const isActive = pathName.indexOf(route.path) === 0;

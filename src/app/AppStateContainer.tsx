@@ -8,21 +8,21 @@ import { showSudoToastr } from '@components/SudoModal';
 
 type Permissions = t.TypeOf<typeof permissionsValidator>;
 
-type ServerConfig = {
-		// TODO: dev vs prod config
+// type ServerConfig = {
+// 		// TODO: dev vs prod config
 
-		SELF: {
-				host: string,
-				https: boolean,
-				pathPrefix: string,
-				port: number
-		},
-		API: {
-				host: string,
-				https: boolean,
-				port: number
-		}
-}
+// 		SELF: {
+// 				host: string,
+// 				https: boolean,
+// 				pathPrefix: string,
+// 				port: number
+// 		},
+// 		API: {
+// 				host: string,
+// 				https: boolean,
+// 				port: number
+// 		}
+// }
 
 export interface AppProps {
 

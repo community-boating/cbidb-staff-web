@@ -1,11 +1,10 @@
-import { History } from 'history';
 import * as React from "react";
 import * as t from 'io-ts';
 import { validator } from "../../async/staff/get-users"
-import { Card, CardHeader, CardTitle, CardBody, Button, UncontrolledDropdown, DropdownToggle, DropdownMenu, DropdownItem } from 'reactstrap';
+import { Card, CardHeader, CardTitle, CardBody, UncontrolledDropdown, DropdownToggle, DropdownMenu, DropdownItem } from 'reactstrap';
 import BootstrapTable from "react-bootstrap-table-next";
 import paginationFactory from "react-bootstrap-table2-paginator";
-import { NavLink, Link, useRouteMatch } from 'react-router-dom';
+import { NavLink, Link } from 'react-router-dom';
 import { usersEditPageRoute } from '../../app/routes/users';
 import {
 	Edit as EditIcon,
@@ -18,7 +17,6 @@ import { userTypeDisplay } from 'models/UserType';
 
 
 export default function UsersPage(props: { users: t.TypeOf<typeof validator> }) {
-	const { path, url } = useRouteMatch();
 	const columns = [{
 		dataField: "edit",
 		text: "",

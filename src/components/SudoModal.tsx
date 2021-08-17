@@ -1,7 +1,7 @@
 import asc from '@app/AppStateContainer';
 import detectEnter from '@util/detectEnterPress';
 import { formUpdateStateHooks } from '@util/form-update-state';
-import { none, Option, some } from 'fp-ts/lib/Option';
+import { none, Option } from 'fp-ts/lib/Option';
 import { toastr } from "react-redux-toastr";
 import * as React from 'react';
 import { Button, Col, Form, FormGroup, Input, Label, Modal, ModalBody, ModalFooter, ModalHeader } from "reactstrap";

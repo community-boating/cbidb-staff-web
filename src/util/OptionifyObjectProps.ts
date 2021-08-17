@@ -1,4 +1,4 @@
-import { none, Option, some } from "fp-ts/lib/Option";
+import { Option, some } from "fp-ts/lib/Option";
 import * as _ from 'lodash';
 
 export declare type OptionifiedProps<T extends object> = {

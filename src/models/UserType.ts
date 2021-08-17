@@ -1,5 +1,3 @@
-import assertNever from "@util/assertNever";
-
 export enum UserType {
 	User = "U",
 	Manager = "M",

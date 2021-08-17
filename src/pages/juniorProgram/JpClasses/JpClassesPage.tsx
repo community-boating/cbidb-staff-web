@@ -1,11 +1,9 @@
-import { History } from 'history';
 import * as React from "react";
 import * as t from 'io-ts';
-import { Card, CardHeader, CardTitle, CardBody, Button, FormGroup, Label, Col, Row, Form, CustomInput, UncontrolledDropdown, DropdownToggle, DropdownMenu, DropdownItem } from 'reactstrap';
-import { NavLink, Link, useRouteMatch } from 'react-router-dom';
+import { Card, CardHeader, CardTitle, CardBody, FormGroup, Label, Col, Row, Form, CustomInput, UncontrolledDropdown, DropdownToggle, DropdownMenu, DropdownItem } from 'reactstrap';
 import * as _ from 'lodash';
 
-import { decoratedInstanceValidator, signupValidator, weekValidator, typeValidator, staggerValidator } from "@async/staff/all-jp-signups"
+import { decoratedInstanceValidator, signupValidator, weekValidator, staggerValidator } from "@async/staff/all-jp-signups"
 import BootstrapTable, { ColumnDescription } from 'react-bootstrap-table-next';
 import paginationFactory from 'react-bootstrap-table2-paginator';
 import { sortOnMoment, toMomentFromLocalDateTime } from '@util/dateUtil';
@@ -15,7 +13,7 @@ import FormElementSelect from '@components/form/FormElementSelect';
 import {formUpdateStateHooks} from '@util/form-update-state';
 import { tableColWidth } from '@util/tableUtil';
 import JpClassSignupsRegion from './JpClassSignupsRegion';
-import {faAngleRight, faAngleDown, faUsers, faToggleOff, faToggleOn} from '@fortawesome/free-solid-svg-icons'
+import {faAngleRight, faAngleDown, faUsers} from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {MoreHorizontal, Printer} from 'react-feather'
 import asc from '@app/AppStateContainer';
@@ -31,18 +29,12 @@ type Props = {
 	staggers: Stagger[],
 }
 
-type ClassType = t.TypeOf<typeof typeValidator>
-
 const formDefault = {
 	classType: none as Option<string>,
 	week: none as Option<string>,
 }
 
 type FormType = typeof formDefault;
-
-type State = {
-	formData: Form
-}
 
 class FormSelect extends FormElementSelect<FormType> { }
 
