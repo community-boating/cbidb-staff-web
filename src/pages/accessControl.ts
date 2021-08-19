@@ -11,6 +11,7 @@ export function canAccessPage(pageName: PageName): boolean {
 	case PageName.USERS:
 	case PageName.USERS_EDIT:
 	case PageName.USERS_NEW:
+	case PageName.MANAGE_INSTRUCTORS:
 		const userType = asc.state.login.permissions.getOrElse(null).userType ;
 		return userType == "M"|| userType == "A"
 	default:

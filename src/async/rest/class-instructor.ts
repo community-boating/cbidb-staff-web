@@ -12,7 +12,7 @@ export const validator = t.array(classInstructorValidator)
 
 const path = "/rest/class-instructor"
 
-export const apiw = new APIWrapper({
+export const getWrapper = new APIWrapper({
 	path,
 	type: HttpMethod.GET,
 	resultValidator: validator,

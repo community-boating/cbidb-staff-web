@@ -7,6 +7,7 @@ import { usersEditPageRoute, usersNewPageRoute, usersPageRoute } from "./routes/
 import RouteWrapper from "../core/RouteWrapper";
 import { jpClassesPageRoute } from "@routes/jp-classes";
 import { staggeredOrderRoute } from "@routes/staggered-order";
+import { manageClassInstructorsPageRoute } from "@routes/admin/class-instructors";
 
 export type SideBarCategory = {
 	path: string,
@@ -30,7 +31,8 @@ const admin: SideBarCategory = {
 	name: "Admin",
 	icon: SlidersIcon,
 	children: [
-		usersPageRoute
+		usersPageRoute,
+		manageClassInstructorsPageRoute,
 	],
 	unrenderedChildren: [
 		usersNewPageRoute,
