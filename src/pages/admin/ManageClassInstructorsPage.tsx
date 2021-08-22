@@ -1,73 +1,84 @@
 import * as React from "react";
 import * as t from 'io-ts';
-import { Card, CardHeader, CardTitle, CardBody, UncontrolledDropdown, DropdownToggle, DropdownMenu, DropdownItem } from 'reactstrap';
-import BootstrapTable from "react-bootstrap-table-next";
-import paginationFactory from "react-bootstrap-table2-paginator";
-import {  Link } from 'react-router-dom';
-import { usersEditPageRoute } from '../../app/routes/users';
-import {
-
-	MoreHorizontal,
-} from 'react-feather'
 import { tableColWidth } from '@util/tableUtil';
 import {classInstructorValidator} from '@async/rest/class-instructor'
+import { ColumnDescription } from "react-bootstrap-table-next";
+import ReportWithModalForm from "@components/ReportWithModalForm";
+import {putWrapper as putInstructor} from "@async/rest/class-instructor"
+import { Form, FormGroup, Label, Col, Input } from 'reactstrap';
+import { OptionifiedProps } from "@util/OptionifyObjectProps";
 
 type ClassInstructor = t.TypeOf<typeof classInstructorValidator>;
 
-
 export default function ManageClassInstructorsPage(props: { instructors: ClassInstructor[] }) {
-	const columns = [{
+	const columns: ColumnDescription[] = [{
 		dataField: "edit",
 		text: "",
 		...tableColWidth(50),
 	}, {
-		dataField: "instructorId",
+		dataField: "INSTRUCTOR_ID",
 		text: "ID",
 		sort: true,
 		...tableColWidth(80),
 	}, {
-		dataField: "nameFirst",
+		dataField: "NAME_FIRST",
 		text: "First Name",
-		sort: true
+		sort: true,
+		...tableColWidth(300),
 	}, {
-		dataField: "nameLast",
+		dataField: "NAME_LAST",
 		text: "Last Name",
-		sort: true
+		sort: true,
 	}];
-	const data = props.instructors.map(i => ({
-		instructorId: i.INSTRUCTOR_ID,
-		nameFirst: i.NAME_FIRST,
-		nameLast: i.NAME_LAST,
-	}))
-	return <Card>
-		<CardHeader>
-			<div className="card-actions float-right">
-				<UncontrolledDropdown>
-					<DropdownToggle tag="a">
-						<MoreHorizontal />
-					</DropdownToggle>
-					<DropdownMenu right>
-					<Link to={usersEditPageRoute.getPathFromArgs({ userId: String("new") })}><DropdownItem>Add Instructor</DropdownItem></Link>
-					</DropdownMenu>
-				</UncontrolledDropdown>
-			</div>
-			<CardTitle tag="h5" className="mb-0">JP Class Instructors</CardTitle>
-		</CardHeader>
-		<CardBody>
-			<div>
-				
-			</div>
-			<BootstrapTable
-				keyField="instructorId"
-				data={data}
-				columns={columns}
-				bootstrap4
-				bordered={false}
-				pagination={paginationFactory({
-					sizePerPage: 10,
-					sizePerPageList: [5, 10, 25, 50]
-				})}
-			/>
-		</CardBody>
-	</Card>;
+
+	const form = (rowForEdit: OptionifiedProps<ClassInstructor>, updateState: (id: string, value: string) => void) => <Form>
+		<FormGroup row>
+			<Label sm={2} className="text-sm-right">
+				ID
+			</Label>
+			<Col sm={10} >
+				<div style={{textAlign: "left", padding: "5px 14px"}}>
+					{rowForEdit.INSTRUCTOR_ID.map(String).getOrElse("(none)")}
+				</div>
+			</Col>
+		</FormGroup>
+		<FormGroup row>
+			<Label sm={2} className="text-sm-right">
+				First Name
+			</Label>
+			<Col sm={10}>
+				<Input
+					type="text"
+					name="nameFirst"
+					placeholder="First Name"
+					value={rowForEdit.NAME_FIRST.getOrElse("")}
+					onChange={event => updateState("NAME_FIRST", event.target.value)}
+				/>
+			</Col>
+		</FormGroup>
+		<FormGroup row>
+			<Label sm={2} className="text-sm-right">
+				Last Name
+			</Label>
+			<Col sm={10}>
+				<Input
+					type="text"
+					name="nameLast"
+					placeholder="Last Name"
+					id="nameLast"
+					value={rowForEdit.NAME_LAST.getOrElse("")}
+					onChange={event => updateState("NAME_LAST", event.target.value)}
+				/>
+			</Col>
+		</FormGroup>
+	</Form>;
+
+	return <ReportWithModalForm
+		rowValidator={classInstructorValidator}
+		rows={props.instructors}
+		primaryKey="INSTRUCTOR_ID"
+		columns={columns}
+		form={form}
+		submitRow={putInstructor}
+	/>;
 }

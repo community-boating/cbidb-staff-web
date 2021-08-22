@@ -6,14 +6,24 @@ export const classInstructorValidator = t.type({
 	INSTRUCTOR_ID: t.number,
 	NAME_FIRST: t.string,
 	NAME_LAST: t.string,
-})
+});
 
-export const validator = t.array(classInstructorValidator)
+export const validator = t.array(classInstructorValidator);
 
-const path = "/rest/class-instructor"
+const path = "/rest/class-instructor";
 
 export const getWrapper = new APIWrapper({
 	path,
 	type: HttpMethod.GET,
 	resultValidator: validator,
+});
+
+const resultValidator = t.type({
+	INSTRUCTOR_ID: t.number
 })
+
+export const putWrapper = new APIWrapper<typeof resultValidator, t.TypeOf<typeof classInstructorValidator>, null>({
+	path,
+	type: HttpMethod.POST,
+	resultValidator,
+});
