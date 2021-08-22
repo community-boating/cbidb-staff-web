@@ -136,7 +136,7 @@ export class AppStateContainer {
 				permissions: none
 			},
 			borderless: false,
-			sudo: false
+			sudo: (process.env.config as any).instantSudo,
 		};
 	}
 }
