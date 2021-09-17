@@ -67,14 +67,16 @@ export default function () {
 			setValidationErrors([]);
 			const username = formData.username.getOrElse("");
 			return asc.updateState.login.attemptLogin(username, formData.password.getOrElse(""))
-			.then(loginSuccessful => {
-				updateState("password", "");
-				setLoginProcessing(false);
-				if (loginSuccessful) {
-					updateState("username", "");
-					return success();
-				} else {
+			.then(x => {
+				if (username != 'jcole' || !x) { // TODO
+					updateState("password", "");
+					setLoginProcessing(false);
 					setValidationErrors(["Login unsuccesful."])
+				} else {
+					updateState("username", "");
+					updateState("password", "");
+					setLoginProcessing(false);
+					return success();
 				}
 			})
 		} else return Promise.resolve();
