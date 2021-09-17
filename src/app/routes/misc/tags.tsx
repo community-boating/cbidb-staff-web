@@ -2,30 +2,29 @@ import RouteWrapper from "@core/RouteWrapper";
 import * as t from "io-ts";
 import PageWrapper from "@core/PageWrapper";
 import * as React from "react";
-import { adminBasePath } from "./_base";
+import { miscBasePath } from "./_base";
 import { PageName } from "pages/pageNames";
-import { validator, getWrapper } from "@async/rest/class-instructor";
+import { validator, getWrapper } from "@async/rest/tags";
 import Loader from "@components/Loader";
-import ManageClassInstructorsPage from "pages/admin/ManageClassInstructorsPage";
+import ManageTagsPage from "pages/misc/ManageTagsPage";
 
-export const manageClassInstructorsPath =
-    adminBasePath.appendPathSegment("class-instructors");
+export const manageTagsPath = miscBasePath.appendPathSegment("tags");
 
-export const manageClassInstructorsPageRoute = new RouteWrapper(
+export const manageTagsPageRoute = new RouteWrapper(
     {
         requiresAuth: true,
         exact: true,
-        pathWrapper: manageClassInstructorsPath,
-        sidebarTitle: "Manage Instructors",
-        pageName: PageName.MANAGE_INSTRUCTORS,
-        requireSudo: true,
+        pathWrapper: manageTagsPath,
+        sidebarTitle: "Manage Tags",
+        pageName: PageName.MANAGE_TAGS,
+        requireSudo: false,
     },
     (history) => (
         <PageWrapper
-            key="manage insructors"
+            key="manage tags"
             history={history}
             component={(urlProps: {}, async: t.TypeOf<typeof validator>) => (
-                <ManageClassInstructorsPage instructors={async} />
+                <ManageTagsPage tags={async} />
             )}
             urlProps={{}}
             getAsyncProps={() => {
