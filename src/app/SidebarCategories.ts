@@ -1,30 +1,29 @@
+import { Compass, Sliders as SlidersIcon, HelpCircle } from "react-feather";
 import {
-	Compass,
-	Sliders as SlidersIcon,
-	HelpCircle
-} from "react-feather";
-import { usersEditPageRoute, usersNewPageRoute, usersPageRoute } from "./routes/users";
+	usersEditPageRoute,
+	usersNewPageRoute,
+	usersPageRoute,
+} from "./routes/users";
 import RouteWrapper from "../core/RouteWrapper";
 import { jpClassesPageRoute } from "@routes/jp-classes";
 import { staggeredOrderRoute } from "@routes/staggered-order";
 import { manageClassInstructorsPageRoute } from "@routes/admin/class-instructors";
+import { manageTagsPageRoute } from "@routes/admin/tags";
 
 export type SideBarCategory = {
-	path: string,
-	name: string,
-	icon: React.ComponentType,
-	children: RouteWrapper<any>[],
-	unrenderedChildren?: RouteWrapper<any>[],
-}
+	path: string;
+	name: string;
+	icon: React.ComponentType;
+	children: RouteWrapper<any>[];
+	unrenderedChildren?: RouteWrapper<any>[];
+};
 
 const jp: SideBarCategory = {
 	path: "/jp-classes",
 	name: "Junior Program",
 	icon: Compass,
-	children: [
-		jpClassesPageRoute
-	]
-}
+	children: [jpClassesPageRoute],
+};
 
 const admin: SideBarCategory = {
 	path: "/tables",
@@ -33,27 +32,18 @@ const admin: SideBarCategory = {
 	children: [
 		usersPageRoute,
 		manageClassInstructorsPageRoute,
+		manageTagsPageRoute,
 	],
-	unrenderedChildren: [
-		usersNewPageRoute,
-		usersEditPageRoute,
-	]
+	unrenderedChildren: [usersNewPageRoute, usersEditPageRoute],
 };
 
 const misc: SideBarCategory = {
 	path: "",
 	name: "Misc",
 	icon: HelpCircle,
-	children: [
-	],
-	unrenderedChildren: [
-		staggeredOrderRoute
-	]
+	children: [],
+	unrenderedChildren: [staggeredOrderRoute],
 };
 
 // Dashboard specific routes
-export const sideBarRoutes = [
-	jp,
-	admin,
-	misc,
-];
+export const sideBarRoutes = [jp, admin, misc];
