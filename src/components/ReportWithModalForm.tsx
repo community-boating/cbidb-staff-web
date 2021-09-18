@@ -1,6 +1,6 @@
 import * as React from "react";
 import * as t from 'io-ts';
-import { Card, CardHeader, CardTitle, CardBody, Modal, ModalHeader, ModalBody, ModalFooter, Button } from 'reactstrap';
+import { Card, CardHeader, CardTitle, CardBody, Modal, ModalHeader, ModalBody, ModalFooter, Button, Form } from 'reactstrap';
 import { ColumnDescription } from "react-bootstrap-table-next";
 import {
 	Edit as EditIcon,
@@ -18,7 +18,7 @@ export default function ReportWithModalForm<T extends t.TypeC<any>, U extends ob
 	rows: U[],
 	primaryKey: string & keyof U,
 	columns: ColumnDescription[],
-	form: (rowForEdit: OptionifiedProps<U>, updateState: (id: string, value: string) => void) => JSX.Element
+	formComponents: (rowForEdit: OptionifiedProps<U>, updateState: (id: string, value: string) => void) => JSX.Element
 	submitRow: APIWrapper<any, U, any>
 }) {
 	const blankForm = {
@@ -103,7 +103,12 @@ export default function ReportWithModalForm<T extends t.TypeC<any>, U extends ob
 			</ModalHeader>
 			<ModalBody className="text-center m-3">
 				<ErrorPopup errors={validationErrors}/>
-				{props.form(formData.rowForEdit, updateState)}
+				<Form onSubmit={e => {
+					e.preventDefault();
+					submit();
+				} }>
+					{props.formComponents(formData.rowForEdit, updateState)}
+				</Form>
 			</ModalBody>
 			<ModalFooter>
 				<Button color="secondary" outline onClick={closeModal}>

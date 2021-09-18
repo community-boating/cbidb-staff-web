@@ -5,7 +5,7 @@ import {classInstructorValidator} from '@async/rest/class-instructor'
 import { ColumnDescription } from "react-bootstrap-table-next";
 import ReportWithModalForm from "@components/ReportWithModalForm";
 import {putWrapper as putInstructor} from "@async/rest/class-instructor"
-import { Form, FormGroup, Label, Col, Input } from 'reactstrap';
+import { FormGroup, Label, Col, Input } from 'reactstrap';
 import { OptionifiedProps } from "@util/OptionifyObjectProps";
 
 type ClassInstructor = t.TypeOf<typeof classInstructorValidator>;
@@ -31,7 +31,7 @@ export default function ManageClassInstructorsPage(props: { instructors: ClassIn
 		sort: true,
 	}];
 
-	const form = (rowForEdit: OptionifiedProps<ClassInstructor>, updateState: (id: string, value: string) => void) => <Form>
+	const formComponents = (rowForEdit: OptionifiedProps<ClassInstructor>, updateState: (id: string, value: string) => void) => <React.Fragment>
 		<FormGroup row>
 			<Label sm={2} className="text-sm-right">
 				ID
@@ -56,7 +56,7 @@ export default function ManageClassInstructorsPage(props: { instructors: ClassIn
 				/>
 			</Col>
 		</FormGroup>
-		<FormGroup row>
+		{/* <FormGroup row>
 			<Label sm={2} className="text-sm-right">
 				Last Name
 			</Label>
@@ -70,15 +70,15 @@ export default function ManageClassInstructorsPage(props: { instructors: ClassIn
 					onChange={event => updateState("NAME_LAST", event.target.value)}
 				/>
 			</Col>
-		</FormGroup>
-	</Form>;
+		</FormGroup> */}
+	</React.Fragment>;
 
 	return <ReportWithModalForm
 		rowValidator={classInstructorValidator}
 		rows={props.instructors}
 		primaryKey="INSTRUCTOR_ID"
 		columns={columns}
-		form={form}
+		formComponents={formComponents}
 		submitRow={putInstructor}
 	/>;
 }
