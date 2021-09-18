@@ -56,7 +56,7 @@ export default function ManageClassInstructorsPage(props: { instructors: ClassIn
 				/>
 			</Col>
 		</FormGroup>
-		{/* <FormGroup row>
+		<FormGroup row>
 			<Label sm={2} className="text-sm-right">
 				Last Name
 			</Label>
@@ -70,7 +70,7 @@ export default function ManageClassInstructorsPage(props: { instructors: ClassIn
 					onChange={event => updateState("NAME_LAST", event.target.value)}
 				/>
 			</Col>
-		</FormGroup> */}
+		</FormGroup>
 	</React.Fragment>;
 
 	return <ReportWithModalForm
