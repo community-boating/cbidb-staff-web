@@ -13,26 +13,26 @@ import { validator, getWrapper } from "@async/rest/tags";
 export const manageTagsPath = adminBasePath.appendPathSegment("tags");
 
 export const manageTagsPageRoute = new RouteWrapper(
-    {
-        requiresAuth: true,
-        exact: true,
-        pathWrapper: manageTagsPath,
-        sidebarTitle: "Manage Tags",
-        pageName: PageName.MANAGE_TAGS,
-        requireSudo: true,
-    },
-    (history) => (
-        <PageWrapper
-            key="manage tags"
-            history={history}
-            component={(_urlProps: {}, async: t.TypeOf<typeof validator>) => (
-                <ManageTagsPage tags={async} />
-            )}
-            urlProps={{}}
-            getAsyncProps={() => {
-                return getWrapper.send(null);
-            }}
-            shadowComponent={<Loader />}
-        />
-    )
+	{
+		requiresAuth: true,
+		exact: true,
+		pathWrapper: manageTagsPath,
+		sidebarTitle: "Manage Tags",
+		pageName: PageName.MANAGE_TAGS,
+		requireSudo: true,
+	},
+	(history) => (
+		<PageWrapper
+			key="manage tags"
+			history={history}
+			component={(_urlProps: {}, async: t.TypeOf<typeof validator>) => (
+				<ManageTagsPage tags={async} />
+			)}
+			urlProps={{}}
+			getAsyncProps={() => {
+				return getWrapper.send(null);
+			}}
+			shadowComponent={<Loader />}
+		/>
+	)
 );
