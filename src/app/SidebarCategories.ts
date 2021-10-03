@@ -34,11 +34,11 @@ const admin: SideBarCategory = {
 	children: [
 		usersPageRoute,
 		manageClassInstructorsPageRoute,
+		manageTagsPageRoute,
 	],
 	unrenderedChildren: [
 		usersNewPageRoute,
 		usersEditPageRoute,
-		manageTagsPageRoute,
 	]
 };
 
