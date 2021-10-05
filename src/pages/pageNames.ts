@@ -6,4 +6,5 @@ export enum PageName {
 	USERS_NEW="users_new",
 	STAGGERED_ORDER="staggered_order",
 	MANAGE_INSTRUCTORS="manage_instructors",
+	MANAGE_TAGS = "manage_tags",
 }

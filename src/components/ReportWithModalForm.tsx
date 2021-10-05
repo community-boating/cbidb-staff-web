@@ -20,6 +20,7 @@ export default function ReportWithModalForm<T extends t.TypeC<any>, U extends ob
 	columns: ColumnDescription[],
 	formComponents: (rowForEdit: OptionifiedProps<U>, updateState: (id: string, value: string) => void) => JSX.Element
 	submitRow: APIWrapper<any, U, any>
+	cardTitle?: string;
 }) {
 	const blankForm = {
 		rowForEdit: optionifyAndMakeDefault(props.rowValidator),
@@ -121,7 +122,7 @@ export default function ReportWithModalForm<T extends t.TypeC<any>, U extends ob
 		</Modal>
 		<Card>
 			<CardHeader>
-				<CardTitle tag="h5" className="mb-0">JP Class Instructors</CardTitle>
+				<CardTitle tag="h5" className="mb-0">{props.cardTitle ?? "Report Table"}</CardTitle>
 			</CardHeader>
 			<CardBody>
 				<div style={{width: "900px"}} >
