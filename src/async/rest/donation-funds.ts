@@ -1,4 +1,3 @@
-import { ApiResult } from "@core/APIWrapperTypes";
 import * as t from "io-ts";
 import APIWrapper from "../../core/APIWrapper";
 import { HttpMethod } from "../../core/HttpMethod";
@@ -6,35 +5,23 @@ import { HttpMethod } from "../../core/HttpMethod";
 export const donationFundValidator = t.type({
 	FUND_ID: t.number,
 	FUND_NAME: t.string,
+	LETTER_TEXT: t.union([t.string, t.null]),
+	ACTIVE: t.boolean,
+	DISPLAY_ORDER: t.union([t.number, t.null]),
+	SHOW_IN_CHECKOUT: t.union([t.boolean, t.null]),
+	PORTAL_DESCRIPTION: t.union([t.string, t.null]),
+	IS_ENDOWMENT: t.union([t.boolean, t.null]),
 });
 
 export const validator = t.array(donationFundValidator);
 
-const path = "/rest/donation-funds";
+const path = "/rest/donation-fund";
 
-// export const getWrapper = new APIWrapper({
-// 	path,
-// 	type: HttpMethod.GET,
-// 	resultValidator: validator,
-// });
-
-export const getWrapper = (): Promise<
-	ApiResult<t.TypeOf<typeof validator>>
-> => {
-	return Promise.resolve({
-		type: "Success",
-		success: [
-			{
-				FUND_ID: 123456,
-				FUND_NAME: "Unrestricted Donation",
-			},
-			{
-				FUND_ID: 7,
-				FUND_NAME: "Junior Program Current Operations",
-			},
-		],
-	} as ApiResult<t.TypeOf<typeof validator>>);
-};
+export const getWrapper = new APIWrapper({
+	path,
+	type: HttpMethod.GET,
+	resultValidator: validator,
+});
 
 const resultValidator = t.type({
 	FUND_ID: t.number,

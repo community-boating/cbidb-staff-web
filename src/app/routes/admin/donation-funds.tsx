@@ -26,11 +26,11 @@ export const manageDonationFundsPageRoute = new RouteWrapper(
 			key="manage donation funds"
 			history={history}
 			component={(_urlProps: {}, async: t.TypeOf<typeof validator>) => (
-				<ManageDonationFundsPage donations={async} />
+				<ManageDonationFundsPage donationFunds={async} />
 			)}
 			urlProps={{}}
 			getAsyncProps={() => {
-				return getWrapper();
+				return getWrapper.send(undefined);
 			}}
 			shadowComponent={<Loader />}
 		/>

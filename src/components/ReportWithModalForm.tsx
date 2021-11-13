@@ -18,7 +18,7 @@ export default function ReportWithModalForm<T extends t.TypeC<any>, U extends ob
 	rows: U[],
 	primaryKey: string & keyof U,
 	columns: ColumnDescription[],
-	formComponents: (rowForEdit: OptionifiedProps<U>, updateState: (id: string, value: string) => void) => JSX.Element
+	formComponents: (rowForEdit: OptionifiedProps<U>, updateState: (id: string, value: string | boolean) => void) => JSX.Element
 	submitRow: APIWrapper<any, U, any>
 	cardTitle?: string;
 }) {
@@ -61,6 +61,8 @@ export default function ReportWithModalForm<T extends t.TypeC<any>, U extends ob
 
 	const submit = () => {
 		return props.submitRow.send(makePostJSON(deoptionifyProps(formData.rowForEdit))).then(ret => {
+			console.log("DATA",makePostJSON(deoptionifyProps(formData.rowForEdit)))
+			console.log("RET",ret)
 			if (ret.type == "Success") {
 				closeModal();
 				if (rowData.find(r => r[props.primaryKey] == formData.rowForEdit[props.primaryKey].getOrElse(null))) {
@@ -90,8 +92,6 @@ export default function ReportWithModalForm<T extends t.TypeC<any>, U extends ob
 			openForEdit(some(String(r[props.primaryKey])));
 		}}><EditIcon color="#777" size="1.4em" /></a>,
 	}));
-
-	console.log(formData)
 
 	return <React.Fragment>
 		<Modal
