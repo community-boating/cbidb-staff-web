@@ -20,7 +20,6 @@ export const getWrapper = new APIWrapper({
 
 const resultValidator = t.type({
 	LOCATION_ID: t.number,
-	LOCATION_NAME: t.string,
 });
 
 export const putWrapper = new APIWrapper<

@@ -89,7 +89,7 @@ export default function ManageClassLocationsPage(props: {
 				<Col sm={9}>
 					<CustomInput
 						type="checkbox"
-						id="highSchoolActive"
+						id="isActive"
 						checked={rowForEdit.ACTIVE.getOrElse(false)}
 						className="text-left"
 						onChange={(event) => updateState("ACTIVE", event.target.checked)}
