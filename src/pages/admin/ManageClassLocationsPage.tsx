@@ -73,7 +73,7 @@ export default function ManageClassLocationsPage(props: {
 					<Input
 						type="text"
 						name="tagName"
-						placeholder="ClassLocation Name"
+						placeholder="Class Location Name"
 						value={rowForEdit.LOCATION_NAME.getOrElse("")}
 						onChange={(event) =>
 							updateState("LOCATION_NAME", event.target.value)
