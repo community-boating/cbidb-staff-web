@@ -1,7 +1,8 @@
 import * as React from "react";
 import * as t from "io-ts";
-import { FormGroup, Label, Col, Input } from "reactstrap";
+import { FormGroup, Label, Col, Input, CustomInput } from "reactstrap";
 import { ColumnDescription } from "react-bootstrap-table-next";
+import { Check as CheckIcon } from "react-feather";
 
 // Table building utilities
 import { tableColWidth } from "@util/tableUtil";
@@ -16,7 +17,9 @@ import ReportWithModalForm from "@components/ReportWithModalForm";
 
 type ClassLocation = t.TypeOf<typeof classLocationValidator>;
 
-export default function ManageClassLocationsPage(props: { locations: ClassLocation[] }) {
+export default function ManageClassLocationsPage(props: {
+	locations: ClassLocation[];
+}) {
 	// Define table columns
 	const columns: ColumnDescription[] = [
 		{
@@ -32,38 +35,64 @@ export default function ManageClassLocationsPage(props: { locations: ClassLocati
 		},
 		{
 			dataField: "LOCATION_NAME",
-			text: "ClassLocation Name",
+			text: "Name",
 			sort: true,
+		},
+		{
+			dataField: "ACTIVE",
+			text: "Active",
+			sort: true,
+			formatter: (value: boolean, _row) => {
+				return value ? <CheckIcon color="#777" size="1.4em" /> : null;
+			},
+			...tableColWidth(100),
 		},
 	];
 
 	// Define edit/add form
 	const formComponents = (
 		rowForEdit: OptionifiedProps<ClassLocation>,
-		updateState: (id: string, value: string) => void
+		updateState: (id: string, value: string | boolean) => void
 	) => (
 		<React.Fragment>
 			<FormGroup row>
-				<Label sm={2} className="text-sm-right">
+				<Label sm={3} className="text-sm-right">
 					ID
 				</Label>
-				<Col sm={10}>
-					<div style={{ textAlign: "left", padding: "5px 14px" }}>
+				<Col sm={9}>
+					<div style={{ padding: "5px" }} className="text-left">
 						{rowForEdit.LOCATION_ID.map(String).getOrElse("(none)")}
 					</div>
 				</Col>
 			</FormGroup>
 			<FormGroup row>
-				<Label sm={2} className="text-sm-right">
-					Class Location Name
+				<Label sm={3} className="text-sm-right">
+					Location Name
 				</Label>
-				<Col sm={10}>
+				<Col sm={9}>
 					<Input
 						type="text"
 						name="tagName"
 						placeholder="ClassLocation Name"
 						value={rowForEdit.LOCATION_NAME.getOrElse("")}
-						onChange={(event) => updateState("LOCATION_NAME", event.target.value)}
+						onChange={(event) =>
+							updateState("LOCATION_NAME", event.target.value)
+						}
+					/>
+				</Col>
+			</FormGroup>
+
+			<FormGroup row className="align-items-center">
+				<Label sm={3} className="text-sm-right">
+					Active
+				</Label>
+				<Col sm={9}>
+					<CustomInput
+						type="checkbox"
+						id="highSchoolActive"
+						checked={rowForEdit.ACTIVE.getOrElse(false)}
+						className="text-left"
+						onChange={(event) => updateState("ACTIVE", event.target.checked)}
 					/>
 				</Col>
 			</FormGroup>

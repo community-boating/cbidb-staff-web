@@ -30,7 +30,7 @@ export const manageClassLocationsPageRoute = new RouteWrapper(
 			)}
 			urlProps={{}}
 			getAsyncProps={() => {
-				return getWrapper();
+				return getWrapper.send(null);
 			}}
 			shadowComponent={<Loader />}
 		/>

@@ -18,7 +18,7 @@ export default function ReportWithModalForm<T extends t.TypeC<any>, U extends ob
 	rows: U[],
 	primaryKey: string & keyof U,
 	columns: ColumnDescription[],
-	formComponents: (rowForEdit: OptionifiedProps<U>, updateState: (id: string, value: string) => void) => JSX.Element
+	formComponents: (rowForEdit: OptionifiedProps<U>, updateState: (id: string, value: string | boolean) => void) => JSX.Element
 	submitRow: APIWrapper<any, U, any>
 	cardTitle?: string;
 }) {
@@ -125,7 +125,7 @@ export default function ReportWithModalForm<T extends t.TypeC<any>, U extends ob
 				<CardTitle tag="h5" className="mb-0">{props.cardTitle ?? "Report Table"}</CardTitle>
 			</CardHeader>
 			<CardBody>
-				<div style={{width: "900px"}} >
+				<div>
 					<SimpleReport 
 						keyField={props.primaryKey}
 						data={data}
