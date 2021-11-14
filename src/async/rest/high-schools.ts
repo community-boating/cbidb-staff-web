@@ -19,8 +19,7 @@ export const getWrapper = new APIWrapper({
 });
 
 const resultValidator = t.type({
-	SCHOOL_ID: t.number,
-	ACTIVE: t.boolean
+	SCHOOL_ID: t.number
 });
 
 export const putWrapper = new APIWrapper<
