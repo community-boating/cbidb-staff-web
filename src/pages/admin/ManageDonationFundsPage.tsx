@@ -6,7 +6,6 @@ import { Check as CheckIcon } from "react-feather";
 
 // Table building utilities
 import { tableColWidth } from "@util/tableUtil";
-import { OptionifiedProps } from "@util/OptionifyObjectProps";
 
 // Validator and putter for the data type of this page
 import { donationFundValidator } from "@async/rest/donation-funds";
@@ -14,6 +13,7 @@ import { putWrapper as putDonationFund } from "@async/rest/donation-funds";
 
 // The common display structure which is a table editable via modal
 import ReportWithModalForm from "@components/ReportWithModalForm";
+import { StringifiedProps } from "@util/StringifyObjectProps";
 
 type DonationFund = t.TypeOf<typeof donationFundValidator>;
 
@@ -47,9 +47,6 @@ export default function ManageDonationFundsPage(props: {
 			dataField: "ACTIVE",
 			text: "Active",
 			sort: true,
-			formatter: (value: boolean, _row) => {
-				return value ? <CheckIcon color="#777" size="1.4em" /> : null;
-			},
 			...tableColWidth(100),
 		},
 		{
@@ -62,9 +59,6 @@ export default function ManageDonationFundsPage(props: {
 			dataField: "SHOW_IN_CHECKOUT",
 			text: "Show in Checkout",
 			sort: true,
-			formatter: (value: boolean, _row) => {
-				return value ? <CheckIcon color="#777" size="1.4em" /> : null;
-			},
 			...tableColWidth(125),
 		},
 		{
@@ -76,16 +70,13 @@ export default function ManageDonationFundsPage(props: {
 			dataField: "IS_ENDOWMENT",
 			text: "Is Endowment",
 			sort: true,
-			formatter: (value: boolean, _row) => {
-				return value ? <CheckIcon color="#777" size="1.4em" /> : null;
-			},
 			...tableColWidth(125),
 		},
 	];
 
 	// Define edit/add form
 	const formComponents = (
-		rowForEdit: OptionifiedProps<DonationFund>,
+		rowForEdit: StringifiedProps<DonationFund>,
 		updateState: (id: string, value: string | boolean) => void
 	) => (
 		<React.Fragment>
@@ -95,7 +86,7 @@ export default function ManageDonationFundsPage(props: {
 				</Label>
 				<Col sm={9}>
 					<div style={{ padding: "5px" }} className="text-left">
-						{rowForEdit.FUND_ID.map(String).getOrElse("(none)")}
+						{rowForEdit.FUND_ID || "(none)"}
 					</div>
 				</Col>
 			</FormGroup>
@@ -109,7 +100,7 @@ export default function ManageDonationFundsPage(props: {
 						type="text"
 						name="fundName"
 						placeholder="Fund Name"
-						value={rowForEdit.FUND_NAME.getOrElse("")}
+						value={rowForEdit.FUND_NAME}
 						onChange={(event) => updateState("FUND_NAME", event.target.value)}
 					/>
 				</Col>
@@ -124,7 +115,7 @@ export default function ManageDonationFundsPage(props: {
 						type="textarea"
 						name="letterText"
 						placeholder=""
-						value={rowForEdit.LETTER_TEXT.getOrElse("")}
+						value={rowForEdit.LETTER_TEXT}
 						onChange={(event) => updateState("LETTER_TEXT", event.target.value)}
 					/>
 				</Col>
@@ -138,7 +129,7 @@ export default function ManageDonationFundsPage(props: {
 					<CustomInput
 						type="checkbox"
 						id="isActive"
-						checked={rowForEdit.ACTIVE.getOrElse(false)}
+						checked={rowForEdit.ACTIVE == "Y"}
 						className="text-left"
 						onChange={(event) => updateState("ACTIVE", event.target.checked)}
 					/>
@@ -153,8 +144,7 @@ export default function ManageDonationFundsPage(props: {
 					<Input
 						type="number"
 						name="displayOrder"
-						placeholder="0"
-						value={rowForEdit.DISPLAY_ORDER.getOrElse(0)}
+						value={rowForEdit.DISPLAY_ORDER}
 						onChange={(event) =>
 							updateState("DISPLAY_ORDER", event.target.value)
 						}
@@ -170,7 +160,7 @@ export default function ManageDonationFundsPage(props: {
 					<CustomInput
 						type="checkbox"
 						id="showInCheckout"
-						checked={rowForEdit.SHOW_IN_CHECKOUT.getOrElse(false)}
+						checked={rowForEdit.SHOW_IN_CHECKOUT == "Y"}
 						className="text-left"
 						onChange={(event) =>
 							updateState("SHOW_IN_CHECKOUT", event.target.checked)
@@ -188,7 +178,7 @@ export default function ManageDonationFundsPage(props: {
 						type="textarea"
 						name="portalDescription"
 						placeholder=""
-						value={rowForEdit.PORTAL_DESCRIPTION.getOrElse("")}
+						value={rowForEdit.PORTAL_DESCRIPTION}
 						onChange={(event) => updateState("PORTAL_DESCRIPTION", event.target.value)}
 					/>
 				</Col>
@@ -202,7 +192,7 @@ export default function ManageDonationFundsPage(props: {
 					<CustomInput
 						type="checkbox"
 						id="isEndowment"
-						checked={rowForEdit.IS_ENDOWMENT.getOrElse(false)}
+						checked={rowForEdit.IS_ENDOWMENT == "Y"}
 						className="text-left"
 						onChange={(event) =>
 							updateState("IS_ENDOWMENT", event.target.checked)
@@ -217,6 +207,15 @@ export default function ManageDonationFundsPage(props: {
 		<ReportWithModalForm
 			rowValidator={donationFundValidator}
 			rows={props.donationFunds}
+			formatRowForDisplay={fund => ({
+				...fund,
+				LETTER_TEXT: fund.LETTER_TEXT.getOrElse(""),
+				DISPLAY_ORDER: fund.DISPLAY_ORDER.map(String).getOrElse(""),
+				PORTAL_DESCRIPTION: fund.PORTAL_DESCRIPTION.getOrElse(""),
+				ACTIVE: fund.ACTIVE ? <CheckIcon color="#777" size="1.4em" /> : null,
+				SHOW_IN_CHECKOUT: fund.SHOW_IN_CHECKOUT ? <CheckIcon color="#777" size="1.4em" /> : null,
+				IS_ENDOWMENT: fund.IS_ENDOWMENT ? <CheckIcon color="#777" size="1.4em" /> : null,
+			})}
 			primaryKey="FUND_ID"
 			columns={columns}
 			formComponents={formComponents}

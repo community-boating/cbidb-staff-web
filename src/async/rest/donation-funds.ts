@@ -1,3 +1,4 @@
+import { OptionalNumber, OptionalString } from "@util/OptionalTypeValidators";
 import * as t from "io-ts";
 import APIWrapper from "../../core/APIWrapper";
 import { HttpMethod } from "../../core/HttpMethod";
@@ -5,12 +6,12 @@ import { HttpMethod } from "../../core/HttpMethod";
 export const donationFundValidator = t.type({
 	FUND_ID: t.number,
 	FUND_NAME: t.string,
-	LETTER_TEXT: t.union([t.string, t.null]),
+	LETTER_TEXT: OptionalString,
 	ACTIVE: t.boolean,
-	DISPLAY_ORDER: t.union([t.number, t.null]),
-	SHOW_IN_CHECKOUT: t.union([t.boolean, t.null]),
-	PORTAL_DESCRIPTION: t.union([t.string, t.null]),
-	IS_ENDOWMENT: t.union([t.boolean, t.null]),
+	DISPLAY_ORDER: OptionalNumber,
+	SHOW_IN_CHECKOUT: t.boolean,
+	PORTAL_DESCRIPTION: OptionalString,
+	IS_ENDOWMENT: t.boolean,
 });
 
 export const validator = t.array(donationFundValidator);
