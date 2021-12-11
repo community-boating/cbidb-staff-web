@@ -9,6 +9,7 @@ import { jpClassesPageRoute } from "@routes/jp-classes";
 import { staggeredOrderRoute } from "@routes/staggered-order";
 import { manageClassInstructorsPageRoute } from "@routes/admin/class-instructors";
 import { manageTagsPageRoute } from "@routes/admin/tags";
+import { manageDonationFundsPageRoute } from "@routes/admin/donation-funds";
 
 export type SideBarCategory = {
 	path: string,
@@ -35,6 +36,7 @@ const admin: SideBarCategory = {
 		usersPageRoute,
 		manageClassInstructorsPageRoute,
 		manageTagsPageRoute,
+		manageDonationFundsPageRoute,
 	],
 	unrenderedChildren: [
 		usersNewPageRoute,

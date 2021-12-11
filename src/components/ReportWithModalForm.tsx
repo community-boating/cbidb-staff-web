@@ -10,20 +10,21 @@ import { ErrorPopup } from "@components/ErrorPopup";
 import { none, Option, some } from "fp-ts/lib/Option";
 import { makePostJSON } from "@core/APIWrapperUtil";
 import APIWrapper from "@core/APIWrapper";
-import { deoptionifyProps, OptionifiedProps, optionifyAndMakeDefault, optionifyProps } from "@util/OptionifyObjectProps";
 import { ButtonWrapper } from "./ButtonWrapper";
+import { destringify, DisplayableProps, nullifyEmptyStrings, StringifiedProps, stringify, stringifyAndMakeBlank } from "@util/StringifyObjectProps";
 
 export default function ReportWithModalForm<T extends t.TypeC<any>, U extends object = t.TypeOf<T>>(props: {
 	rowValidator: T
 	rows: U[],
+	formatRowForDisplay: (row: U) => DisplayableProps<U>,
 	primaryKey: string & keyof U,
 	columns: ColumnDescription[],
-	formComponents: (rowForEdit: OptionifiedProps<U>, updateState: (id: string, value: string) => void) => JSX.Element
+	formComponents: (rowForEdit: StringifiedProps<U>, updateState: (id: string, value: string | boolean) => void) => JSX.Element
 	submitRow: APIWrapper<any, U, any>
 	cardTitle?: string;
 }) {
 	const blankForm = {
-		rowForEdit: optionifyAndMakeDefault(props.rowValidator),
+		rowForEdit: stringifyAndMakeBlank(props.rowValidator),
 	}
 
 	const [modalIsOpen, setModalIsOpen] = React.useState(false);
@@ -37,19 +38,24 @@ export default function ReportWithModalForm<T extends t.TypeC<any>, U extends ob
 		if (id.isSome()) {
 			const row = rowData.find(i => String(i[props.primaryKey]) == id.getOrElse(null))
 			setFormData({
-				rowForEdit: optionifyProps(row),
+				rowForEdit: stringify(row),
 			})
 		} else {
 			setFormData(blankForm)
 		}
 	}
 
-	const updateState = (id: string, value: string) => {
+	const updateState = (id: string, value: string | boolean) => {
+		const valToSet = (() => {
+			if (value === true) return "Y";
+			else if (value === false) return "N";
+			else return value;
+		})();
 		setFormData({
 			...formData,
 			rowForEdit: {
 				...formData.rowForEdit,
-				[id]: some(value)
+				[id]: valToSet
 			}
 		})
 	}
@@ -60,27 +66,59 @@ export default function ReportWithModalForm<T extends t.TypeC<any>, U extends ob
 	}
 
 	const submit = () => {
-		return props.submitRow.send(makePostJSON(deoptionifyProps(formData.rowForEdit))).then(ret => {
-			if (ret.type == "Success") {
-				closeModal();
-				if (rowData.find(r => r[props.primaryKey] == formData.rowForEdit[props.primaryKey].getOrElse(null))) {
-					// was an update
-					updateRowData(rowData.map(row => {
-						if (formData.rowForEdit[props.primaryKey].getOrElse(null) == row[props.primaryKey]) {
-							return deoptionifyProps(formData.rowForEdit);
-						} else return row;
-					}))
+		setValidationErrors([]);
+		return new Promise((resolve, reject) => {
+			// Let the event queue drain so the validation errors actually flicker off, before we push new ones
+			window.setTimeout(() => {
+				// Turn empty strings to nulls, then turn strings back to numbers/booleans
+				// HOWEVER, do not turn optional values back into options.  The validator is expecting the same shape as what would have come from the server,
+				// ie either a value or null.
+				const candidateForValidation = destringify(props.rowValidator, nullifyEmptyStrings(formData.rowForEdit), false, props.primaryKey);
+
+				// On a create, ID will be null which is not ok per the validator.  Shove some crap in there to make it happy
+				const pkValue = candidateForValidation[props.primaryKey] === null ? -1 : candidateForValidation[props.primaryKey];
+				const validateResult = props.rowValidator.decode({
+					...candidateForValidation,
+					[props.primaryKey]: pkValue
+				});
+				
+				if (validateResult.isRight()) {
+					// Destringify again, this time turning optional values back into options. It's a bit pointless since
+					// they will be stripped out again before sending to the server, but ApiWrapper expects actual option values
+					// Besides, we need to give that value back to the table anyway.
+					const toSend = destringify(props.rowValidator, nullifyEmptyStrings(formData.rowForEdit), true, props.primaryKey);
+					props.submitRow.send(makePostJSON(toSend)).then(ret => {
+						if (ret.type == "Success") {
+							closeModal();
+							if (rowData.find(r => String(r[props.primaryKey]) == formData.rowForEdit[props.primaryKey])) {
+								// was an update.  Find the row and update it
+								updateRowData(rowData.map(row => {
+									if (formData.rowForEdit[props.primaryKey] == String(row[props.primaryKey])) {
+										return toSend;
+									} else {
+										return row;
+									}
+								}))
+							} else {
+								// was a create.  Add the new row after injecting the PK from the server
+								updateRowData(rowData.concat([{
+									...toSend,
+									[props.primaryKey]: ret.success[props.primaryKey]
+								}]))
+							}
+						} else {
+							setValidationErrors([ret.message])
+						}
+						resolve(null);
+					})
 				} else {
-					// was a create
-					updateRowData(rowData.concat([{
-						...deoptionifyProps(formData.rowForEdit),
-						[props.primaryKey]: ret.success[props.primaryKey]
-					}]))
+					//TODO: I'm sure we can do better than this
+					setValidationErrors(["At least one field is not valid."]);
+					resolve(null);
 				}
-			} else {
-				setValidationErrors([ret.message])
-			}
+			}, 0);
 		})
+		
 	}
 
 	const data = rowData.map(r => ({
@@ -90,8 +128,6 @@ export default function ReportWithModalForm<T extends t.TypeC<any>, U extends ob
 			openForEdit(some(String(r[props.primaryKey])));
 		}}><EditIcon color="#777" size="1.4em" /></a>,
 	}));
-
-	console.log(formData)
 
 	return <React.Fragment>
 		<Modal
@@ -125,10 +161,10 @@ export default function ReportWithModalForm<T extends t.TypeC<any>, U extends ob
 				<CardTitle tag="h5" className="mb-0">{props.cardTitle ?? "Report Table"}</CardTitle>
 			</CardHeader>
 			<CardBody>
-				<div style={{width: "900px"}} >
+				<div>
 					<SimpleReport 
 						keyField={props.primaryKey}
-						data={data}
+						data={data.map(props.formatRowForDisplay)}
 						columns={props.columns}
 						bootstrap4
 						bordered={false}
