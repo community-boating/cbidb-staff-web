@@ -6,8 +6,7 @@ import { Check as CheckIcon } from "react-feather";
 
 // Table building utilities
 import { tableColWidth } from "@util/tableUtil";
-import { OptionifiedProps } from "@util/OptionifyObjectProps";
-// import {formUpdateState} from '@util/form-update-state';
+import { StringifiedProps } from "@util/StringifyObjectProps";
 
 // Validator and putter for the data type of this page
 import { highSchoolValidator } from "@async/rest/high-schools";
@@ -15,7 +14,6 @@ import { putWrapper as putHighSchool } from "@async/rest/high-schools";
 
 // The common display structure which is a table editable via modal
 import ReportWithModalForm from "@components/ReportWithModalForm";
-// import FormElementCheckbox from "@components/form/FormElementCheckbox";
 
 type HighSchool = t.TypeOf<typeof highSchoolValidator>;
 // class FormCheckbox extends FormElementCheckbox<FormData> {}
@@ -45,16 +43,13 @@ export default function ManageHighSchoolsPage(props: {
 			dataField: "ACTIVE",
 			text: "Active",
 			sort: true,
-			formatter: (value: boolean, row) => {
-				return value ? <CheckIcon color="#777" size="1.4em" /> : null;
-			},
 			...tableColWidth(100),
 		},
 	];
 
 	// Define edit/add form
 	const formComponents = (
-		rowForEdit: OptionifiedProps<HighSchool>,
+		rowForEdit: StringifiedProps<HighSchool>,
 		updateState: (id: string, value: string | boolean) => void
 	) => (
 		<React.Fragment>
@@ -64,7 +59,7 @@ export default function ManageHighSchoolsPage(props: {
 				</Label>
 				<Col sm={9}>
 					<div style={{ padding: "5px" }} className="text-left">
-						{rowForEdit.SCHOOL_ID.map(String).getOrElse("(none)")}
+						{rowForEdit.SCHOOL_ID || "(none)"}
 					</div>
 				</Col>
 			</FormGroup>
@@ -77,7 +72,7 @@ export default function ManageHighSchoolsPage(props: {
 						type="text"
 						name="highSchoolName"
 						placeholder="School Name"
-						value={rowForEdit.SCHOOL_NAME.getOrElse("")}
+						value={rowForEdit.SCHOOL_NAME}
 						onChange={(event) => updateState("SCHOOL_NAME", event.target.value)}
 					/>
 				</Col>
@@ -90,7 +85,7 @@ export default function ManageHighSchoolsPage(props: {
 					<CustomInput
 						type="checkbox"
 						id="highSchoolActive"
-						checked={rowForEdit.ACTIVE.getOrElse(false)}
+						checked={rowForEdit.ACTIVE == "Y"}
 						className="text-left"
 						onChange={(event) => updateState("ACTIVE", event.target.checked)}
 					/>
@@ -103,6 +98,10 @@ export default function ManageHighSchoolsPage(props: {
 		<ReportWithModalForm
 			rowValidator={highSchoolValidator}
 			rows={props.highSchools}
+			formatRowForDisplay={(hs) => ({
+				...hs,
+				ACTIVE: hs.ACTIVE ? <CheckIcon color="#777" size="1.4em" /> : null,
+			})}
 			primaryKey="SCHOOL_ID"
 			columns={columns}
 			formComponents={formComponents}
