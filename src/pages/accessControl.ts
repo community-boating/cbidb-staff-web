@@ -14,6 +14,7 @@ export function canAccessPage(pageName: PageName): boolean {
 		case PageName.MANAGE_INSTRUCTORS:
 		case PageName.MANAGE_TAGS:
 		case PageName.MANAGE_CLASS_LOCATIONS:
+		case PageName.MANAGE_DONATION_FUNDS:
 			const userType = asc.state.login.permissions.getOrElse(null).userType;
 			return userType == "M" || userType == "A";
 		default:
