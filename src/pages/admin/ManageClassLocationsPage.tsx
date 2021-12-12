@@ -6,7 +6,7 @@ import { Check as CheckIcon } from "react-feather";
 
 // Table building utilities
 import { tableColWidth } from "@util/tableUtil";
-import { OptionifiedProps } from "@util/OptionifyObjectProps";
+import { StringifiedProps } from "@util/StringifyObjectProps";
 
 // Validator and putter for the data type of this page
 import { classLocationValidator } from "@async/rest/class-locations";
@@ -42,16 +42,13 @@ export default function ManageClassLocationsPage(props: {
 			dataField: "ACTIVE",
 			text: "Active",
 			sort: true,
-			formatter: (value: boolean, _row) => {
-				return value ? <CheckIcon color="#777" size="1.4em" /> : null;
-			},
 			...tableColWidth(100),
 		},
 	];
 
 	// Define edit/add form
 	const formComponents = (
-		rowForEdit: OptionifiedProps<ClassLocation>,
+		rowForEdit: StringifiedProps<ClassLocation>,
 		updateState: (id: string, value: string | boolean) => void
 	) => (
 		<React.Fragment>
@@ -61,7 +58,7 @@ export default function ManageClassLocationsPage(props: {
 				</Label>
 				<Col sm={9}>
 					<div style={{ padding: "5px" }} className="text-left">
-						{rowForEdit.LOCATION_ID.map(String).getOrElse("(none)")}
+						{rowForEdit.LOCATION_ID || "(none)"}
 					</div>
 				</Col>
 			</FormGroup>
@@ -74,7 +71,7 @@ export default function ManageClassLocationsPage(props: {
 						type="text"
 						name="tagName"
 						placeholder="Class Location Name"
-						value={rowForEdit.LOCATION_NAME.getOrElse("")}
+						value={rowForEdit.LOCATION_NAME}
 						onChange={(event) =>
 							updateState("LOCATION_NAME", event.target.value)
 						}
@@ -90,7 +87,7 @@ export default function ManageClassLocationsPage(props: {
 					<CustomInput
 						type="checkbox"
 						id="isActive"
-						checked={rowForEdit.ACTIVE.getOrElse(false)}
+						checked={rowForEdit.ACTIVE == "Y"}
 						className="text-left"
 						onChange={(event) => updateState("ACTIVE", event.target.checked)}
 					/>
@@ -103,6 +100,12 @@ export default function ManageClassLocationsPage(props: {
 		<ReportWithModalForm
 			rowValidator={classLocationValidator}
 			rows={props.locations}
+			formatRowForDisplay={(location) => ({
+				...location,
+				ACTIVE: location.ACTIVE ? (
+					<CheckIcon color="#777" size="1.4em" />
+				) : null,
+			})}
 			primaryKey="LOCATION_ID"
 			columns={columns}
 			formComponents={formComponents}
