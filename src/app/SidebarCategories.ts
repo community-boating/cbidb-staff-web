@@ -1,15 +1,18 @@
 import {
 	Compass,
 	Sliders as SlidersIcon,
-	HelpCircle
+	Users as UsersIcon,
+	// HelpCircle
 } from "react-feather";
 import { usersEditPageRoute, usersNewPageRoute, usersPageRoute } from "./routes/users";
 import RouteWrapper from "../core/RouteWrapper";
 import { jpClassesPageRoute } from "@routes/jp-classes";
-import { staggeredOrderRoute } from "@routes/staggered-order";
+// import { staggeredOrderRoute } from "@routes/staggered-order";
 import { manageClassInstructorsPageRoute } from "@routes/admin/class-instructors";
 import { manageTagsPageRoute } from "@routes/admin/tags";
 import { manageDonationFundsPageRoute } from "@routes/admin/donation-funds";
+import { searchPageRoute } from "@routes/summary/_base";
+import { summaryPageRoute } from "@routes/summary/person-summary";
 
 export type SideBarCategory = {
 	path: string,
@@ -28,6 +31,18 @@ const jp: SideBarCategory = {
 	]
 }
 
+const person_summary: SideBarCategory = {
+	path: "/person",
+	name: "Members",
+	icon: UsersIcon,
+	children: [
+		searchPageRoute
+	],
+	unrenderedChildren: [
+		summaryPageRoute
+	]
+};
+
 const admin: SideBarCategory = {
 	path: "/tables",
 	name: "Admin",
@@ -44,20 +59,21 @@ const admin: SideBarCategory = {
 	]
 };
 
-const misc: SideBarCategory = {
-	path: "",
-	name: "Misc",
-	icon: HelpCircle,
-	children: [
-	],
-	unrenderedChildren: [
-		staggeredOrderRoute
-	]
-};
+// const misc: SideBarCategory = {
+// 	path: "",
+// 	name: "Misc",
+// 	icon: HelpCircle,
+// 	children: [
+// 	],
+// 	unrenderedChildren: [
+// 		staggeredOrderRoute
+// 	]
+// };
 
 // Dashboard specific routes
 export const sideBarRoutes = [
 	jp,
+	person_summary,
 	admin,
-	misc,
+	// misc,
 ];

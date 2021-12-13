@@ -11,6 +11,8 @@ export function canAccessPage(pageName: PageName): boolean {
 		case PageName.USERS:
 		case PageName.USERS_EDIT:
 		case PageName.USERS_NEW:
+		case PageName.PERSON_SEARCH:
+		case PageName.PERSON_SUMMARY:
 		case PageName.MANAGE_INSTRUCTORS:
 		case PageName.MANAGE_TAGS:
 		case PageName.MANAGE_DONATION_FUNDS:
