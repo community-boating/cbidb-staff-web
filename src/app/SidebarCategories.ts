@@ -10,6 +10,7 @@ import { staggeredOrderRoute } from "@routes/staggered-order";
 import { manageClassInstructorsPageRoute } from "@routes/admin/class-instructors";
 import { manageTagsPageRoute } from "@routes/admin/tags";
 import { manageClassLocationsPageRoute } from "@routes/admin/class-locations";
+import { manageHighSchoolsRoute } from "@routes/admin/high-schools";
 import { manageDonationFundsPageRoute } from "@routes/admin/donation-funds";
 
 export type SideBarCategory = {
@@ -38,6 +39,7 @@ const admin: SideBarCategory = {
 		manageClassInstructorsPageRoute,
 		manageTagsPageRoute,
 		manageClassLocationsPageRoute,
+		manageHighSchoolsRoute,
 		manageDonationFundsPageRoute,
 	],
 	unrenderedChildren: [
