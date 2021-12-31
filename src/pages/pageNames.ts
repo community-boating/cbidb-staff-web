@@ -10,4 +10,5 @@ export enum PageName {
 	MANAGE_HIGH_SCHOOLS = "manage_high_schools",
 	MANAGE_CLASS_LOCATIONS = "manage_class_locations",
 	MANAGE_DONATION_FUNDS = "manage_donation_funds",
+	SALES_DASHBOARD = "sales_dashboard"
 }
