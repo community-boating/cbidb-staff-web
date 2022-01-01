@@ -1,11 +1,11 @@
 import * as React from 'react';
-import { UncontrolledAlert } from 'reactstrap';
+import { Alert } from "react-bootstrap";
 
 export const ErrorPopup = (props: {errors: string[]}) => {
 	if (props.errors.length == 0) {
 		return null;
 	} else {
-		return <UncontrolledAlert color="warning" key="login-error">
+		return <Alert className="my-3" variant="warning">
 			<div className="alert-message">
 				{
 					props.errors.length == 1 
@@ -15,6 +15,6 @@ export const ErrorPopup = (props: {errors: string[]}) => {
 					</ul>
 				}
 			</div>
-		</UncontrolledAlert>
+		</Alert>
 	}
 }
