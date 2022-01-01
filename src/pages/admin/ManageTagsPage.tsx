@@ -13,27 +13,27 @@ import { putWrapper as putTag } from "@async/rest/tags";
 // The common display structure which is a table editable via modal
 import ReportWithModalForm from "@components/ReportWithModalForm";
 import { StringifiedProps } from "@util/StringifyObjectProps";
+import { SimpleReportColumn } from "@core/SimpleReport";
 
 type Tag = t.TypeOf<typeof tagValidator>;
 
 export default function ManageTagsPage(props: { tags: Tag[] }) {
 	// Define table columns
-	const columns: ColumnDescription[] = [
+	const columns: SimpleReportColumn[] = [
 		{
-			dataField: "edit",
-			text: "",
-			...tableColWidth(50),
+			accessor: "edit",
+			Header: "",
+			disableSortBy: true,
+			width: 50,
 		},
 		{
-			dataField: "TAG_ID",
-			text: "ID",
-			sort: true,
-			...tableColWidth(80),
+			accessor: "TAG_ID",
+			Header: "ID",
+			width: 80,
 		},
 		{
-			dataField: "TAG_NAME",
-			text: "Tag Name",
-			sort: true,
+			accessor: "TAG_NAME",
+			Header: "Tag Name",
 		},
 	];
 

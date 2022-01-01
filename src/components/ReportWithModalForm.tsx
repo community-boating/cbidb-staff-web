@@ -1,11 +1,10 @@
 import * as React from "react";
 import * as t from 'io-ts';
 import { Card, CardHeader, CardTitle, CardBody, Modal, ModalHeader, ModalBody, ModalFooter, Button, Form } from 'reactstrap';
-import { ColumnDescription } from "react-bootstrap-table-next";
 import {
 	Edit as EditIcon,
 } from 'react-feather'
-import { SimpleReport } from "@core/SimpleReport";
+import { SimpleReport, SimpleReportColumn } from "@core/SimpleReport";
 import { ErrorPopup } from "@components/ErrorPopup";
 import { none, Option, some } from "fp-ts/lib/Option";
 import { makePostJSON } from "@core/APIWrapperUtil";
@@ -18,7 +17,7 @@ export default function ReportWithModalForm<T extends t.TypeC<any>, U extends ob
 	rows: U[],
 	formatRowForDisplay: (row: U) => DisplayableProps<U>,
 	primaryKey: string & keyof U,
-	columns: ColumnDescription[],
+	columns: SimpleReportColumn[],
 	formComponents: (rowForEdit: StringifiedProps<U>, updateState: (id: string, value: string | boolean) => void) => JSX.Element
 	submitRow: APIWrapper<any, U, any>
 	cardTitle?: string;
@@ -166,8 +165,6 @@ export default function ReportWithModalForm<T extends t.TypeC<any>, U extends ob
 						keyField={props.primaryKey}
 						data={data.map(props.formatRowForDisplay)}
 						columns={props.columns}
-						bootstrap4
-						bordered={false}
 						sizePerPage={12}
 						sizePerPageList={[12, 25, 50, 1000]}
 					/>

@@ -14,6 +14,7 @@ import { putWrapper as putDonationFund } from "@async/rest/donation-funds";
 // The common display structure which is a table editable via modal
 import ReportWithModalForm from "@components/ReportWithModalForm";
 import { StringifiedProps } from "@util/StringifyObjectProps";
+import { SimpleReportColumn } from "@core/SimpleReport";
 
 type DonationFund = t.TypeOf<typeof donationFundValidator>;
 
@@ -21,56 +22,49 @@ export default function ManageDonationFundsPage(props: {
 	donationFunds: DonationFund[];
 }) {
 	// Define table columns
-	const columns: ColumnDescription[] = [
+	const columns: SimpleReportColumn[] = [
 		{
-			dataField: "edit",
-			text: "",
-			...tableColWidth(50),
+			accessor: "edit",
+			Header: "",
+			disableSortBy: true,
+			width: 50,
 		},
 		{
-			dataField: "FUND_ID",
-			text: "ID",
-			sort: true,
-			...tableColWidth(80),
+			accessor: "FUND_ID",
+			Header: "ID",
+			width: 80,
 		},
 		{
-			dataField: "FUND_NAME",
-			text: "Fund Name",
-			sort: true,
+			accessor: "FUND_NAME",
+			Header: "Fund Name",
 		},
 		{
-			dataField: "LETTER_TEXT",
-			text: "Letter Text",
-			sort: true,
+			accessor: "LETTER_TEXT",
+			Header: "Letter Text",
 		},
 		{
-			dataField: "ACTIVE",
-			text: "Active",
-			sort: true,
-			...tableColWidth(100),
+			accessor: "ACTIVE",
+			Header: "Active",
+			width: 100,
 		},
 		{
-			dataField: "DISPLAY_ORDER",
-			text: "Display Order",
-			sort: true,
-			...tableColWidth(130),
+			accessor: "DISPLAY_ORDER",
+			Header: "Display Order",
+			width: 130,
 		},
 		{
-			dataField: "SHOW_IN_CHECKOUT",
-			text: "Show in Checkout",
-			sort: true,
-			...tableColWidth(125),
+			accessor: "SHOW_IN_CHECKOUT",
+			Header: "Show in Checkout",
+			width: 125,
 		},
 		{
-			dataField: "PORTAL_DESCRIPTION",
-			text: "Portal Description",
-			sort: true,
+			accessor: "PORTAL_DESCRIPTION",
+			Header: "Portal Description",
 		},
 		{
-			dataField: "IS_ENDOWMENT",
-			text: "Is Endowment",
-			sort: true,
-			...tableColWidth(125),
+			accessor: "IS_ENDOWMENT",
+			Header: "Is Endowment",
+			width: 125,
 		},
 	];
 

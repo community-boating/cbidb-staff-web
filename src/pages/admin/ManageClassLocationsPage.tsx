@@ -1,11 +1,9 @@
 import * as React from "react";
 import * as t from "io-ts";
 import { FormGroup, Label, Col, Input, CustomInput } from "reactstrap";
-import { ColumnDescription } from "react-bootstrap-table-next";
 import { Check as CheckIcon } from "react-feather";
 
 // Table building utilities
-import { tableColWidth } from "@util/tableUtil";
 import { StringifiedProps } from "@util/StringifyObjectProps";
 
 // Validator and putter for the data type of this page
@@ -14,6 +12,7 @@ import { putWrapper as putClassLocation } from "@async/rest/class-locations";
 
 // The common display structure which is a table editable via modal
 import ReportWithModalForm from "@components/ReportWithModalForm";
+import { SimpleReportColumn } from "@core/SimpleReport";
 
 type ClassLocation = t.TypeOf<typeof classLocationValidator>;
 
@@ -21,30 +20,23 @@ export default function ManageClassLocationsPage(props: {
 	locations: ClassLocation[];
 }) {
 	// Define table columns
-	const columns: ColumnDescription[] = [
-		{
-			dataField: "edit",
-			text: "",
-			...tableColWidth(50),
-		},
-		{
-			dataField: "LOCATION_ID",
-			text: "ID",
-			sort: true,
-			...tableColWidth(80),
-		},
-		{
-			dataField: "LOCATION_NAME",
-			text: "Name",
-			sort: true,
-		},
-		{
-			dataField: "ACTIVE",
-			text: "Active",
-			sort: true,
-			...tableColWidth(100),
-		},
-	];
+	const columns: SimpleReportColumn[] = [{
+		accessor: "edit",
+		Header: "",
+		disableSortBy: true,
+		width: 50,
+	}, {
+		accessor: "LOCATION_ID",
+		Header: "ID",
+		width: 80,
+	}, {
+		accessor: "LOCATION_NAME",
+		Header: "Name",
+	}, {
+		accessor: "ACTIVE",
+		Header: "Active",
+		width: 100,
+	}];
 
 	// Define edit/add form
 	const formComponents = (
