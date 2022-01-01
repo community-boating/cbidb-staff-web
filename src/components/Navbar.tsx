@@ -7,7 +7,11 @@ import { faUser, faUserShield } from '@fortawesome/free-solid-svg-icons'
 import { Dropdown, Navbar, Nav } from "react-bootstrap";
 import asc from "../app/AppStateContainer";
 
+import useSidebar from "../hooks/useSidebar";
+
 const NavbarComponent = ({ dispatch }) => {
+	const { isOpen, setIsOpen } = useSidebar();
+
 	const sudo = asc.state.sudo;
 
 	const ifSudo = (
@@ -27,7 +31,7 @@ const NavbarComponent = ({ dispatch }) => {
 			<span
 				className="sidebar-toggle d-flex"
 				onClick={() => {
-					dispatch(toggleSidebar());
+					setIsOpen(!isOpen);
 				}}
 			>
 				<i className="hamburger align-self-center" />

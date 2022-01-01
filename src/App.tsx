@@ -1,6 +1,5 @@
 import * as React from "react";
 import { Provider } from "react-redux";
-import ReduxToastr from "react-redux-toastr";
 
 import store from "./redux/store/index";
 import Routes from "./app/routing";
@@ -15,7 +14,7 @@ interface Props {
 }
 
 class App extends React.Component<Props> {
-	constructor(props) {
+	constructor(props: Props) {
 		super(props);
 		const self = this;
 		asc.setListener(() => {
@@ -36,15 +35,6 @@ class App extends React.Component<Props> {
 		return (
 			<Provider store={store}>
 				<Routes authenticatedUserName={asc.state.login.authenticatedUserName} history={this.props.history}/>
-				<ReduxToastr
-					timeOut={15000}
-					newestOnTop={true}
-					position="top-right"
-					transitionIn="fadeIn"
-					transitionOut="fadeOut"
-					progressBar
-					closeOnToastrClick
-				/>
 				<SudoModal />
 			</Provider>
 		)
