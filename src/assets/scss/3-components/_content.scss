@@ -1,6 +1,7 @@
 .content {
   padding: $content-padding;
-  flex-grow: 1;
+  flex: 1;
+  direction: ltr;
 
   @include media-breakpoint-down(md) {
     width: 100vw;

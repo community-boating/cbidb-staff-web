@@ -53,8 +53,8 @@
   flex-direction: column;
 
   .nav-link {
-    @include border-left-radius($border-radius);
-    @include border-right-radius(0);
+    @include border-start-radius($border-radius);
+    @include border-end-radius(0);
   }
 }
 

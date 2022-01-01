@@ -1,10 +1,25 @@
-.form-control-no-border {
-  border: 0;
-  border-radius: 0;
-  box-shadow: none;
-
-  &:focus {
+.input-group-navbar {
+  .form-control,
+  .btn {
+    height: $input-height-lg;
+    background: $navbar-input-bg;
     box-shadow: none;
-    outline: 0;
+    border: 0;
+    padding: $input-padding-y-lg $spacer*0.75;
+
+    &:focus {
+      background: $navbar-input-bg;
+      box-shadow: none;
+      outline: 0;
+    }
+  }
+
+  .btn {
+    color: $gray-600;
+
+    .feather {
+      width: 20px;
+      height: 20px;
+    }
   }
 }

@@ -16,13 +16,13 @@
 }
 
 .hamburger:before {
-  top: -7.5px;
+  top: -8px;
   width: $hamburger-width-top;
   position: absolute;
 }
 
 .hamburger:after {
-  bottom: -7.5px;
+  bottom: -8px;
   width: $hamburger-width-bottom;
   position: absolute;
 }

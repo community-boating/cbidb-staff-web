@@ -1,5 +1,5 @@
 .card {
-  margin-bottom: 2rem;
+  margin-bottom: $grid-gutter-width;
   box-shadow: $card-shadow;
 }
 
@@ -26,6 +26,7 @@
 .card-title {
   font-size: $font-size-lg;
   font-weight: $card-title-font-weight;
+  color: $card-title-color;
 }
 
 .card-subtitle {
@@ -46,6 +47,12 @@
   padding-right: $card-spacer-x;
 }
 
-.card-img-top {
-  height: 100%;
+.card-img,
+.card-img-top,
+.card-img-bottom {
+  @include img-fluid;
+
+  @media all and (-ms-high-contrast:none) {
+    height: 100%;
+  }
 }

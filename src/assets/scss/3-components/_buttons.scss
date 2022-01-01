@@ -1,3 +1,7 @@
+.btn-link:not(:hover) {
+  text-decoration: none;
+}
+
 .btn-pill {
   border-radius: 10rem;
 }
@@ -11,23 +15,29 @@
   height: 14px;
 }
 
+.btn-lg .feather {
+  width: 15px;
+  height: 15px;
+}
+
 @each $color, $value in $theme-colors {
   .btn-#{$color} {
-    @include button-color($white);
-    @include button-color-hover($white);
+    @include button-color($static-white);
+    @include button-color-hover($static-white);
+    @include button-color-active($static-white);
   }
 
   .btn-outline-#{$color} {
-    @include button-color-hover($white);
-    @include button-color-active($white);
+    @include button-color-hover($static-white);
+    @include button-color-active($static-white);
   }
 }
 
 @each $color, $value in $social-colors {
   .btn-#{$color} {
     @include button-variant($value, $value);
-    @include button-color($white);
-    @include button-color-hover($white);
+    @include button-color($static-white);
+    @include button-color-hover($static-white);
   }
 }
 

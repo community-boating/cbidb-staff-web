@@ -6,14 +6,19 @@
   font-size: $font-size-lg;
 }
 
-b, strong {
-	font-weight: $font-weight-bold;
+b,
+strong,
+.font-weight-bold {
+  font-weight: $font-weight-bold;
+  color: $text-bold-color;
 }
 
 pre.snippet {
-  white-space: pre-wrap;
-  word-wrap: break-word;
-  text-align: justify;
+  .hljs {
+    background: $static-dark;
+    border-radius: $border-radius-lg;
+    padding: $spacer;
+  }
 }
 
 a {

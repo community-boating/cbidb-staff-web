@@ -1,3 +1,9 @@
+.table {
+	thead, tbody, tfoot, tr, td, th {
+		border-color: $table-border-color;
+	}
+}
+
 .card {
 	> .dataTables_wrapper .table.dataTable,
 	> .table,
@@ -74,4 +80,9 @@
 
 .dt-bootstrap4 {
 	width: calc(100% - 2px);
+}
+
+table.dataTable tbody > tr.selected,
+table.dataTable tbody > tr > .selected {
+  --bs-table-accent-bg: $primary;
 }

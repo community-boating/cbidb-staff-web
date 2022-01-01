@@ -1,3 +1,15 @@
 .badge {
-  color: $white;
+  color: $static-white;
+}
+
+@each $color, $value in $theme-colors {
+  .badge-soft-#{$color} {
+    @include badge-variant(rgba($value, 0.175));
+    color: $value;
+  }
+}
+
+.badge.rounded-pill {
+  padding-right: .65em;
+  padding-left: .65em;
 }
