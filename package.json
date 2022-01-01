@@ -148,6 +148,7 @@
     "yup": "0.32.9"
   },
   "devDependencies": {
+    "@types/react-router-dom": "^5.3.2",
     "@types/react-table": "^7.7.7",
     "circular-dependency-plugin": "^5.2.2",
     "eslint-config-prettier": "8.3.0",
