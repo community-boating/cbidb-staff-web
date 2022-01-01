@@ -1,6 +1,6 @@
 import * as React from "react";
 import * as t from 'io-ts';
-import { Card, CardHeader, CardTitle, CardBody, Modal, ModalHeader, ModalBody, ModalFooter, Button, Form } from 'reactstrap';
+import { Card, Modal, Button, Form } from 'react-bootstrap';
 import { ColumnDescription } from "react-bootstrap-table-next";
 import {
 	Edit as EditIcon,
@@ -135,10 +135,10 @@ export default function ReportWithModalForm<T extends t.TypeC<any>, U extends ob
 			toggle={closeModal}
 			centered
 		>
-			<ModalHeader toggle={closeModal}>
+			<Modal.Header>
 				Add/Edit
-			</ModalHeader>
-			<ModalBody className="text-center m-3">
+			</Modal.Header>
+			<Modal.Body className="text-center m-3">
 				<ErrorPopup errors={validationErrors}/>
 				<Form onSubmit={e => {
 					e.preventDefault();
@@ -146,21 +146,21 @@ export default function ReportWithModalForm<T extends t.TypeC<any>, U extends ob
 				} }>
 					{props.formComponents(formData.rowForEdit, updateState)}
 				</Form>
-			</ModalBody>
-			<ModalFooter>
-				<Button color="secondary" outline onClick={closeModal}>
+			</Modal.Body>
+			<Modal.Footer>
+				<Button color="secondary" onClick={closeModal}>
 					Cancel
 				</Button>{" "}
 				<ButtonWrapper spinnerOnClick onClick={submit} >
 					Save
 				</ButtonWrapper>
-			</ModalFooter>
+			</Modal.Footer>
 		</Modal>
 		<Card>
-			<CardHeader>
-				<CardTitle tag="h5" className="mb-0">{props.cardTitle ?? "Report Table"}</CardTitle>
-			</CardHeader>
-			<CardBody>
+			<Card.Header>
+				<Card.Title className="mb-0">{props.cardTitle ?? "Report Table"}</Card.Title>
+			</Card.Header>
+			<Card.Body>
 				<div>
 					<SimpleReport 
 						keyField={props.primaryKey}
@@ -171,9 +171,9 @@ export default function ReportWithModalForm<T extends t.TypeC<any>, U extends ob
 						sizePerPage={12}
 						sizePerPageList={[12, 25, 50, 1000]}
 					/>
-					<Button className="mr-1 mb-1" outline onClick={() => openForEdit(none) }>Add Row</Button>
+					<Button className="mr-1 mb-1" onClick={() => openForEdit(none) }>Add Row</Button>
 				</div>
-			</CardBody>
+			</Card.Body>
 		</Card>
 	</React.Fragment>;
 }

@@ -1,7 +1,7 @@
 import * as React from "react";
 import * as t from 'io-ts';
 import { validator } from "../../async/staff/get-users"
-import { Card, CardHeader, CardTitle, CardBody, UncontrolledDropdown, DropdownToggle, DropdownMenu, DropdownItem } from 'reactstrap';
+import { Card, Dropdown } from 'react-bootstrap';
 import BootstrapTable from "react-bootstrap-table-next";
 import paginationFactory from "react-bootstrap-table2-paginator";
 import { NavLink, Link } from 'react-router-dom';
@@ -73,20 +73,20 @@ export default function UsersPage(props: { users: t.TypeOf<typeof validator> }) 
 		edit: <NavLink to={usersEditPageRoute.getPathFromArgs({ userId: String(u.USER_ID) })}><EditIcon color="#777" size="1.4em" /></NavLink>
 	}))
 	return <Card>
-		<CardHeader>
+		<Card.Header>
 			<div className="card-actions float-right">
-				<UncontrolledDropdown>
-					<DropdownToggle tag="a">
+				<Dropdown>
+					<Dropdown.Toggle>
 						<MoreHorizontal />
-					</DropdownToggle>
-					<DropdownMenu right>
-					<Link to={usersEditPageRoute.getPathFromArgs({ userId: String("new") })}><DropdownItem>Create</DropdownItem></Link>
-					</DropdownMenu>
-				</UncontrolledDropdown>
+					</Dropdown.Toggle>
+					<Dropdown.Menu>
+					<Link to={usersEditPageRoute.getPathFromArgs({ userId: String("new") })}><Dropdown.Item>Create</Dropdown.Item></Link>
+					</Dropdown.Menu>
+				</Dropdown>
 			</div>
-			<CardTitle tag="h5" className="mb-0">Add/Edit Staff</CardTitle>
-		</CardHeader>
-		<CardBody>
+			<Card.Title className="mb-0">Add/Edit Staff</Card.Title>
+		</Card.Header>
+		<Card.Body>
 			<div>
 				
 			</div>
@@ -101,6 +101,6 @@ export default function UsersPage(props: { users: t.TypeOf<typeof validator> }) 
 					sizePerPageList: [5, 10, 25, 50]
 				})}
 			/>
-		</CardBody>
+		</Card.Body>
 	</Card>;
 }

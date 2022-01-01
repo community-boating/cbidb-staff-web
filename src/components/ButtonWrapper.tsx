@@ -2,12 +2,13 @@ import * as React from "react";
 
 import {
 	Button, ButtonProps,
-} from "reactstrap";
+} from "react-bootstrap";
 
 interface Props extends ButtonProps {
 	spinnerOnClick?: boolean,
 	forceSpinner?: boolean,
-	onClick?: (e: React.MouseEvent<any>) => Promise<any>
+	onClick?: (e: React.MouseEvent<any>) => Promise<any>,
+	notIdempotent?: boolean,
 }
 
 type State = {

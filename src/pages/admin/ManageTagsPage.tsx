@@ -1,6 +1,6 @@
 import * as React from "react";
 import * as t from "io-ts";
-import { FormGroup, Label, Col, Input } from "reactstrap";
+import { Col, Form } from "react-bootstrap";
 import { ColumnDescription } from "react-bootstrap-table-next";
 
 // Table building utilities
@@ -43,22 +43,22 @@ export default function ManageTagsPage(props: { tags: Tag[] }) {
 		updateState: (id: string, value: string | boolean) => void
 	) => (
 		<React.Fragment>
-			<FormGroup row>
-				<Label sm={2} className="text-sm-right">
+			<Form.Group>
+				<Form.Label sm={2} className="text-sm-right">
 					ID
-				</Label>
+				</Form.Label>
 				<Col sm={10}>
 					<div style={{ textAlign: "left", padding: "5px 14px" }}>
 						{rowForEdit.TAG_ID || "(none)"}
 					</div>
 				</Col>
-			</FormGroup>
-			<FormGroup row>
-				<Label sm={2} className="text-sm-right">
+			</Form.Group>
+			<Form.Group>
+				<Form.Label sm={2} className="text-sm-right">
 					Tag Name
-				</Label>
+				</Form.Label>
 				<Col sm={10}>
-					<Input
+					<Form.Control
 						type="text"
 						name="tagName"
 						placeholder="Tag Name"
@@ -66,7 +66,7 @@ export default function ManageTagsPage(props: { tags: Tag[] }) {
 						onChange={(event) => updateState("TAG_NAME", event.target.value)}
 					/>
 				</Col>
-			</FormGroup>
+			</Form.Group>
 		</React.Fragment>
 	);
 

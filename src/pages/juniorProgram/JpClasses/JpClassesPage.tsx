@@ -1,6 +1,6 @@
 import * as React from "react";
 import * as t from 'io-ts';
-import { Card, CardHeader, CardTitle, CardBody, FormGroup, Label, Col, Row, Form, CustomInput, UncontrolledDropdown, DropdownToggle, DropdownMenu, DropdownItem } from 'reactstrap';
+import { Card, Col, Row, Form, Dropdown } from 'react-bootstrap';
 import * as _ from 'lodash';
 
 import { decoratedInstanceValidator, signupValidator, weekValidator, staggerValidator } from "@async/staff/all-jp-signups"
@@ -102,7 +102,7 @@ export default function JpClassesPage(props: Props) {
 		.filter(filterByType(formData.classType))
 		.filter(filterByWeek(formData.week));
 
-	const adminHoldSwitch = (checked: boolean) => <CustomInput
+	const adminHoldSwitch = (checked: boolean) => <Form.Control
 		id="adminHold"
 		checked={checked}
 		disabled
@@ -188,21 +188,21 @@ export default function JpClassesPage(props: Props) {
 		text: "Sections"
 	}];
 
-	const signupsRegion = selectedInstance.map(id => <Card innerRef={signupsRegionRef}>
-		<CardHeader>
-			<CardTitle tag="h5" className="mb-0">Selected Class</CardTitle>
-		</CardHeader>
-		<CardBody>
+	const signupsRegion = selectedInstance.map(id => <Card ref={signupsRegionRef}>
+		<Card.Header>
+			<Card.Title className="mb-0">Selected Class</Card.Title>
+		</Card.Header>
+		<Card.Body>
 			<JpClassSignupsRegion signups={props.signups.filter(s => s.INSTANCE_ID == id)}/>
-		</CardBody>
+		</Card.Body>
 	</Card>).getOrElse(null);
 
 	const printAll = (
 		formData.week.isSome()
-		? <FormGroup>
-			<Label>
+		? <Form.Group>
+			<Form.Label>
 				Print All
-			</Label>
+			</Form.Label>
 			<div className="mb-3 form-control" style={{border: "none"}}>
 				<a
 					style={{color: "black"}}
@@ -212,33 +212,33 @@ export default function JpClassesPage(props: Props) {
 					<Printer />
 				</a>
 			</div>
-		</FormGroup>
+		</Form.Group>
 		: null
 	);
 
 	return <React.Fragment>
 		<Card style={{minWidth: "1220px"}}>
-			<CardHeader>
+			<Card.Header>
 				<div className="card-actions float-right">
-					<UncontrolledDropdown>
-						<DropdownToggle tag="a">
+					<Dropdown>
+						<Dropdown.Toggle>
 							<MoreHorizontal />
-						</DropdownToggle>
-						<DropdownMenu right>
-							<DropdownItem onClick={() => asc.confirmSudo(() => setEditMode(true))}>Switch to Edit View</DropdownItem>
-						</DropdownMenu>
-					</UncontrolledDropdown>
+						</Dropdown.Toggle>
+						<Dropdown.Menu>
+							<Dropdown.Item onClick={() => asc.confirmSudo(() => setEditMode(true))}>Switch to Edit View</Dropdown.Item>
+						</Dropdown.Menu>
+					</Dropdown>
 				</div>
-				<CardTitle tag="h5" className="mb-0">JP Classes {editMode ? "EDIT MODE" : ""}</CardTitle>
-			</CardHeader>
-			<CardBody>
+				<Card.Title className="mb-0">JP Classes {editMode ? "EDIT MODE" : ""}</Card.Title>
+			</Card.Header>
+			<Card.Body>
 				<Form>
-					<Row form>
+					<Row>
 						<Col>
-							<FormGroup>
-								<Label>
+							<Form.Group>
+								<Form.Label>
 									Class Type
-								</Label>
+								</Form.Label>
 								<FormSelect
 									id="classType"
 									value={formData.classType}
@@ -246,13 +246,13 @@ export default function JpClassesPage(props: Props) {
 									updateAction={updateState}
 									nullDisplay="- Select -"
 								/>
-							</FormGroup>
+							</Form.Group>
 						</Col>
 						<Col>
-							<FormGroup>
-								<Label>
+							<Form.Group>
+								<Form.Label>
 									Week
-								</Label>
+								</Form.Label>
 								<FormSelect
 									id="week"
 									value={formData.week}
@@ -260,7 +260,7 @@ export default function JpClassesPage(props: Props) {
 									updateAction={updateState}
 									nullDisplay="- Select -"
 								/>
-							</FormGroup>
+							</Form.Group>
 						</Col>
 						<Col>
 							{printAll}
@@ -295,7 +295,7 @@ export default function JpClassesPage(props: Props) {
 						sizePerPageList: [5, 10, 25, 50]
 					})}
 				/>
-			</CardBody>
+			</Card.Body>
 		</Card>
 		{signupsRegion}
 	</React.Fragment>;

@@ -1,7 +1,7 @@
 import { History } from 'history';
 import * as React from "react";
 import { UserForm,  } from "../../async/staff/get-user"
-import { Card, CardHeader, CardTitle, CardBody, FormGroup, Label, Col, Button } from 'reactstrap';
+import { Card, Form, Col, Button } from 'react-bootstrap';
 import { NavLink } from 'react-router-dom';
 import { usersPageRoute } from '../../app/routes/users';
 import { Option, none, some } from 'fp-ts/lib/Option';
@@ -69,20 +69,20 @@ export default class UserFormPage extends React.PureComponent<Props, State> {
 		const exists = this.props.initialFormState.USER_ID.isSome();
 		const updateState = formUpdateState(this.state, this.setState.bind(this), "formData");
 		const updateStateNullable = formUpdateState(this.state, this.setState.bind(this), "formData", true);
-		const formatElement = (label: string) => (e: React.ReactNode) => <FormGroup row>
-			<Label sm={2} className="text-sm-right">
+		const formatElement = (label: string) => (e: React.ReactNode) => <Form.Group>
+			<Form.Label sm={2} className="text-sm-right">
 				{label}
-			</Label>
+			</Form.Label>
 			<Col sm={3}>
 				{e}
 			</Col>
-		</FormGroup>;
+		</Form.Group>;
 
 		return <Card>
-			<CardHeader>
-				<CardTitle tag="h5" style={{ margin: "0" }}>Create/Edit User</CardTitle>
-			</CardHeader>
-			<CardBody>
+			<Card.Header>
+				<Card.Title style={{ margin: "0" }}>Create/Edit User</Card.Title>
+			</Card.Header>
+			<Card.Body>
 				<ErrorPopup errors={this.state.validationErrors} />
 				<FormInput
 					id="USER_NAME"
@@ -157,16 +157,16 @@ export default class UserFormPage extends React.PureComponent<Props, State> {
 					updateAction={updateState}
 					formatElement={formatElement("Locked")}
 				/>
-				<FormGroup row>
-					<Label sm={2} className="text-sm-right pt-sm-0" />
+				<Form.Group>
+					<Form.Label sm={2} className="text-sm-right pt-sm-0" />
 					<Col sm={10}>
 						<div className="btn-list">
-							<NavLink to={usersPageRoute.getPathFromArgs({})}><Button outline color="primary" className="mr-1">Cancel</Button></NavLink>
+							<NavLink to={usersPageRoute.getPathFromArgs({})}><Button color="primary" className="mr-1">Cancel</Button></NavLink>
 							<Button color="primary" onClick={this.submit.bind(this)}>Submit</Button>
 						</div>
 					</Col>
-				</FormGroup>
-			</CardBody>
+				</Form.Group>
+			</Card.Body>
 		</Card>
 	}
 }

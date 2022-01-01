@@ -1,8 +1,8 @@
 import { none } from "fp-ts/lib/Option";
 import * as React from "react";
+import { Form } from 'react-bootstrap';
 
 import { FormElement, FormElementProps } from "./FormElement";
-import { Input } from "reactstrap";
 
 interface Props {
 	disabled?: boolean,
@@ -25,7 +25,7 @@ export default class FormElementInput<T> extends FormElement<T, Props & FormElem
 			: this.props.onChange
 		);
 
-		return <Input
+		return <Form.Control
 			id={this.props.id}
 			ref={this.props.innerRef}
 			type={this.props.isPassword ? "password" : "text"}

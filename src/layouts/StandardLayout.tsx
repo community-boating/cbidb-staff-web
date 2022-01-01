@@ -1,4 +1,4 @@
-import * as React from "react";
+import React from "react";
 
 import Wrapper from "../components/Wrapper";
 import Sidebar from "../components/Sidebar";
@@ -7,13 +7,16 @@ import Navbar from "../components/Navbar";
 import Content from "../components/Content";
 import Footer from "../components/Footer";
 
-export const StandardLayout = ({ history, children }) => (
+
+export const StandardLayout: React.FunctionComponent = ({ children }) => (
 	<React.Fragment>
 		<Wrapper>
-			<Sidebar history={history} />
-			<Main className={null}>
+			<Sidebar />
+			<Main className="">
 				<Navbar />
-				<Content>{children}</Content>
+				<Content>
+					{children}
+				</Content>
 				<Footer />
 			</Main>
 		</Wrapper>

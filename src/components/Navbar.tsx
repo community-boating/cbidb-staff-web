@@ -1,5 +1,3 @@
-import { connect } from "react-redux";
-import { toggleSidebar } from "../redux/actions/sidebarActions";
 import { logout } from "../async/logout";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser, faUserShield } from '@fortawesome/free-solid-svg-icons'
@@ -9,7 +7,7 @@ import asc from "../app/AppStateContainer";
 
 import useSidebar from "../hooks/useSidebar";
 
-const NavbarComponent = ({ dispatch }) => {
+const NavbarComponent = () => {
 	const { isOpen, setIsOpen } = useSidebar();
 
 	const sudo = asc.state.sudo;
@@ -63,6 +61,4 @@ const NavbarComponent = ({ dispatch }) => {
 	);
 };
 
-export default connect((store: any) => ({
-	app: store.app
-}))(NavbarComponent);
+export default NavbarComponent;

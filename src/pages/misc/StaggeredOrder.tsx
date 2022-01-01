@@ -1,7 +1,7 @@
 import { History } from 'history';
 import * as React from "react";
 import * as t from 'io-ts';
-import { Card, CardHeader, CardTitle, CardBody, Button, Col, Row, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
+import { Card, Button, Col, Row, Modal } from 'react-bootstrap';
 import BootstrapTable from "react-bootstrap-table-next";
 import { validator} from "@async/staff/open-order-details"
 import Currency from '@util/Currency';
@@ -45,18 +45,18 @@ export default function StaggeredOrder(props: { history: History<any>, personId:
 		toggle={abort}
 		centered
 	>
-		<ModalHeader toggle={abort}>
+		<Modal.Header>
 			Finish order
-		</ModalHeader>
-		<ModalBody className="text-center m-3">
+		</Modal.Header>
+		<Modal.Body className="text-center m-3">
 			<ErrorPopup errors={validationErrors} />
 			<p className="mb-0">
 				This will immediately charge the member's card for the remaining payments on this order, and if successful, activate their membership.
 				Do you want to continue?
 			</p>
-		</ModalBody>
-		<ModalFooter>
-			<Button color="secondary" outline onClick={abort}>
+		</Modal.Body>
+		<Modal.Footer>
+			<Button color="secondary" onClick={abort}>
 				Cancel
 			</Button>{" "}
 			<ButtonWrapper spinnerOnClick onClick={() => {
@@ -70,15 +70,15 @@ export default function StaggeredOrder(props: { history: History<any>, personId:
 			}} >
 				Finish Order
 			</ButtonWrapper>
-		</ModalFooter>
+		</Modal.Footer>
 	</Modal>;
 	return <Row>
 		{confirmModal}
 		<Col className="col-lg-6"><Card>
-			<CardHeader>
-				<CardTitle tag="h5" className="mb-0">Staggered Order</CardTitle>
-			</CardHeader>
-			<CardBody>
+			<Card.Header>
+				<Card.Title className="mb-0">Staggered Order</Card.Title>
+			</Card.Header>
+			<Card.Body>
 				<BootstrapTable
 					keyField="staggerId"
 					data={data}
@@ -86,17 +86,17 @@ export default function StaggeredOrder(props: { history: History<any>, personId:
 					bootstrap4
 					bordered={false}
 				/>
-			</CardBody>
+			</Card.Body>
 		</Card></Col>
 		<Col className="col-lg-6"><Card>
-			<CardHeader>
-				<CardTitle tag="h5" className="mb-0">Finish Order</CardTitle>
-			</CardHeader>
-			<CardBody>
+			<Card.Header>
+				<Card.Title className="mb-0">Finish Order</Card.Title>
+			</Card.Header>
+			<Card.Body>
 			<Button color="primary" className="mr-1 mb-1" onClick={() => doOpen(true)}>
 				Finish Order Immediately
 			</Button>
-			</CardBody>
+			</Card.Body>
 		</Card></Col>
 	</Row>;
 }

@@ -5,7 +5,7 @@ import {classInstructorValidator} from '@async/rest/class-instructor'
 import { ColumnDescription } from "react-bootstrap-table-next";
 import ReportWithModalForm from "@components/ReportWithModalForm";
 import {putWrapper as putInstructor} from "@async/rest/class-instructor"
-import { FormGroup, Label, Col, Input } from 'reactstrap';
+import { Form, Col } from 'react-bootstrap';
 import { StringifiedProps } from "@util/StringifyObjectProps";
 
 type ClassInstructor = t.TypeOf<typeof classInstructorValidator>;
@@ -32,22 +32,22 @@ export default function ManageClassInstructorsPage(props: { instructors: ClassIn
 	}];
 
 	const formComponents = (rowForEdit: StringifiedProps<ClassInstructor>, updateState: (id: string, value: string | boolean) => void) => <React.Fragment>
-		<FormGroup row>
-			<Label sm={2} className="text-sm-right">
+		<Form.Group>
+			<Form.Label sm={2} className="text-sm-right">
 				ID
-			</Label>
+			</Form.Label>
 			<Col sm={10} >
 				<div style={{textAlign: "left", padding: "5px 14px"}}>
 					{rowForEdit.INSTRUCTOR_ID || "(none)"}
 				</div>
 			</Col>
-		</FormGroup>
-		<FormGroup row>
-			<Label sm={2} className="text-sm-right">
+		</Form.Group>
+		<Form.Group>
+			<Form.Label sm={2} className="text-sm-right">
 				First Name
-			</Label>
+			</Form.Label>
 			<Col sm={10}>
-				<Input
+				<Form.Control
 					type="text"
 					name="nameFirst"
 					placeholder="First Name"
@@ -55,13 +55,13 @@ export default function ManageClassInstructorsPage(props: { instructors: ClassIn
 					onChange={event => updateState("NAME_FIRST", event.target.value)}
 				/>
 			</Col>
-		</FormGroup>
-		<FormGroup row>
-			<Label sm={2} className="text-sm-right">
+		</Form.Group>
+		<Form.Group>
+			<Form.Label sm={2} className="text-sm-right">
 				Last Name
-			</Label>
+			</Form.Label>
 			<Col sm={10}>
-				<Input
+				<Form.Control
 					type="text"
 					name="nameLast"
 					placeholder="Last Name"
@@ -70,7 +70,7 @@ export default function ManageClassInstructorsPage(props: { instructors: ClassIn
 					onChange={event => updateState("NAME_LAST", event.target.value)}
 				/>
 			</Col>
-		</FormGroup>
+		</Form.Group>
 	</React.Fragment>;
 
 	return <ReportWithModalForm

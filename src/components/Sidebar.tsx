@@ -1,9 +1,7 @@
 import * as React from "react";
-import { connect } from "react-redux";
 import { NavLink, useLocation } from "react-router-dom";
-import {History} from 'history';
 
-import { Collapse } from "reactstrap";
+import { Collapse } from "react-bootstrap";
 import * as PerfectScrollbarAll from "react-perfect-scrollbar";
 
 import { Box } from "react-feather";
@@ -11,6 +9,7 @@ import { Box } from "react-feather";
 import { sideBarRoutes } from "../app/SidebarCategories";
 import { linkWithAccessControl } from "@core/LinkInterceptor";
 import RouteWrapper from "@core/RouteWrapper";
+import useSidebar from "@hooks/useSidebar";
 
 const SidebarCategory = ({
 	name,
@@ -45,7 +44,7 @@ const SidebarCategory = ({
 				</Badge>
 				) : null} */}
 			</span>
-			<Collapse isOpen={isOpen}>
+			<Collapse in={isOpen}>
 				<ul id="item" className={"sidebar-dropdown list-unstyled"}>
 					{children}
 				</ul>
@@ -55,13 +54,12 @@ const SidebarCategory = ({
 };
 
 const SidebarItem: (props: {
-	history: History<any>,
 	name: string,
 	icon: React.ComponentType<{size: number, className: string}>,
 	to?: RouteWrapper<any>,
 	pathString?: string,
 }) => JSX.Element = 
-({ history, name, icon: Icon, to, pathString }) => {
+({ name, icon: Icon, to, pathString }) => {
 	const location = useLocation();
 
 	const getSidebarItemClass = path => {
@@ -72,7 +70,7 @@ const SidebarItem: (props: {
 		<li className={"sidebar-item " + getSidebarItemClass(to)}>
 			<NavLink to={pathString || to.getPathFromArgs({})} className="sidebar-link" activeClassName="active" onClick={e => {
 				e.preventDefault();
-				linkWithAccessControl(history, to, {}, (to && to.requireSudo), pathString)
+				linkWithAccessControl(null, to, {}, (to && to.requireSudo), pathString)
 			}}>
 				{Icon ? <Icon size={18} className="align-middle mr-3" /> : null}
 				{name}
@@ -86,11 +84,10 @@ const SidebarItem: (props: {
 	);
 };
 
-function Sidebar(props: {sidebar: any, layout: any, history: History<any>}) {
+function Sidebar() {
+	const { isOpen } = useSidebar();
 	const location = useLocation();
 	const pathName = location.pathname;
-
-	const {sidebar} = props;
 
 	const initialState = sideBarRoutes.map(route => {
 		const isActive = pathName.indexOf(route.path) === 0;
@@ -116,8 +113,7 @@ function Sidebar(props: {sidebar: any, layout: any, history: History<any>}) {
 		<nav
 			className={
 				"sidebar" +
-				(!sidebar.isOpen ? " toggled" : "") +
-				(sidebar.isSticky ? " sidebar-sticky" : "")
+				(!isOpen ? " toggled" : "")
 			}
 		>
 			<div className="sidebar-content">
@@ -146,7 +142,6 @@ function Sidebar(props: {sidebar: any, layout: any, history: History<any>}) {
 											{category.children.map((route, index) => (
 												<SidebarItem
 													key={index}
-													history={props.history}
 													name={route.sidebarTitle}
 													to={route}
 													icon={null}
@@ -158,7 +153,6 @@ function Sidebar(props: {sidebar: any, layout: any, history: History<any>}) {
 									) : (
 											<SidebarItem
 												name={category.name}
-												history={props.history}
 												pathString={category.path}
 												icon={category.icon as any}
 												// isOpen={null}
@@ -175,7 +169,4 @@ function Sidebar(props: {sidebar: any, layout: any, history: History<any>}) {
 	);
 }
 
-export default connect((store: any) => ({
-	sidebar: store.sidebar,
-	layout: store.layout
-}))(Sidebar) as any;
+export default Sidebar;

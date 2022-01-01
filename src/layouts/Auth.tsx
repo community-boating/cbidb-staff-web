@@ -1,16 +1,18 @@
-import * as React from "react";
+import React from "react";
 
-import { Col, Container, Row } from "reactstrap";
+import { Col, Container, Row } from "react-bootstrap";
 
 import Main from "../components/Main";
 
-const Auth = ({ children }) => (
+const Auth: React.FunctionComponent = ({children}) => (
 	<React.Fragment>
-		<Main className="h-100 w-100">
-			<Container className="h-100">
+		<Main className="d-flex w-100 justify-content-center">
+			<Container className="d-flex flex-column">
 				<Row className="h-100">
 					<Col sm="10" md="8" lg="6" className="mx-auto d-table h-100">
-						<div className="d-table-cell align-middle">{children}</div>
+						<div className="d-table-cell align-middle">
+							{children}
+						</div>
 					</Col>
 				</Row>
 			</Container>

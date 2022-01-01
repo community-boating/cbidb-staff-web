@@ -57,7 +57,7 @@ export class AppStateContainer {
 		if (this.state.sudo) {
 			then();
 		} else {
-			showSudoToastr();
+			//showSudoToastr();
 		}
 	}
 	updateState = {

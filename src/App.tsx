@@ -1,7 +1,6 @@
 import * as React from "react";
-import { Provider } from "react-redux";
 
-import store from "./redux/store/index";
+import { HelmetProvider, Helmet } from "react-helmet-async";
 import Routes from "./app/routing";
 import asc from "./app/AppStateContainer";
 import {apiw as isLoggedInAsStaff} from './async/is-logged-in-as-staff';
@@ -33,10 +32,14 @@ class App extends React.Component<Props> {
 	}
 	render() {
 		return (
-			<Provider store={store}>
+			<HelmetProvider>
+				<Helmet
+					titleTemplate="%s | AppStack - React Admin & Dashboard Template"
+					defaultTitle="AppStack - React Admin & Dashboard Template"
+				/>
 				<Routes authenticatedUserName={asc.state.login.authenticatedUserName} history={this.props.history}/>
 				<SudoModal />
-			</Provider>
+			</HelmetProvider>
 		)
 	}
 }

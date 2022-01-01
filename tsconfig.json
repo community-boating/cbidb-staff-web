@@ -31,6 +31,8 @@
 			"@app/*": ["app/*"],
 			"@components/*": ["components/*"],
 			"@core/*": ["core/*"],
+			"@contexts/*": ["contexts/*"],
+			"@hooks/*": ["hooks/*"],
 			"@util/*": ["util/*"]
 		}
 	},

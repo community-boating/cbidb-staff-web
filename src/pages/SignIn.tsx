@@ -1,11 +1,8 @@
 import * as React from "react";
 
 import {
-	Card,
-	CardBody,
-	Label,
-	Input,
-} from "reactstrap";
+	Card, Form
+} from "react-bootstrap";
 import { none, Option, some } from "fp-ts/lib/Option";
 import {formUpdateState} from "../util/form-update-state";
 import asc from "../app/AppStateContainer";
@@ -85,7 +82,7 @@ class SignIn extends React.PureComponent<{}, State> {
 				</div>
 
 				<Card>
-					<CardBody>
+					<Card.Body>
 						<div className="m-sm-4">
 							<div className="text-center" style={{ marginBottom: "20px" }}>
 								<img
@@ -96,9 +93,8 @@ class SignIn extends React.PureComponent<{}, State> {
 								/>
 							</div>
 							<ErrorPopup errors={self.state.validationErrors} />
-							<Label>Username</Label>
-							<Input
-								bsSize="lg"
+							<Form.Label>Username</Form.Label>
+							<Form.Control
 								type="text"
 								name="username"
 								id="username"
@@ -107,9 +103,8 @@ class SignIn extends React.PureComponent<{}, State> {
 								onChange={event => updateState("username", event.target.value)}
 							/>
 							<br />
-							<Label>Password</Label>
-							<Input
-								bsSize="lg"
+							<Form.Label>Password</Form.Label>
+							<Form.Control
 								type="password"
 								name="password"
 								placeholder="Enter your password"
@@ -137,7 +132,7 @@ class SignIn extends React.PureComponent<{}, State> {
 								</ButtonWrapper>
 							</div>
 						</div>
-					</CardBody>
+					</Card.Body>
 				</Card>
 			</React.Fragment>
 		);

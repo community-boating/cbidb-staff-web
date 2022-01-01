@@ -2,32 +2,31 @@ import asc from '@app/AppStateContainer';
 import detectEnter from '@util/detectEnterPress';
 import { formUpdateStateHooks } from '@util/form-update-state';
 import { none, Option } from 'fp-ts/lib/Option';
-import { toastr } from "react-redux-toastr";
 import * as React from 'react';
-import { Button, Col, Form, FormGroup, Input, Label, Modal, ModalBody, ModalFooter, ModalHeader } from "reactstrap";
+import { Button, Col, Form, FormGroup, FormLabel, Modal } from "react-bootstrap";
 
 import { ButtonWrapper } from './ButtonWrapper';
 import { ErrorPopup } from './ErrorPopup';
+import NotyfContext from "@contexts/NotyfContext";
+import { Notyf } from 'notyf';
 
-export function showSudoToastr() {
-	const options = {
-		timeOut: 4000,
-		showCloseButton: true,
-		progressBar: true,
-		position: "top-center",
-	};
-
-	toastr.warning(
-		"Elevate Session",
-		"That feature is locked, elevate session to continue.",
-		options
-	);
+export function showSudoToastr(notyf: Notyf) {
+	notyf.open({
+		type: "default",
+		message:"That feature is locked, elevate session to continue.",
+		duration: 4000,
+		position: {
+			x: "right",
+			y: "top"
+		},
+	})
 }
 
 export default function () {
 	const [isOpen, setOpen] = React.useState(false);
 	const [loginProcessing, setLoginProcessing] = React.useState(false);
 	const [validationErrors, setValidationErrors] = React.useState([] as string[]);
+	const notyf = React.useContext(NotyfContext);
 
 	const blankForm = {
 		username: none as Option<string>,
@@ -88,22 +87,22 @@ export default function () {
 		toggle={abort}
 		centered
 	>
-		<ModalHeader toggle={abort}>
+		<Modal.Header>
 			Elevate Session
-		</ModalHeader>
-		<ModalBody className="text-center m-3">
+		</Modal.Header>
+		<Modal.Body className="text-center m-3">
 			<ErrorPopup errors={validationErrors}/>
 			<p className="mb-0">
 				Enter your credentials to grant super powers to this session.<br />Don't forget to turn them off when you're done.
 			</p>
 			<br />
 			<Form>
-				<FormGroup row>
-					<Label sm={2} className="text-sm-right">
+				<Form.Group>
+					<Form.Label sm={2} className="text-sm-right">
 						Username
-					</Label>
+					</Form.Label>
 					<Col sm={10}>
-						<Input
+						<Form.Control
 							type="text"
 							name="username"
 							placeholder="Username"
@@ -111,13 +110,13 @@ export default function () {
 							onChange={event => updateState("username", event.target.value)}
 						/>
 					</Col>
-				</FormGroup>
-				<FormGroup row>
-					<Label sm={2} className="text-sm-right">
+				</Form.Group>
+				<Form.Group>
+					<Form.Label sm={2} className="text-sm-right">
 						Password
-					</Label>
+					</Form.Label>
 					<Col sm={10}>
-						<Input
+						<Form.Control
 							type="password"
 							name="password"
 							placeholder="Password"
@@ -127,16 +126,16 @@ export default function () {
 							onKeyDown={detectEnter(loginFunction)}
 						/>
 					</Col>
-				</FormGroup>
+				</Form.Group>
 			</Form>
-		</ModalBody>
-			<ModalFooter>
-				<Button color="secondary" outline onClick={abort}>
-					Cancel
-				</Button>{" "}
-				<ButtonWrapper spinnerOnClick forceSpinner={loginProcessing} onClick={loginFunction} >
-					Login
-				</ButtonWrapper>
-			</ModalFooter>
+		</Modal.Body>
+		<Modal.Footer>
+			<Button variant="secondary" onClick={abort}>
+				Cancel
+			</Button>{" "}
+			<ButtonWrapper spinnerOnClick forceSpinner={loginProcessing} onClick={loginFunction} >
+				Login
+			</ButtonWrapper>
+		</Modal.Footer>
 	</Modal>;
 }

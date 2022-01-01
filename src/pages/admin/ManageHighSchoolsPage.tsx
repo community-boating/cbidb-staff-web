@@ -1,6 +1,6 @@
 import * as React from "react";
 import * as t from "io-ts";
-import { FormGroup, Label, Col, Input, CustomInput } from "reactstrap";
+import { Form, Col } from "react-bootstrap";
 import { ColumnDescription } from "react-bootstrap-table-next";
 import { Check as CheckIcon } from "react-feather";
 
@@ -53,22 +53,22 @@ export default function ManageHighSchoolsPage(props: {
 		updateState: (id: string, value: string | boolean) => void
 	) => (
 		<React.Fragment>
-			<FormGroup row>
-				<Label sm={3} className="text-sm-right">
+			<Form.Group>
+				<Form.Label sm={3} className="text-sm-right">
 					ID
-				</Label>
+				</Form.Label>
 				<Col sm={9}>
 					<div style={{ padding: "5px" }} className="text-left">
 						{rowForEdit.SCHOOL_ID || "(none)"}
 					</div>
 				</Col>
-			</FormGroup>
-			<FormGroup row className="align-items-center">
-				<Label sm={3} className="text-sm-right">
+			</Form.Group>
+			<Form.Group className="align-items-center">
+				<Form.Label sm={3} className="text-sm-right">
 					School Name
-				</Label>
+				</Form.Label>
 				<Col sm={9}>
-					<Input
+					<Form.Control
 						type="text"
 						name="highSchoolName"
 						placeholder="School Name"
@@ -76,21 +76,21 @@ export default function ManageHighSchoolsPage(props: {
 						onChange={(event) => updateState("SCHOOL_NAME", event.target.value)}
 					/>
 				</Col>
-			</FormGroup>
-			<FormGroup row className="align-items-center">
-				<Label sm={3} className="text-sm-right">
+			</Form.Group>
+			<Form.Group className="align-items-center">
+				<Form.Label sm={3} className="text-sm-right">
 					Active
-				</Label>
+				</Form.Label>
 				<Col sm={9}>
-					<CustomInput
+					<Form.Control
 						type="checkbox"
 						id="highSchoolActive"
 						checked={rowForEdit.ACTIVE == "Y"}
 						className="text-left"
-						onChange={(event) => updateState("ACTIVE", event.target.checked)}
+						onChange={(event) => updateState("ACTIVE", (event.target as any).checked)}
 					/>
 				</Col>
-			</FormGroup>
+			</Form.Group>
 		</React.Fragment>
 	);
 

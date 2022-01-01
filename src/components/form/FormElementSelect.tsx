@@ -2,7 +2,7 @@ import { none } from "fp-ts/lib/Option";
 import * as React from "react";
 
 import { FormElement, FormElementProps } from "./FormElement";
-import { Input } from "reactstrap";
+import { Form } from 'react-bootstrap';
 
 interface Props {
 	disabled?: boolean
@@ -27,7 +27,7 @@ export default class FormElementSelect<T> extends FormElement<T, Props & FormEle
 		? []
 		: [<option key={null} value="">{this.props.nullDisplay}</option>];
 
-		return <Input
+		return <Form.Control
 			type="select"
 			id={this.props.id}
 			ref={this.props.innerRef}
@@ -37,7 +37,7 @@ export default class FormElementSelect<T> extends FormElement<T, Props & FormEle
 			value={(this.props.value || none).getOrElse("")}
 		>
 			{nullOption.concat(this.props.options.map(({key, display}) => <option value={key} key={key}>{display}</option>))}
-		</Input>;
+		</Form.Control>;
 	}
 }
 

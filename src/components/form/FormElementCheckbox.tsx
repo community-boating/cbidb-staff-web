@@ -1,7 +1,7 @@
 import * as React from "react";
 
 import { FormElement, FormElementProps } from "./FormElement";
-import { CustomInput } from "reactstrap";
+import { Form } from 'react-bootstrap';
 
 interface Props {
 	isPassword?: boolean
@@ -24,10 +24,10 @@ export default class FormElementCheckbox<T> extends FormElement<T, Props & FormE
 			: this.props.onChange
 		);
 
-		return <CustomInput
+		return <Form.Control
 			type="checkbox"
 			id={this.props.id}
-			label={this.props.label}
+			// label={this.props.label}
 			checked={this.props.value.getOrElse(false)}
 			className="mb-2"
 			onChange={onChange}

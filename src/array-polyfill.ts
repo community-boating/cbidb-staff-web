@@ -48,14 +48,14 @@ Array.prototype.contains = function(e: any) {
 	return false;
 }
 
-Array.prototype.flatMap = function<U>(f: (e: any, i: number) => Array<U>) {
-	var ret: U[] = [];
-	for (var i=0; i<this.length; i++) {
-		var element = this[i];
-		ret = ret.concat(f(element, i))
-	}
-	return ret;
-}
+// Array.prototype.flatMap = function<U>(f: (e: any, i: number) => Array<U>) {
+// 	var ret: U[] = [];
+// 	for (var i=0; i<this.length; i++) {
+// 		var element = this[i];
+// 		ret = ret.concat(f(element, i))
+// 	}
+// 	return ret;
+// }
 
 Array.prototype.splitAt = function(at: number) {
 	const left = this.filter((e: any, i: number) => i < at)

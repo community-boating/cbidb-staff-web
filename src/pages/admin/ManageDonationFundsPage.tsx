@@ -1,6 +1,6 @@
 import * as React from "react";
 import * as t from "io-ts";
-import { FormGroup, Label, Col, Input, CustomInput } from "reactstrap";
+import { Col, Form } from "react-bootstrap";
 import { ColumnDescription } from "react-bootstrap-table-next";
 import { Check as CheckIcon } from "react-feather";
 
@@ -80,23 +80,23 @@ export default function ManageDonationFundsPage(props: {
 		updateState: (id: string, value: string | boolean) => void
 	) => (
 		<React.Fragment>
-			<FormGroup row>
-				<Label sm={3} className="text-sm-right">
+			<Form.Group>
+				<Form.Label sm={3} className="text-sm-right">
 					ID
-				</Label>
+				</Form.Label>
 				<Col sm={9}>
 					<div style={{ padding: "5px" }} className="text-left">
 						{rowForEdit.FUND_ID || "(none)"}
 					</div>
 				</Col>
-			</FormGroup>
+			</Form.Group>
 
-			<FormGroup row>
-				<Label sm={3} className="text-sm-right">
+			<Form.Group>
+				<Form.Label sm={3} className="text-sm-right">
 					Fund Name
-				</Label>
+				</Form.Label>
 				<Col sm={9}>
-					<Input
+					<Form.Control
 						type="text"
 						name="fundName"
 						placeholder="Fund Name"
@@ -104,14 +104,14 @@ export default function ManageDonationFundsPage(props: {
 						onChange={(event) => updateState("FUND_NAME", event.target.value)}
 					/>
 				</Col>
-			</FormGroup>
+			</Form.Group>
 
-			<FormGroup row>
-				<Label sm={3} className="text-sm-right">
+			<Form.Group>
+				<Form.Label sm={3} className="text-sm-right">
 					Letter Text
-				</Label>
+				</Form.Label>
 				<Col sm={9}>
-					<Input
+					<Form.Control
 						type="textarea"
 						name="letterText"
 						placeholder=""
@@ -119,29 +119,29 @@ export default function ManageDonationFundsPage(props: {
 						onChange={(event) => updateState("LETTER_TEXT", event.target.value)}
 					/>
 				</Col>
-			</FormGroup>
+			</Form.Group>
 
-			<FormGroup row className="align-items-center">
-				<Label sm={3} className="text-sm-right">
+			<Form.Group className="align-items-center">
+				<Form.Label sm={3} className="text-sm-right">
 					Active
-				</Label>
+				</Form.Label>
 				<Col sm={9}>
-					<CustomInput
+					<Form.Control
 						type="checkbox"
 						id="isActive"
 						checked={rowForEdit.ACTIVE == "Y"}
 						className="text-left"
-						onChange={(event) => updateState("ACTIVE", event.target.checked)}
+						onChange={(event) => updateState("ACTIVE", (event.target as any).checked)}
 					/>
 				</Col>
-			</FormGroup>
+			</Form.Group>
 
-			<FormGroup row className="align-items-center">
-				<Label sm={3} className="text-sm-right">
+			<Form.Group className="align-items-center">
+				<Form.Label sm={3} className="text-sm-right">
 					Display Order
-				</Label>
+				</Form.Label>
 				<Col sm={9}>
-					<Input
+					<Form.Control
 						type="number"
 						name="displayOrder"
 						value={rowForEdit.DISPLAY_ORDER}
@@ -150,31 +150,31 @@ export default function ManageDonationFundsPage(props: {
 						}
 					/>
 				</Col>
-			</FormGroup>
+			</Form.Group>
 
-			<FormGroup row className="align-items-center">
-				<Label sm={3} className="text-sm-right">
+			<Form.Group className="align-items-center">
+				<Form.Label sm={3} className="text-sm-right">
 					Show in Checkout
-				</Label>
+				</Form.Label>
 				<Col sm={9}>
-					<CustomInput
+					<Form.Control
 						type="checkbox"
 						id="showInCheckout"
 						checked={rowForEdit.SHOW_IN_CHECKOUT == "Y"}
 						className="text-left"
 						onChange={(event) =>
-							updateState("SHOW_IN_CHECKOUT", event.target.checked)
+							updateState("SHOW_IN_CHECKOUT", (event.target as any).checked)
 						}
 					/>
 				</Col>
-			</FormGroup>
+			</Form.Group>
 
-			<FormGroup row>
-				<Label sm={3} className="text-sm-right">
+			<Form.Group>
+				<Form.Label sm={3} className="text-sm-right">
 					Portal Description
-				</Label>
+				</Form.Label>
 				<Col sm={9}>
-					<Input
+					<Form.Control
 						type="textarea"
 						name="portalDescription"
 						placeholder=""
@@ -182,24 +182,24 @@ export default function ManageDonationFundsPage(props: {
 						onChange={(event) => updateState("PORTAL_DESCRIPTION", event.target.value)}
 					/>
 				</Col>
-			</FormGroup>
+			</Form.Group>
 
-			<FormGroup row className="align-items-center">
-				<Label sm={3} className="text-sm-right">
+			<Form.Group className="align-items-center">
+				<Form.Label sm={3} className="text-sm-right">
 					Is Endowment
-				</Label>
+				</Form.Label>
 				<Col sm={9}>
-					<CustomInput
+					<Form.Control
 						type="checkbox"
 						id="isEndowment"
 						checked={rowForEdit.IS_ENDOWMENT == "Y"}
 						className="text-left"
 						onChange={(event) =>
-							updateState("IS_ENDOWMENT", event.target.checked)
+							updateState("IS_ENDOWMENT", (event.target as any).checked)
 						}
 					/>
 				</Col>
-			</FormGroup>
+			</Form.Group>
 		</React.Fragment>
 	);
 
