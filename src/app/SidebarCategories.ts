@@ -10,6 +10,8 @@ import { jpClassesPageRoute } from "@routes/jp-classes";
 // import { staggeredOrderRoute } from "@routes/staggered-order";
 import { manageClassInstructorsPageRoute } from "@routes/admin/class-instructors";
 import { manageTagsPageRoute } from "@routes/admin/tags";
+import { manageClassLocationsPageRoute } from "@routes/admin/class-locations";
+import { manageHighSchoolsRoute } from "@routes/admin/high-schools";
 import { manageDonationFundsPageRoute } from "@routes/admin/donation-funds";
 import { searchPageRoute } from "@routes/summary/_base";
 import { summaryPageRoute } from "@routes/summary/person-summary";
@@ -51,6 +53,8 @@ const admin: SideBarCategory = {
 		usersPageRoute,
 		manageClassInstructorsPageRoute,
 		manageTagsPageRoute,
+		manageClassLocationsPageRoute,
+		manageHighSchoolsRoute,
 		manageDonationFundsPageRoute,
 	],
 	unrenderedChildren: [
