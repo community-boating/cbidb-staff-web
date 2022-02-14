@@ -1,22 +1,19 @@
 import * as React from "react";
 
-import PathWrapper from "@core/PathWrapper";
 import RouteWrapper from "@core/RouteWrapper";
 import PageWrapper from "@core/PageWrapper";
 import Loader from "@components/Loader";
 import { PageName } from "pages/pageNames";
 import PersonSearchPage from "pages/summary/PersonSearchPage";
+import { pathPersonSearch } from "@app/paths";
 
-export const personBasePath = new PathWrapper("person");
-
-export const searchPageRoute = new RouteWrapper(
+export const routePersonSearch = new RouteWrapper(
 	{
 		requiresAuth: true,
 		exact: true,
-		pathWrapper: personBasePath,
+		pathWrapper: pathPersonSearch,
 		sidebarTitle: "Search Members",
 		pageName: PageName.PERSON_SEARCH,
-		requireSudo: true,
 	},
 	(history) => (
 		<PageWrapper

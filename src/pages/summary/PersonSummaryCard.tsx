@@ -4,8 +4,8 @@ import { NavLink } from "react-router-dom";
 import { Card, CardBody, CardHeader, CardTitle } from "reactstrap";
 import { Edit as EditIcon } from "react-feather";
 
-import { personBasePath } from "@routes/summary/_base";
 import { validator } from "@async/rest/person/get-person";
+import { pathPersonSummary } from "@app/paths";
 
 interface Props {
 	person: t.TypeOf<typeof validator>;
@@ -23,7 +23,7 @@ export default function PersonSummaryCard(props: Props) {
 					{title}
 					<div className="card-header-actions">
 						<NavLink
-							to={personBasePath.getPathFromArgs({
+							to={pathPersonSummary.getPathFromArgs({
 								personId: String(person.PERSON_ID),
 							})}
 							title="Edit person details"

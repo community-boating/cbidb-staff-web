@@ -1,24 +1,21 @@
 import * as React from "react";
 import * as t from "io-ts";
 
-import { personBasePath } from "./_base";
 import RouteWrapper from "@core/RouteWrapper";
 import PageWrapper from "@core/PageWrapper";
 import Loader from "@components/Loader";
 import { PageName } from "pages/pageNames";
 import PersonSummaryPage from "pages/summary/PersonSummaryPage";
 import { validator, getWrapper } from "@async/rest/person/get-person";
+import { pathPersonSearch, pathPersonSummary } from "@app/paths";
 
-const personSummaryPath = personBasePath.appendPathSegment<{personId: string}>(":personId")
-
-export const summaryPageRoute = new RouteWrapper(
+export const routePersonSummary = new RouteWrapper(
 	{
 		requiresAuth: true,
 		exact: true,
-		pathWrapper: personSummaryPath,
+		pathWrapper: pathPersonSummary,
 		sidebarTitle: "Person Summary",
 		pageName: PageName.PERSON_SUMMARY,
-		requireSudo: true,
 	},
 	(history) => (
 		<PageWrapper
@@ -28,17 +25,14 @@ export const summaryPageRoute = new RouteWrapper(
 				<PersonSummaryPage person={async}  />
 			)}
 			urlProps={{personId: (function() {
-				console.log("person summary page")
-				console.log(history.location.pathname)
-				return Number(personSummaryPath.extractURLParams(history.location.pathname).personId)
+				return Number(pathPersonSummary.extractURLParams(history.location.pathname).personId)
 			}())}}
 			getAsyncProps={(urlProps: { personId: number }) => {
-				console.log(urlProps);
 				return getWrapper(urlProps.personId)
 					.send(null)
 					.catch((err) => {
 						console.log("failed to get person: ", err);
-						history.push(personBasePath.getPathFromArgs({}));
+						history.push(pathPersonSearch.getPathFromArgs({}));
 						return Promise.reject(null);
 					}); // TODO: handle failure
 			}}

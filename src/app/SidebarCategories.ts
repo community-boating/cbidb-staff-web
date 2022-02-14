@@ -5,8 +5,7 @@ import {
 	HelpCircle
 } from "react-feather";
 import RouteWrapper from "../core/RouteWrapper";
-import { searchPageRoute } from "@routes/summary/_base";
-import { summaryPageRoute } from "@routes/summary/person-summary";
+import { routePersonSearch } from "@routes/person/search";
 import { routeJpClassesPage } from "@routes/jp-classes";
 import { routeUsersEditPage, routeUsersNewPage, routeUsersPage } from "@routes/users";
 import { routeManageClassInstructorsPage } from "@routes/admin/class-instructors";
@@ -15,6 +14,7 @@ import { routeManageClassLocationsPage } from "@routes/admin/class-locations";
 import { routeManageHighSchools } from "@routes/admin/high-schools";
 import { routeManageDonationFundsPage } from "@routes/admin/donation-funds";
 import { routeStaggeredOrder } from "@routes/staggered-order";
+import { routePersonSummary } from "@routes/person/summary";
 
 export type SideBarCategory = {
 	path: string,
@@ -38,10 +38,10 @@ const person_summary: SideBarCategory = {
 	name: "Members",
 	icon: UsersIcon,
 	children: [
-		searchPageRoute
+		routePersonSearch
 	],
 	unrenderedChildren: [
-		summaryPageRoute
+		routePersonSummary
 	]
 };
 
