@@ -8,13 +8,13 @@ import Loader from "@components/Loader";
 import { PageName } from "pages/pageNames";
 import ManageClassLocationsPage from "pages/admin/ManageClassLocationsPage";
 import { validator, getWrapper } from "@async/rest/class-locations";
-import { manageClassLocationsPath } from "@app/paths";
+import { pathManageClassLocations } from "@app/paths";
 
-export const manageClassLocationsPageRoute = new RouteWrapper(
+export const routeManageClassLocationsPage = new RouteWrapper(
 	{
 		requiresAuth: true,
 		exact: true,
-		pathWrapper: manageClassLocationsPath,
+		pathWrapper: pathManageClassLocations,
 		sidebarTitle: "Manage Class Locations",
 		pageName: PageName.MANAGE_CLASS_LOCATIONS,
 		requireSudo: true,

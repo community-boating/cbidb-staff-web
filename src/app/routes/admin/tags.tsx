@@ -8,13 +8,13 @@ import Loader from "@components/Loader";
 import { PageName } from "pages/pageNames";
 import ManageTagsPage from "pages/admin/ManageTagsPage";
 import { validator, getWrapper } from "@async/rest/tags";
-import { manageTagsPath } from "@app/paths";
+import { pathManageTags } from "@app/paths";
 
-export const manageTagsPageRoute = new RouteWrapper(
+export const routeManageTagsPage = new RouteWrapper(
 	{
 		requiresAuth: true,
 		exact: true,
-		pathWrapper: manageTagsPath,
+		pathWrapper: pathManageTags,
 		sidebarTitle: "Manage Tags",
 		pageName: PageName.MANAGE_TAGS,
 		requireSudo: true,

@@ -9,12 +9,12 @@ import {apiw as getUser, validator as userValidator, formDefault} from "../../as
 import UserFormPage from '../../pages/users/UserFormPage';
 import { PageName } from 'pages/pageNames';
 import { optionifyProps } from '@util/OptionifyObjectProps';
-import { usersEditPath, usersNewPath, usersPath } from '@app/paths';
+import { pathUsersEdit, pathUsersNew, pathUsers } from '@app/paths';
 
-export const usersPageRoute = new RouteWrapper({
+export const routeUsersPage = new RouteWrapper({
 	requiresAuth: true,
 	exact: true,
-	pathWrapper: usersPath,
+	pathWrapper: pathUsers,
 	sidebarTitle: "Users",
 	pageName: PageName.USERS,
 	requireSudo: true,
@@ -31,10 +31,10 @@ export const usersPageRoute = new RouteWrapper({
 	shadowComponent={<Loader />}
 />);
 
-export const usersEditPageRoute = new RouteWrapper({
+export const routeUsersEditPage = new RouteWrapper({
 	requiresAuth: true,
 	exact: true,
-	pathWrapper: usersEditPath,
+	pathWrapper: pathUsersEdit,
 	pageName: PageName.USERS_EDIT,
 	requireSudo: true,
 }, history => <PageWrapper
@@ -47,23 +47,23 @@ export const usersEditPageRoute = new RouteWrapper({
 	urlProps={{userId: (function() {
 		console.log("hi")
 		console.log(history.location.pathname)
-		return Number(usersEditPath.extractURLParams(history.location.pathname).userId)
+		return Number(pathUsersEdit.extractURLParams(history.location.pathname).userId)
 	}())}}
 	getAsyncProps={(urlProps: {userId: number}) => {
 		console.log(urlProps)
 		return getUser(urlProps.userId).send(null).catch(err => {
 			console.log("failed to get user: ", err)
-			history.push(usersPath.getPathFromArgs({}));
+			history.push(pathUsers.getPathFromArgs({}));
 			return Promise.reject(null);
 		});  // TODO: handle failure
 	}}
 	shadowComponent={<Loader />}
 />);
 
-export const usersNewPageRoute = new RouteWrapper({
+export const routeUsersNewPage = new RouteWrapper({
 	requiresAuth: true,
 	exact: true,
-	pathWrapper: usersNewPath,
+	pathWrapper: pathUsersNew,
 	pageName: PageName.USERS_NEW,
 	requireSudo: true,
 }, history => <PageWrapper

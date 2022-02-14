@@ -6,12 +6,12 @@ import { PageName } from 'pages/pageNames';
 import {validator, getWrapper} from "@async/rest/class-instructor"
 import Loader from '@components/Loader';
 import ManageClassInstructorsPage from 'pages/admin/ManageClassInstructorsPage';
-import { manageClassInstructorsPath } from '@app/paths';
+import { pathManageClassInstructors } from '@app/paths';
 
-export const manageClassInstructorsPageRoute = new RouteWrapper({
+export const routeManageClassInstructorsPage = new RouteWrapper({
 	requiresAuth: true,
 	exact: true,
-	pathWrapper: manageClassInstructorsPath,
+	pathWrapper: pathManageClassInstructors,
 	sidebarTitle: "Manage Instructors",
 	pageName: PageName.MANAGE_INSTRUCTORS,
 	requireSudo: true,

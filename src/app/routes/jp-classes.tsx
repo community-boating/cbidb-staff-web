@@ -6,12 +6,12 @@ import Loader from '../../components/Loader';
 import JpClassesPage from 'pages/juniorProgram/JpClasses/JpClassesPage';
 import {apiw as getSignups, validator} from "@async/staff/all-jp-signups"
 import { PageName } from 'pages/pageNames';
-import { jpClassesPath } from '@app/paths';
+import { pathJpClasses } from '@app/paths';
 
-export const jpClassesPageRoute = new RouteWrapper({
+export const routeJpClassesPage = new RouteWrapper({
 	requiresAuth: true,
 	exact: true,
-	pathWrapper: jpClassesPath,
+	pathWrapper: pathJpClasses,
 	sidebarTitle: "JP Classes",
 	pageName: PageName.JP_CLASSES,
 }, history => <PageWrapper

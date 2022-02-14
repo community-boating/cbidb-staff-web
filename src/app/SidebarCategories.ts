@@ -3,15 +3,15 @@ import {
 	Sliders as SlidersIcon,
 	HelpCircle
 } from "react-feather";
-import { usersEditPageRoute, usersNewPageRoute, usersPageRoute } from "./routes/users";
+import { routeUsersEditPage, routeUsersNewPage, routeUsersPage } from "./routes/users";
 import RouteWrapper from "../core/RouteWrapper";
-import { jpClassesPageRoute } from "@routes/jp-classes";
-import { staggeredOrderRoute } from "@routes/staggered-order";
-import { manageClassInstructorsPageRoute } from "@routes/admin/class-instructors";
-import { manageTagsPageRoute } from "@routes/admin/tags";
-import { manageClassLocationsPageRoute } from "@routes/admin/class-locations";
-import { manageHighSchoolsRoute } from "@routes/admin/high-schools";
-import { manageDonationFundsPageRoute } from "@routes/admin/donation-funds";
+import { routeJpClassesPage } from "@routes/jp-classes";
+import { routeStaggeredOrder } from "@routes/staggered-order";
+import { routeManageClassInstructorsPage } from "@routes/admin/class-instructors";
+import { routeManageTagsPage } from "@routes/admin/tags";
+import { routeManageClassLocationsPage } from "@routes/admin/class-locations";
+import { routeManageHighSchools } from "@routes/admin/high-schools";
+import { routeManageDonationFundsPage } from "@routes/admin/donation-funds";
 
 export type SideBarCategory = {
 	path: string,
@@ -26,7 +26,7 @@ const jp: SideBarCategory = {
 	name: "Junior Program",
 	icon: Compass,
 	children: [
-		jpClassesPageRoute
+		routeJpClassesPage
 	]
 }
 
@@ -35,16 +35,16 @@ const admin: SideBarCategory = {
 	name: "Admin",
 	icon: SlidersIcon,
 	children: [
-		usersPageRoute,
-		manageClassInstructorsPageRoute,
-		manageTagsPageRoute,
-		manageClassLocationsPageRoute,
-		manageHighSchoolsRoute,
-		manageDonationFundsPageRoute,
+		routeUsersPage,
+		routeManageClassInstructorsPage,
+		routeManageTagsPage,
+		routeManageClassLocationsPage,
+		routeManageHighSchools,
+		routeManageDonationFundsPage,
 	],
 	unrenderedChildren: [
-		usersNewPageRoute,
-		usersEditPageRoute,
+		routeUsersNewPage,
+		routeUsersEditPage,
 	]
 };
 
@@ -55,7 +55,7 @@ const misc: SideBarCategory = {
 	children: [
 	],
 	unrenderedChildren: [
-		staggeredOrderRoute
+		routeStaggeredOrder
 	]
 };
 

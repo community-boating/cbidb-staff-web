@@ -8,9 +8,7 @@ import { PageName } from 'pages/pageNames';
 import StaggeredOrder from 'pages/misc/StaggeredOrder';
 import { pathStaggeredOrder } from '@app/paths';
 
-
-
-export const staggeredOrderRoute = new RouteWrapper({
+export const routeStaggeredOrder = new RouteWrapper({
 	requiresAuth: true,
 	exact: true,
 	pathWrapper: pathStaggeredOrder,

@@ -8,13 +8,13 @@ import Loader from "@components/Loader";
 import { PageName } from "pages/pageNames";
 import ManageDonationFundsPage from "pages/admin/ManageDonationFundsPage";
 import { validator, getWrapper } from "@async/rest/donation-funds";
-import { manageDonationFundsPath } from "@app/paths";
+import { pathManageDonationFunds } from "@app/paths";
 
-export const manageDonationFundsPageRoute = new RouteWrapper(
+export const routeManageDonationFundsPage = new RouteWrapper(
 	{
 		requiresAuth: true,
 		exact: true,
-		pathWrapper: manageDonationFundsPath,
+		pathWrapper: pathManageDonationFunds,
 		sidebarTitle: "Manage Donation Funds",
 		pageName: PageName.MANAGE_DONATION_FUNDS,
 		requireSudo: true,
