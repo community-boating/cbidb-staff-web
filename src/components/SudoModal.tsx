@@ -46,8 +46,6 @@ export default function () {
 			});
 			const node = document.getElementById("sudoPassword");
 			node && node.focus();
-			console.log("logged in as ", asc.state.login.authenticatedUserName.getOrElse("noone"))
-			console.log(blankForm)
 		}, 50)
 	});
 
@@ -80,8 +78,6 @@ export default function () {
 		} else return Promise.resolve();
 		
 	};
-
-	console.log(formData.username)
 
 	return <Modal
 		isOpen={isOpen}

@@ -44,13 +44,8 @@ export const routeUsersEditPage = new RouteWrapper({
 		history={history}
 		initialFormState={optionifyProps(async)}
 	/>}
-	urlProps={{userId: (function() {
-		console.log("hi")
-		console.log(history.location.pathname)
-		return Number(pathUsersEdit.extractURLParams(history.location.pathname).userId)
-	}())}}
+	urlProps={{userId: Number(pathUsersEdit.extractURLParams(history.location.pathname).userId)}}
 	getAsyncProps={(urlProps: {userId: number}) => {
-		console.log(urlProps)
 		return getUser(urlProps.userId).send(null).catch(err => {
 			console.log("failed to get user: ", err)
 			history.push(pathUsers.getPathFromArgs({}));

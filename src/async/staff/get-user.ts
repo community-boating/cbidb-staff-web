@@ -23,8 +23,6 @@ export type UserForm = OptionifiedProps<User>;
 
 export const formDefault: UserForm = optionifyAndMakeDefault(validator);
 
-console.log("formdefault ", formDefault)
-
 const path = "/staff/get-user"
 
 export const apiw = (userId: number) => new APIWrapper({
