@@ -1,9 +1,8 @@
 import { History } from 'history';
 import * as React from "react";
-import { UserForm,  } from "../../async/staff/get-user"
+import { UserForm, validator} from "../../async/staff/get-user"
 import { Card, CardHeader, CardTitle, CardBody, FormGroup, Label, Col, Button } from 'reactstrap';
 import { NavLink } from 'react-router-dom';
-import { usersPageRoute } from '../../app/routes/users';
 import { Option, none, some } from 'fp-ts/lib/Option';
 import FormElementInput from '../../components/form/FormElementInput';
 import {formUpdateState} from '../../util/form-update-state';
@@ -14,6 +13,7 @@ import FormElementSelect from '@components/form/FormElementSelect';
 import { UserType, userTypeDisplay, userTypes } from 'models/UserType';
 import { deoptionifyProps } from '@util/OptionifyObjectProps';
 import { ErrorPopup } from '@components/ErrorPopup';
+import { pathUsers } from '@app/paths';
 
 type FormData = UserForm & {
 	pw1: Option<string>,
@@ -41,7 +41,8 @@ export default class UserFormPage extends React.PureComponent<Props, State> {
 			formData: {
 				...props.initialFormState,
 				pw1: none,
-				pw2: none
+				pw2: none,
+				USER_TYPE: some(some(props.initialFormState.USER_TYPE.getOrElse(none).getOrElse(UserType.User)))
 			},
 			validationErrors: []
 		}
@@ -49,11 +50,11 @@ export default class UserFormPage extends React.PureComponent<Props, State> {
 
 	submit() {
 		const self = this;
-		return postWrapper.send(makePostJSON(deoptionifyProps(self.state.formData))).then(
+		return postWrapper.send(makePostJSON(deoptionifyProps(self.state.formData, validator))).then(
 			// api success
 			ret => {
 				if (ret.type == "Success") {
-					self.props.history.push(usersPageRoute.getPathFromArgs({}))
+					self.props.history.push(pathUsers.getPathFromArgs({}))
 				} else {
 					window.scrollTo(0, 0);
 					self.setState({
@@ -99,19 +100,19 @@ export default class UserFormPage extends React.PureComponent<Props, State> {
 				/>
 				<FormInput
 					id="NAME_FIRST"
-					value={this.state.formData.NAME_FIRST.getOrElse(null)}
+					value={this.state.formData.NAME_FIRST.getOrElse(none)}
 					updateAction={updateStateNullable}
 					formatElement={formatElement("First Name")}
 				/>
 				<FormInput
 					id="NAME_LAST"
-					value={this.state.formData.NAME_LAST.getOrElse(null)}
+					value={this.state.formData.NAME_LAST.getOrElse(none)}
 					updateAction={updateStateNullable}
 					formatElement={formatElement("Last Name")}
 				/>
 				<FormSelect
 					id="USER_TYPE"
-					value={some(this.state.formData.USER_TYPE.getOrElse(null).getOrElse(UserType.User))}
+					value={some(this.state.formData.USER_TYPE.getOrElse(none).getOrElse(UserType.User))}
 					updateAction={updateStateNullable}
 					options={userTypes.map(t => ({
 						key: t,
@@ -161,7 +162,7 @@ export default class UserFormPage extends React.PureComponent<Props, State> {
 					<Label sm={2} className="text-sm-right pt-sm-0" />
 					<Col sm={10}>
 						<div className="btn-list">
-							<NavLink to={usersPageRoute.getPathFromArgs({})}><Button outline color="primary" className="mr-1">Cancel</Button></NavLink>
+							<NavLink to={pathUsers.getPathFromArgs({})}><Button outline color="primary" className="mr-1">Cancel</Button></NavLink>
 							<Button color="primary" onClick={this.submit.bind(this)}>Submit</Button>
 						</div>
 					</Col>

@@ -42,7 +42,6 @@ export class AppStateContainer {
 	state: State
 	setState = (state: State) => {
 		this.state = state;
-		console.log("asc updated state: ", this.state)
 		if (this.listener) this.listener();
 	}
 	listener: () => void
@@ -73,7 +72,6 @@ export class AppStateContainer {
 		},
 		login: {
 			setLoggedIn: (function(userName: string) {
-				console.log("setting logged in as ", userName)
 				const self: AppStateContainer = this
 				getPermissions().send(null).then(res => {
 					if (res.type == "Success") {

@@ -103,8 +103,6 @@ function Sidebar(props: {sidebar: any, layout: any, history: History<any>}) {
 	const [activeTabs, setActiveTabs] = React.useState(initialState);
 
 	const toggle = (index: number) => {
-		console.log(index)
-		console.log(activeTabs)
 		const newTabs = [...activeTabs];
 		newTabs[index] = !newTabs[index];
 		setActiveTabs(newTabs);

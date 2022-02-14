@@ -11,7 +11,6 @@ interface Props {
 
 export default class FormElementCheckbox<T> extends FormElement<T, Props & FormElementProps<T, boolean>, boolean> {
 	getElement() {
-		console.log("rendering: ", this.props.value)
 		// const onKeyPress = (e: React.KeyboardEvent) => {
 		// 	if (this.props.onEnter && (e.keyCode || e.which) == 13) {
 		// 		this.props.onEnter();

@@ -2,18 +2,16 @@ import * as React from 'react';
 import * as t from 'io-ts';
 import RouteWrapper from '../../core/RouteWrapper';
 import PageWrapper from '../../core/PageWrapper';
-import PathWrapper from '../../core/PathWrapper';
 import Loader from '../../components/Loader';
 import {apiw, validator} from "@async/staff/open-order-details"
 import { PageName } from 'pages/pageNames';
 import StaggeredOrder from 'pages/misc/StaggeredOrder';
+import { pathStaggeredOrder } from '@app/paths';
 
-const path = new PathWrapper("staggered-order/:personId");
-
-export const staggeredOrderRoute = new RouteWrapper({
+export const routeStaggeredOrder = new RouteWrapper({
 	requiresAuth: true,
 	exact: true,
-	pathWrapper: path,
+	pathWrapper: pathStaggeredOrder,
 	sidebarTitle: "Staggered Order",
 	pageName: PageName.STAGGERED_ORDER,
 }, history => <PageWrapper
@@ -24,7 +22,7 @@ export const staggeredOrderRoute = new RouteWrapper({
 		personId={urlProps.personId}
 		payments={payments}
 	/>}
-	urlProps={{personId: Number(path.extractURLParams(history.location.pathname).personId)}}
+	urlProps={{personId: Number(pathStaggeredOrder.extractURLParams(history.location.pathname).personId)}}
 	getAsyncProps={(urlProps: {personId: number}) => {
 		return apiw(urlProps.personId).send(null)
 	}}
