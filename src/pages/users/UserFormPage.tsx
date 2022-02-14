@@ -3,7 +3,6 @@ import * as React from "react";
 import { UserForm,  } from "../../async/staff/get-user"
 import { Card, CardHeader, CardTitle, CardBody, FormGroup, Label, Col, Button } from 'reactstrap';
 import { NavLink } from 'react-router-dom';
-import { usersPageRoute } from '../../app/routes/users';
 import { Option, none, some } from 'fp-ts/lib/Option';
 import FormElementInput from '../../components/form/FormElementInput';
 import {formUpdateState} from '../../util/form-update-state';
@@ -14,6 +13,7 @@ import FormElementSelect from '@components/form/FormElementSelect';
 import { UserType, userTypeDisplay, userTypes } from 'models/UserType';
 import { deoptionifyProps } from '@util/OptionifyObjectProps';
 import { ErrorPopup } from '@components/ErrorPopup';
+import { usersPath } from '@app/paths';
 
 type FormData = UserForm & {
 	pw1: Option<string>,
@@ -53,7 +53,7 @@ export default class UserFormPage extends React.PureComponent<Props, State> {
 			// api success
 			ret => {
 				if (ret.type == "Success") {
-					self.props.history.push(usersPageRoute.getPathFromArgs({}))
+					self.props.history.push(usersPath.getPathFromArgs({}))
 				} else {
 					window.scrollTo(0, 0);
 					self.setState({
@@ -161,7 +161,7 @@ export default class UserFormPage extends React.PureComponent<Props, State> {
 					<Label sm={2} className="text-sm-right pt-sm-0" />
 					<Col sm={10}>
 						<div className="btn-list">
-							<NavLink to={usersPageRoute.getPathFromArgs({})}><Button outline color="primary" className="mr-1">Cancel</Button></NavLink>
+							<NavLink to={usersPath.getPathFromArgs({})}><Button outline color="primary" className="mr-1">Cancel</Button></NavLink>
 							<Button color="primary" onClick={this.submit.bind(this)}>Submit</Button>
 						</div>
 					</Col>

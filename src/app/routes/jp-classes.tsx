@@ -2,13 +2,11 @@ import * as React from 'react';
 import * as t from 'io-ts';
 import RouteWrapper from '../../core/RouteWrapper';
 import PageWrapper from '../../core/PageWrapper';
-import PathWrapper from '../../core/PathWrapper';
 import Loader from '../../components/Loader';
 import JpClassesPage from 'pages/juniorProgram/JpClasses/JpClassesPage';
 import {apiw as getSignups, validator} from "@async/staff/all-jp-signups"
 import { PageName } from 'pages/pageNames';
-
-const jpClassesPath = new PathWrapper("jp-classes");
+import { jpClassesPath } from '@app/paths';
 
 export const jpClassesPageRoute = new RouteWrapper({
 	requiresAuth: true,

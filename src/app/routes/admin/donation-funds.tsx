@@ -5,12 +5,10 @@ import RouteWrapper from "@core/RouteWrapper";
 import PageWrapper from "@core/PageWrapper";
 import Loader from "@components/Loader";
 
-import { adminBasePath } from "./_base";
 import { PageName } from "pages/pageNames";
 import ManageDonationFundsPage from "pages/admin/ManageDonationFundsPage";
 import { validator, getWrapper } from "@async/rest/donation-funds";
-
-export const manageDonationFundsPath = adminBasePath.appendPathSegment("donation-funds");
+import { manageDonationFundsPath } from "@app/paths";
 
 export const manageDonationFundsPageRoute = new RouteWrapper(
 	{

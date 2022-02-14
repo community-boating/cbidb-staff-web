@@ -3,15 +3,13 @@ import * as t from 'io-ts';
 import UsersPage from '../../pages/users/UsersPage';
 import RouteWrapper from '../../core/RouteWrapper';
 import PageWrapper from '../../core/PageWrapper';
-import PathWrapper from '../../core/PathWrapper';
 import Loader from '../../components/Loader';
 import {apiw as getUsers, validator} from "../../async/staff/get-users"
 import {apiw as getUser, validator as userValidator, formDefault} from "../../async/staff/get-user"
 import UserFormPage from '../../pages/users/UserFormPage';
 import { PageName } from 'pages/pageNames';
 import { optionifyProps } from '@util/OptionifyObjectProps';
-
-const usersPath = new PathWrapper("users");
+import { usersEditPath, usersNewPath, usersPath } from '@app/paths';
 
 export const usersPageRoute = new RouteWrapper({
 	requiresAuth: true,
@@ -32,8 +30,6 @@ export const usersPageRoute = new RouteWrapper({
 	}}
 	shadowComponent={<Loader />}
 />);
-
-const usersEditPath = usersPath.appendPathSegment<{userId: string}>(":userId")
 
 export const usersEditPageRoute = new RouteWrapper({
 	requiresAuth: true,
@@ -63,8 +59,6 @@ export const usersEditPageRoute = new RouteWrapper({
 	}}
 	shadowComponent={<Loader />}
 />);
-
-const usersNewPath = usersPath.appendPathSegment("new")
 
 export const usersNewPageRoute = new RouteWrapper({
 	requiresAuth: true,

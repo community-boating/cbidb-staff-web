@@ -5,7 +5,6 @@ import { Card, CardHeader, CardTitle, CardBody, UncontrolledDropdown, DropdownTo
 import BootstrapTable from "react-bootstrap-table-next";
 import paginationFactory from "react-bootstrap-table2-paginator";
 import { NavLink, Link } from 'react-router-dom';
-import { usersEditPageRoute } from '../../app/routes/users';
 import {
 	Edit as EditIcon,
 	Check as CheckIcon,
@@ -14,6 +13,7 @@ import {
 } from 'react-feather'
 import { tableColWidth } from '@util/tableUtil';
 import { userTypeDisplay } from 'models/UserType';
+import { usersEditPath } from "@app/paths";
 
 
 export default function UsersPage(props: { users: t.TypeOf<typeof validator> }) {
@@ -70,7 +70,7 @@ export default function UsersPage(props: { users: t.TypeOf<typeof validator> }) 
 		locked: u.LOCKED ? <LockIcon color="#777" size="1.4em" /> : null,
 		active: u.ACTIVE ? <CheckIcon color="#777" size="1.4em" /> : null,
 		pwChangeRequired: u.PW_CHANGE_REQD ? <CheckIcon color="#777" size="1.4em" /> : null,
-		edit: <NavLink to={usersEditPageRoute.getPathFromArgs({ userId: String(u.USER_ID) })}><EditIcon color="#777" size="1.4em" /></NavLink>
+		edit: <NavLink to={usersEditPath.getPathFromArgs({ userId: String(u.USER_ID) })}><EditIcon color="#777" size="1.4em" /></NavLink>
 	}))
 	return <Card>
 		<CardHeader>
@@ -80,7 +80,7 @@ export default function UsersPage(props: { users: t.TypeOf<typeof validator> }) 
 						<MoreHorizontal />
 					</DropdownToggle>
 					<DropdownMenu right>
-					<Link to={usersEditPageRoute.getPathFromArgs({ userId: String("new") })}><DropdownItem>Create</DropdownItem></Link>
+					<Link to={usersEditPath.getPathFromArgs({ userId: String("new") })}><DropdownItem>Create</DropdownItem></Link>
 					</DropdownMenu>
 				</UncontrolledDropdown>
 			</div>

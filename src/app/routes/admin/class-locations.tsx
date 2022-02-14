@@ -5,12 +5,10 @@ import RouteWrapper from "@core/RouteWrapper";
 import PageWrapper from "@core/PageWrapper";
 import Loader from "@components/Loader";
 
-import { adminBasePath } from "./_base";
 import { PageName } from "pages/pageNames";
 import ManageClassLocationsPage from "pages/admin/ManageClassLocationsPage";
 import { validator, getWrapper } from "@async/rest/class-locations";
-
-export const manageClassLocationsPath = adminBasePath.appendPathSegment("class-locations");
+import { manageClassLocationsPath } from "@app/paths";
 
 export const manageClassLocationsPageRoute = new RouteWrapper(
 	{

@@ -5,12 +5,10 @@ import RouteWrapper from "@core/RouteWrapper";
 import PageWrapper from "@core/PageWrapper";
 import Loader from "@components/Loader";
 
-import { adminBasePath } from "./_base";
 import { PageName } from "pages/pageNames";
 import ManageTagsPage from "pages/admin/ManageTagsPage";
 import { validator, getWrapper } from "@async/rest/tags";
-
-export const manageTagsPath = adminBasePath.appendPathSegment("tags");
+import { manageTagsPath } from "@app/paths";
 
 export const manageTagsPageRoute = new RouteWrapper(
 	{
