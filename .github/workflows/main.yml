@@ -46,10 +46,6 @@ jobs:
           name: build.tar.gz
       - name: unpack
         run: tar -zxvf build.tar.gz && ls -l
-      - name: Install doctl 
-        uses: digitalocean/action-doctl@v2
-        with:
-          token: ${{ secrets.DO_ACCESS_TOKEN }}
 
       - name: Get branch name (merge)
         if: github.event_name != 'pull_request'
@@ -65,10 +61,13 @@ jobs:
         run: echo ${{ env.BRANCH_NAME }}
 
       - name: build image
-        run: docker build -t registry.digitalocean.com/community-boating-docker/cbidb-staff-web:${{ env.BRANCH_NAME }} .
-      - name: Log in to DO Container Registry 
-        run: doctl registry login --expiry-seconds 600
-      - name: push image
-        run: docker push registry.digitalocean.com/community-boating-docker/cbidb-staff-web:${{ env.BRANCH_NAME }}
+        run: docker build -t docker-snapshots.community-boating.org/cbidb-staff-web:${{ env.BRANCH_NAME }} .
+
+      - name: Log in to nexus Registry
+        run: docker login -u ci -p ${{ secrets.NEXUS_PASSWORD }} docker-snapshots.community-boating.org
+
+      - name: push image nexus
+        run: docker push docker-snapshots.community-boating.org/cbidb-staff-web:${{ env.BRANCH_NAME }}
+        
       - name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
