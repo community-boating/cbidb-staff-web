@@ -12,3 +12,5 @@ ReactDOM.render(<App
 	history={history}
 	asc={asc}
 />, document.getElementById("root"));
+
+console.log("git commit: $$GITHUB_SHA$$");

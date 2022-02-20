@@ -25,6 +25,10 @@ jobs:
         run: cp ini/config.ini.ci ini/config.ini
       - name: install
         run: npm install
+      - name: inject commit sha
+        run: sed -i 's/\$\$GITHUB_SHA\$\$/'"${GITHUB_SHA}"'/' src/index.tsx
+      - name: see sha
+        run: cat src/index.tsx
       - name: build
         # circular dependencies are currently throwing warnings
         run: CI=false npm run build
