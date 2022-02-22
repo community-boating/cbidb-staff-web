@@ -13,4 +13,3 @@ ReactDOM.render(<App
 	asc={asc}
 />, document.getElementById("root"));
 
-console.log("git commit: $$GITHUB_SHA$$");
