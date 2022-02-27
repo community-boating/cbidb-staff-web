@@ -34,8 +34,8 @@ export type SalesRecord = ReturnType<typeof mapSalesRecord>;
 
 const path = "/rest/membership-sale";
 
-export const getWrapper = (season: number) => new APIWrapper({
-	path: path + "?season=" + season,
+export const getWrapper = (calendarYear: number) => new APIWrapper({
+	path: path + "?calendarYear=" + calendarYear,
 	type: HttpMethod.GET,
 	resultValidator: validator,
 });
