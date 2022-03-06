@@ -7,7 +7,7 @@ type SimpleReportRequiredProps<T_Data> = BootstrapTableProps & {
 	data: T_Data[],
 	columns: ColumnDescription[],
 	sizePerPage?: number,
-	sizePerPageList?: number[],
+	sizePerPageList?: number[] | Array<{ text: string; value: number }>,
 }
 
 export class SimpleReport<T_Data> extends React.Component<SimpleReportRequiredProps<T_Data>> {

@@ -18,3 +18,17 @@ export const getWrapper = (id: number) =>
 		type: HttpMethod.GET,
 		resultValidator: validator,
 	});
+
+const resultValidator = t.type({
+	WAIVER_ID: t.number,
+});
+
+export const putWrapper = new APIWrapper<
+	typeof resultValidator,
+	t.TypeOf<typeof damageWaiverValidator>,
+	null
+>({
+	path,
+	type: HttpMethod.POST,
+	resultValidator,
+});

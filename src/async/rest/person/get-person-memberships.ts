@@ -17,3 +17,17 @@ export const getWrapper = (id: number) =>
 		type: HttpMethod.GET,
 		resultValidator: validator,
 	});
+
+const resultValidator = t.type({
+	ASSIGN_ID: t.number,
+});
+
+export const putWrapper = new APIWrapper<
+	typeof resultValidator,
+	t.TypeOf<typeof membershipValidator>,
+	null
+>({
+	path,
+	type: HttpMethod.POST,
+	resultValidator,
+});
