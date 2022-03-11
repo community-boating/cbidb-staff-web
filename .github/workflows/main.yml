@@ -84,7 +84,7 @@ jobs:
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         run: |
-          docker tag registry.digitalocean.com/community-boating-docker/cbidb-staff-web:${{ env.BRANCH_NAME }} $ECR_REGISTRY/cbidb-staff-web-snapshot:${{ env.BRANCH_NAME }}
+          docker tag docker-snapshots.community-boating.org/cbidb-staff-web:${{ env.BRANCH_NAME }} $ECR_REGISTRY/cbidb-staff-web-snapshot:${{ env.BRANCH_NAME }}
           docker push $ECR_REGISTRY/cbidb-staff-web-snapshot:${{ env.BRANCH_NAME }}
 
       - name: Image digest
