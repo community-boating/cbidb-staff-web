@@ -5,18 +5,16 @@ import RouteWrapper from "@core/RouteWrapper";
 import PageWrapper from "@core/PageWrapper";
 import Loader from "@components/Loader";
 
-import { adminBasePath } from "./_base";
 import { PageName } from "pages/pageNames";
 import ManageHighSchoolsPage from "pages/admin/ManageHighSchoolsPage";
 import { validator, getWrapper } from "@async/rest/high-schools";
+import { pathManageHighSchools } from "@app/paths";
 
-export const manageHighSchools = adminBasePath.appendPathSegment("high-schools");
-
-export const manageHighSchoolsRoute = new RouteWrapper(
+export const routeManageHighSchools = new RouteWrapper(
 	{
 		requiresAuth: true,
 		exact: true,
-		pathWrapper: manageHighSchools,
+		pathWrapper: pathManageHighSchools,
 		sidebarTitle: "Manage High Schools",
 		pageName: PageName.MANAGE_HIGH_SCHOOLS,
 		requireSudo: true,

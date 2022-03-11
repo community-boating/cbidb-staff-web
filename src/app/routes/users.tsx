@@ -3,20 +3,18 @@ import * as t from 'io-ts';
 import UsersPage from '../../pages/users/UsersPage';
 import RouteWrapper from '../../core/RouteWrapper';
 import PageWrapper from '../../core/PageWrapper';
-import PathWrapper from '../../core/PathWrapper';
 import Loader from '../../components/Loader';
 import {apiw as getUsers, validator} from "../../async/staff/get-users"
 import {apiw as getUser, validator as userValidator, formDefault} from "../../async/staff/get-user"
 import UserFormPage from '../../pages/users/UserFormPage';
 import { PageName } from 'pages/pageNames';
 import { optionifyProps } from '@util/OptionifyObjectProps';
+import { pathUsersEdit, pathUsersNew, pathUsers } from '@app/paths';
 
-const usersPath = new PathWrapper("users");
-
-export const usersPageRoute = new RouteWrapper({
+export const routeUsersPage = new RouteWrapper({
 	requiresAuth: true,
 	exact: true,
-	pathWrapper: usersPath,
+	pathWrapper: pathUsers,
 	sidebarTitle: "Users",
 	pageName: PageName.USERS,
 	requireSudo: true,
@@ -33,12 +31,10 @@ export const usersPageRoute = new RouteWrapper({
 	shadowComponent={<Loader />}
 />);
 
-const usersEditPath = usersPath.appendPathSegment<{userId: string}>(":userId")
-
-export const usersEditPageRoute = new RouteWrapper({
+export const routeUsersEditPage = new RouteWrapper({
 	requiresAuth: true,
 	exact: true,
-	pathWrapper: usersEditPath,
+	pathWrapper: pathUsersEdit,
 	pageName: PageName.USERS_EDIT,
 	requireSudo: true,
 }, history => <PageWrapper
@@ -48,28 +44,21 @@ export const usersEditPageRoute = new RouteWrapper({
 		history={history}
 		initialFormState={optionifyProps(async)}
 	/>}
-	urlProps={{userId: (function() {
-		console.log("hi")
-		console.log(history.location.pathname)
-		return Number(usersEditPath.extractURLParams(history.location.pathname).userId)
-	}())}}
+	urlProps={{userId: Number(pathUsersEdit.extractURLParams(history.location.pathname).userId)}}
 	getAsyncProps={(urlProps: {userId: number}) => {
-		console.log(urlProps)
 		return getUser(urlProps.userId).send(null).catch(err => {
 			console.log("failed to get user: ", err)
-			history.push(usersPath.getPathFromArgs({}));
+			history.push(pathUsers.getPathFromArgs({}));
 			return Promise.reject(null);
 		});  // TODO: handle failure
 	}}
 	shadowComponent={<Loader />}
 />);
 
-const usersNewPath = usersPath.appendPathSegment("new")
-
-export const usersNewPageRoute = new RouteWrapper({
+export const routeUsersNewPage = new RouteWrapper({
 	requiresAuth: true,
 	exact: true,
-	pathWrapper: usersNewPath,
+	pathWrapper: pathUsersNew,
 	pageName: PageName.USERS_NEW,
 	requireSudo: true,
 }, history => <PageWrapper

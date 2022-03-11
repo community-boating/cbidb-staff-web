@@ -75,10 +75,8 @@ jobs:
 
       - name: build image
         run: docker build -t docker-snapshots.community-boating.org/cbidb-staff-web:${{ env.BRANCH_NAME }} .
-
       - name: Log in to nexus Registry
         run: docker login -u ci -p ${{ secrets.NEXUS_PASSWORD }} docker-snapshots.community-boating.org
-
       - name: push image nexus
         run: docker push docker-snapshots.community-boating.org/cbidb-staff-web:${{ env.BRANCH_NAME }}
 

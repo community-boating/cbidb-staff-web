@@ -19,13 +19,10 @@ class App extends React.Component<Props> {
 		super(props);
 		const self = this;
 		asc.setListener(() => {
-			console.log("forcing app to update")
 			self.forceUpdate();
 		})
 		isLoggedInAsStaff.send(null).then(usernameResult => {
-			console.log("is logged in came back....", usernameResult)
 			if (usernameResult.type == "Success") {
-				console.log("SETTING LOGGED IN:   " + usernameResult.success.value)
 				asc.updateState.login.setLoggedIn(usernameResult.success.value)
 			}
 		}, () => {
