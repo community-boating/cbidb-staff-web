@@ -14,6 +14,7 @@ import { UserType, userTypeDisplay, userTypes } from 'models/UserType';
 import { deoptionifyProps } from '@util/OptionifyObjectProps';
 import { ErrorPopup } from '@components/ErrorPopup';
 import { pathUsers } from '@app/paths';
+import asc from '@app/AppStateContainer';
 
 type FormData = UserForm & {
 	pw1: Option<string>,
@@ -48,22 +49,67 @@ export default class UserFormPage extends React.PureComponent<Props, State> {
 		}
 	}
 
+	validatePw(pw: string): Option<string> {
+		const LENGTH = 10;
+		const isLength = pw.length >= LENGTH;
+		const hasUpper = pw.match(/[A-Z]/)
+		const hasLower = pw.match(/[a-z]/)
+		const hasNumber = pw.match(/[0-9]/)
+		if (isLength && hasUpper && hasLower && hasNumber) return none;
+		else return some(`Password must be at least ${LENGTH} characters and must contain an uppercase letter, a lowercase letter, and a number.`)
+	}
+	
+	validate() {
+		const {pw1, pw2} = this.state.formData;
+
+		// changing pw
+		if (pw1.isSome() || pw2.isSome()) {
+			// didnt set both
+			if (pw1.isNone() || pw2.isNone()) {
+				return ["Please confirm password."]
+			}
+			// not equal
+			if (!pw1.chain(p1 => pw2.map(p2 => p1 == p2)).getOrElse(false)) {
+				return ["Passwords are not equal."]
+			}
+			const pwError = pw1.chain(this.validatePw)
+			console.log(asc.state.login.authenticatedUserName.getOrElse(""))
+			// TODO: remove jcole can set a bad pw
+			if (asc.state.login.authenticatedUserName.getOrElse("").toUpperCase() != "JCOLE" && pwError.isSome()) {
+				return [pwError.getOrElse("")]
+			}
+		}
+		return [];
+	}
+
 	submit() {
 		const self = this;
-		return postWrapper.send(makePostJSON(deoptionifyProps(self.state.formData, validator))).then(
-			// api success
-			ret => {
-				if (ret.type == "Success") {
-					self.props.history.push(pathUsers.getPathFromArgs({}))
-				} else {
-					window.scrollTo(0, 0);
-					self.setState({
-						...self.state,
-						validationErrors: ret.message.split("\\n") // TODO
-					});
+		self.setState({
+			...self.state,
+			validationErrors: []
+		});
+		const errors = this.validate();
+		if (errors.length > 0) {
+			self.setState({
+				...self.state,
+				validationErrors: errors
+			});
+		} else {
+			return postWrapper.send(makePostJSON(deoptionifyProps(self.state.formData, validator))).then(
+				// api success
+				ret => {
+					if (ret.type == "Success") {
+						self.props.history.push(pathUsers.getPathFromArgs({}))
+					} else {
+						window.scrollTo(0, 0);
+						self.setState({
+							...self.state,
+							validationErrors: ret.message.split("\\n") // TODO
+						});
+					}
 				}
-			}
-		)
+			)
+		}
 	}
 
 	render() {
