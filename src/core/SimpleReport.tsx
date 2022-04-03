@@ -24,7 +24,6 @@ type SimpleReportRequiredProps<T_Data> = {
 }
 
 const SimpleReportComponent = ({columns, data, initialSizePerPage, sizePerPageList}) => {
-	console.log("rendering table", initialSizePerPage)
 	const {
 		getTableProps,
 		getTableBodyProps,
@@ -52,19 +51,21 @@ const SimpleReportComponent = ({columns, data, initialSizePerPage, sizePerPageLi
 
 	const {pageIndex, pageSize} = state as TableStateCbi<any>;
 
-	console.log(pageIndex + "  " + pageSize)
-
 	return <>
 		<Table striped bordered {...getTableProps()}>
 			<thead>
 				{headerGroups.map((headerGroup) => (
 					<tr {...headerGroup.getHeaderGroupProps()}>
-						{headerGroup.headers.map((column: any) => (
+						{headerGroup.headers.map((column: any) => {
 							// Add the sorting props to control sorting. For this example
 							// we can add them into the header props
-							<th {...column.getHeaderProps(column.getSortByToggleProps())}>
+							const thProps = column.getHeaderProps(column.getSortByToggleProps());
+							thProps.style = thProps.style || {};
+							if (column.width) {
+								thProps.style.width = column.width+"px"
+							}
+							return <th {...thProps}>
 								{column.render("Header")}
-								{/* Add a sort direction indicator */}
 								<span>
 									{column.isSorted ? (
 										column.isSortedDesc ? (
@@ -75,7 +76,7 @@ const SimpleReportComponent = ({columns, data, initialSizePerPage, sizePerPageLi
 									) : null}
 								</span>
 							</th>
-						))}
+						})}
 					</tr>
 				))}
 			</thead>

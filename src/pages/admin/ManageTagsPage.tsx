@@ -24,17 +24,17 @@ export default function ManageTagsPage(props: { tags: Tag[] }) {
 			accessor: "edit",
 			Header: "",
 			disableSortBy: true,
-			width: 10,
+			width: 50,
 		},
 		{
 			accessor: "TAG_ID",
 			Header: "ID",
-			width: 80,
+			width: 75,
 		},
 		{
 			accessor: "TAG_NAME",
 			Header: "Tag Name",
-			width: 400,
+			width: null
 		},
 	];
 
