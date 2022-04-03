@@ -75,3 +75,17 @@
 .dt-bootstrap4 {
 	width: calc(100% - 2px);
 }
+
+.pagination-button {
+	a.disabled {
+		color: #ccc;
+	}
+	min-width: 45px;
+	text-align: center;
+}
+
+.pagination-button.disabled {
+	a {
+		color: #ccc !important;
+	}
+}

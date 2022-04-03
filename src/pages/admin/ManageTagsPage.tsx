@@ -24,7 +24,7 @@ export default function ManageTagsPage(props: { tags: Tag[] }) {
 			accessor: "edit",
 			Header: "",
 			disableSortBy: true,
-			width: 50,
+			width: 10,
 		},
 		{
 			accessor: "TAG_ID",
@@ -34,6 +34,7 @@ export default function ManageTagsPage(props: { tags: Tag[] }) {
 		{
 			accessor: "TAG_NAME",
 			Header: "Tag Name",
+			width: 400,
 		},
 	];
 
