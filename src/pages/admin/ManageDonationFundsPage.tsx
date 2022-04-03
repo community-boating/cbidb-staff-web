@@ -220,7 +220,7 @@ export default function ManageDonationFundsPage(props: {
 			columns={columns}
 			formComponents={formComponents}
 			submitRow={putDonationFund}
-			cardTitle="Donation Funds"
+			cardTitle="Manage Donation Funds"
 		/>
 	);
 }

@@ -1,6 +1,6 @@
-import asc from "@app/AppStateContainer";
+// import asc from "@app/AppStateContainer";
 import assertNever from "@util/assertNever";
-import { Permissions } from "models/permissions";
+// import { Permissions } from "models/permissions";
 import { PageName } from "./pageNames";
 
 export function canAccessPage(pageName: PageName): boolean {
@@ -17,7 +17,7 @@ export function canAccessPage(pageName: PageName): boolean {
 		case PageName.MANAGE_CLASS_LOCATIONS:
 		case PageName.MANAGE_HIGH_SCHOOLS:
 		case PageName.MANAGE_DONATION_FUNDS:
-			return !!asc.state.login.permissions[Permissions.PERM_GENERAL_ADMIN]
+			return true; // !!asc.state.login.permissions[Permissions.PERM_GENERAL_ADMIN]
 		default:
 			assertNever(pageName);
 			return false;

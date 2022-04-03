@@ -106,7 +106,7 @@ export default function ManageHighSchoolsPage(props: {
 			columns={columns}
 			formComponents={formComponents}
 			submitRow={putHighSchool}
-			cardTitle="Tags"
+			cardTitle="Manage High Schools"
 		/>
 	);
 }

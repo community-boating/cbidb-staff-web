@@ -3,7 +3,7 @@ import {
 	Sliders as SlidersIcon,
 	HelpCircle
 } from "react-feather";
-import { routeUsersEditPage, routeUsersNewPage, routeUsersPage } from "./routes/users";
+// import { routeUsersEditPage, routeUsersNewPage, routeUsersPage } from "./routes/users";
 import RouteWrapper from "../core/RouteWrapper";
 import { routeJpClassesPage } from "@routes/jp-classes";
 import { routeStaggeredOrder } from "@routes/staggered-order";
@@ -35,7 +35,7 @@ const admin: SideBarCategory = {
 	name: "Admin",
 	icon: SlidersIcon,
 	children: [
-		routeUsersPage,
+		// routeUsersPage,
 		routeManageClassInstructorsPage,
 		routeManageTagsPage,
 		routeManageClassLocationsPage,
@@ -43,8 +43,8 @@ const admin: SideBarCategory = {
 		routeManageDonationFundsPage,
 	],
 	unrenderedChildren: [
-		routeUsersNewPage,
-		routeUsersEditPage,
+		// routeUsersNewPage,
+		// routeUsersEditPage,
 	]
 };
 

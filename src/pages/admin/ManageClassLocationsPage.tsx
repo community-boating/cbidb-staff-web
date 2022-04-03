@@ -110,7 +110,7 @@ export default function ManageClassLocationsPage(props: {
 			columns={columns}
 			formComponents={formComponents}
 			submitRow={putClassLocation}
-			cardTitle="Class Locations"
+			cardTitle="Manage Class Locations"
 		/>
 	);
 }

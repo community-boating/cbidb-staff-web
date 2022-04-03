@@ -79,7 +79,7 @@ export default function ManageTagsPage(props: { tags: Tag[] }) {
 			columns={columns}
 			formComponents={formComponents}
 			submitRow={putTag}
-			cardTitle="Tags"
+			cardTitle="Manage Tags"
 		/>
 	);
 }
