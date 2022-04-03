@@ -1,11 +1,12 @@
 import * as React from 'react';
 import {Table} from 'reactstrap'
-import { useTable, useSortBy } from "react-table";
+import { useTable, useSortBy, usePagination } from "react-table";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
 	faSortUp,
 	faSortDown,
 } from "@fortawesome/free-solid-svg-icons";
+import { TableOptionsCbi, TableInstanceCbi, TableStateCbi } from 'react-table-config';
 
 export type SimpleReportColumn = {
 	accessor: string,
@@ -22,17 +23,37 @@ type SimpleReportRequiredProps<T_Data> = {
 	sizePerPageList?: number[],
 }
 
+
+
 const SimpleReportComponent = ({columns, data}) => {
 	console.log("rendering table")
-	const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
-	useTable(
-		{
+	const {
+		getTableProps,
+		getTableBodyProps,
+		headerGroups,
+		prepareRow,
+		page,
+		// canPreviousPage,
+		// canNextPage,
+		// pageOptions,
+		// pageCount,
+		// gotoPage,
+		// nextPage,
+		// previousPage,
+		// setPageSize,
+		state,
+	} = useTable({
 			columns,
 			data,
 			disableSortRemove: true
-		} as any,
-		useSortBy
-	);
+		} as TableOptionsCbi<any>,
+		useSortBy,
+		usePagination
+	) as TableInstanceCbi<any>;
+
+	const {pageIndex, pageSize} = state as TableStateCbi<any>;
+
+	console.log(pageIndex + "  " + pageSize)
 
 	return <Table striped bordered {...getTableProps()}>
 		<thead>
@@ -59,7 +80,7 @@ const SimpleReportComponent = ({columns, data}) => {
 			))}
 		</thead>
 		<tbody {...getTableBodyProps()}>
-			{rows.map((row, i) => {
+			{page.map((row, i) => {
 				prepareRow(row);
 				return (
 					<tr {...row.getRowProps()}>
