@@ -29,7 +29,6 @@ export const linkWithAccessControl = <T extends StringObject>(
 	requireSudo?: boolean,
 	pathString?: string
 ) => {
-	console.log("intercepting link!")
 	if (!canAccessPage(rw.pageName)) {
 		showToastr();
 	} else if (requireSudo && !asc.state.sudo) {

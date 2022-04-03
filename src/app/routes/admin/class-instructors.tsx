@@ -2,18 +2,16 @@ import RouteWrapper from '@core/RouteWrapper';
 import * as t from 'io-ts';
 import PageWrapper from '@core/PageWrapper';
 import * as React from 'react';
-import { adminBasePath } from './_base';
 import { PageName } from 'pages/pageNames';
 import {validator, getWrapper} from "@async/rest/class-instructor"
 import Loader from '@components/Loader';
 import ManageClassInstructorsPage from 'pages/admin/ManageClassInstructorsPage';
+import { pathManageClassInstructors } from '@app/paths';
 
-export const manageClassInstructorsPath = adminBasePath.appendPathSegment("class-instructors");
-
-export const manageClassInstructorsPageRoute = new RouteWrapper({
+export const routeManageClassInstructorsPage = new RouteWrapper({
 	requiresAuth: true,
 	exact: true,
-	pathWrapper: manageClassInstructorsPath,
+	pathWrapper: pathManageClassInstructors,
 	sidebarTitle: "Manage Instructors",
 	pageName: PageName.MANAGE_INSTRUCTORS,
 	requireSudo: true,

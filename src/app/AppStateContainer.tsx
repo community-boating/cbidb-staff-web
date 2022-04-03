@@ -1,12 +1,9 @@
 import { none, Option, some } from 'fp-ts/lib/Option';
-import * as t from 'io-ts';
 
 import { apiw } from "../async/authenticate-staff";
 import { makePostString } from '../core/APIWrapperUtil';
-import {apiw as getPermissions, validator as permissionsValidator} from "@async/staff/user-permissions"
+import {apiw as getPermissions} from "@async/staff/user-permissions"
 import { showSudoToastr } from '@components/SudoModal';
-
-type Permissions = t.TypeOf<typeof permissionsValidator>;
 
 // type ServerConfig = {
 // 		// TODO: dev vs prod config
@@ -32,7 +29,7 @@ type State = {
 	appProps: AppProps
 	login: {
 		authenticatedUserName: Option<string>,
-		permissions: Option<Permissions>
+		permissions: {[K: number]: true}
 	}
 	borderless: boolean
 	sudo: boolean
@@ -42,7 +39,6 @@ export class AppStateContainer {
 	state: State
 	setState = (state: State) => {
 		this.state = state;
-		console.log("asc updated state: ", this.state)
 		if (this.listener) this.listener();
 	}
 	listener: () => void
@@ -73,7 +69,6 @@ export class AppStateContainer {
 		},
 		login: {
 			setLoggedIn: (function(userName: string) {
-				console.log("setting logged in as ", userName)
 				const self: AppStateContainer = this
 				getPermissions().send(null).then(res => {
 					if (res.type == "Success") {
@@ -82,7 +77,10 @@ export class AppStateContainer {
 							login: {
 								...self.state.login,
 								authenticatedUserName: some(userName),
-								permissions: some(res.success)
+								permissions: res.success.reduce((hash, perm) => {
+									hash[perm] = true;
+									return hash;
+								}, {})
 							}
 						});
 					} else {
@@ -91,7 +89,7 @@ export class AppStateContainer {
 							login: {
 								...self.state.login,
 								authenticatedUserName: some(userName),
-								permissions: none
+								permissions: {}
 							}
 						});
 					}
@@ -116,7 +114,7 @@ export class AppStateContainer {
 					...this.state,
 					login: {
 						authenticatedUserName: none,
-						permissions: none
+						permissions: {}
 					}
 				})
 			}
@@ -133,7 +131,7 @@ export class AppStateContainer {
 			appProps: null,
 			login: {
 				authenticatedUserName: none,
-				permissions: none
+				permissions: null
 			},
 			borderless: false,
 			sudo: (process.env.config as any).instantSudo,

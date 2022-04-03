@@ -5,18 +5,16 @@ import RouteWrapper from "@core/RouteWrapper";
 import PageWrapper from "@core/PageWrapper";
 import Loader from "@components/Loader";
 
-import { adminBasePath } from "./_base";
 import { PageName } from "pages/pageNames";
 import ManageClassLocationsPage from "pages/admin/ManageClassLocationsPage";
 import { validator, getWrapper } from "@async/rest/class-locations";
+import { pathManageClassLocations } from "@app/paths";
 
-export const manageClassLocationsPath = adminBasePath.appendPathSegment("class-locations");
-
-export const manageClassLocationsPageRoute = new RouteWrapper(
+export const routeManageClassLocationsPage = new RouteWrapper(
 	{
 		requiresAuth: true,
 		exact: true,
-		pathWrapper: manageClassLocationsPath,
+		pathWrapper: pathManageClassLocations,
 		sidebarTitle: "Manage Class Locations",
 		pageName: PageName.MANAGE_CLASS_LOCATIONS,
 		requireSudo: true,

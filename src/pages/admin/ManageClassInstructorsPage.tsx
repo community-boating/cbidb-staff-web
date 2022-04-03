@@ -78,5 +78,6 @@ export default function ManageClassInstructorsPage(props: { instructors: ClassIn
 		columns={columns}
 		formComponents={formComponents}
 		submitRow={putInstructor}
+		cardTitle="Manage Instructors"
 	/>;
 }

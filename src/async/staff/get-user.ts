@@ -1,4 +1,4 @@
-import { OptionifiedProps, optionifyProps } from '@util/OptionifyObjectProps';
+import { OptionifiedProps, optionifyAndMakeDefault } from '@util/OptionifyObjectProps';
 import * as t from 'io-ts';
 import APIWrapper from '../../core/APIWrapper';
 import { HttpMethod } from "../../core/HttpMethod";
@@ -21,7 +21,7 @@ export type User = t.TypeOf<typeof validator>;
 
 export type UserForm = OptionifiedProps<User>;
 
-export const formDefault: UserForm = optionifyProps(validator.decode({}).getOrElse(null));
+export const formDefault: UserForm = optionifyAndMakeDefault(validator);
 
 const path = "/staff/get-user"
 

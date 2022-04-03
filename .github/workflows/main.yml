@@ -20,11 +20,13 @@ jobs:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2
         with:
-          node-version: '14'
+          node-version: '16'
       - name: config
         run: cp ini/config.ini.ci ini/config.ini
       - name: install
         run: npm install
+      - name: inject commit sha
+        run: sed -i 's/\$\$GITHUB_SHA\$\$/'"${GITHUB_SHA}"'/' public/index.html
       - name: build
         # circular dependencies are currently throwing warnings
         run: CI=false npm run build
@@ -46,10 +48,6 @@ jobs:
           name: build.tar.gz
       - name: unpack
         run: tar -zxvf build.tar.gz && ls -l
-      - name: Install doctl 
-        uses: digitalocean/action-doctl@v2
-        with:
-          token: ${{ secrets.DO_ACCESS_TOKEN }}
 
       - name: Get branch name (merge)
         if: github.event_name != 'pull_request'
@@ -64,11 +62,30 @@ jobs:
       - name: echo branch name
         run: echo ${{ env.BRANCH_NAME }}
 
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_ACCESS_TOKEN }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
       - name: build image
-        run: docker build -t registry.digitalocean.com/community-boating-docker/cbidb-staff-web:${{ env.BRANCH_NAME }} .
-      - name: Log in to DO Container Registry 
-        run: doctl registry login --expiry-seconds 600
-      - name: push image
-        run: docker push registry.digitalocean.com/community-boating-docker/cbidb-staff-web:${{ env.BRANCH_NAME }}
+        run: docker build -t docker-snapshots.community-boating.org/cbidb-staff-web:${{ env.BRANCH_NAME }} .
+      - name: Log in to nexus Registry
+        run: docker login -u ci -p ${{ secrets.NEXUS_PASSWORD }} docker-snapshots.community-boating.org
+      - name: push image nexus
+        run: docker push docker-snapshots.community-boating.org/cbidb-staff-web:${{ env.BRANCH_NAME }}
+
+      - name: tag & push aws
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        run: |
+          docker tag docker-snapshots.community-boating.org/cbidb-staff-web:${{ env.BRANCH_NAME }} $ECR_REGISTRY/cbidb-staff-web-snapshot:${{ env.BRANCH_NAME }}
+          docker push $ECR_REGISTRY/cbidb-staff-web-snapshot:${{ env.BRANCH_NAME }}
+
       - name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}

@@ -1,6 +1,6 @@
 import * as React from "react";
 import * as t from 'io-ts';
-import { Card, CardHeader, CardTitle, CardBody, FormGroup, Label, Col, Row, Form, CustomInput, UncontrolledDropdown, DropdownToggle, DropdownMenu, DropdownItem } from 'reactstrap';
+import { Card, CardHeader, CardTitle, CardBody, FormGroup, Label, Col, Row, Form, CustomInput } from 'reactstrap';
 import * as _ from 'lodash';
 
 import { decoratedInstanceValidator, signupValidator, weekValidator, staggerValidator } from "@async/staff/all-jp-signups"
@@ -15,8 +15,7 @@ import { tableColWidth } from '@util/tableUtil';
 import JpClassSignupsRegion from './JpClassSignupsRegion';
 import {faAngleRight, faAngleDown, faUsers} from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import {MoreHorizontal, Printer} from 'react-feather'
-import asc from '@app/AppStateContainer';
+import {Printer} from 'react-feather'
 
 type DecoratedInstance = t.TypeOf<typeof decoratedInstanceValidator>
 type Stagger = t.TypeOf<typeof staggerValidator>;
@@ -41,7 +40,7 @@ class FormSelect extends FormElementSelect<FormType> { }
 export default function JpClassesPage(props: Props) {
 	const [formData, setFormData] = React.useState(formDefault);
 	const [selectedInstance, selectInstance] = React.useState(none as Option<number>);
-	const [editMode, setEditMode] = React.useState(false);
+	const [editMode] = React.useState(false);
 	const signupsRegionRef = React.useRef(null);
 
 	const updateState = formUpdateStateHooks(formData, setFormData);
@@ -219,7 +218,7 @@ export default function JpClassesPage(props: Props) {
 	return <React.Fragment>
 		<Card style={{minWidth: "1220px"}}>
 			<CardHeader>
-				<div className="card-actions float-right">
+				{/* <div className="card-actions float-right">
 					<UncontrolledDropdown>
 						<DropdownToggle tag="a">
 							<MoreHorizontal />
@@ -228,7 +227,7 @@ export default function JpClassesPage(props: Props) {
 							<DropdownItem onClick={() => asc.confirmSudo(() => setEditMode(true))}>Switch to Edit View</DropdownItem>
 						</DropdownMenu>
 					</UncontrolledDropdown>
-				</div>
+				</div> */}
 				<CardTitle tag="h5" className="mb-0">JP Classes {editMode ? "EDIT MODE" : ""}</CardTitle>
 			</CardHeader>
 			<CardBody>

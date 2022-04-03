@@ -5,18 +5,16 @@ import RouteWrapper from "@core/RouteWrapper";
 import PageWrapper from "@core/PageWrapper";
 import Loader from "@components/Loader";
 
-import { adminBasePath } from "./_base";
 import { PageName } from "pages/pageNames";
 import ManageDonationFundsPage from "pages/admin/ManageDonationFundsPage";
 import { validator, getWrapper } from "@async/rest/donation-funds";
+import { pathManageDonationFunds } from "@app/paths";
 
-export const manageDonationFundsPath = adminBasePath.appendPathSegment("donation-funds");
-
-export const manageDonationFundsPageRoute = new RouteWrapper(
+export const routeManageDonationFundsPage = new RouteWrapper(
 	{
 		requiresAuth: true,
 		exact: true,
-		pathWrapper: manageDonationFundsPath,
+		pathWrapper: pathManageDonationFunds,
 		sidebarTitle: "Manage Donation Funds",
 		pageName: PageName.MANAGE_DONATION_FUNDS,
 		requireSudo: true,
