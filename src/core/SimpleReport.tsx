@@ -23,7 +23,12 @@ type SimpleReportRequiredProps<T_Data> = {
 	sizePerPageList?: number[],
 }
 
-const SimpleReportComponent = ({columns, data, initialSizePerPage, sizePerPageList}) => {
+export const SimpleReport = ({columns, data: dataProp, sizePerPage, sizePerPageList, keyField}) => {
+	const [data, setData] = React.useState(dataProp);
+	React.useEffect(() => {
+		setData(dataProp);
+	}, [dataProp])
+
 	const {
 		getTableProps,
 		getTableBodyProps,
@@ -43,7 +48,14 @@ const SimpleReportComponent = ({columns, data, initialSizePerPage, sizePerPageLi
 			columns,
 			data,
 			disableSortRemove: true,
-			initialState: {pageSize: initialSizePerPage},
+			initialState: {pageSize: sizePerPage},
+			autoResetPage: false,
+			autoResetExpanded: false,
+			autoResetGroupBy: false,
+			autoResetSelectedRows: false,
+			autoResetSortBy: false,
+			autoResetFilters: false,
+			autoResetRowState: false,
 		} as TableOptionsCbi<any>,
 		useSortBy,
 		usePagination
@@ -162,11 +174,3 @@ const paginationControls = ({pageIndex, pageCount, nextPage, previousPage, gotoP
 		<li className={"pagination-button page-item " + (disableNext&&"disabled")} title="last page"><a href="#" onClick={goTo(pageCount-1)} className="page-link">&gt;&gt;</a></li>
 	</ul>
 }
-
-export const SimpleReport: <T_Data>(props: SimpleReportRequiredProps<T_Data>) => JSX.Element = props => <SimpleReportComponent
-	columns={props.columns}
-	data={props.data}
-	initialSizePerPage={props.sizePerPage || 12}
-	sizePerPageList={props.sizePerPageList}
-/>;
-

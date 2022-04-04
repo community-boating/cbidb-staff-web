@@ -31,6 +31,22 @@ export default function ReportWithModalForm<T extends t.TypeC<any>, U extends ob
 	const [formData, setFormData] = React.useState(blankForm);
 	const [rowData, updateRowData] = React.useState(props.rows);
 
+	const data = React.useMemo(() => rowData.map(r => ({
+		...r,
+		edit: <a href="" onClick={e => {
+			e.preventDefault();
+			openForEdit(some(String(r[props.primaryKey])));
+		}}><EditIcon color="#777" size="1.4em" /></a>,
+	})), [rowData]);
+
+	const report = React.useMemo(() => <SimpleReport 
+		keyField={props.primaryKey}
+		data={data.map(props.formatRowForDisplay)}
+		columns={props.columns}
+		sizePerPage={12}
+		sizePerPageList={[12, 25, 50, 1000]}
+	/>, [rowData])
+
 	const openForEdit = (id: Option<string>) => {
 		setModalIsOpen(true);
 		setValidationErrors([]);
@@ -120,13 +136,7 @@ export default function ReportWithModalForm<T extends t.TypeC<any>, U extends ob
 		
 	}
 
-	const data = rowData.map(r => ({
-		...r,
-		edit: <a href="" onClick={e => {
-			e.preventDefault();
-			openForEdit(some(String(r[props.primaryKey])));
-		}}><EditIcon color="#777" size="1.4em" /></a>,
-	}));
+
 
 	return <React.Fragment>
 		<Modal
@@ -161,13 +171,7 @@ export default function ReportWithModalForm<T extends t.TypeC<any>, U extends ob
 			</CardHeader>
 			<CardBody>
 				<div>
-					<SimpleReport 
-						keyField={props.primaryKey}
-						data={data.map(props.formatRowForDisplay)}
-						columns={props.columns}
-						sizePerPage={12}
-						sizePerPageList={[12, 25, 50, 1000]}
-					/>
+					{report}
 					<Button className="mr-1 mb-1" outline onClick={() => openForEdit(none) }>Add Row</Button>
 				</div>
 			</CardBody>
