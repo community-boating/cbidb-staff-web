@@ -161,15 +161,15 @@ const paginationControls = ({pageIndex, pageCount, nextPage, previousPage, gotoP
 	return <ul style={{justifyContent: "flex-end"}} className="pagination">
 		<li className={"pagination-button page-item " + (disablePrev&&"disabled")} title="first page"><a href="#" onClick={goTo(0)} className="page-link">&lt;&lt;</a></li>
 		<li className={"pagination-button page-item " + (disablePrev&&"disabled")} title="previous page"><a href="#" onClick={goPrevious} className="page-link">&lt;</a></li>
-		{pageIndex > (pageCount-3) && pageIndex > 3 ? pageLink(pageIndex-4) : null}
-		{pageIndex > (pageCount-2) && pageIndex > 2 ? pageLink(pageIndex-3) : null}
+		{pageIndex > (pageCount-2) && pageIndex > 3 ? pageLink(pageIndex-4) : null}
+		{pageIndex > (pageCount-3) && pageIndex > 2 ? pageLink(pageIndex-3) : null}
 		{pageIndex > 1 ? pageLink(pageIndex-2) : null}
 		{pageIndex > 0 ? pageLink(pageIndex-1) : null}
 		<li className="active pagination-button page-item" title="4"><a href="#" onClick={e => e.preventDefault()} className="page-link">{pageIndex+1}</a></li>
 		{pageIndex < (pageCount-1) ? pageLink(pageIndex+1) : null}
 		{pageIndex < (pageCount-2) ? pageLink(pageIndex+2) : null}
-		{pageIndex < 1 && pageIndex < (pageCount-3) ? pageLink(pageIndex+3) : null}
-		{pageIndex < 2 && pageIndex < (pageCount-4) ? pageLink(pageIndex+4) : null}
+		{pageIndex < 2 && pageIndex < (pageCount-3) ? pageLink(pageIndex+3) : null}
+		{pageIndex < 1 && pageIndex < (pageCount-4) ? pageLink(pageIndex+4) : null}
 		<li className={"pagination-button page-item " + (disableNext&&"disabled")} title="next page"><a href="#" onClick={goNext} className="page-link">&gt;</a></li>
 		<li className={"pagination-button page-item " + (disableNext&&"disabled")} title="last page"><a href="#" onClick={goTo(pageCount-1)} className="page-link">&gt;&gt;</a></li>
 	</ul>
