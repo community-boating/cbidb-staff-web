@@ -2,7 +2,6 @@ import { History } from 'history';
 import * as React from "react";
 import * as t from 'io-ts';
 import { Card, CardHeader, CardTitle, CardBody, Button, Col, Row, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
-import BootstrapTable from "react-bootstrap-table-next";
 import { validator} from "@async/staff/open-order-details"
 import Currency from '@util/Currency';
 import {toMomentFromLocalDate} from '@util/dateUtil'
@@ -79,13 +78,13 @@ export default function StaggeredOrder(props: { history: History<any>, personId:
 				<CardTitle tag="h5" className="mb-0">Staggered Order</CardTitle>
 			</CardHeader>
 			<CardBody>
-				<BootstrapTable
+				{/* <BootstrapTable
 					keyField="staggerId"
 					data={data}
 					columns={columns}
 					bootstrap4
 					bordered={false}
-				/>
+				/> */}
 			</CardBody>
 		</Card></Col>
 		<Col className="col-lg-6"><Card>

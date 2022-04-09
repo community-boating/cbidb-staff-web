@@ -1,7 +1,6 @@
 import * as React from "react";
 import * as t from "io-ts";
 import { FormGroup, Label, Col, Input, CustomInput } from "reactstrap";
-import { ColumnDescription } from "react-bootstrap-table-next";
 import { Check as CheckIcon } from "react-feather";
 
 // Table building utilities

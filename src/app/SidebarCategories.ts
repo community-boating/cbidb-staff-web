@@ -61,7 +61,7 @@ const misc: SideBarCategory = {
 
 // Dashboard specific routes
 export const sideBarRoutes = [
-	jp,
+	// jp,
 	admin,
 	misc,
 ];

@@ -1,6 +1,5 @@
 import * as React from 'react';
 import * as t from 'io-ts';
-import BootstrapTable, { ColumnDescription } from 'react-bootstrap-table-next';
 import {signupValidator} from "@async/staff/all-jp-signups"
 import { tableColWidth } from '@util/tableUtil';
 import { toMomentFromLocalDateTime } from '@util/dateUtil';
@@ -45,7 +44,7 @@ export default function(props: Props) {
 		wlStatus: s.$$jpClassWlResult.map(wl => wl.statusString).getOrElse(null),
 		sectionDisplay: s.$$section.map(sec => sectionDisplay(sec.$$sectionLookup.SECTION_NAME, sec.$$sectionLookup.SVG_URL)).getOrElse(null),
 	}));
-	const columns:  ColumnDescription<typeof data[0]>[] = [{
+	const columns/*:  ColumnDescription<typeof data[0]>[] */= [{
 		dataField: "signupId",
 		text: "ID",
 		...tableColWidth(80)
@@ -75,11 +74,13 @@ export default function(props: Props) {
 		dataField: "sectionDisplay",
 		text: "Section"
 	}]
-	return <BootstrapTable
-		keyField="signupId"
-		data={data}
-		columns={columns}
-		bootstrap4
-		bordered={false}
-	/>
+	return <>
+		{/* <BootstrapTable
+			keyField="signupId"
+			data={data}
+			columns={columns}
+			bootstrap4
+			bordered={false}
+		/> */}
+	</>
 }

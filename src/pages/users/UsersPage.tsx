@@ -2,8 +2,6 @@ import * as React from "react";
 import * as t from 'io-ts';
 import { validator } from "../../async/staff/get-users"
 import { Card, CardHeader, CardTitle, CardBody, UncontrolledDropdown, DropdownToggle, DropdownMenu, DropdownItem } from 'reactstrap';
-import BootstrapTable from "react-bootstrap-table-next";
-import paginationFactory from "react-bootstrap-table2-paginator";
 import { NavLink, Link } from 'react-router-dom';
 import {
 	Edit as EditIcon,
@@ -90,7 +88,7 @@ export default function UsersPage(props: { users: t.TypeOf<typeof validator> }) 
 			<div>
 				
 			</div>
-			<BootstrapTable
+			{/* <BootstrapTable
 				keyField="userId"
 				data={data}
 				columns={columns}
@@ -100,7 +98,7 @@ export default function UsersPage(props: { users: t.TypeOf<typeof validator> }) 
 					sizePerPage: 10,
 					sizePerPageList: [5, 10, 25, 50]
 				})}
-			/>
+			/> */}
 		</CardBody>
 	</Card>;
 }

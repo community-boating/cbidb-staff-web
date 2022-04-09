@@ -1,7 +1,6 @@
 import * as React from "react";
 import * as t from "io-ts";
 import { FormGroup, Label, Col, Input } from "reactstrap";
-import { ColumnDescription } from "react-bootstrap-table-next";
 
 // Table building utilities
 import { tableColWidth } from "@util/tableUtil";
