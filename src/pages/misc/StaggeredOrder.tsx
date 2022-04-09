@@ -9,6 +9,7 @@ import { ButtonWrapper } from '@components/ButtonWrapper';
 import {postWrapper as finishOrder} from "@async/staff/finish-open-order"
 import { makePostJSON } from '@core/APIWrapperUtil';
 import { ErrorPopup } from '@components/ErrorPopup';
+import { SimpleReport } from '@core/SimpleReport';
 
 type PaymentList = t.TypeOf<typeof validator>
 
@@ -22,14 +23,17 @@ export default function StaggeredOrder(props: { history: History<any>, personId:
 	const abort = () => doOpen(false);
 
 	const columns = [{
-		dataField: "expectedDateToShow",
-		text: "Date"
-	}, {
-		dataField: "amount",
-		text: "Amount"
-	}, {
-		dataField: "status",
-		text: "Status"
+		accessor: "expectedDateToShow",
+		Header: "Date",
+	},
+	{
+		accessor: "amount",
+		Header: "Amount",
+		width: 80,
+	},
+	{
+		accessor: "status",
+		Header: "Status",
 	}];
 
 	const data = props.payments.map(p => ({
@@ -71,6 +75,7 @@ export default function StaggeredOrder(props: { history: History<any>, personId:
 			</ButtonWrapper>
 		</ModalFooter>
 	</Modal>;
+	
 	return <Row>
 		{confirmModal}
 		<Col className="col-lg-6"><Card>
@@ -78,6 +83,11 @@ export default function StaggeredOrder(props: { history: History<any>, personId:
 				<CardTitle tag="h5" className="mb-0">Staggered Order</CardTitle>
 			</CardHeader>
 			<CardBody>
+				<SimpleReport
+					keyField="expectedDateToShow"
+					columns={columns}
+					data={data}
+				/>
 				{/* <BootstrapTable
 					keyField="staggerId"
 					data={data}

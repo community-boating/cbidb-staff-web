@@ -1,6 +1,6 @@
 import * as React from 'react';
 import {Button, Col, DropdownItem, DropdownMenu, DropdownToggle, Row, Table, UncontrolledButtonDropdown} from 'reactstrap'
-import { useTable, useSortBy, usePagination } from "react-table";
+import { useTable, useSortBy, usePagination, TableOptions, TableInstance } from "react-table";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
 	faSortUp,
@@ -23,7 +23,8 @@ type SimpleReportRequiredProps<T_Data> = {
 	sizePerPageList?: number[],
 }
 
-export const SimpleReport = ({columns, data: dataProp, sizePerPage, sizePerPageList, keyField}) => {
+export const SimpleReport: <T_Data>(props: SimpleReportRequiredProps<T_Data>) => JSX.Element = ({columns, data: dataProp, sizePerPage, sizePerPageList, keyField}) => {
+	const usingPagination = sizePerPage !== undefined && sizePerPageList !== undefined;
 	const [data, setData] = React.useState(dataProp);
 	React.useEffect(() => {
 		setData(dataProp);
@@ -34,6 +35,7 @@ export const SimpleReport = ({columns, data: dataProp, sizePerPage, sizePerPageL
 		getTableBodyProps,
 		headerGroups,
 		prepareRow,
+		rows,
 		page,
 		canPreviousPage,
 		canNextPage,
@@ -44,7 +46,8 @@ export const SimpleReport = ({columns, data: dataProp, sizePerPage, sizePerPageL
 		previousPage,
 		setPageSize,
 		state,
-	} = useTable({
+	} = (function() {
+		const config = {
 			columns,
 			data,
 			disableSortRemove: true,
@@ -56,12 +59,45 @@ export const SimpleReport = ({columns, data: dataProp, sizePerPage, sizePerPageL
 			autoResetSortBy: false,
 			autoResetFilters: false,
 			autoResetRowState: false,
-		} as TableOptionsCbi<any>,
-		useSortBy,
-		usePagination
-	) as TableInstanceCbi<any>;
+		} as TableOptionsCbi<any>;
+
+		if (usePagination) {
+			return useTable(
+				config,
+				useSortBy,
+				usePagination
+			) as TableInstanceCbi<any>;
+		} else {
+			return useTable(
+				config,
+				useSortBy
+			) as TableInstanceCbi<any>;
+		}
+	}());
 
 	const {pageIndex, pageSize} = state as TableStateCbi<any>;
+
+	const pagination = () => <Row>
+		<Col>
+			<UncontrolledButtonDropdown  className="mr-1 mb-1">
+				<DropdownToggle caret >{pageSize}</DropdownToggle>
+				<DropdownMenu>
+					{sizePerPageList.map(s => <DropdownItem key={s} onClick={() => setPageSize(s)}>{s}</DropdownItem>)}
+				</DropdownMenu>
+			</UncontrolledButtonDropdown>
+		</Col>
+		<Col>
+			{paginationControls({
+				pageIndex,
+				pageCount,
+				nextPage,
+				previousPage,
+				gotoPage
+			})}
+		</Col>
+	</Row>;
+
+	const dataToUse = usingPagination ? page : rows;
 
 	return <>
 		<Table striped bordered {...getTableProps()}>
@@ -93,7 +129,7 @@ export const SimpleReport = ({columns, data: dataProp, sizePerPage, sizePerPageL
 				))}
 			</thead>
 			<tbody {...getTableBodyProps()}>
-				{page.map((row, i) => {
+				{dataToUse.map((row, i) => {
 					prepareRow(row);
 					return (
 						<tr {...row.getRowProps()}>
@@ -107,25 +143,7 @@ export const SimpleReport = ({columns, data: dataProp, sizePerPage, sizePerPageL
 				})}
 			</tbody>
 		</Table>
-		<Row>
-			<Col>
-				<UncontrolledButtonDropdown  className="mr-1 mb-1">
-					<DropdownToggle caret >{pageSize}</DropdownToggle>
-					<DropdownMenu onChange={v => console.log(v)}>
-						{sizePerPageList.map(s => <DropdownItem key={s} onClick={() => setPageSize(s)}>{s}</DropdownItem>)}
-					</DropdownMenu>
-				</UncontrolledButtonDropdown>
-			</Col>
-			<Col>
-				{paginationControls({
-					pageIndex,
-					pageCount,
-					nextPage,
-					previousPage,
-					gotoPage
-				})}
-			</Col>
-		</Row>
+		{usingPagination ? pagination() : null}
 	</>
 };
 
