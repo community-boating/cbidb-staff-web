@@ -58,21 +58,21 @@ jobs:
         run: |
           echo "REF_NAME=$(echo ${GITHUB_REF#refs/heads/} | tr / _)" >> $GITHUB_ENV
           echo "NEXUS_URL=docker-snapshots.community-boating.org" >> $GITHUB_ENV
-          echo "ECR_REPO=cbidb-public-web-snapshot" >> $GITHUB_ENV
+          echo "ECR_REPO=cbidb-staff-web-snapshot" >> $GITHUB_ENV
       - name: set docker env (branch PR)
         if: github.ref_type == 'branch' && github.event_name == 'pull_request'
         shell: bash
         run: |
           echo "REF_NAME=$(echo ${GITHUB_HEAD_REF} | tr / _)" >> $GITHUB_ENV
           echo "NEXUS_URL=docker-snapshots.community-boating.org" >> $GITHUB_ENV
-          echo "ECR_REPO=cbidb-public-web-snapshot" >> $GITHUB_ENV
+          echo "ECR_REPO=cbidb-staff-web-snapshot" >> $GITHUB_ENV
       - name: set docker env (tag)
         if: github.ref_type == 'tag'
         shell: bash
         run: |
           echo "REF_NAME=$(echo ${GITHUB_REF#refs/tags/} | tr / _ | sed 's/^v//g')" >> $GITHUB_ENV
           echo "NEXUS_URL=docker-releases.community-boating.org" >> $GITHUB_ENV
-          echo "ECR_REPO=cbidb-public-web-release" >> $GITHUB_ENV
+          echo "ECR_REPO=cbidb-staff-web-release" >> $GITHUB_ENV
 
       - name: echo vars
         run: |
