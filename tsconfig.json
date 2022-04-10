@@ -7,7 +7,7 @@
 		"module": "commonjs",
 		"target": "es5",
 		"jsx": "react",
-		"noUnusedLocals": true,
+		// "noUnusedLocals": true,
 		"lib": [
 			"es5",
 			"es6",

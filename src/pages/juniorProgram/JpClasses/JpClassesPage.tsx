@@ -4,8 +4,6 @@ import { Card, CardHeader, CardTitle, CardBody, FormGroup, Label, Col, Row, Form
 import * as _ from 'lodash';
 
 import { decoratedInstanceValidator, signupValidator, weekValidator, staggerValidator } from "@async/staff/all-jp-signups"
-import BootstrapTable, { ColumnDescription } from 'react-bootstrap-table-next';
-import paginationFactory from 'react-bootstrap-table2-paginator';
 import { sortOnMoment, toMomentFromLocalDateTime } from '@util/dateUtil';
 import * as moment from 'moment';
 import { none, Option, some } from 'fp-ts/lib/Option';
@@ -143,7 +141,7 @@ export default function JpClassesPage(props: Props) {
 			}
 		});
 
-	const columns: ColumnDescription<typeof data[0]>[] = [{
+	const columns/*: ColumnDescription<typeof data[0]>[] */= [{
 		dataField: "instanceId",
 		text: "ID",
 		...tableColWidth(70),
@@ -266,7 +264,7 @@ export default function JpClassesPage(props: Props) {
 						</Col>
 					</Row>
 				</Form>
-				<BootstrapTable
+				{/* <BootstrapTable
 					keyField="instanceId"
 					data={data}
 					columns={columns}
@@ -293,7 +291,7 @@ export default function JpClassesPage(props: Props) {
 						sizePerPage: 10,
 						sizePerPageList: [5, 10, 25, 50]
 					})}
-				/>
+				/> */}
 			</CardBody>
 		</Card>
 		{signupsRegion}

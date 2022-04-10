@@ -1,7 +1,6 @@
 import * as React from "react";
 import * as t from "io-ts";
 import { FormGroup, Label, Col, Input, CustomInput } from "reactstrap";
-import { ColumnDescription } from "react-bootstrap-table-next";
 import { Check as CheckIcon } from "react-feather";
 
 // Table building utilities
@@ -14,6 +13,7 @@ import { putWrapper as putHighSchool } from "@async/rest/high-schools";
 
 // The common display structure which is a table editable via modal
 import ReportWithModalForm from "@components/ReportWithModalForm";
+import { SimpleReportColumn } from "@core/SimpleReport";
 
 type HighSchool = t.TypeOf<typeof highSchoolValidator>;
 // class FormCheckbox extends FormElementCheckbox<FormData> {}
@@ -22,28 +22,26 @@ export default function ManageHighSchoolsPage(props: {
 	highSchools: HighSchool[];
 }) {
 	// Define table columns
-	const columns: ColumnDescription[] = [
+	const columns: SimpleReportColumn[] = [
 		{
-			dataField: "edit",
-			text: "",
-			...tableColWidth(50),
+			accessor: "edit",
+			Header: "",
+			disableSortBy: true,
+			width: 50,
 		},
 		{
-			dataField: "SCHOOL_ID",
-			text: "ID",
-			sort: true,
-			...tableColWidth(80),
+			accessor: "SCHOOL_ID",
+			Header: "ID",
+			width: 80,
 		},
 		{
-			dataField: "SCHOOL_NAME",
-			text: "School Name",
-			sort: true,
+			accessor: "SCHOOL_NAME",
+			Header: "School Name",
 		},
 		{
-			dataField: "ACTIVE",
-			text: "Active",
-			sort: true,
-			...tableColWidth(100),
+			accessor: "ACTIVE",
+			Header: "Active",
+			width: 100,
 		},
 	];
 

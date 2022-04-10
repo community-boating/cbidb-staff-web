@@ -1,34 +1,31 @@
 import * as React from "react";
 import * as t from 'io-ts';
-import { tableColWidth } from '@util/tableUtil';
 import {classInstructorValidator} from '@async/rest/class-instructor'
-import { ColumnDescription } from "react-bootstrap-table-next";
 import ReportWithModalForm from "@components/ReportWithModalForm";
 import {putWrapper as putInstructor} from "@async/rest/class-instructor"
 import { FormGroup, Label, Col, Input } from 'reactstrap';
 import { StringifiedProps } from "@util/StringifyObjectProps";
+import { SimpleReportColumn } from "@core/SimpleReport";
 
 type ClassInstructor = t.TypeOf<typeof classInstructorValidator>;
 
 export default function ManageClassInstructorsPage(props: { instructors: ClassInstructor[] }) {
-	const columns: ColumnDescription[] = [{
-		dataField: "edit",
-		text: "",
-		...tableColWidth(50),
+	const columns: SimpleReportColumn[] = [{
+		accessor: "edit",
+		Header: "",
+		disableSortBy: true,
+		width: 50,
 	}, {
-		dataField: "INSTRUCTOR_ID",
-		text: "ID",
-		sort: true,
-		...tableColWidth(80),
+		accessor: "INSTRUCTOR_ID",
+		Header: "ID",
+		width: 80,
 	}, {
-		dataField: "NAME_FIRST",
-		text: "First Name",
-		sort: true,
-		...tableColWidth(300),
+		accessor: "NAME_FIRST",
+		Header: "First Name",
+		width: 300,
 	}, {
-		dataField: "NAME_LAST",
-		text: "Last Name",
-		sort: true,
+		accessor: "NAME_LAST",
+		Header: "Last Name",
 	}];
 
 	const formComponents = (rowForEdit: StringifiedProps<ClassInstructor>, updateState: (id: string, value: string | boolean) => void) => <React.Fragment>

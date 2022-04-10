@@ -1,11 +1,10 @@
 import * as React from "react";
 import * as t from 'io-ts';
 import { Card, CardHeader, CardTitle, CardBody, Modal, ModalHeader, ModalBody, ModalFooter, Button, Form } from 'reactstrap';
-import { ColumnDescription } from "react-bootstrap-table-next";
 import {
 	Edit as EditIcon,
 } from 'react-feather'
-import { SimpleReport } from "@core/SimpleReport";
+import { SimpleReport, SimpleReportColumn } from "@core/SimpleReport";
 import { ErrorPopup } from "@components/ErrorPopup";
 import { none, Option, some } from "fp-ts/lib/Option";
 import { makePostJSON } from "@core/APIWrapperUtil";
@@ -18,7 +17,7 @@ export default function ReportWithModalForm<T extends t.TypeC<any>, U extends ob
 	rows: U[],
 	formatRowForDisplay: (row: U) => DisplayableProps<U>,
 	primaryKey: string & keyof U,
-	columns: ColumnDescription[],
+	columns: SimpleReportColumn[],
 	formComponents: (rowForEdit: StringifiedProps<U>, updateState: (id: string, value: string | boolean) => void) => JSX.Element
 	submitRow: APIWrapper<any, U, any>
 	cardTitle?: string;
@@ -31,6 +30,22 @@ export default function ReportWithModalForm<T extends t.TypeC<any>, U extends ob
 	const [validationErrors, setValidationErrors] = React.useState([] as string[]);
 	const [formData, setFormData] = React.useState(blankForm);
 	const [rowData, updateRowData] = React.useState(props.rows);
+
+	const data = React.useMemo(() => rowData.map(r => ({
+		...r,
+		edit: <a href="" onClick={e => {
+			e.preventDefault();
+			openForEdit(some(String(r[props.primaryKey])));
+		}}><EditIcon color="#777" size="1.4em" /></a>,
+	})), [rowData]);
+
+	const report = React.useMemo(() => <SimpleReport 
+		keyField={props.primaryKey}
+		data={data.map(props.formatRowForDisplay)}
+		columns={props.columns}
+		sizePerPage={12}
+		sizePerPageList={[12, 25, 50, 1000]}
+	/>, [rowData])
 
 	const openForEdit = (id: Option<string>) => {
 		setModalIsOpen(true);
@@ -121,13 +136,7 @@ export default function ReportWithModalForm<T extends t.TypeC<any>, U extends ob
 		
 	}
 
-	const data = rowData.map(r => ({
-		...r,
-		edit: <a href="" onClick={e => {
-			e.preventDefault();
-			openForEdit(some(String(r[props.primaryKey])));
-		}}><EditIcon color="#777" size="1.4em" /></a>,
-	}));
+
 
 	return <React.Fragment>
 		<Modal
@@ -162,15 +171,7 @@ export default function ReportWithModalForm<T extends t.TypeC<any>, U extends ob
 			</CardHeader>
 			<CardBody>
 				<div>
-					<SimpleReport 
-						keyField={props.primaryKey}
-						data={data.map(props.formatRowForDisplay)}
-						columns={props.columns}
-						bootstrap4
-						bordered={false}
-						sizePerPage={12}
-						sizePerPageList={[12, 25, 50, 1000]}
-					/>
+					{report}
 					<Button className="mr-1 mb-1" outline onClick={() => openForEdit(none) }>Add Row</Button>
 				</div>
 			</CardBody>
