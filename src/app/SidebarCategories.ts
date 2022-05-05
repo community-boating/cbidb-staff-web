@@ -12,6 +12,7 @@ import { routeManageTagsPage } from "@routes/admin/tags";
 import { routeManageClassLocationsPage } from "@routes/admin/class-locations";
 import { routeManageHighSchools } from "@routes/admin/high-schools";
 import { routeManageDonationFundsPage } from "@routes/admin/donation-funds";
+import { routeDockReportPage } from "@routes/dh/dock-report";
 
 export type SideBarCategory = {
 	path: string,
@@ -55,7 +56,8 @@ const misc: SideBarCategory = {
 	children: [
 	],
 	unrenderedChildren: [
-		routeStaggeredOrder
+		routeStaggeredOrder,
+		routeDockReportPage
 	]
 };
 
