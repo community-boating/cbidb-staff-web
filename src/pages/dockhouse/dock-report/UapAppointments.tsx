@@ -7,6 +7,24 @@ const appts = [{
 	person: "Andrew Alletag",
 	boat: "Keel Merc",
 	instructor: "Charlie Zechel"
+}, {
+	time: "09:00AM",
+	apptType: "Lesson",
+	person: "Andrew Alletag",
+	boat: "Keel Merc",
+	instructor: "Charlie Zechel"
+}, {
+	time: "09:00AM",
+	apptType: "Lesson",
+	person: "Andrew Alletag",
+	boat: "Keel Merc",
+	instructor: "Charlie Zechel"
+}, {
+	time: "09:00AM",
+	apptType: "Lesson",
+	person: "Andrew Alletag",
+	boat: "Keel Merc",
+	instructor: "Charlie Zechel"
 }]
 
 export default () => <Card>
