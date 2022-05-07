@@ -5,7 +5,7 @@ import { pathDockReport } from '@app/paths';
 import RouteWrapper from '@core/RouteWrapper';
 import PageWrapper from '@core/PageWrapper';
 import { Loader } from 'react-feather';
-import { DockReportPage } from 'pages/dockhouse/DockReportPage';
+import { DockReportPage } from 'pages/dockhouse/dock-report';
 
 export const routeDockReportPage = new RouteWrapper({
 	requiresAuth: true,
