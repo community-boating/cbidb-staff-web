@@ -19,30 +19,39 @@ const announcementsCard = <Card>
 	<CardBody>{incidents}</CardBody>
 </Card>
 
+const semiPermanentRestrictionsCard = <Card>
+	<CardHeader><CardTitle><h4>Semi-Permanent Restrictions</h4></CardTitle></CardHeader>
+	<CardBody>{incidents}</CardBody>
+</Card>
+
 export const DockReportPage = ({ }) => {
 	return <><Row>
 		<Col md="3">
 			<DateHeader />
 			<Dockmasters />
 		</Col>
-		<Col md="3">
-			<Staff />
+		<Col md="4">
+			<Classes />
 		</Col>
-		<Col md="6">
+		<Col md="5">
 			<WeatherTable />
 		</Col>
 	</Row>
 	<Row>
-		<Col md="6">
+		<Col md="4">
 			{incidentsCard}
 		</Col>
-		<Col md="6">
+		<Col md="4">
 			{announcementsCard}
+		</Col>
+		<Col md="4">
+			{semiPermanentRestrictionsCard}
 		</Col>
 	</Row>
 	<Row>
 		<Col md="5">
-			<Classes />
+			
+		<Staff />
 		</Col>
 		<Col md="4">
 			<UapAppointments />

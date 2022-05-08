@@ -16,9 +16,37 @@ const weatherElements = [{
 	weather: "Cloudy",
 	windDir: "NNE",
 	windSpeedKts: "8",
-	restrictions: "Wetsuits"
+	restrictions: "Wetsuits on hiper.  halfriver for fireworks barge. other random shit that i just thought of."
 }, {
 	time: "11:00AM",
+	temp: "56",
+	weather: "Ptly Cloudy",
+	windDir: "N",
+	windSpeedKts: "9",
+	restrictions: "Wetsuits on hiper.  halfriver for fireworks barge. other random shit that i just thought of."
+}, {
+	time: "01:00PM",
+	temp: "56",
+	weather: "Ptly Cloudy",
+	windDir: "N",
+	windSpeedKts: "9",
+	restrictions: "Wetsuits on hiper.  halfriver for fireworks barge. other random shit that i just thought of."
+}, {
+	time: "03:00PM",
+	temp: "56",
+	weather: "Ptly Cloudy",
+	windDir: "N",
+	windSpeedKts: "9",
+	restrictions: "Wetsuits on hiper.  halfriver for fireworks barge. other random shit that i just thought of."
+}, {
+	time: "05:00PM",
+	temp: "56",
+	weather: "Ptly Cloudy",
+	windDir: "N",
+	windSpeedKts: "9",
+	restrictions: "Wetsuits on hiper.  halfriver for fireworks barge. other random shit that i just thought of."
+}, {
+	time: "07:00PM",
 	temp: "56",
 	weather: "Ptly Cloudy",
 	windDir: "N",
@@ -33,9 +61,9 @@ export default () => <Card>
 			<tbody>
 				<tr>
 					<th style={{width: "75px"}}>Time</th>
-					<th style={{width: "95px"}}>Temp (F)</th>
+					<th style={{width: "75px"}}>Temp (F)</th>
 					<th>Weather</th>
-					<th style={{width: "90px"}}>Wind Dir</th>
+					<th style={{width: "70px"}}>Wind Dir</th>
 					<th style={{width: "90px"}}>Wind (kts)</th>
 					<th style={{maxWidth: "180px"}}>Restrictions</th>
 				</tr>

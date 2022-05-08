@@ -15,9 +15,25 @@ const dockmasters: Staff[] = [{
 	name: "Andrew Alletag",
 	in: "01:00PM",
 	out: "08:00PM"
+}, {
+	name: "Andrew Alletag",
+	in: "01:00PM",
+	out: "08:00PM"
 }]
 
 const staff: Staff[] = [{
+	name: "Evan McCarty",
+	in: "09:00AM",
+	out: "08:00PM"
+}, {
+	name: "Evan McCarty",
+	in: "09:00AM",
+	out: "08:00PM"
+}, {
+	name: "Evan McCarty",
+	in: "09:00AM",
+	out: "08:00PM"
+}, {
 	name: "Evan McCarty",
 	in: "09:00AM",
 	out: "08:00PM"
