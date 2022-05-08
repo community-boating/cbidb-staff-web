@@ -49,9 +49,8 @@ export const DockReportPage = ({ }) => {
 		</Col>
 	</Row>
 	<Row>
-		<Col md="5">
-			
-		<Staff />
+		<Col md="3">
+			<Staff />
 		</Col>
 		<Col md="4">
 			<UapAppointments />

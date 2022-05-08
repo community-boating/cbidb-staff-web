@@ -2,18 +2,16 @@ import * as React from 'react';
 import { Card, CardHeader, CardTitle, Table } from 'reactstrap';
 
 const hullTypes = [
-    "Yellow S Kayak",
-    "Pink S Kayak",
-    "Pink D Kayak",
-    "SUP(white)",
-    "Windsurf (non-foil)",
-    "Yellow Ocean D",
-    "Maintenance",
+    "Kayak",
+    "SUP",
 ]
 
 const counts = [{
-	hullType: "Yellow S Kayak",
-    count: 4
+	hullType: "Kayak",
+    count: 45
+}, {
+	hullType: "SUP",
+    count: 12
 }]
 
 export default () => <Card>
@@ -23,12 +21,14 @@ export default () => <Card>
 			<tbody>
 				<tr>
 					<th>Hull</th>
-					<th style={{width: "55px"}}>Ct</th>
+					<th style={{width: "75px"}}>In Svc</th>
+					<th style={{width: "75px"}}>Nightly Ct</th>
 				</tr>
 				{hullTypes.map(h => {
                     const countObj = counts.find(c => c.hullType == h);
 					return <tr>
 					<td style={{textAlign: "right"}}>{h}</td>
+					<td>{countObj && countObj.count}</td>
 					<td>{countObj && countObj.count}</td>
 				</tr>
 				})}
