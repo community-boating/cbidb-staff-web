@@ -39,7 +39,7 @@ const staff: Staff[] = [{
 	out: "08:00PM"
 }]
 
-const drawTable = (title: string, staff: Staff[]) => <Col md="12"><Card>
+const drawTable = (title: string, staff: Staff[]) => <Card>
 	<CardHeader>
 		<CardTitle><h4>{title}</h4></CardTitle>
 		<Table size="sm">
@@ -59,10 +59,14 @@ const drawTable = (title: string, staff: Staff[]) => <Col md="12"><Card>
 			</tbody>
 		</Table>
 	</CardHeader>
-</Card></Col>
+</Card>;
+
+export const Dockmasters = () => drawTable("Dockmasters", dockmasters)
+
+export const Staff = () => drawTable("Staff", staff)
 
 export default () => <><Row>
-	{drawTable("Dockmasters", dockmasters)}
+	<Col md="12"><Dockmasters /></Col>
 </Row><Row>
-	{drawTable("Staff", staff)}
+	<Col md="12"><Staff /></Col>
 </Row></>

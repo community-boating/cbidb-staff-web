@@ -3,7 +3,7 @@ import { Card, CardBody, CardHeader, CardTitle, Col, Container, Row, Table } fro
 import Classes from './Classes';
 import DateHeader from './DateHeader';
 import HullCounts from './HullCounts';
-import Staff from './Staff';
+import {Dockmasters, Staff} from './FullStaff';
 import UapAppointments from './UapAppointments';
 import WeatherTable from './WeatherTable';
 
@@ -21,14 +21,15 @@ const announcementsCard = <Card>
 
 export const DockReportPage = ({ }) => {
 	return <><Row>
-		<Col md="2">
+		<Col md="3">
 			<DateHeader />
+			<Dockmasters />
+		</Col>
+		<Col md="3">
+			<Staff />
 		</Col>
 		<Col md="6">
 			<WeatherTable />
-		</Col>
-		<Col md="4">
-			<UapAppointments />
 		</Col>
 	</Row>
 	<Row>
@@ -40,11 +41,11 @@ export const DockReportPage = ({ }) => {
 		</Col>
 	</Row>
 	<Row>
-		<Col md="6">
+		<Col md="5">
 			<Classes />
 		</Col>
-		<Col md="3">
-			<Staff />
+		<Col md="4">
+			<UapAppointments />
 		</Col>
 		<Col md="3">
 			<HullCounts />
