@@ -17,7 +17,7 @@ export const routeDockReportPage = new RouteWrapper({
 	key="dockrpt"
 	history={history}
 	component={(urlProps: {}) => <DockReportPage
-
+		date="05/15/2022"
 	/>}
 	urlProps={{}}
 	shadowComponent={<Loader />}

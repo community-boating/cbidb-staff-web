@@ -24,10 +24,13 @@ const semiPermanentRestrictionsCard = <Card>
 	<CardBody>{incidents}</CardBody>
 </Card>
 
-export const DockReportPage = ({ }) => {
+export const DockReportPage = (props: {
+	date: string
+}) => {
+	const [sunset, setSunset] = React.useState(null)
 	return <><Row>
 		<Col md="3">
-			<DateHeader />
+			<DateHeader date={props.date} sunset={sunset} setSunset={setSunset} />
 			<Dockmasters />
 		</Col>
 		<Col md="4">
