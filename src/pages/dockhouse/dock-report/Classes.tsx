@@ -81,8 +81,8 @@ export default () => <Card>
 					<th style={{width: "75px"}}>Attend</th>
 					<th>Instructor</th>
 				</tr>
-				{classes.map(c => {
-					return <tr>
+				{classes.map((c, i) => {
+					return <tr key={`row_${i}`}>
 					<td>{c.time}</td>
 					<td>{c.className}</td>
 					<td>{c.location}</td>

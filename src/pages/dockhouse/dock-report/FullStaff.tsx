@@ -65,8 +65,8 @@ const drawTable = (title: string, staff: Staff[]) => <Card>
 					<th style={{width: "75px"}}>In</th>
 					<th style={{width: "75px"}}>Out</th>
 				</tr>
-				{staff.map(e => {
-					return <tr>
+				{staff.map((e, i) => {
+					return <tr key={`row_${i}`}>
 						<td>{e.name}</td>
 						<td>{e.in}</td>
 						<td>{e.out}</td>

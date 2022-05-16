@@ -57,8 +57,8 @@ export default () => <Card>
 					<th style={{width: "75px"}}>Boat</th>
 					<th style={{width: "120px"}}>Instructor</th>
 				</tr>
-				{appts.map(appt => {
-					return <tr>
+				{appts.map((appt, i) => {
+					return <tr key={`row_${i}`}>
 					<td>{appt.time}</td>
 					<td>{appt.apptType}</td>
 					<td>{appt.person}</td>

@@ -24,9 +24,9 @@ export default () => <Card>
 					<th style={{width: "75px"}}>In Svc</th>
 					<th style={{width: "75px"}}>Nightly Ct</th>
 				</tr>
-				{hullTypes.map(h => {
+				{hullTypes.map((h, i) => {
                     const countObj = counts.find(c => c.hullType == h);
-					return <tr>
+					return <tr key={`row_${i}`}>
 					<td style={{textAlign: "right"}}>{h}</td>
 					<td>{countObj && countObj.count}</td>
 					<td>{countObj && countObj.count}</td>

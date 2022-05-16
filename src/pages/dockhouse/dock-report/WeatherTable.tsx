@@ -67,9 +67,9 @@ export default () => <Card>
 					<th style={{width: "90px"}}>Wind (kts)</th>
 					<th style={{maxWidth: "180px"}}>Restrictions</th>
 				</tr>
-				{weatherTimes.map(time => {
+				{weatherTimes.map((time, i) => {
 					const row = weatherElements.find(e => e.time == time);
-					return <tr>
+					return <tr key={`row_${i}`}>
 					<td><b>{time}</b></td>
 					<td>{row && row.temp}</td>
 					<td>{row && row.weather}</td>
