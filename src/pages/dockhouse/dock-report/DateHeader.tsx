@@ -1,10 +1,10 @@
-import detectEnter from '@util/detectEnterPress';
 import optionify from '@util/optionify';
-import { reject } from 'lodash';
+import { padNumber } from '@util/padNumbers';
+import * as _ from 'lodash';
 import * as moment from 'moment'
 import * as React from 'react';
 import { Edit } from 'react-feather';
-import { Badge, Card, CardBody, CardHeader, CardTitle, Input, Table } from 'reactstrap';
+import { Card, CardBody, CardHeader, CardTitle, Input, Table } from 'reactstrap';
 import { SubmitAction } from '.';
 
 export const DateHeader = (props: {
@@ -20,7 +20,7 @@ export const DateHeader = (props: {
 
 	return <Card>
 		<CardHeader>
-			<Edit height="18px" className="float-right" style={{cursor: "pointer"}} onClick={() => props.openModal(
+			<Edit height="18px" className="float-right" style={{ cursor: "pointer" }} onClick={() => props.openModal(
 				<EditDateHeader sunset={props.sunset} setSubmitAction={props.setSubmitAction} />
 			)} />
 			<CardTitle tag="h2" className="mb-0">Dock Report</CardTitle>
@@ -54,20 +54,52 @@ const EditDateHeader = (props: {
 	sunset: string
 	setSubmitAction: (submit: SubmitAction) => void,
 }) => {
-	const [sunsetTime, setSunsetTime] = React.useState(props.sunset || "")
+	const [initHour, initMinute] = (
+		(props.sunset || "").indexOf(":") > 0
+		? props.sunset.split(":")
+		: ["", ""]
+	)
+
+	const [hour, setHour] = React.useState(initHour)
+	const [minute, setMinute] = React.useState(initMinute)
 
 	React.useEffect(() => {
 		props.setSubmitAction(() => new Promise((resolve, reject) => {
 			const regex = /^(?:23|22|21|20|[01][0-9]):[012345][0-9]$/
-			if (regex.exec(sunsetTime)) resolve({sunset: sunsetTime});
+			const sunsetTime = `${hour}:${minute}`
+			if (sunsetTime == ":") resolve({ sunset: null })
+			else if (regex.exec(sunsetTime)) resolve({ sunset: sunsetTime });
 			else reject("Specify time in military time e.g. (20:05 for 8:05PM).")
 		}));
-	}, [sunsetTime]);
+	}, [hour, minute]);
+
+	const hours = _.range(16, 22).map(String)
+	const minutes = _.range(0, 59).map(m => padNumber(m, 2))
 
 	return <div className="form-group row">
 		<label className='mr-10 col-form-label'>Sunset Time</label>
-		<div className="col-sm-4">
-			<Input type="text" placeholder='e.g. "19:48"' value={sunsetTime} onChange={e => setSunsetTime(e.target.value)}/>
+		<div className="col-sm-6">
+			<Input
+				type="select"
+				className="mb-2"
+				style={{display: "unset", width: "unset"}}
+				onChange={e => setHour(e.target.value)}
+				value={hour}
+			>
+				<option value="">-</option>
+				{hours.map((h, i) => <option value={h} key={`row_${i}`}>{h}</option>)}
+			</Input>
+			{"  :  "}
+			<Input
+				type="select"
+				className="mb-2"
+				style={{display: "unset", width: "unset"}}
+				onChange={e => setMinute(e.target.value)}
+				value={minute}
+			>
+				<option value="">-</option>
+				{minutes.map((m, i) => <option value={m} key={`row_${i}`}>{m}</option>)}
+			</Input>
 		</div>
 	</div>
 }
