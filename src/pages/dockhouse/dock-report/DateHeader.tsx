@@ -19,7 +19,7 @@ export const DateHeader = (props: {
 		.getOrElse(null);
 
 	return <Card>
-		<CardHeader>
+		<CardHeader style={{borderBottom: "none", paddingBottom: 0}}>
 			<Edit height="18px" className="float-right" style={{ cursor: "pointer" }} onClick={() => props.openModal(
 				<EditDateHeader sunset={props.sunset} setSubmitAction={props.setSubmitAction} />
 			)} />

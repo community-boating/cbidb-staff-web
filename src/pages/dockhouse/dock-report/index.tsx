@@ -89,7 +89,10 @@ export const DockReportPage = (props: {
 					openModal={(content: JSX.Element) => {setModalContent(content)}}
 					setSubmitAction={(submitAction: SubmitAction) => setSubmitAction(() => submitAction)}
 				/>
-				<Dockmasters />
+				<Dockmasters 
+					openModal={(content: JSX.Element) => {setModalContent(content)}}
+					setSubmitAction={(submitAction: SubmitAction) => setSubmitAction(() => submitAction)}
+				/>
 			</Col>
 			<Col md="4">
 				<Classes />
@@ -111,7 +114,10 @@ export const DockReportPage = (props: {
 		</Row>
 		<Row>
 			<Col md="3">
-				<Staff />
+				<Staff 
+					openModal={(content: JSX.Element) => {setModalContent(content)}}
+					setSubmitAction={(submitAction: SubmitAction) => setSubmitAction(() => submitAction)}
+				/>
 			</Col>
 			<Col md="4">
 				<UapAppointments />

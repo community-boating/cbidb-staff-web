@@ -1,10 +1,17 @@
 import * as React from 'react';
-import { Card, CardHeader, CardTitle, Col, Row, Table } from 'reactstrap';
+import { Edit } from 'react-feather';
+import { Card, CardBody, CardHeader, CardTitle, Col, Row, Table } from 'reactstrap';
+import { SubmitAction } from '.';
 
 type Staff = {
 	name: string,
 	in: string,
 	out: string
+}
+
+type Props = {
+	openModal: (content: JSX.Element) => void,
+	setSubmitAction: (submit: SubmitAction) => void
 }
 
 const dockmasters: Staff[] = [{
@@ -55,9 +62,14 @@ const staff: Staff[] = [{
 	out: "08:00PM"
 }]
 
-const drawTable = (title: string, staff: Staff[]) => <Card>
-	<CardHeader>
-		<CardTitle><h4>{title}</h4></CardTitle>
+const StaffTable = (props: Props & {title: string, staff: Staff[]}) => <Card>
+	<CardHeader style={{borderBottom: "none", paddingBottom: 0}}>
+		<Edit height="18px" className="float-right" style={{ cursor: "pointer" }} onClick={() => props.openModal(
+			<>hi</>
+		)} />
+		<CardTitle tag="h2" className="mb-0">{props.title}</CardTitle>
+	</CardHeader>
+	<CardBody>
 		<Table size="sm">
 			<tbody>
 				<tr>
@@ -65,7 +77,7 @@ const drawTable = (title: string, staff: Staff[]) => <Card>
 					<th style={{width: "75px"}}>In</th>
 					<th style={{width: "75px"}}>Out</th>
 				</tr>
-				{staff.map((e, i) => {
+				{props.staff.map((e, i) => {
 					return <tr key={`row_${i}`}>
 						<td>{e.name}</td>
 						<td>{e.in}</td>
@@ -74,15 +86,9 @@ const drawTable = (title: string, staff: Staff[]) => <Card>
 				})}
 			</tbody>
 		</Table>
-	</CardHeader>
+	</CardBody>
 </Card>;
 
-export const Dockmasters = () => drawTable("Dockmasters", dockmasters)
+export const Dockmasters = (props: Props) => <StaffTable {...props} title="Dockmaster" staff={dockmasters} />
 
-export const Staff = () => drawTable("Staff", staff)
-
-export default () => <><Row>
-	<Col md="12"><Dockmasters /></Col>
-</Row><Row>
-	<Col md="12"><Staff /></Col>
-</Row></>
+export const Staff = (props: Props) => <StaffTable {...props} title="Staff" staff={staff} />
