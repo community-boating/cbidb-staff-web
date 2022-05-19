@@ -3,10 +3,11 @@ import { Button, Card, CardBody, CardHeader, CardTitle, Col, Container, Modal, M
 import Classes from './Classes';
 import {DateHeader} from './DateHeader';
 import HullCounts from './HullCounts';
-import {Dockmasters, Staff} from './FullStaff';
+import {DockmastersReport, StaffReport} from './FullStaff';
 import UapAppointments from './UapAppointments';
 import WeatherTable from './WeatherTable';
 import { ErrorPopup } from '@components/ErrorPopup';
+import { dockmasters, dockstaff } from './tempData';
 
 const incidents = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum"
 
@@ -25,8 +26,16 @@ const semiPermanentRestrictionsCard = <Card>
 	<CardBody>{incidents}</CardBody>
 </Card>
 
+export type Staff = {
+	name: string,
+	in: string,
+	out: string
+}
+
 export type DockReportState = {
-	sunset: string
+	sunset: string,
+	dockstaff: Staff[],
+	dockmasters: Staff[]
 }
 
 export type SubmitAction = () => Promise<Partial<DockReportState>>
@@ -35,7 +44,9 @@ export const DockReportPage = (props: {
 	date: string
 }) => {
 	const [dockReportState, setDockReportState] = React.useState({
-		sunset: null
+		sunset: null,
+		dockstaff,
+		dockmasters
 	} as DockReportState);
 
 	const defaultSubmitAction: SubmitAction = () => Promise.resolve(null);
@@ -71,6 +82,7 @@ export const DockReportPage = (props: {
 					// setModalError(null)
 					return submitAction().then(
 						newState => {
+							// console.log("new state from edit modal: ", newState)
 							setDockReportState({... dockReportState, ...newState })
 							setModalContent(null)
 						},
@@ -89,9 +101,10 @@ export const DockReportPage = (props: {
 					openModal={(content: JSX.Element) => {setModalContent(content)}}
 					setSubmitAction={(submitAction: SubmitAction) => setSubmitAction(() => submitAction)}
 				/>
-				<Dockmasters 
+				<DockmastersReport
 					openModal={(content: JSX.Element) => {setModalContent(content)}}
 					setSubmitAction={(submitAction: SubmitAction) => setSubmitAction(() => submitAction)}
+					staff={dockReportState.dockmasters}
 				/>
 			</Col>
 			<Col md="4">
@@ -114,9 +127,10 @@ export const DockReportPage = (props: {
 		</Row>
 		<Row>
 			<Col md="3">
-				<Staff 
+				<StaffReport
 					openModal={(content: JSX.Element) => {setModalContent(content)}}
 					setSubmitAction={(submitAction: SubmitAction) => setSubmitAction(() => submitAction)}
+					staff={dockReportState.dockstaff}
 				/>
 			</Col>
 			<Col md="4">
