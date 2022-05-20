@@ -1,77 +1,22 @@
+import { TabularForm } from '@components/TabularForm';
 import * as React from 'react';
-import { Card, CardHeader, CardTitle, Table } from 'reactstrap';
+import { Edit } from 'react-feather';
+import { Card, CardBody, CardHeader, CardTitle, Table } from 'reactstrap';
+import { Class, DockReportState, SubmitAction } from '.';
 
-const classes = [{
-	time: "09:00AM",
-	className: "Shore School",
-	location: "Main Bay",
-	attend: 14,
-	instructor: "Charlie Zechel"
-}, {
-	time: "09:00AM",
-	className: "Shore School",
-	location: "Main Bay",
-	attend: 14,
-	instructor: "Charlie Zechel"
-}, {
-	time: "09:00AM",
-	className: "Shore School",
-	location: "Main Bay",
-	attend: 14,
-	instructor: "Charlie Zechel"
-}, {
-	time: "09:00AM",
-	className: "Shore School",
-	location: "Main Bay",
-	attend: 14,
-	instructor: "Charlie Zechel"
-}, {
-	time: "09:00AM",
-	className: "Shore School",
-	location: "Main Bay",
-	attend: 14,
-	instructor: "Charlie Zechel"
-}, {
-	time: "09:00AM",
-	className: "Shore School",
-	location: "Main Bay",
-	attend: 14,
-	instructor: "Charlie Zechel"
-}, {
-	time: "09:00AM",
-	className: "Shore School",
-	location: "Main Bay",
-	attend: 14,
-	instructor: "Charlie Zechel"
-}, {
-	time: "09:00AM",
-	className: "Shore School",
-	location: "Main Bay",
-	attend: 14,
-	instructor: "Charlie Zechel"
-}, {
-	time: "09:00AM",
-	className: "Shore School",
-	location: "Main Bay",
-	attend: 14,
-	instructor: "Charlie Zechel"
-}, {
-	time: "09:00AM",
-	className: "Shore School",
-	location: "Main Bay",
-	attend: 14,
-	instructor: "Charlie Zechel"
-}, {
-	time: "09:00AM",
-	className: "Shore School",
-	location: "Main Bay",
-	attend: 14,
-	instructor: "Charlie Zechel"
-}]
-
-export default () => <Card>
+export default (props: {
+	classes: Class[],
+	openModal: (content: JSX.Element) => void,
+	setSubmitAction: (submit: SubmitAction) => void
+}) => <Card>
 	<CardHeader>
+		<Edit height="18px" className="float-right" style={{ cursor: "pointer" }} onClick={() => props.openModal(
+				<EditClassTable classes={props.classes} setSubmitAction={props.setSubmitAction} statekey={"classes"} />
+		)} />
 		<CardTitle><h4>Classes</h4></CardTitle>
+
+	</CardHeader>
+	<CardBody>
 		<Table size="sm">
 			<tbody>
 				<tr>
@@ -81,7 +26,7 @@ export default () => <Card>
 					<th style={{width: "75px"}}>Attend</th>
 					<th>Instructor</th>
 				</tr>
-				{classes.map((c, i) => {
+				{props.classes.map((c, i) => {
 					return <tr key={`row_${i}`}>
 					<td>{c.time}</td>
 					<td>{c.className}</td>
@@ -92,5 +37,52 @@ export default () => <Card>
 				})}
 			</tbody>
 		</Table>
-	</CardHeader>
+	</CardBody>
 </Card>
+
+const EditClassTable = (props: {
+	classes: Class[],
+	setSubmitAction: (submit: SubmitAction) => void,
+	statekey: keyof DockReportState
+}) => {
+	const [classes, setClasses] = React.useState(props.classes);
+
+	React.useEffect(() => {
+		// TODO: validate e.g. attend is a number
+		props.setSubmitAction(() => Promise.resolve({[props.statekey]: classes.map(c => ({
+			...c,
+			attend: Number(c.attend)
+		}))}));
+	}, [classes]);
+
+	const columns = [{
+		Header: "Time",
+		accessor: "time",
+		cellWidth: 75
+	}, {
+		Header: "Class",
+		accessor: "className",
+		cellWidth: 150
+	}, {
+		Header: "Location",
+		accessor: "location",
+		cellWidth: 100
+	}, {
+		Header: "Attend",
+		accessor: "attend",
+		cellWidth: 75
+	}, {
+		Header: "Instructor",
+		accessor: "instructor"
+	}];
+
+	return <div className="form-group row">
+		<TabularForm columns={columns} data={classes} setData={setClasses} blankRow={{
+			time: "",
+			className: "",
+			location: "",
+			attend: null,
+			instructor: ""
+		}}/>
+	</div>
+}

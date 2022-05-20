@@ -7,7 +7,7 @@ import {DockmastersReport, StaffReport} from './FullStaff';
 import UapAppointments from './UapAppointments';
 import WeatherTable from './WeatherTable';
 import { ErrorPopup } from '@components/ErrorPopup';
-import { dockmasters, dockstaff } from './tempData';
+import { classes, dockmasters, dockstaff } from './tempData';
 
 const incidents = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum"
 
@@ -35,7 +35,16 @@ export type Staff = {
 export type DockReportState = {
 	sunset: string,
 	dockstaff: Staff[],
-	dockmasters: Staff[]
+	dockmasters: Staff[],
+	classes: Class[]
+}
+
+export type Class = {
+	time: string,
+	className: string,
+	location: string,
+	attend: number,
+	instructor: string
 }
 
 export type SubmitAction = () => Promise<Partial<DockReportState>>
@@ -46,7 +55,8 @@ export const DockReportPage = (props: {
 	const [dockReportState, setDockReportState] = React.useState({
 		sunset: null,
 		dockstaff,
-		dockmasters
+		dockmasters,
+		classes
 	} as DockReportState);
 
 	const defaultSubmitAction: SubmitAction = () => Promise.resolve(null);
@@ -65,6 +75,7 @@ export const DockReportPage = (props: {
 		<Modal
 			isOpen={modalContent != null}
 			// toggle={() => setModalContent(null)}
+			style={{maxWidth: "900px"}}
 		>
 			<ModalHeader toggle={() => setModalContent(null)}>
 				Edit Dock Report
@@ -108,7 +119,11 @@ export const DockReportPage = (props: {
 				/>
 			</Col>
 			<Col md="4">
-				<Classes />
+				<Classes
+					openModal={(content: JSX.Element) => {setModalContent(content)}}
+					setSubmitAction={(submitAction: SubmitAction) => setSubmitAction(() => submitAction)}
+					classes={dockReportState.classes}
+				/>
 			</Col>
 			<Col md="5">
 				<WeatherTable />
