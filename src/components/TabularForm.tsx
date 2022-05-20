@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useTable, usePagination } from 'react-table'
+import { useTable, Column } from 'react-table'
 import { faPlusCircle } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Table } from 'reactstrap';
@@ -8,7 +8,7 @@ const EditableCell = ({
 	value: initialValue,
 	row: { index },
 	column,
-	updateMyData, // This is a custom function that we supplied to our table instance
+	updateMyData,
 }) => {
 	// We need to keep and update the state of the cell normally
 	const [value, setValue] = React.useState(initialValue)
@@ -32,15 +32,37 @@ const EditableCell = ({
 }
 
 // Be sure to pass our updateMyData and the skipPageReset option
-export function TabularForm(props: { columns, data, updateMyData, skipPageReset, setData }) {
-	const { columns, data, updateMyData, skipPageReset, setData } = props;
+export function TabularForm<T>(props: {
+	columns: Column[],
+	data: T[],
+	setData: React.Dispatch<React.SetStateAction<T[]>>,
+	blankRow: T
+}) {
+	const { columns, data, setData, blankRow } = props;
+	const [skipPageReset, setSkipPageReset] = React.useState(false)
+	React.useEffect(() => {
+		setSkipPageReset(false)
+	}, [data])
 
-	const deleteRow = (i: number) => {
-		console.log("deleting row ", i)
-		setData(data.filter((e,ii) => i != ii))
+	const deleteRow = (i: number) => setData(data.filter((e,ii) => i != ii))
+
+	const addRow = () => setData(data.concat(blankRow))
+
+	const updateMyData = (rowIndex: number, columnId: number, value: T) => {
+		// We also turn on the flag to not reset the page
+		setSkipPageReset(true)
+		setData(old =>
+			old.map((row, index) => {
+				if (index === rowIndex) {
+					return {
+						...old[rowIndex],
+						[columnId]: value,
+					}
+				}
+				return row
+			})
+		)
 	}
-
-	const addRow = () => setData(data.concat({name: "", in: "", out: ""}))
 
 	const {
 		getTableProps,
@@ -48,26 +70,14 @@ export function TabularForm(props: { columns, data, updateMyData, skipPageReset,
 		headerGroups,
 		prepareRow,
 		rows
-	} = useTable(
-		{
-			columns,
-			data,
-			defaultColumn: { Cell: EditableCell },
-			// use the skipPageReset option to disable page resetting temporarily
-			autoResetPage: !skipPageReset,
-			// updateMyData isn't part of the API, but
-			// anything we put into these options will
-			// automatically be available on the instance.
-			// That way we can call this function from our
-			// cell renderer!
-			updateMyData,
-		} as any
-	)
+	} = useTable({
+		columns,
+		data,
+		defaultColumn: { Cell: EditableCell },
+		autoResetPage: !skipPageReset,
+		updateMyData,
+	} as any)
 
-	// Create an editable cell renderer
-
-
-	// Render the UI for your table
 	return (
 		<>
 			<Table {...getTableProps()}>

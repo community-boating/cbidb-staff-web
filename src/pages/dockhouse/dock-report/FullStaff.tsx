@@ -4,13 +4,11 @@ import { Edit } from 'react-feather';
 import { Card, CardBody, CardHeader, CardTitle, Col, Row, Table } from 'reactstrap';
 import { DockReportState, Staff, SubmitAction } from '.';
 
-
 type Props = {
 	staff: Staff[],
 	openModal: (content: JSX.Element) => void,
 	setSubmitAction: (submit: SubmitAction) => void
 }
-
 
 function makeStaffTable(staff: Staff[]) {
 	return <Table size="sm">
@@ -56,7 +54,6 @@ const EditStaffTable = (props: {
 	statekey: keyof DockReportState
 }) => {
 	const [staff, setStaff] = React.useState(props.staff);
-	const [skipPageReset, setSkipPageReset] = React.useState(false)
 
 	React.useEffect(() => {
 		// console.log("setting submit action ", staff)
@@ -76,23 +73,7 @@ const EditStaffTable = (props: {
 		cellWidth: 75
 	}];
 
-	const updateMyData = (rowIndex, columnId, value) => {
-		// We also turn on the flag to not reset the page
-		setSkipPageReset(true)
-		setStaff(old =>
-			old.map((row, index) => {
-				if (index === rowIndex) {
-					return {
-						...old[rowIndex],
-						[columnId]: value,
-					}
-				}
-				return row
-			})
-		)
-	}
-
 	return <div className="form-group row">
-		<TabularForm columns={columns} data={staff} updateMyData={updateMyData} skipPageReset={skipPageReset} setData={setStaff} />
+		<TabularForm columns={columns} data={staff} setData={setStaff} blankRow={{name: "", in: "", out: ""}}/>
 	</div>
 }
