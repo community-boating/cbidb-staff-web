@@ -1,4 +1,4 @@
-import { Class, Staff } from "."
+import { Class, Staff, UapAppointment } from "."
 
 export const dockmasters: Staff[] = [{
 	name: "Charlie Zechel",
@@ -113,5 +113,52 @@ export const classes: Class[] = [{
 	className: "Shore School",
 	location: "Main Bay",
 	attend: 14,
+	instructor: "Charlie Zechel"
+}].map(e => ({
+	...e,
+	attend: String(e.attend)
+}))
+
+export const uapAppts: UapAppointment[] = [{
+	time: "09:00AM",
+	apptType: "Lesson",
+	person: "Andrew Alletag",
+	boat: "Keel Merc",
+	instructor: "Charlie Zechel"
+}, {
+	time: "09:00AM",
+	apptType: "Lesson",
+	person: "Andrew Alletag",
+	boat: "Keel Merc",
+	instructor: "Charlie Zechel"
+}, {
+	time: "09:00AM",
+	apptType: "Lesson",
+	person: "Andrew Alletag",
+	boat: "Keel Merc",
+	instructor: "Charlie Zechel"
+}, {
+	time: "09:00AM",
+	apptType: "Lesson",
+	person: "Andrew Alletag",
+	boat: "Keel Merc",
+	instructor: "Charlie Zechel"
+}, {
+	time: "09:00AM",
+	apptType: "Lesson",
+	person: "Andrew Alletag",
+	boat: "Keel Merc",
+	instructor: "Charlie Zechel"
+}, {
+	time: "09:00AM",
+	apptType: "Lesson",
+	person: "Andrew Alletag",
+	boat: "Keel Merc",
+	instructor: "Charlie Zechel"
+}, {
+	time: "09:00AM",
+	apptType: "Lesson",
+	person: "Andrew Alletag",
+	boat: "Keel Merc",
 	instructor: "Charlie Zechel"
 }]

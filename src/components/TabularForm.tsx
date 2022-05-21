@@ -36,7 +36,7 @@ export function TabularForm<T>(props: {
 	columns: Column[],
 	data: T[],
 	setData: React.Dispatch<React.SetStateAction<T[]>>,
-	blankRow: T
+	blankRow?: T
 }) {
 	const { columns, data, setData, blankRow } = props;
 	const [skipPageReset, setSkipPageReset] = React.useState(false)
@@ -87,8 +87,6 @@ export function TabularForm<T>(props: {
 							<th></th>
 							{headerGroup.headers.map(column => {
 								const cellWidth = (column as any).cellWidth
-								// console.log(column)
-								// console.log(column.getHeaderProps())
 								return <th {...column.getHeaderProps()} style={{width: cellWidth && cellWidth+"px"}}>{column.render('Header')}</th>
 							})}
 						</tr>
@@ -99,19 +97,22 @@ export function TabularForm<T>(props: {
 						prepareRow(row)
 						return (
 							<tr {...row.getRowProps()}>
-								<td><a href="#" onClick={() => deleteRow(i)}><img src="/images/delete.png" /></a></td>
+								<td key="deleteme"><a href="#" onClick={() => deleteRow(i)}><img src="/images/delete.png" /></a></td>
 								{row.cells.map(cell => {
-									// console.log(cell)
 									return <td {...cell.getCellProps()}>{cell.render('Cell')}</td>
 								})}
 							</tr>
 						)
 					})}
-					<tr><td>
-						<a href="#" onClick={addRow}><FontAwesomeIcon icon={faPlusCircle} color="green" style={{height: "50px"}}/></a>
-					</td>
-					{rows[0].cells.map(c => <td></td>)}
-					</tr>
+					{(
+						blankRow == null
+						? null
+						: <tr><td>
+							<a href="#" onClick={addRow}><FontAwesomeIcon icon={faPlusCircle} color="green" style={{height: "50px"}}/></a>
+							</td>
+							{rows[0].cells.map((c, i) => <td key={`editcell_${i}`}></td>)}
+						</tr>
+					)}
 				</tbody>
 			</Table>
 		</>

@@ -2,12 +2,12 @@ import * as React from 'react';
 import { Button, Card, CardBody, CardHeader, CardTitle, Col, Container, Modal, ModalBody, ModalFooter, ModalHeader, Row, Table } from 'reactstrap';
 import Classes from './Classes';
 import {DateHeader} from './DateHeader';
-import HullCounts from './HullCounts';
+import HullCounts, { HullType } from './HullCounts';
 import {DockmastersReport, StaffReport} from './FullStaff';
 import UapAppointments from './UapAppointments';
 import WeatherTable from './WeatherTable';
 import { ErrorPopup } from '@components/ErrorPopup';
-import { classes, dockmasters, dockstaff } from './tempData';
+import { classes, dockmasters, dockstaff, uapAppts } from './tempData';
 
 const incidents = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum"
 
@@ -36,15 +36,31 @@ export type DockReportState = {
 	sunset: string,
 	dockstaff: Staff[],
 	dockmasters: Staff[],
-	classes: Class[]
+	classes: Class[],
+	uapAppts: UapAppointment[],
+	hullCounts: HullCount[],
 }
 
 export type Class = {
 	time: string,
 	className: string,
 	location: string,
-	attend: number,
+	attend: string,
 	instructor: string
+}
+
+export type UapAppointment = {
+	time: string,
+	apptType: string,
+	person: string,
+	boat: string,
+	instructor: string,
+};
+
+export type HullCount = {
+	hullType: HullType,
+	inService: string
+	nightlyCount: string
 }
 
 export type SubmitAction = () => Promise<Partial<DockReportState>>
@@ -56,7 +72,9 @@ export const DockReportPage = (props: {
 		sunset: null,
 		dockstaff,
 		dockmasters,
-		classes
+		classes,
+		uapAppts,
+		hullCounts: []
 	} as DockReportState);
 
 	const defaultSubmitAction: SubmitAction = () => Promise.resolve(null);
@@ -149,10 +167,18 @@ export const DockReportPage = (props: {
 				/>
 			</Col>
 			<Col md="4">
-				<UapAppointments />
+				<UapAppointments
+					openModal={(content: JSX.Element) => {setModalContent(content)}}
+					setSubmitAction={(submitAction: SubmitAction) => setSubmitAction(() => submitAction)}
+					appts={dockReportState.uapAppts}
+				/>
 			</Col>
 			<Col md="3">
-				<HullCounts />
+				<HullCounts 
+					openModal={(content: JSX.Element) => {setModalContent(content)}}
+					setSubmitAction={(submitAction: SubmitAction) => setSubmitAction(() => submitAction)}
+					counts={dockReportState.hullCounts}
+				/>
 			</Col>
 		</Row>
 	</>
