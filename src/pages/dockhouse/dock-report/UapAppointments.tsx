@@ -55,7 +55,7 @@ const EditUapAppts = (props: {
 }
 
 export default (props: Props) => <Card>
-	<CardHeader>
+	<CardHeader style={{borderBottom: "none", paddingBottom: 0}}>
 		<Edit height="18px" className="float-right" style={{ cursor: "pointer" }} onClick={() => props.openModal(
 			<EditUapAppts appts={props.appts} setSubmitAction={props.setSubmitAction} />
 		)} />

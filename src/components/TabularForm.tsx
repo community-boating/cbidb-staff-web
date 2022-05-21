@@ -28,7 +28,14 @@ const EditableCell = ({
 	React.useEffect(() => {
 		setValue(initialValue)
 	}, [initialValue])
-	return <input style={{border: "none", width: cellWidth && cellWidth+"px"}} value={value} onChange={onChange} onBlur={onBlur} />
+
+	if (column.readonly) {
+		return value;
+	} else if (column.textAreaHeight != undefined) {
+		return <textarea rows={column.textAreaHeight} style={{border: "none", width: cellWidth && cellWidth+"px"}} value={value} onChange={onChange} onBlur={onBlur} />
+	} else {
+		return <input style={{border: "none", width: cellWidth && cellWidth+"px"}} value={value} onChange={onChange} onBlur={onBlur} />
+	}
 }
 
 // Be sure to pass our updateMyData and the skipPageReset option
@@ -84,7 +91,11 @@ export function TabularForm<T>(props: {
 				<thead>
 					{headerGroups.map(headerGroup => (
 						<tr {...headerGroup.getHeaderGroupProps()}>
-							<th></th>
+							{(
+								blankRow == null
+								? null
+								: <th></th>
+							)}
 							{headerGroup.headers.map(column => {
 								const cellWidth = (column as any).cellWidth
 								return <th {...column.getHeaderProps()} style={{width: cellWidth && cellWidth+"px"}}>{column.render('Header')}</th>
@@ -97,7 +108,13 @@ export function TabularForm<T>(props: {
 						prepareRow(row)
 						return (
 							<tr {...row.getRowProps()}>
-								<td key="deleteme"><a href="#" onClick={() => deleteRow(i)}><img src="/images/delete.png" /></a></td>
+								{(
+									blankRow == null
+									? null
+									: <td key="deleteme"><a href="#" onClick={() => deleteRow(i)}>
+										<img src="/images/delete.png" />
+									</a></td>
+								)}
 								{row.cells.map(cell => {
 									return <td {...cell.getCellProps()}>{cell.render('Cell')}</td>
 								})}

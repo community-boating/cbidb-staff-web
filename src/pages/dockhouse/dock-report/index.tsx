@@ -7,24 +7,8 @@ import {DockmastersReport, StaffReport} from './FullStaff';
 import UapAppointments from './UapAppointments';
 import WeatherTable from './WeatherTable';
 import { ErrorPopup } from '@components/ErrorPopup';
-import { classes, dockmasters, dockstaff, uapAppts } from './tempData';
-
-const incidents = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum"
-
-const incidentsCard = <Card>
-	<CardHeader><CardTitle><h4>Incidents/Notes</h4></CardTitle></CardHeader>
-	<CardBody>{incidents}</CardBody>
-</Card>
-
-const announcementsCard = <Card>
-	<CardHeader><CardTitle><h4>Announcements</h4></CardTitle></CardHeader>
-	<CardBody>{incidents}</CardBody>
-</Card>
-
-const semiPermanentRestrictionsCard = <Card>
-	<CardHeader><CardTitle><h4>Semi-Permanent Restrictions</h4></CardTitle></CardHeader>
-	<CardBody>{incidents}</CardBody>
-</Card>
+import { classes, dockmasters, dockstaff, loremIpsum, uapAppts, weatherRecords } from './tempData';
+import DockReportTextBox from './DockReportTextBox';
 
 export type Staff = {
 	name: string,
@@ -39,6 +23,10 @@ export type DockReportState = {
 	classes: Class[],
 	uapAppts: UapAppointment[],
 	hullCounts: HullCount[],
+	weatherRecords: WeatherRecord[],
+	incidentsNotes: string
+	announcements: string,
+	semiPermanentRestrictions: string,
 }
 
 export type Class = {
@@ -63,6 +51,15 @@ export type HullCount = {
 	nightlyCount: string
 }
 
+export type WeatherRecord = {
+	time: string,
+	temp: string,
+	weather: string,
+	windDir: string,
+	windSpeedKts: string,
+	restrictions: string,
+}
+
 export type SubmitAction = () => Promise<Partial<DockReportState>>
 
 export const DockReportPage = (props: {
@@ -74,7 +71,11 @@ export const DockReportPage = (props: {
 		dockmasters,
 		classes,
 		uapAppts,
-		hullCounts: []
+		hullCounts: [],
+		weatherRecords,
+		incidentsNotes: loremIpsum,
+		announcements: loremIpsum,
+		semiPermanentRestrictions: loremIpsum,
 	} as DockReportState);
 
 	const defaultSubmitAction: SubmitAction = () => Promise.resolve(null);
@@ -88,6 +89,30 @@ export const DockReportPage = (props: {
 		? <ErrorPopup errors={[modalError]}/>
 		: null
 	);
+
+	const incidentsCard = <DockReportTextBox
+		openModal={(content: JSX.Element) => {setModalContent(content)}}
+		setSubmitAction={(submitAction: SubmitAction) => setSubmitAction(() => submitAction)}
+		message={dockReportState.incidentsNotes}
+		title="Incidents/Notes"
+		statekey='incidentsNotes'
+	/>
+
+	const announcementsCard = <DockReportTextBox
+		openModal={(content: JSX.Element) => {setModalContent(content)}}
+		setSubmitAction={(submitAction: SubmitAction) => setSubmitAction(() => submitAction)}
+		message={dockReportState.announcements}
+		title="Announcements"
+		statekey='announcements'
+	/>
+
+	const semiPermanentRestrictionsCard = <DockReportTextBox
+		openModal={(content: JSX.Element) => {setModalContent(content)}}
+		setSubmitAction={(submitAction: SubmitAction) => setSubmitAction(() => submitAction)}
+		message={dockReportState.semiPermanentRestrictions}
+		title="Semi-Permanent Restrictions"
+		statekey='semiPermanentRestrictions'
+	/>
 
 	return <>
 		<Modal
@@ -144,7 +169,11 @@ export const DockReportPage = (props: {
 				/>
 			</Col>
 			<Col md="5">
-				<WeatherTable />
+				<WeatherTable
+					openModal={(content: JSX.Element) => {setModalContent(content)}}
+					setSubmitAction={(submitAction: SubmitAction) => setSubmitAction(() => submitAction)}
+					weatherRecords={dockReportState.weatherRecords}
+				/>
 			</Col>
 		</Row>
 		<Row>

@@ -9,10 +9,6 @@ export enum HullType {
 	SUP="SUP"
 }
 
-type HullCountDisplay = {
-	[K in keyof HullCount]: string
-}
-
 const getDisplayRows: (counts: HullCount[]) => HullCount[] = counts => {
 	return Object.values(HullType).map(h => {
 		const matchingRecord = counts.find(c => c.hullType == h);
@@ -37,7 +33,8 @@ const EditHullCounts = (props: {
 
 	const columns = [{
 		Header: "Hull Type",
-		accessor: "hullType"
+		accessor: "hullType",
+		readonly: true
 	}, {
 		Header: "In Svc",
 		accessor: "inService",
@@ -58,7 +55,7 @@ export default (props: {
 	openModal: (content: JSX.Element) => void,
 	setSubmitAction: (submit: SubmitAction) => void
 }) => <Card>
-	<CardHeader>
+	<CardHeader style={{borderBottom: "none", paddingBottom: 0}}>
 		<Edit height="18px" className="float-right" style={{ cursor: "pointer" }} onClick={() => props.openModal(
 			<EditHullCounts counts={props.counts} setSubmitAction={props.setSubmitAction} />
 		)} />
@@ -74,8 +71,8 @@ export default (props: {
 				</tr>
 				{getDisplayRows(props.counts).map((countObj, i) => <tr key={`row_${i}`}>
 					<td style={{ textAlign: "right" }}>{countObj.hullType}</td>
-					<td>{countObj && countObj.inService}</td>
-					<td>{countObj && countObj.nightlyCount}</td>
+					<td>{countObj.inService}</td>
+					<td>{countObj.nightlyCount}</td>
 				</tr>)}
 			</tbody>
 		</Table>

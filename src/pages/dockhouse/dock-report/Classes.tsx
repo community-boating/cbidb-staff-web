@@ -9,7 +9,7 @@ export default (props: {
 	openModal: (content: JSX.Element) => void,
 	setSubmitAction: (submit: SubmitAction) => void
 }) => <Card>
-	<CardHeader>
+	<CardHeader style={{borderBottom: "none", paddingBottom: 0}}>
 		<Edit height="18px" className="float-right" style={{ cursor: "pointer" }} onClick={() => props.openModal(
 				<EditClassTable classes={props.classes} setSubmitAction={props.setSubmitAction} statekey={"classes"} />
 		)} />
