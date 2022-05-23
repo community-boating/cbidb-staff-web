@@ -55,21 +55,21 @@ export const dockReportWeatherValidator = t.type({
 })
 
 export const dockReportValidator = t.type({
-	dockReportId: t.number,
-	reportDate: t.string,
-	sunsetDatetime: OptionalString,
-	incidentsNotes: OptionalString,
-	announcements: OptionalString,
-	semiPermanentRestrictions: OptionalString,
-	staff: t.array(dockReportStaffValidator),
-	apClasses: t.array(dockReportApClassValidator),
-	uapAppts: t.array(dockReportUapApptValidator),
-	hullCounts: t.array(dockReportHullCountValidator),
-	weather: t.array(dockReportWeatherValidator)
+	DOCK_REPORT_ID: t.number,
+	REPORT_DATE: t.string,
+	SUNSET_DATETIME: OptionalString,
+	INCIDENTS_NOTES: OptionalString,
+	ANNOUNCEMENTS: OptionalString,
+	SEMI_PERMANENT_RESTRICTIONS: OptionalString,
+	// staff: t.array(dockReportStaffValidator),
+	// apClasses: t.array(dockReportApClassValidator),
+	// uapAppts: t.array(dockReportUapApptValidator),
+	// hullCounts: t.array(dockReportHullCountValidator),
+	// weather: t.array(dockReportWeatherValidator)
 })
 
 
-export const getWrapper = new APIWrapper({
+export const getDockReport = new APIWrapper({
 	path,
 	type: HttpMethod.GET,
 	resultValidator: dockReportValidator,

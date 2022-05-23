@@ -63,7 +63,7 @@ export type WeatherRecord = {
 export type SubmitAction = () => Promise<Partial<DockReportState>>
 
 export const DockReportPage = (props: {
-	date: string
+	dockReportInitState: DockReportState
 }) => {
 	const [dockReportState, setDockReportState] = React.useState({
 		sunset: null,
@@ -76,6 +76,7 @@ export const DockReportPage = (props: {
 		incidentsNotes: loremIpsum,
 		announcements: loremIpsum,
 		semiPermanentRestrictions: loremIpsum,
+		...props.dockReportInitState
 	} as DockReportState);
 
 	const defaultSubmitAction: SubmitAction = () => Promise.resolve(null);
@@ -150,7 +151,7 @@ export const DockReportPage = (props: {
 		<Row>
 			<Col md="3">
 				<DateHeader
-					date={props.date}
+					date={null}
 					sunset={dockReportState.sunset}
 					openModal={(content: JSX.Element) => {setModalContent(content)}}
 					setSubmitAction={(submitAction: SubmitAction) => setSubmitAction(() => submitAction)}
