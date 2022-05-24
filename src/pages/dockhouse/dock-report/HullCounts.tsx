@@ -28,7 +28,7 @@ const EditHullCounts = (props: {
 
 	React.useEffect(() => {
 		// console.log("setting submit action ", counts)
-		props.setSubmitAction(() => Promise.resolve({hullCounts: counts}));
+		props.setSubmitAction(() => Promise.resolve({hullCounts: []}));
 	}, [counts]);
 
 	const columns = [{

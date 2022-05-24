@@ -61,11 +61,12 @@ export const dockReportValidator = t.type({
 	INCIDENTS_NOTES: OptionalString,
 	ANNOUNCEMENTS: OptionalString,
 	SEMI_PERMANENT_RESTRICTIONS: OptionalString,
-	// staff: t.array(dockReportStaffValidator),
-	// apClasses: t.array(dockReportApClassValidator),
-	// uapAppts: t.array(dockReportUapApptValidator),
-	// hullCounts: t.array(dockReportHullCountValidator),
-	// weather: t.array(dockReportWeatherValidator)
+	dockstaff: t.array(dockReportStaffValidator),
+	dockmasters: t.array(dockReportStaffValidator),
+	apClasses: t.array(dockReportApClassValidator),
+	uapAppts: t.array(dockReportUapApptValidator),
+	hullCounts: t.array(dockReportHullCountValidator),
+	weather: t.array(dockReportWeatherValidator)
 })
 
 
@@ -76,7 +77,7 @@ export const getDockReport = new APIWrapper({
 });
 
 
-export const postWrapper = new APIWrapper<
+export const putDockReport = new APIWrapper<
 	typeof dockReportValidator,
 	t.TypeOf<typeof dockReportValidator>,
 	null

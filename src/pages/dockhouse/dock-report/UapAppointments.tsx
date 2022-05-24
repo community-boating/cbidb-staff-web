@@ -17,7 +17,7 @@ const EditUapAppts = (props: {
 	const [appts, setAppts] = React.useState(props.appts);
 
 	React.useEffect(() => {
-		props.setSubmitAction(() => Promise.resolve({"uapAppts": appts}));
+		props.setSubmitAction(() => Promise.resolve({uapAppts: []}));
 	}, [appts]);
 
 	const columns = [{

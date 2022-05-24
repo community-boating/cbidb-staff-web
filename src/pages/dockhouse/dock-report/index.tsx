@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { Button, Card, CardBody, CardHeader, CardTitle, Col, Container, Modal, ModalBody, ModalFooter, ModalHeader, Row, Table } from 'reactstrap';
+import * as t from "io-ts";
 import Classes from './Classes';
 import {DateHeader} from './DateHeader';
 import HullCounts, { HullType } from './HullCounts';
@@ -7,8 +8,12 @@ import {DockmastersReport, StaffReport} from './FullStaff';
 import UapAppointments from './UapAppointments';
 import WeatherTable from './WeatherTable';
 import { ErrorPopup } from '@components/ErrorPopup';
-import { classes, dockmasters, dockstaff, loremIpsum, uapAppts, weatherRecords } from './tempData';
 import DockReportTextBox from './DockReportTextBox';
+import { Option } from 'fp-ts/lib/Option';
+import * as moment from 'moment'
+import { dockReportValidator, putDockReport } from '@async/rest/dock-report';
+import { makePostJSON } from '@core/APIWrapperUtil';
+import { DATE_FORMAT_LOCAL_DATE, DATE_FORMAT_LOCAL_DATETIME } from '@util/dateUtil';
 
 export type Staff = {
 	name: string,
@@ -16,18 +21,7 @@ export type Staff = {
 	out: string
 }
 
-export type DockReportState = {
-	sunset: string,
-	dockstaff: Staff[],
-	dockmasters: Staff[],
-	classes: Class[],
-	uapAppts: UapAppointment[],
-	hullCounts: HullCount[],
-	weatherRecords: WeatherRecord[],
-	incidentsNotes: string
-	announcements: string,
-	semiPermanentRestrictions: string,
-}
+export type DockReportState = t.TypeOf<typeof dockReportValidator>;
 
 export type Class = {
 	time: string,
@@ -65,19 +59,7 @@ export type SubmitAction = () => Promise<Partial<DockReportState>>
 export const DockReportPage = (props: {
 	dockReportInitState: DockReportState
 }) => {
-	const [dockReportState, setDockReportState] = React.useState({
-		sunset: null,
-		dockstaff,
-		dockmasters,
-		classes,
-		uapAppts,
-		hullCounts: [],
-		weatherRecords,
-		incidentsNotes: loremIpsum,
-		announcements: loremIpsum,
-		semiPermanentRestrictions: loremIpsum,
-		...props.dockReportInitState
-	} as DockReportState);
+	const [dockReportState, setDockReportState] = React.useState(props.dockReportInitState);
 
 	const defaultSubmitAction: SubmitAction = () => Promise.resolve(null);
 
@@ -94,25 +76,25 @@ export const DockReportPage = (props: {
 	const incidentsCard = <DockReportTextBox
 		openModal={(content: JSX.Element) => {setModalContent(content)}}
 		setSubmitAction={(submitAction: SubmitAction) => setSubmitAction(() => submitAction)}
-		message={dockReportState.incidentsNotes}
+		message={dockReportState.INCIDENTS_NOTES}
 		title="Incidents/Notes"
-		statekey='incidentsNotes'
+		statekey='INCIDENTS_NOTES'
 	/>
 
 	const announcementsCard = <DockReportTextBox
 		openModal={(content: JSX.Element) => {setModalContent(content)}}
 		setSubmitAction={(submitAction: SubmitAction) => setSubmitAction(() => submitAction)}
-		message={dockReportState.announcements}
+		message={dockReportState.ANNOUNCEMENTS}
 		title="Announcements"
-		statekey='announcements'
+		statekey='ANNOUNCEMENTS'
 	/>
 
 	const semiPermanentRestrictionsCard = <DockReportTextBox
 		openModal={(content: JSX.Element) => {setModalContent(content)}}
 		setSubmitAction={(submitAction: SubmitAction) => setSubmitAction(() => submitAction)}
-		message={dockReportState.semiPermanentRestrictions}
+		message={dockReportState.SEMI_PERMANENT_RESTRICTIONS}
 		title="Semi-Permanent Restrictions"
-		statekey='semiPermanentRestrictions'
+		statekey='SEMI_PERMANENT_RESTRICTIONS'
 	/>
 
 	return <>
@@ -135,7 +117,12 @@ export const DockReportPage = (props: {
 				{" "}
 				<Button color="secondary" onClick={() => {
 					// setModalError(null)
-					return submitAction().then(
+					return submitAction().then(additionalState => {
+						const newState = {
+							...dockReportState, ...additionalState
+						}
+						return putDockReport.send(makePostJSON(newState)).then(() => newState)
+					}).then(
 						newState => {
 							// console.log("new state from edit modal: ", newState)
 							setDockReportState({... dockReportState, ...newState })
@@ -151,29 +138,29 @@ export const DockReportPage = (props: {
 		<Row>
 			<Col md="3">
 				<DateHeader
-					date={null}
-					sunset={dockReportState.sunset}
+					date={moment(dockReportState.REPORT_DATE, DATE_FORMAT_LOCAL_DATE)}
+					sunset={dockReportState.SUNSET_DATETIME.map(t => moment(t, DATE_FORMAT_LOCAL_DATETIME))}
 					openModal={(content: JSX.Element) => {setModalContent(content)}}
 					setSubmitAction={(submitAction: SubmitAction) => setSubmitAction(() => submitAction)}
 				/>
 				<DockmastersReport
 					openModal={(content: JSX.Element) => {setModalContent(content)}}
 					setSubmitAction={(submitAction: SubmitAction) => setSubmitAction(() => submitAction)}
-					staff={dockReportState.dockmasters}
+					staff={[]}
 				/>
 			</Col>
 			<Col md="4">
 				<Classes
 					openModal={(content: JSX.Element) => {setModalContent(content)}}
 					setSubmitAction={(submitAction: SubmitAction) => setSubmitAction(() => submitAction)}
-					classes={dockReportState.classes}
+					classes={[]}
 				/>
 			</Col>
 			<Col md="5">
 				<WeatherTable
 					openModal={(content: JSX.Element) => {setModalContent(content)}}
 					setSubmitAction={(submitAction: SubmitAction) => setSubmitAction(() => submitAction)}
-					weatherRecords={dockReportState.weatherRecords}
+					weatherRecords={[]}
 				/>
 			</Col>
 		</Row>
@@ -193,21 +180,21 @@ export const DockReportPage = (props: {
 				<StaffReport
 					openModal={(content: JSX.Element) => {setModalContent(content)}}
 					setSubmitAction={(submitAction: SubmitAction) => setSubmitAction(() => submitAction)}
-					staff={dockReportState.dockstaff}
+					staff={[]}
 				/>
 			</Col>
 			<Col md="4">
 				<UapAppointments
 					openModal={(content: JSX.Element) => {setModalContent(content)}}
 					setSubmitAction={(submitAction: SubmitAction) => setSubmitAction(() => submitAction)}
-					appts={dockReportState.uapAppts}
+					appts={[]}
 				/>
 			</Col>
 			<Col md="3">
 				<HullCounts 
 					openModal={(content: JSX.Element) => {setModalContent(content)}}
 					setSubmitAction={(submitAction: SubmitAction) => setSubmitAction(() => submitAction)}
-					counts={dockReportState.hullCounts}
+					counts={[]}
 				/>
 			</Col>
 		</Row>

@@ -7,6 +7,7 @@ import PageWrapper from '@core/PageWrapper';
 import { Loader } from 'react-feather';
 import { DockReportPage } from 'pages/dockhouse/dock-report';
 import { dockReportValidator, getDockReport } from '@async/rest/dock-report';
+import { toMomentFromLocalDate, toMomentFromLocalDateTime } from '@util/dateUtil';
 
 export const routeDockReportPage = new RouteWrapper({
 	requiresAuth: true,
@@ -18,7 +19,15 @@ export const routeDockReportPage = new RouteWrapper({
 	key="dockrpt"
 	history={history}
 	component={(urlProps: {}, async: t.TypeOf<typeof dockReportValidator>) => <DockReportPage
-		dockReportInitState={null}
+		dockReportInitState={{
+			...async,
+			// dockstaff: [],
+			// dockmasters: [],
+			// classes: [],
+			// uapAppts: [],
+			// hullCounts: [],
+			// weatherRecords: [],
+		}}
 	/>}
 	urlProps={{}}
 	getAsyncProps={() => {

@@ -11,7 +11,7 @@ export default (props: {
 }) => <Card>
 	<CardHeader style={{borderBottom: "none", paddingBottom: 0}}>
 		<Edit height="18px" className="float-right" style={{ cursor: "pointer" }} onClick={() => props.openModal(
-				<EditClassTable classes={props.classes} setSubmitAction={props.setSubmitAction} statekey={"classes"} />
+				<EditClassTable classes={props.classes} setSubmitAction={props.setSubmitAction} statekey={"apClasses"} />
 		)} />
 		<CardTitle><h4>Classes</h4></CardTitle>
 

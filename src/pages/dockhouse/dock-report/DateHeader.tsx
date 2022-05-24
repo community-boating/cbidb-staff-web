@@ -1,5 +1,5 @@
-import optionify from '@util/optionify';
 import { padNumber } from '@util/padNumbers';
+import { Option, some } from 'fp-ts/lib/Option';
 import * as _ from 'lodash';
 import * as moment from 'moment'
 import * as React from 'react';
@@ -8,20 +8,19 @@ import { Card, CardBody, CardHeader, CardTitle, Input, Table } from 'reactstrap'
 import { SubmitAction } from '.';
 
 export const DateHeader = (props: {
-	date: string,
-	sunset: string,
+	date: moment.Moment,
+	sunset: Option<moment.Moment>,
 	openModal: (content: JSX.Element) => void,
 	setSubmitAction: (submit: SubmitAction) => void
 }) => {
-	const dateMoment = moment(props.date, "MM/DD/YYYY");
-	const hiper = optionify(props.sunset)
-		.map(time => moment(`${props.date} ${time}`, "MM/DD/YYYY HH:mm").subtract(30, "minutes").format("HH:mm"))
-		.getOrElse(null);
+	const hiper = props.sunset
+		.map(time => time.clone().subtract(30, "minutes").format("HH:mm"))
+		.getOrElse("");
 
 	return <Card>
 		<CardHeader style={{borderBottom: "none", paddingBottom: 0}}>
 			<Edit height="18px" className="float-right" style={{ cursor: "pointer" }} onClick={() => props.openModal(
-				<EditDateHeader sunset={props.sunset} setSubmitAction={props.setSubmitAction} />
+				<EditDateHeader date={props.date} sunset={props.sunset} setSubmitAction={props.setSubmitAction} />
 			)} />
 			<CardTitle tag="h2" className="mb-0">Dock Report</CardTitle>
 		</CardHeader>
@@ -30,15 +29,15 @@ export const DateHeader = (props: {
 				<tbody>
 					<tr>
 						<th>Date</th>
-						<td>{props.date}</td>
+						<td>{props.date.format("MM/DD/YYYY")}</td>
 					</tr>
 					<tr>
 						<th>Day</th>
-						<td>{dateMoment.format("dddd")}</td>
+						<td>{props.date.format("dddd")}</td>
 					</tr>
 					<tr>
 						<th>Sunset</th>
-						<td>{props.sunset}</td>
+						<td>{props.sunset.map(m => m.format("HH:mm")).getOrElse("")}</td>
 					</tr>
 					<tr>
 						<th>Hiper</th>
@@ -51,25 +50,18 @@ export const DateHeader = (props: {
 }
 
 const EditDateHeader = (props: {
-	sunset: string
+	date: moment.Moment
+	sunset: Option<moment.Moment>
 	setSubmitAction: (submit: SubmitAction) => void,
 }) => {
-	const [initHour, initMinute] = (
-		(props.sunset || "").indexOf(":") > 0
-		? props.sunset.split(":")
-		: ["", ""]
-	)
+	const [initHour, initMinute] = props.sunset.map(s => [s.format("HH"), s.format("mm")]).getOrElse(["", ""])
 
 	const [hour, setHour] = React.useState(initHour)
 	const [minute, setMinute] = React.useState(initMinute)
 
 	React.useEffect(() => {
 		props.setSubmitAction(() => new Promise((resolve, reject) => {
-			const regex = /^(?:23|22|21|20|[01][0-9]):[012345][0-9]$/
-			const sunsetTime = `${hour}:${minute}`
-			if (sunsetTime == ":") resolve({ sunset: null })
-			else if (regex.exec(sunsetTime)) resolve({ sunset: sunsetTime });
-			else reject("Specify time in military time e.g. (20:05 for 8:05PM).")
+			resolve({ SUNSET_DATETIME: some(`${props.date.format("YYYY-MM-DD")}T${hour}:${minute}:00`) })
 		}));
 	}, [hour, minute]);
 

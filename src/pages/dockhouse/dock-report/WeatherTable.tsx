@@ -35,7 +35,7 @@ const EditWeather = (props: {
 
 	React.useEffect(() => {
 		// console.log("setting submit action ", counts)
-		props.setSubmitAction(() => Promise.resolve({weatherRecords}));
+		props.setSubmitAction(() => Promise.resolve({weather: []}));
 	}, [weatherRecords]);
 
 	const columns = [{
