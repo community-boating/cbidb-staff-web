@@ -44,14 +44,14 @@ export const dockReportHullCountValidator = t.type({
 })
 
 export const dockReportWeatherValidator = t.type({
-	weatherId: t.number,
-	dockReportId: t.number,
-	weatherDatetime: t.string,
-	temp: t.number,
-	weatherSummary: t.string,
-	windDir: t.string,
-	windSpeedKts: t.number,
-	restrictions: t.string
+	WEATHER_ID: OptionalNumber,
+	DOCK_REPORT_ID: t.number,
+	WEATHER_DATETIME: t.string,
+	TEMP: OptionalNumber,
+	WEATHER_SUMMARY: OptionalString,
+	WIND_DIR: OptionalString,
+	WIND_SPEED_KTS: OptionalNumber,
+	RESTRICTIONS: OptionalString
 })
 
 export const dockReportValidator = t.type({

@@ -1,4 +1,10 @@
 import { TabularForm } from '@components/TabularForm';
+import { DATE_FORMAT_LOCAL_DATE, DATE_FORMAT_LOCAL_DATETIME, toMomentFromLocalDateTime } from '@util/dateUtil';
+import { Editable } from '@util/EditableType';
+import optionify from '@util/optionify';
+import { optionifyProps } from '@util/OptionifyObjectProps';
+import { Option, some } from 'fp-ts/lib/Option';
+import * as moment from 'moment'
 import * as React from 'react';
 import { Edit } from 'react-feather';
 import { Card, CardBody, CardHeader, CardTitle, Table } from 'reactstrap';
@@ -13,54 +19,80 @@ const WEATHER_TIMES = [
 	"07:00PM",
 ]
 
-const getDisplayRows: (weatherRecords: WeatherRecord[]) => WeatherRecord[] = weatherRecords => {
+type WeatherReportNonEditable = "WEATHER_ID" | "DOCK_REPORT_ID"
+
+type WeatherRecordEditable = Editable<WeatherRecord, WeatherReportNonEditable>
+
+const getDisplayRows: (weatherRecords: WeatherRecord[], reportDate: string) => WeatherRecordEditable[] = (weatherRecords, reportDate) => {
 	return WEATHER_TIMES.map(time => {
-		const matchingRecord = weatherRecords.find(r => r.time == time);
-		return {
-			time,
-			temp: (matchingRecord && matchingRecord.temp) || "",
-			weather: (matchingRecord && matchingRecord.weather) || "",
-			windDir: (matchingRecord && matchingRecord.windDir) || "",
-			windSpeedKts: (matchingRecord && matchingRecord.windSpeedKts) || "",
-			restrictions: (matchingRecord && matchingRecord.restrictions) || "",
-		}
+		const timeToFind = moment(`${reportDate}T${time}`, `${DATE_FORMAT_LOCAL_DATE}THH:mmA`).format("X")
+		const matchingRecord = optionify(weatherRecords.find(r => toMomentFromLocalDateTime(r.WEATHER_DATETIME).format("X") == timeToFind));
+		return matchingRecord.map(r => ({
+			WEATHER_ID: r.WEATHER_ID,
+			DOCK_REPORT_ID: null,
+			WEATHER_DATETIME: time,
+			TEMP: r.TEMP.map(String).getOrElse(""),
+			WEATHER_SUMMARY: r.WEATHER_SUMMARY.getOrElse(""),
+			WIND_DIR: r.WIND_DIR.getOrElse(""),
+			WIND_SPEED_KTS: r.WIND_SPEED_KTS.map(String).getOrElse(""),
+			RESTRICTIONS: r.RESTRICTIONS.getOrElse("")
+		})).getOrElse({
+			WEATHER_ID: null,
+			DOCK_REPORT_ID: null,
+			WEATHER_DATETIME: time,
+			TEMP: "",
+			WEATHER_SUMMARY: "",
+			WIND_DIR: "",
+			WIND_SPEED_KTS: "",
+			RESTRICTIONS: "",
+		});
 	})
 }
 
 const EditWeather = (props: {
 	weatherRecords: WeatherRecord[],
 	setSubmitAction: (submit: SubmitAction) => void,
+	reportDate: string
 }) => {
-	const [weatherRecords, setWeatherRecords] = React.useState(getDisplayRows(props.weatherRecords));
+	const [weatherRecords, setWeatherRecords] = React.useState(getDisplayRows(props.weatherRecords, props.reportDate));
+
+	console.log(weatherRecords)
 
 	React.useEffect(() => {
 		// console.log("setting submit action ", counts)
-		props.setSubmitAction(() => Promise.resolve({weather: []}));
+		props.setSubmitAction(() => Promise.resolve({weather: weatherRecords.map(w => ({
+			...optionifyProps(w),
+			TEMP: optionify(w.TEMP).map(Number),
+			WEATHER_ID: w.WEATHER_ID,
+			DOCK_REPORT_ID: null,
+			WIND_SPEED_KTS:optionify(w.WIND_SPEED_KTS).map(Number),
+			WEATHER_DATETIME: moment(`${props.reportDate}T${w.WEATHER_DATETIME}`, `${DATE_FORMAT_LOCAL_DATE}THH:mmA`).format(DATE_FORMAT_LOCAL_DATETIME)
+		}))}));
 	}, [weatherRecords]);
 
 	const columns = [{
 		Header: "Time",
-		accessor: "time",
+		accessor: "WEATHER_DATETIME",
 		cellWidth: 75,
 		readonly: true
 	}, {
 		Header: "Temp (F)",
-		accessor: "temp",
+		accessor: "TEMP",
 		cellWidth: 75
 	}, {
 		Header: "Weather",
-		accessor: "weather"
+		accessor: "WEATHER_SUMMARY"
 	}, {
 		Header: "Wind Dir",
-		accessor: "windDir",
+		accessor: "WIND_DIR",
 		cellWidth: 70
 	}, {
 		Header: "Wind (kts)",
-		accessor: "windSpeedKts",
+		accessor: "WIND_SPEED_KTS",
 		cellWidth: 90
 	}, {
 		Header: "Restrictions",
-		accessor: "restrictions",
+		accessor: "RESTRICTIONS",
 		cellWidth: 220,
 		textAreaHeight: 4
 	}];
@@ -74,10 +106,11 @@ export default (props: {
 	weatherRecords: WeatherRecord[],
 	openModal: (content: JSX.Element) => void,
 	setSubmitAction: (submit: SubmitAction) => void
+	reportDate: string
 }) => <Card>
 	<CardHeader style={{borderBottom: "none", paddingBottom: 0}}>
 		<Edit height="18px" className="float-right" style={{ cursor: "pointer" }} onClick={() => props.openModal(
-			<EditWeather weatherRecords={props.weatherRecords} setSubmitAction={props.setSubmitAction} />
+			<EditWeather weatherRecords={props.weatherRecords} setSubmitAction={props.setSubmitAction} reportDate={props.reportDate} />
 		)} />
 		<CardTitle><h4>Weather</h4></CardTitle>
 	</CardHeader>
@@ -92,13 +125,13 @@ export default (props: {
 					<th style={{width: "90px"}}>Wind (kts)</th>
 					<th style={{maxWidth: "180px"}}>Restrictions</th>
 				</tr>
-				{getDisplayRows(props.weatherRecords).map((row, i) => <tr key={`row_${i}`}>
-					<td><b>{row.time}</b></td>
-					<td>{row.temp}</td>
-					<td>{row.weather}</td>
-					<td>{row.windDir}</td>
-					<td>{row.windSpeedKts}</td>
-					<td>{row.restrictions}</td>
+				{getDisplayRows(props.weatherRecords, props.reportDate).map((row, i) => <tr key={`row_${i}`}>
+					<td><b>{row.WEATHER_DATETIME}</b></td>
+					<td>{row.TEMP}</td>
+					<td>{row.WEATHER_SUMMARY}</td>
+					<td>{row.WIND_DIR}</td>
+					<td>{row.WIND_SPEED_KTS}</td>
+					<td>{row.RESTRICTIONS}</td>
 				</tr>)}
 			</tbody>
 		</Table>

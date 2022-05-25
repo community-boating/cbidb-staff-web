@@ -11,7 +11,7 @@ import { ErrorPopup } from '@components/ErrorPopup';
 import DockReportTextBox from './DockReportTextBox';
 import { Option } from 'fp-ts/lib/Option';
 import * as moment from 'moment'
-import { dockReportValidator, putDockReport } from '@async/rest/dock-report';
+import { dockReportValidator, dockReportWeatherValidator, putDockReport } from '@async/rest/dock-report';
 import { makePostJSON } from '@core/APIWrapperUtil';
 import { DATE_FORMAT_LOCAL_DATE, DATE_FORMAT_LOCAL_DATETIME } from '@util/dateUtil';
 
@@ -45,14 +45,7 @@ export type HullCount = {
 	nightlyCount: string
 }
 
-export type WeatherRecord = {
-	time: string,
-	temp: string,
-	weather: string,
-	windDir: string,
-	windSpeedKts: string,
-	restrictions: string,
-}
+export type WeatherRecord = t.TypeOf<typeof dockReportWeatherValidator>;
 
 export type SubmitAction = () => Promise<Partial<DockReportState>>
 
@@ -119,7 +112,13 @@ export const DockReportPage = (props: {
 					// setModalError(null)
 					return submitAction().then(additionalState => {
 						const newState = {
-							...dockReportState, ...additionalState
+							...dockReportState, ...{
+								...additionalState,
+								weather: additionalState.weather.map(w => ({
+									...w,
+									DOCK_REPORT_ID: dockReportState.DOCK_REPORT_ID
+								}))
+							}
 						}
 						return putDockReport.send(makePostJSON(newState)).then(() => newState)
 					}).then(
@@ -160,7 +159,8 @@ export const DockReportPage = (props: {
 				<WeatherTable
 					openModal={(content: JSX.Element) => {setModalContent(content)}}
 					setSubmitAction={(submitAction: SubmitAction) => setSubmitAction(() => submitAction)}
-					weatherRecords={[]}
+					weatherRecords={dockReportState.weather}
+					reportDate={dockReportState.REPORT_DATE}
 				/>
 			</Col>
 		</Row>

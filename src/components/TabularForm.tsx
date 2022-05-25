@@ -29,13 +29,16 @@ const EditableCell = ({
 		setValue(initialValue)
 	}, [initialValue])
 
-	if (column.readonly) {
-		return value;
-	} else if (column.textAreaHeight != undefined) {
-		return <textarea rows={column.textAreaHeight} style={{border: "none", width: cellWidth && cellWidth+"px"}} value={value} onChange={onChange} onBlur={onBlur} />
-	} else {
-		return <input style={{border: "none", width: cellWidth && cellWidth+"px"}} value={value} onChange={onChange} onBlur={onBlur} />
-	}
+	const display = (function() {
+		if (column.readonly) {
+			return value || "";
+		} else if (column.textAreaHeight != undefined) {
+			return <textarea rows={column.textAreaHeight} style={{border: "none", width: cellWidth && cellWidth+"px"}} value={value} onChange={onChange} onBlur={onBlur} />
+		} else {
+			return <input style={{ borderColor:"#ccc", width: cellWidth && cellWidth+"px"}} value={value} onChange={onChange} onBlur={onBlur} />
+		}
+	}())
+	return display;
 }
 
 // Be sure to pass our updateMyData and the skipPageReset option
