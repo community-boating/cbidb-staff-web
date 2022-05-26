@@ -15,14 +15,14 @@ export const dockReportStaffValidator = t.type({
 });
 
 export const dockReportApClassValidator = t.type({
-	dockReportApClassId: t.number,
-	dockReportId: t.number,
-	apInstanceId: OptionalNumber,
-	className: t.string,
-	classDatetime: t.string,
-	location: OptionalString,
-	instructor: OptionalString,
-	attend: OptionalNumber
+	DOCK_REPORT_AP_CLASS_ID: t.number,
+	DOCK_REPORT_ID: OptionalNumber,
+	AP_INSTANCE_ID: OptionalNumber,
+	CLASS_NAME: OptionalString,
+	CLASS_DATETIME: OptionalString,
+	LOCATION: OptionalString,
+	INSTRUCTOR: OptionalString,
+	ATTEND: OptionalNumber
 })
 
 export const dockReportUapApptValidator = t.type({
@@ -36,11 +36,11 @@ export const dockReportUapApptValidator = t.type({
 })
 
 export const dockReportHullCountValidator = t.type({
-	dockReportHullCtId: t.number,
-	dockReportId: t.number,
-	hullType: t.string,
-	inService: t.number,
-	staffTally: OptionalNumber
+	DOCK_REPORT_HULL_CT_ID: t.number,
+	DOCK_REPORT_ID: OptionalNumber,
+	HULL_TYPE: t.string,
+	IN_SERVICE: OptionalNumber,
+	STAFF_TALLY: OptionalNumber
 })
 
 export const dockReportWeatherValidator = t.type({

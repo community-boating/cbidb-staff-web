@@ -16,20 +16,6 @@ import { DATE_FORMAT_LOCAL_DATE, DATE_FORMAT_LOCAL_DATETIME } from '@util/dateUt
 
 export type DockReportState = t.TypeOf<typeof dockReportValidator>;
 
-export type Class = {
-	time: string,
-	className: string,
-	location: string,
-	attend: string,
-	instructor: string
-}
-
-export type HullCount = {
-	hullType: HullType,
-	inService: string
-	nightlyCount: string
-}
-
 export type WeatherRecord = t.TypeOf<typeof dockReportWeatherValidator>;
 
 export type SubmitAction = () => Promise<Partial<DockReportState>>
@@ -135,7 +121,8 @@ export const DockReportPage = (props: {
 				<Classes
 					openModal={(content: JSX.Element) => {setModalContent(content)}}
 					setSubmitAction={(submitAction: SubmitAction) => setSubmitAction(() => submitAction)}
-					classes={[]}
+					classes={dockReportState.apClasses}
+					reportDate={dockReportState.REPORT_DATE}
 				/>
 			</Col>
 			<Col md="5">
@@ -179,7 +166,7 @@ export const DockReportPage = (props: {
 				<HullCounts 
 					openModal={(content: JSX.Element) => {setModalContent(content)}}
 					setSubmitAction={(submitAction: SubmitAction) => setSubmitAction(() => submitAction)}
-					counts={[]}
+					counts={dockReportState.hullCounts}
 				/>
 			</Col>
 		</Row>
