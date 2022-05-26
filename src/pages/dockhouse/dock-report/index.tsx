@@ -9,17 +9,10 @@ import UapAppointments from './UapAppointments';
 import WeatherTable from './WeatherTable';
 import { ErrorPopup } from '@components/ErrorPopup';
 import DockReportTextBox from './DockReportTextBox';
-import { Option } from 'fp-ts/lib/Option';
 import * as moment from 'moment'
 import { dockReportValidator, dockReportWeatherValidator, putDockReport } from '@async/rest/dock-report';
 import { makePostJSON } from '@core/APIWrapperUtil';
 import { DATE_FORMAT_LOCAL_DATE, DATE_FORMAT_LOCAL_DATETIME } from '@util/dateUtil';
-
-export type Staff = {
-	name: string,
-	in: string,
-	out: string
-}
 
 export type DockReportState = t.TypeOf<typeof dockReportValidator>;
 
@@ -30,14 +23,6 @@ export type Class = {
 	attend: string,
 	instructor: string
 }
-
-export type UapAppointment = {
-	time: string,
-	apptType: string,
-	person: string,
-	boat: string,
-	instructor: string,
-};
 
 export type HullCount = {
 	hullType: HullType,
@@ -114,12 +99,9 @@ export const DockReportPage = (props: {
 						const newState = {
 							...dockReportState, ...{
 								...additionalState,
-								weather: additionalState.weather.map(w => ({
-									...w,
-									DOCK_REPORT_ID: dockReportState.DOCK_REPORT_ID
-								}))
 							}
 						}
+						console.log("posting ", newState)
 						return putDockReport.send(makePostJSON(newState)).then(() => newState)
 					}).then(
 						newState => {
@@ -127,7 +109,7 @@ export const DockReportPage = (props: {
 							setDockReportState({... dockReportState, ...newState })
 							setModalContent(null)
 						},
-						err => setModalError(err)
+						err => setModalError(String(err))
 					);
 				}}>
 					Save Changes
@@ -145,7 +127,8 @@ export const DockReportPage = (props: {
 				<DockmastersReport
 					openModal={(content: JSX.Element) => {setModalContent(content)}}
 					setSubmitAction={(submitAction: SubmitAction) => setSubmitAction(() => submitAction)}
-					staff={[]}
+					staff={dockReportState.dockmasters}
+					reportDate={dockReportState.REPORT_DATE}
 				/>
 			</Col>
 			<Col md="4">
@@ -180,14 +163,16 @@ export const DockReportPage = (props: {
 				<StaffReport
 					openModal={(content: JSX.Element) => {setModalContent(content)}}
 					setSubmitAction={(submitAction: SubmitAction) => setSubmitAction(() => submitAction)}
-					staff={[]}
+					staff={dockReportState.dockstaff}
+					reportDate={dockReportState.REPORT_DATE}
 				/>
 			</Col>
 			<Col md="4">
 				<UapAppointments
 					openModal={(content: JSX.Element) => {setModalContent(content)}}
 					setSubmitAction={(submitAction: SubmitAction) => setSubmitAction(() => submitAction)}
-					appts={[]}
+					appts={dockReportState.uapAppts}
+					reportDate={dockReportState.REPORT_DATE}
 				/>
 			</Col>
 			<Col md="3">

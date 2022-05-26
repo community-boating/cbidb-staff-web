@@ -128,7 +128,7 @@ export function TabularForm<T>(props: {
 						blankRow == null
 						? null
 						: <tr><td>
-							<a href="#" onClick={addRow}><FontAwesomeIcon icon={faPlusCircle} color="green" style={{height: "50px"}}/></a>
+							<a href="#" onClick={addRow}><FontAwesomeIcon icon={faPlusCircle} color="green" style={{height: "17px", width: "17px"}}/></a>
 							</td>
 							{rows[0] && rows[0].cells.map((c, i) => <td key={`editcell_${i}`}></td>)}
 						</tr>

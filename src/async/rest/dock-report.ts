@@ -6,12 +6,12 @@ import { HttpMethod } from "../../core/HttpMethod";
 const path = "/rest/dock-report"
 
 export const dockReportStaffValidator = t.type({
-	dockReportStaffId: t.number,
-	dockReportId: t.number,
-	dockmasterOnDuty: t.boolean,
-	staffName: t.string,
-	timeIn: t.string,
-	timeOut: t.string
+	DOCK_REPORT_STAFF_ID: t.number,
+	DOCK_REPORT_ID: OptionalNumber,
+	DOCKMASTER_ON_DUTY: t.boolean,
+	STAFF_NAME: t.string,
+	TIME_IN: t.string,
+	TIME_OUT: t.string,
 });
 
 export const dockReportApClassValidator = t.type({
@@ -26,13 +26,13 @@ export const dockReportApClassValidator = t.type({
 })
 
 export const dockReportUapApptValidator = t.type({
-	dockReportApptId: t.number,
-	dockReportId: t.number,
-	apptDatetime: t.string,
-	apptType: t.string,
-	participantName: t.string,
-	boatTypeId: t.number,
-	instructorName: OptionalString
+	DOCK_REPORT_APPT_ID: t.number,
+	DOCK_REPORT_ID: OptionalNumber,
+	APPT_DATETIME: t.string,
+	APPT_TYPE: t.string,
+	PARTICIPANT_NAME: t.string,
+	BOAT_TYPE_ID: t.number,
+	INSTRUCTOR_NAME: t.string
 })
 
 export const dockReportHullCountValidator = t.type({
@@ -45,7 +45,7 @@ export const dockReportHullCountValidator = t.type({
 
 export const dockReportWeatherValidator = t.type({
 	WEATHER_ID: OptionalNumber,
-	DOCK_REPORT_ID: t.number,
+	DOCK_REPORT_ID: OptionalNumber,
 	WEATHER_DATETIME: t.string,
 	TEMP: OptionalNumber,
 	WEATHER_SUMMARY: OptionalString,

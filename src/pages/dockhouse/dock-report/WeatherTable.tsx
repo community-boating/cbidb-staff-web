@@ -25,7 +25,7 @@ type WeatherRecordEditable = Editable<WeatherRecord, WeatherReportNonEditable>
 
 const getDisplayRows: (weatherRecords: WeatherRecord[], reportDate: string) => WeatherRecordEditable[] = (weatherRecords, reportDate) => {
 	return WEATHER_TIMES.map(time => {
-		const timeToFind = moment(`${reportDate}T${time}`, `${DATE_FORMAT_LOCAL_DATE}THH:mmA`).format("X")
+		const timeToFind = moment(`${reportDate}T${time}`, `${DATE_FORMAT_LOCAL_DATE}Thh:mmA`).format("X")
 		const matchingRecord = optionify(weatherRecords.find(r => toMomentFromLocalDateTime(r.WEATHER_DATETIME).format("X") == timeToFind));
 		return matchingRecord.map(r => ({
 			WEATHER_ID: r.WEATHER_ID,
@@ -66,7 +66,7 @@ const EditWeather = (props: {
 			WEATHER_ID: w.WEATHER_ID,
 			DOCK_REPORT_ID: null,
 			WIND_SPEED_KTS:optionify(w.WIND_SPEED_KTS).map(Number),
-			WEATHER_DATETIME: moment(`${props.reportDate}T${w.WEATHER_DATETIME}`, `${DATE_FORMAT_LOCAL_DATE}THH:mmA`).format(DATE_FORMAT_LOCAL_DATETIME)
+			WEATHER_DATETIME: moment(`${props.reportDate}T${w.WEATHER_DATETIME}`, `${DATE_FORMAT_LOCAL_DATE}Thh:mmA`).format(DATE_FORMAT_LOCAL_DATETIME)
 		}))}));
 	}, [weatherRecords]);
 

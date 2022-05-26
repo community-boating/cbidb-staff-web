@@ -3,7 +3,7 @@ import { Option } from 'fp-ts/lib/Option';
 import * as React from 'react';
 import { Edit } from 'react-feather';
 import { Card, CardBody, CardHeader, CardTitle, Col, Row, Table } from 'reactstrap';
-import { DockReportState, Staff, SubmitAction } from '.';
+import { DockReportState, SubmitAction } from '.';
 
 export default function DockReportTextBox(props: {
 	message: Option<string>,
