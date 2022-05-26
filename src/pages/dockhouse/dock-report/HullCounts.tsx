@@ -38,11 +38,11 @@ const EditHullCounts = (props: {
 	}, {
 		Header: "In Svc",
 		accessor: "inService",
-		cellWidth: 75
+		cellWidth: 90
 	}, {
 		Header: "Nightly Ct",
 		accessor: "nightlyCount",
-		cellWidth: 75
+		cellWidth: 90
 	}];
 
 	return <div className="form-group row">
@@ -65,9 +65,9 @@ export default (props: {
 		<Table size="sm">
 			<tbody>
 				<tr>
-					<th>Hull</th>
-					<th style={{ width: "75px" }}>In Svc</th>
-					<th style={{ width: "75px" }}>Nightly Ct</th>
+					<th style={{textAlign: "right"}}>Hull Type</th>
+					<th style={{ width: "90px" }}>In Svc</th>
+					<th style={{ width: "90px" }}>Nightly Ct</th>
 				</tr>
 				{getDisplayRows(props.counts).map((countObj, i) => <tr key={`row_${i}`}>
 					<td style={{ textAlign: "right" }}>{countObj.hullType}</td>
