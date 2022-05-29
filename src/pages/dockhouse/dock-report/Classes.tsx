@@ -18,8 +18,8 @@ type ClassEditable = Editable<Class, ClassNonEditable>
 
 const mapToDisplay: (c: Class) => ClassEditable = c => ({
 	...c,
-	CLASS_NAME: c.CLASS_NAME.getOrElse(""),
-	CLASS_DATETIME: c.CLASS_DATETIME.map(d => toMomentFromLocalDateTime(d).format("HH:mm")).getOrElse(""),
+	CLASS_NAME: c.CLASS_NAME,
+	CLASS_DATETIME:toMomentFromLocalDateTime(c.CLASS_DATETIME).format("HH:mm"),
 	LOCATION: c.LOCATION.getOrElse(""),
 	INSTRUCTOR: c.INSTRUCTOR.getOrElse(""),
 	ATTEND: c.ATTEND.map(String).getOrElse("")
@@ -27,8 +27,8 @@ const mapToDisplay: (c: Class) => ClassEditable = c => ({
 
 const mapToDto: (reportDate: string) => (c: ClassEditable) => Class = reportDate => c => ({
 	...c,
-	CLASS_NAME: optionify(c.CLASS_NAME),
-	CLASS_DATETIME: optionify(c.CLASS_DATETIME).map(time => moment(`${reportDate}T${time}`, "YYYY-MM-DDTHH:mm").format(DATE_FORMAT_LOCAL_DATETIME)),
+	CLASS_NAME: c.CLASS_NAME,
+	CLASS_DATETIME: moment(`${reportDate}T${c.CLASS_DATETIME}`, "YYYY-MM-DDTHH:mm").format(DATE_FORMAT_LOCAL_DATETIME),
 	LOCATION: optionify(c.LOCATION),
 	INSTRUCTOR: optionify(c.INSTRUCTOR),
 	ATTEND: optionify(c.ATTEND).map(Number)

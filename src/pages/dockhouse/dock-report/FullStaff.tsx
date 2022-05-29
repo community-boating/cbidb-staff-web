@@ -8,6 +8,7 @@ import { DockReportState, SubmitAction } from '.';
 import { Editable } from '@util/EditableType';
 import * as moment from 'moment'
 import { DATE_FORMAT_LOCAL_DATETIME } from '@util/dateUtil';
+import optionify from '@util/optionify';
 
 type Staff = t.TypeOf<typeof dockReportStaffValidator>
 
@@ -24,14 +25,14 @@ type Props = {
 
 const mapToDisplay: (staff: Staff) => StaffEditable = s => ({
 	...s,
-	TIME_IN: moment(s.TIME_IN, DATE_FORMAT_LOCAL_DATETIME).format("HH:MM"),
-	TIME_OUT: moment(s.TIME_OUT, DATE_FORMAT_LOCAL_DATETIME).format("HH:MM")
+	TIME_IN: s.TIME_IN.map(t => moment(t, DATE_FORMAT_LOCAL_DATETIME).format("HH:MM")).getOrElse(""),
+	TIME_OUT: s.TIME_OUT.map(t => moment(t, DATE_FORMAT_LOCAL_DATETIME).format("HH:MM")).getOrElse("")
 })
 
 const mapToDto: (reportDate: string) => (s: StaffEditable) => Staff = reportDate => s => ({
 	...s,
-	TIME_IN: moment(`${reportDate}T${s.TIME_IN}`, "YYYY-MM-DDTHH:mm").format(DATE_FORMAT_LOCAL_DATETIME),
-	TIME_OUT: moment(`${reportDate}T${s.TIME_OUT}`, "YYYY-MM-DDTHH:mm").format(DATE_FORMAT_LOCAL_DATETIME),
+	TIME_IN: optionify(s.TIME_IN).map(t => moment(`${reportDate}T${t}`, "YYYY-MM-DDTHH:mm").format(DATE_FORMAT_LOCAL_DATETIME)),
+	TIME_OUT: optionify(s.TIME_OUT).map(t => moment(`${reportDate}T${s.TIME_OUT}`, "YYYY-MM-DDTHH:mm").format(DATE_FORMAT_LOCAL_DATETIME)),
 })
 
 function makeStaffTable(staff: StaffEditable[]) {
@@ -117,7 +118,7 @@ const EditStaffTable = (props: {
 		cellWidth: 75
 	}];
 
-	const blankRow: Staff = {
+	const blankRow: StaffEditable = {
 		DOCK_REPORT_ID: null,
 		DOCK_REPORT_STAFF_ID: null,
 		DOCKMASTER_ON_DUTY: props.dockmaster,

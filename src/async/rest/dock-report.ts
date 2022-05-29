@@ -10,16 +10,16 @@ export const dockReportStaffValidator = t.type({
 	DOCK_REPORT_ID: OptionalNumber,
 	DOCKMASTER_ON_DUTY: t.boolean,
 	STAFF_NAME: t.string,
-	TIME_IN: t.string,
-	TIME_OUT: t.string,
+	TIME_IN: OptionalString,
+	TIME_OUT: OptionalString,
 });
 
 export const dockReportApClassValidator = t.type({
 	DOCK_REPORT_AP_CLASS_ID: t.number,
 	DOCK_REPORT_ID: OptionalNumber,
 	AP_INSTANCE_ID: OptionalNumber,
-	CLASS_NAME: OptionalString,
-	CLASS_DATETIME: OptionalString,
+	CLASS_NAME: t.string,
+	CLASS_DATETIME: t.string,
 	LOCATION: OptionalString,
 	INSTRUCTOR: OptionalString,
 	ATTEND: OptionalNumber
@@ -28,11 +28,11 @@ export const dockReportApClassValidator = t.type({
 export const dockReportUapApptValidator = t.type({
 	DOCK_REPORT_APPT_ID: t.number,
 	DOCK_REPORT_ID: OptionalNumber,
-	APPT_DATETIME: t.string,
-	APPT_TYPE: t.string,
+	APPT_DATETIME: OptionalString,
+	APPT_TYPE: OptionalString,
 	PARTICIPANT_NAME: t.string,
-	BOAT_TYPE_ID: t.number,
-	INSTRUCTOR_NAME: t.string
+	BOAT_TYPE_ID: OptionalNumber,
+	INSTRUCTOR_NAME: OptionalString
 })
 
 export const dockReportHullCountValidator = t.type({

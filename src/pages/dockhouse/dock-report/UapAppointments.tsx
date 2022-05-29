@@ -8,6 +8,7 @@ import { SubmitAction } from '.';
 import { Editable } from '@util/EditableType';
 import * as moment from 'moment'
 import { DATE_FORMAT_LOCAL_DATETIME } from '@util/dateUtil';
+import optionify from '@util/optionify';
 
 type UapAppointment = t.TypeOf<typeof dockReportUapApptValidator>
 
@@ -17,14 +18,18 @@ type UapAppointmentEditable = Editable<UapAppointment, UapAppointmentNonEditable
 
 const mapToDisplay: (u: UapAppointment) => UapAppointmentEditable = u => ({
 	...u,
-	BOAT_TYPE_ID: String(u.BOAT_TYPE_ID),
-	APPT_DATETIME: moment(u.APPT_DATETIME, DATE_FORMAT_LOCAL_DATETIME).format("HH:MM")
+	BOAT_TYPE_ID: u.BOAT_TYPE_ID.map(String).getOrElse(""),
+	APPT_TYPE: u.APPT_TYPE.getOrElse(""),
+	INSTRUCTOR_NAME: u.INSTRUCTOR_NAME.getOrElse(""),
+	APPT_DATETIME: u.APPT_DATETIME.map(dt => moment(dt, DATE_FORMAT_LOCAL_DATETIME).format("HH:MM")).getOrElse("")
 })
 
 const mapToDto: (reportDate: string) => (u: UapAppointmentEditable) => UapAppointment = reportDate => u => ({
 	...u,
-	BOAT_TYPE_ID: Number(u.BOAT_TYPE_ID),
-	APPT_DATETIME: moment(`${reportDate}T${u.APPT_DATETIME}`, "YYYY-MM-DDTHH:mm").format(DATE_FORMAT_LOCAL_DATETIME)
+	BOAT_TYPE_ID: optionify(u.BOAT_TYPE_ID).map(Number),
+	APPT_TYPE: optionify(u.APPT_TYPE),
+	INSTRUCTOR_NAME: optionify(u.INSTRUCTOR_NAME),
+	APPT_DATETIME: optionify(u.APPT_DATETIME).map(dt => moment(`${reportDate}T${dt}`, "YYYY-MM-DDTHH:mm").format(DATE_FORMAT_LOCAL_DATETIME))
 })
 
 type Props = {
