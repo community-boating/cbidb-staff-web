@@ -6,7 +6,7 @@ import { HttpMethod } from "../../core/HttpMethod";
 const path = "/rest/dock-report"
 
 export const dockReportStaffValidator = t.type({
-	DOCK_REPORT_STAFF_ID: t.number,
+	DOCK_REPORT_STAFF_ID: OptionalNumber,
 	DOCK_REPORT_ID: OptionalNumber,
 	DOCKMASTER_ON_DUTY: t.boolean,
 	STAFF_NAME: t.string,
@@ -15,7 +15,7 @@ export const dockReportStaffValidator = t.type({
 });
 
 export const dockReportApClassValidator = t.type({
-	DOCK_REPORT_AP_CLASS_ID: t.number,
+	DOCK_REPORT_AP_CLASS_ID: OptionalNumber,
 	DOCK_REPORT_ID: OptionalNumber,
 	AP_INSTANCE_ID: OptionalNumber,
 	CLASS_NAME: t.string,
@@ -26,7 +26,7 @@ export const dockReportApClassValidator = t.type({
 })
 
 export const dockReportUapApptValidator = t.type({
-	DOCK_REPORT_APPT_ID: t.number,
+	DOCK_REPORT_APPT_ID: OptionalNumber,
 	DOCK_REPORT_ID: OptionalNumber,
 	APPT_DATETIME: OptionalString,
 	APPT_TYPE: OptionalString,
@@ -36,7 +36,7 @@ export const dockReportUapApptValidator = t.type({
 })
 
 export const dockReportHullCountValidator = t.type({
-	DOCK_REPORT_HULL_CT_ID: t.number,
+	DOCK_REPORT_HULL_CT_ID: OptionalNumber,
 	DOCK_REPORT_ID: OptionalNumber,
 	HULL_TYPE: t.string,
 	IN_SERVICE: OptionalNumber,
@@ -55,7 +55,7 @@ export const dockReportWeatherValidator = t.type({
 })
 
 export const dockReportValidator = t.type({
-	DOCK_REPORT_ID: t.number,
+	DOCK_REPORT_ID: OptionalNumber,
 	REPORT_DATE: t.string,
 	SUNSET_DATETIME: OptionalString,
 	INCIDENTS_NOTES: OptionalString,
@@ -77,12 +77,9 @@ export const getDockReport = new APIWrapper({
 });
 
 
-export const putDockReport = new APIWrapper<
-	typeof dockReportValidator,
-	t.TypeOf<typeof dockReportValidator>,
-	null
->({
+export const putDockReport = new APIWrapper({
 	path,
 	type: HttpMethod.POST,
+	postBodyValidator: dockReportValidator,
 	resultValidator: dockReportValidator,
 });

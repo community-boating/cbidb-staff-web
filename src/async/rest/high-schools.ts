@@ -22,12 +22,9 @@ const resultValidator = t.type({
 	SCHOOL_ID: t.number
 });
 
-export const putWrapper = new APIWrapper<
-	typeof resultValidator,
-	t.TypeOf<typeof highSchoolValidator>,
-	null
->({
+export const putWrapper = new APIWrapper({
 	path,
 	type: HttpMethod.POST,
+	postBodyValidator: highSchoolValidator,
 	resultValidator,
 });

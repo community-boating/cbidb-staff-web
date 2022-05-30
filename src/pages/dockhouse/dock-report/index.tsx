@@ -10,7 +10,7 @@ import WeatherTable from './WeatherTable';
 import { ErrorPopup } from '@components/ErrorPopup';
 import DockReportTextBox from './DockReportTextBox';
 import * as moment from 'moment'
-import { dockReportValidator, dockReportWeatherValidator, putDockReport } from '@async/rest/dock-report';
+import { dockReportValidator, dockReportWeatherValidator, getDockReport, putDockReport } from '@async/rest/dock-report';
 import { makePostJSON } from '@core/APIWrapperUtil';
 import { DATE_FORMAT_LOCAL_DATE, DATE_FORMAT_LOCAL_DATETIME } from '@util/dateUtil';
 
@@ -29,16 +29,25 @@ export const DockReportPage = (props: {
 
 	const [modalContent, setModalContent] = React.useState(null as JSX.Element);
 	const [submitAction, setSubmitAction] = React.useState(() => defaultSubmitAction);
-	const [modalError, setModalError] = React.useState(null as string)
+	const [modalErrors, setModalErrors] = React.useState(null as string[])
+
+	const refreshAndSetModalContent = (content: JSX.Element) => {
+		getDockReport.send(null).then(res => {
+			if (res.type == "Success") {
+				setDockReportState(res.success)
+				setModalContent(content);
+			}
+		})
+	}
 
 	const errorPopup = (
-		modalError
-		? <ErrorPopup errors={[modalError]}/>
+		modalErrors
+		? <ErrorPopup errors={modalErrors}/>
 		: null
 	);
 
 	const incidentsCard = <DockReportTextBox
-		openModal={(content: JSX.Element) => {setModalContent(content)}}
+		openModal={(content: JSX.Element) => {refreshAndSetModalContent(content)}}
 		setSubmitAction={(submitAction: SubmitAction) => setSubmitAction(() => submitAction)}
 		message={dockReportState.INCIDENTS_NOTES}
 		title="Incidents/Notes"
@@ -46,7 +55,7 @@ export const DockReportPage = (props: {
 	/>
 
 	const announcementsCard = <DockReportTextBox
-		openModal={(content: JSX.Element) => {setModalContent(content)}}
+		openModal={(content: JSX.Element) => {refreshAndSetModalContent(content)}}
 		setSubmitAction={(submitAction: SubmitAction) => setSubmitAction(() => submitAction)}
 		message={dockReportState.ANNOUNCEMENTS}
 		title="Announcements"
@@ -54,7 +63,7 @@ export const DockReportPage = (props: {
 	/>
 
 	const semiPermanentRestrictionsCard = <DockReportTextBox
-		openModal={(content: JSX.Element) => {setModalContent(content)}}
+		openModal={(content: JSX.Element) => {refreshAndSetModalContent(content)}}
 		setSubmitAction={(submitAction: SubmitAction) => setSubmitAction(() => submitAction)}
 		message={dockReportState.SEMI_PERMANENT_RESTRICTIONS}
 		title="Semi-Permanent Restrictions"
@@ -67,7 +76,7 @@ export const DockReportPage = (props: {
 			// toggle={() => setModalContent(null)}
 			style={{maxWidth: "900px"}}
 		>
-			<ModalHeader toggle={() => setModalContent(null)}>
+			<ModalHeader toggle={() => refreshAndSetModalContent(null)}>
 				Edit Dock Report
 			</ModalHeader>
 			<ModalBody className="m-3">
@@ -75,7 +84,7 @@ export const DockReportPage = (props: {
 				{modalContent}
 			</ModalBody>
 			<ModalFooter>
-				<Button color="secondary" outline onClick={() => setModalContent(null)}>
+				<Button color="secondary" outline onClick={() => refreshAndSetModalContent(null)}>
 					Cancel
 				</Button>
 				{" "}
@@ -87,16 +96,18 @@ export const DockReportPage = (props: {
 								...additionalState,
 							}
 						}
-						console.log("posting ", newState)
-						return putDockReport.send(makePostJSON(newState)).then(() => newState)
-					}).then(
-						newState => {
-							// console.log("new state from edit modal: ", newState)
+						return putDockReport.send(makePostJSON(newState)).then(res => ({newState, res}))
+					}).then(({newState, res}) => {
+						if (res.type == "Failure") {
+							return Promise.reject(res.message)
+						} else {
 							setDockReportState({... dockReportState, ...newState })
 							setModalContent(null)
-						},
-						err => setModalError(String(err))
-					);
+							return Promise.resolve();
+						}
+					}).catch(err => {
+						setModalErrors(String(err).split("\\n"))
+					});
 				}}>
 					Save Changes
 				</Button>
@@ -107,11 +118,11 @@ export const DockReportPage = (props: {
 				<DateHeader
 					date={moment(dockReportState.REPORT_DATE, DATE_FORMAT_LOCAL_DATE)}
 					sunset={dockReportState.SUNSET_DATETIME.map(t => moment(t, DATE_FORMAT_LOCAL_DATETIME))}
-					openModal={(content: JSX.Element) => {setModalContent(content)}}
+					openModal={(content: JSX.Element) => {refreshAndSetModalContent(content)}}
 					setSubmitAction={(submitAction: SubmitAction) => setSubmitAction(() => submitAction)}
 				/>
 				<DockmastersReport
-					openModal={(content: JSX.Element) => {setModalContent(content)}}
+					openModal={(content: JSX.Element) => {refreshAndSetModalContent(content)}}
 					setSubmitAction={(submitAction: SubmitAction) => setSubmitAction(() => submitAction)}
 					staff={dockReportState.dockmasters}
 					reportDate={dockReportState.REPORT_DATE}
@@ -119,7 +130,7 @@ export const DockReportPage = (props: {
 			</Col>
 			<Col md="4">
 				<Classes
-					openModal={(content: JSX.Element) => {setModalContent(content)}}
+					openModal={(content: JSX.Element) => {refreshAndSetModalContent(content)}}
 					setSubmitAction={(submitAction: SubmitAction) => setSubmitAction(() => submitAction)}
 					classes={dockReportState.apClasses}
 					reportDate={dockReportState.REPORT_DATE}
@@ -127,7 +138,7 @@ export const DockReportPage = (props: {
 			</Col>
 			<Col md="5">
 				<WeatherTable
-					openModal={(content: JSX.Element) => {setModalContent(content)}}
+					openModal={(content: JSX.Element) => {refreshAndSetModalContent(content)}}
 					setSubmitAction={(submitAction: SubmitAction) => setSubmitAction(() => submitAction)}
 					weatherRecords={dockReportState.weather}
 					reportDate={dockReportState.REPORT_DATE}
@@ -148,7 +159,7 @@ export const DockReportPage = (props: {
 		<Row>
 			<Col md="3">
 				<StaffReport
-					openModal={(content: JSX.Element) => {setModalContent(content)}}
+					openModal={(content: JSX.Element) => {refreshAndSetModalContent(content)}}
 					setSubmitAction={(submitAction: SubmitAction) => setSubmitAction(() => submitAction)}
 					staff={dockReportState.dockstaff}
 					reportDate={dockReportState.REPORT_DATE}
@@ -156,7 +167,7 @@ export const DockReportPage = (props: {
 			</Col>
 			<Col md="4">
 				<UapAppointments
-					openModal={(content: JSX.Element) => {setModalContent(content)}}
+					openModal={(content: JSX.Element) => {refreshAndSetModalContent(content)}}
 					setSubmitAction={(submitAction: SubmitAction) => setSubmitAction(() => submitAction)}
 					appts={dockReportState.uapAppts}
 					reportDate={dockReportState.REPORT_DATE}
@@ -164,7 +175,7 @@ export const DockReportPage = (props: {
 			</Col>
 			<Col md="3">
 				<HullCounts 
-					openModal={(content: JSX.Element) => {setModalContent(content)}}
+					openModal={(content: JSX.Element) => {refreshAndSetModalContent(content)}}
 					setSubmitAction={(submitAction: SubmitAction) => setSubmitAction(() => submitAction)}
 					counts={dockReportState.hullCounts}
 				/>

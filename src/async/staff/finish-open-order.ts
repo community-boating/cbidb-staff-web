@@ -8,8 +8,9 @@ const validator = t.type({
 
 const path = "/staff/finish-open-order"
 
-export const postWrapper = (personId: number) => new APIWrapper<typeof validator, {}, {}>({
+export const postWrapper = (personId: number) => new APIWrapper({
 	path: path + "?personId=" + personId,
 	type: HttpMethod.POST,
+	postBodyValidator: t.type({}),
 	resultValidator: validator
 })

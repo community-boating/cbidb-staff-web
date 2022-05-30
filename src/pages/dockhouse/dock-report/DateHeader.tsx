@@ -1,5 +1,5 @@
 import { padNumber } from '@util/padNumbers';
-import { Option, some } from 'fp-ts/lib/Option';
+import { none, Option, some } from 'fp-ts/lib/Option';
 import * as _ from 'lodash';
 import * as moment from 'moment'
 import * as React from 'react';
@@ -61,7 +61,10 @@ const EditDateHeader = (props: {
 
 	React.useEffect(() => {
 		props.setSubmitAction(() => new Promise((resolve, reject) => {
-			resolve({ SUNSET_DATETIME: some(`${props.date.format("YYYY-MM-DD")}T${hour}:${minute}:00`) })
+			if (hour != "" && minute != "") resolve({ SUNSET_DATETIME: some(`${props.date.format("YYYY-MM-DD")}T${hour}:${minute}:00`) })
+			if (hour != "" && minute != "") resolve({ SUNSET_DATETIME: some(`${props.date.format("YYYY-MM-DD")}T${hour}:${minute}:00`) })
+			else resolve({ SUNSET_DATETIME: none })
+			
 		}));
 	}, [hour, minute]);
 

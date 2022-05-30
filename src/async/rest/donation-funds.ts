@@ -28,12 +28,9 @@ const resultValidator = t.type({
 	FUND_ID: t.number,
 });
 
-export const putWrapper = new APIWrapper<
-	typeof resultValidator,
-	t.TypeOf<typeof donationFundValidator>,
-	null
->({
+export const putWrapper = new APIWrapper({
 	path,
 	type: HttpMethod.POST,
+	postBodyValidator: donationFundValidator,
 	resultValidator,
 });

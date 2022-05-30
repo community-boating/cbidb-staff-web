@@ -22,8 +22,9 @@ const resultValidator = t.type({
 	INSTRUCTOR_ID: t.number
 })
 
-export const putWrapper = new APIWrapper<typeof resultValidator, t.TypeOf<typeof classInstructorValidator>, null>({
+export const putWrapper = new APIWrapper({
 	path,
 	type: HttpMethod.POST,
+	postBodyValidator: classInstructorValidator,
 	resultValidator,
 });

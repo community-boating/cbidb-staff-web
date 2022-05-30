@@ -4,7 +4,7 @@ import { TabularForm } from '@components/TabularForm';
 import * as React from 'react';
 import { Edit } from 'react-feather';
 import { Card, CardBody, CardHeader, CardTitle, Table } from 'reactstrap';
-import { SubmitAction } from '.';
+import { DockReportState, SubmitAction } from '.';
 import { Editable } from '@util/EditableType';
 import optionify from '@util/optionify';
 

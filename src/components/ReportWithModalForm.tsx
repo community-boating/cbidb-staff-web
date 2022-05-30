@@ -19,7 +19,7 @@ export default function ReportWithModalForm<T extends t.TypeC<any>, U extends ob
 	primaryKey: string & keyof U,
 	columns: SimpleReportColumn[],
 	formComponents: (rowForEdit: StringifiedProps<U>, updateState: (id: string, value: string | boolean) => void) => JSX.Element
-	submitRow: APIWrapper<any, U, any>
+	submitRow: APIWrapper<any, T, any>
 	cardTitle?: string;
 }) {
 	const blankForm = {
