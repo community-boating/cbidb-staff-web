@@ -20,7 +20,7 @@ export default function DockReportTextBox(props: {
 			<CardTitle><h4>{props.title}</h4></CardTitle>
 		</CardHeader>
 		<CardBody>
-			<textarea style={{border: "none"}} rows={7} cols={57} value={props.message.getOrElse("")} readOnly />
+			<textarea style={{border: "none", width: "100%"}} rows={7} value={props.message.getOrElse("")} readOnly />
 		</CardBody>
 	</Card>
 }
