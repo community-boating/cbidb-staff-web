@@ -9,6 +9,8 @@ import { Editable } from '@util/EditableType';
 import * as moment from 'moment'
 import { DATE_FORMAT_LOCAL_DATETIME } from '@util/dateUtil';
 import optionify from '@util/optionify';
+import { ERROR_DELIMITER } from '@core/APIWrapper';
+import { combineValidations, validateMilitaryTime } from '@util/validate';
 
 type Staff = t.TypeOf<typeof dockReportStaffValidator>
 
@@ -99,14 +101,18 @@ const EditStaffTable = (props: {
 	const [staff, setStaff] = React.useState(props.staff);
 
 	React.useEffect(() => {
-		console.log("setting submit action ", staff)
-		console.log("statekey ", props.statekey)
-		console.log("dockmaster ", props.dockmaster)
-		props.setSubmitAction(() => Promise.resolve({[props.statekey]: staff.map(mapToDto(props.reportDate))}));
+		props.setSubmitAction(() => {
+			const errors = combineValidations(
+				validateMilitaryTime(staff.map(c => c.TIME_IN)),
+				validateMilitaryTime(staff.map(c => c.TIME_OUT)),
+			)
+			if (errors.length) return Promise.reject(errors.join(ERROR_DELIMITER))
+			else return Promise.resolve({[props.statekey]: staff.map(mapToDto(props.reportDate))})
+		});
 	}, [staff]);
 
 	const columns = [{
-		Header: "Name",
+		Header: <>Name <img src="/images/required.png" /></>,
 		accessor: "STAFF_NAME"
 	}, {
 		Header: "In",

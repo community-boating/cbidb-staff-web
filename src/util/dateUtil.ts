@@ -18,3 +18,8 @@ export function sortOnMoment<T>(f: (e: T) => moment.Moment): ((a: T, b: T) => nu
 		return Number(aMoment.format('X')) - Number(bMoment.format('X'));
 	}
 }
+
+export function validMilitaryTime(time: string): boolean {
+	const regex = /^([01][0-9]|20|21|22|23):[012345][0-9]$/
+	return !!regex.exec(time)
+}

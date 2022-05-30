@@ -9,6 +9,9 @@ import { Editable } from '@util/EditableType';
 import { DATE_FORMAT_LOCAL_DATETIME, toMomentFromLocalDateTime } from '@util/dateUtil';
 import optionify from '@util/optionify';
 import * as moment from 'moment';
+import { combineValidations, validateMilitaryTime, validateNotBlank, validateNumber } from '@util/validate';
+import { ERROR_DELIMITER } from '@core/APIWrapper';
+import { sortOnCol } from '@util/sort';
 
 type Class = t.TypeOf<typeof dockReportApClassValidator>
 
@@ -33,6 +36,8 @@ const mapToDto: (reportDate: string) => (c: ClassEditable) => Class = reportDate
 	INSTRUCTOR: optionify(c.INSTRUCTOR),
 	ATTEND: optionify(c.ATTEND).map(Number)
 })
+
+const sort = (a: ClassEditable, b: ClassEditable) => sortOnCol(a, b, x => x.CLASS_DATETIME)
 
 export default (props: {
 	classes: Class[],
@@ -59,7 +64,7 @@ export default (props: {
 						<th style={{width: "75px"}}>Attend</th>
 						<th>Instructor</th>
 					</tr>
-					{props.classes.map(mapToDisplay).map((c, i) => {
+					{props.classes.map(mapToDisplay).sort(sort).map((c, i) => {
 						return <tr key={`row_${i}`}>
 						<td>{c.CLASS_DATETIME}</td>
 						<td>{c.CLASS_NAME}</td>
@@ -80,19 +85,28 @@ const EditClassTable = (props: {
 	statekey: keyof DockReportState,
 	reportDate: string
 }) => {
-	const [classes, setClasses] = React.useState(props.classes);
+	const [classes, setClasses] = React.useState(props.classes.sort(sort));
 
 	React.useEffect(() => {
-		// TODO: validate e.g. attend is a number
-		props.setSubmitAction(() => Promise.resolve({[props.statekey]: classes.map(mapToDto(props.reportDate))}));
+		props.setSubmitAction(() => {
+			console.log(classes)
+			const errors = combineValidations(
+				validateNumber(classes.map(c => c.ATTEND)),
+				validateMilitaryTime(classes.map(c => c.CLASS_DATETIME)),
+				validateNotBlank("Class", classes.map(c => c.CLASS_NAME)),
+				validateNotBlank("Time", classes.map(c => c.CLASS_DATETIME)),
+			)
+			if (errors.length) return Promise.reject(errors.join(ERROR_DELIMITER))
+			else return Promise.resolve({[props.statekey]: classes.map(mapToDto(props.reportDate))});
+		});
 	}, [classes]);
 
 	const columns = [{
-		Header: "Time",
+		Header: <>Time <img src="/images/required.png" /></>,
 		accessor: "CLASS_DATETIME",
 		cellWidth: 75
 	}, {
-		Header: "Class",
+		Header: <>Class <img src="/images/required.png" /></>,
 		accessor: "CLASS_NAME",
 		cellWidth: 150
 	}, {

@@ -13,6 +13,8 @@ import * as moment from 'moment'
 import { dockReportValidator, dockReportWeatherValidator, getDockReport, putDockReport } from '@async/rest/dock-report';
 import { makePostJSON } from '@core/APIWrapperUtil';
 import { DATE_FORMAT_LOCAL_DATE, DATE_FORMAT_LOCAL_DATETIME } from '@util/dateUtil';
+import { ButtonWrapper } from '@components/ButtonWrapper';
+import { ERROR_DELIMITER } from '@core/APIWrapper';
 
 export type DockReportState = t.TypeOf<typeof dockReportValidator>;
 
@@ -66,6 +68,7 @@ export const DockReportPage = (props: {
 		statekey='SEMI_PERMANENT_RESTRICTIONS'
 	/>
 
+
 	return <>
 		<Modal
 			isOpen={modalContent != null}
@@ -84,7 +87,7 @@ export const DockReportPage = (props: {
 					Cancel
 				</Button>
 				{" "}
-				<Button color="secondary" onClick={() => {
+				<ButtonWrapper spinnerOnClick color="secondary" onClick={() => {
 					setModalErrors(null)
 					return submitAction().then(additionalState => {
 						const newState = {
@@ -92,21 +95,21 @@ export const DockReportPage = (props: {
 								...additionalState,
 							}
 						}
-						return putDockReport.send(makePostJSON(newState)).then(res => ({newState, res}))
-					}).then(({newState, res}) => {
+						return putDockReport.send(makePostJSON(newState))
+					}).then(res => {
 						if (res.type == "Failure") {
 							return Promise.reject(res.message)
 						} else {
-							setDockReportState({... dockReportState, ...newState })
+							setDockReportState(res.success)
 							setModalContent(null)
 							return Promise.resolve();
 						}
 					}).catch(err => {
-						setModalErrors(String(err).split("\\n"))
+						setModalErrors(String(err).split(ERROR_DELIMITER))
 					});
 				}}>
 					Save Changes
-				</Button>
+				</ButtonWrapper>
 			</ModalFooter>
 		</Modal>
 		<Row>

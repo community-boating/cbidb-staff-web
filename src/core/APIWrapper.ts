@@ -10,6 +10,8 @@ import { removeOptions } from '../util/deserializeOption';
 import { HttpMethod } from "./HttpMethod";
 import { PostType, Config, ApiResult, ServerParams } from './APIWrapperTypes';
 
+export const ERROR_DELIMITER = "\\n"
+
 interface PostValues {content: string, contentForValidation: object, headers: {"Content-Type": string, "Content-Length": string}}
 
 const searchJSCONMetaData: (metaData: any[]) => (toFind: string) => number = metaData => toFind => {

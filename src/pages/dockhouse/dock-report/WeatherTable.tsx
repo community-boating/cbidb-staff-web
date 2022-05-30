@@ -1,9 +1,10 @@
 import { TabularForm } from '@components/TabularForm';
+import { ERROR_DELIMITER } from '@core/APIWrapper';
 import { DATE_FORMAT_LOCAL_DATE, DATE_FORMAT_LOCAL_DATETIME, toMomentFromLocalDateTime } from '@util/dateUtil';
 import { Editable } from '@util/EditableType';
 import optionify from '@util/optionify';
 import { optionifyProps } from '@util/OptionifyObjectProps';
-import { Option, some } from 'fp-ts/lib/Option';
+import { combineValidations, validateNumber } from '@util/validate';
 import * as moment from 'moment'
 import * as React from 'react';
 import { Edit } from 'react-feather';
@@ -60,14 +61,25 @@ const EditWeather = (props: {
 
 	React.useEffect(() => {
 		// console.log("setting submit action ", counts)
-		props.setSubmitAction(() => Promise.resolve({weather: weatherRecords.map(w => ({
-			...optionifyProps(w),
-			TEMP: optionify(w.TEMP).map(Number),
-			WEATHER_ID: w.WEATHER_ID,
-			DOCK_REPORT_ID: null,
-			WIND_SPEED_KTS:optionify(w.WIND_SPEED_KTS).map(Number),
-			WEATHER_DATETIME: moment(`${props.reportDate}T${w.WEATHER_DATETIME}`, `${DATE_FORMAT_LOCAL_DATE}Thh:mmA`).format(DATE_FORMAT_LOCAL_DATETIME)
-		}))}));
+		props.setSubmitAction(() => {
+			const errors = combineValidations(
+				validateNumber(weatherRecords.map(w => w.WIND_SPEED_KTS)),
+				validateNumber(weatherRecords.map(w => w.TEMP)),
+				weatherRecords
+				.map(w => w.WIND_DIR)
+				.filter(d => !(new RegExp("(?:^$)|^(?:N|S|E|W|NE|NW|SE|SW|NNW|WNW|NNE|ENE|ESE|SSE|WSW|SSW)$")).exec(d.toUpperCase()))
+				.map(d => `Invalid wind dir "${d}".  Use e.g. N, S, NE, SSW, etc`)
+			)
+			if (errors.length) return Promise.reject(errors.join(ERROR_DELIMITER))
+			else return Promise.resolve({weather: weatherRecords.map(w => ({
+				...optionifyProps(w),
+				TEMP: optionify(w.TEMP).map(Number),
+				WEATHER_ID: w.WEATHER_ID,
+				DOCK_REPORT_ID: null,
+				WIND_SPEED_KTS:optionify(w.WIND_SPEED_KTS).map(Number),
+				WEATHER_DATETIME: moment(`${props.reportDate}T${w.WEATHER_DATETIME}`, `${DATE_FORMAT_LOCAL_DATE}Thh:mmA`).format(DATE_FORMAT_LOCAL_DATETIME)
+			}))})
+		});
 	}, [weatherRecords]);
 
 	const columns = [{
