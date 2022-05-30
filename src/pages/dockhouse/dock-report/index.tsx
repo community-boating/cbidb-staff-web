@@ -31,6 +31,11 @@ export const DockReportPage = (props: {
 	const [submitAction, setSubmitAction] = React.useState(() => defaultSubmitAction);
 	const [modalErrors, setModalErrors] = React.useState(null as string[])
 
+	// clear errors whenever the modal is updated
+	React.useEffect(() => {
+		setModalErrors(null)
+	}, [modalContent])
+
 	const errorPopup = (
 		modalErrors
 		? <ErrorPopup errors={modalErrors}/>
@@ -80,7 +85,7 @@ export const DockReportPage = (props: {
 				</Button>
 				{" "}
 				<Button color="secondary" onClick={() => {
-					// setModalError(null)
+					setModalErrors(null)
 					return submitAction().then(additionalState => {
 						const newState = {
 							...dockReportState, ...{
