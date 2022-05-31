@@ -1,18 +1,17 @@
 import { Either } from 'fp-ts/lib/Either';
 import { none, Option, some } from 'fp-ts/lib/Option';
-import * as http from 'http';
-import * as https from "https";
+import axios, { AxiosInstance, AxiosResponse } from "axios";
 import * as t from 'io-ts';
 import { PathReporter } from 'io-ts/lib/PathReporter';
 
-import asc from "../app/AppStateContainer";
-import { removeOptions } from '../util/deserializeOption';
+import asc from "app/AppStateContainer";
+import { removeOptions } from 'util/deserializeOption';
 import { HttpMethod } from "./HttpMethod";
 import { PostType, Config, ApiResult, ServerParams } from './APIWrapperTypes';
 
 export const ERROR_DELIMITER = "\\n"
 
-interface PostValues {content: string, contentForValidation: object, headers: {"Content-Type": string, "Content-Length": string}}
+interface PostValues {content: string, isJson: boolean, headers: {}}
 
 const searchJSCONMetaData: (metaData: any[]) => (toFind: string) => number = metaData => toFind => {
 	for (var i=0; i<metaData.length; i++) {
@@ -21,6 +20,31 @@ const searchJSCONMetaData: (metaData: any[]) => (toFind: string) => number = met
 	}
 	return null;
 }
+
+var apiAxios: AxiosInstance = null;
+
+function getOrCreateAxios(serverParams: ServerParams) {
+	if (apiAxios == null) {
+		console.log('instantiating axios');
+		const portString = (function() {
+			if (
+				(serverParams.https && serverParams.port != 443) || 
+				(!serverParams.https && serverParams.port != 80)
+			) return `:${serverParams.port}`
+			else return "";
+		}());
+
+		apiAxios = axios.create({
+			baseURL: `${serverParams.https ? "https://" : "http://"}${serverParams.host}${portString}`,
+			maxRedirects: 0,
+			responseType: "json",
+			// xsrfCookieName: "XSRF-TOKEN",
+			// xsrfHeaderName: "X-XSRF-TOKEN",
+		})
+	}
+	return apiAxios;
+}
+
 
 // TODO: do we still need do() vs send() vs sendWithHeaders(), can probably tidy this all up into one function that does the thing
 export default class APIWrapper<T_ResponseValidator extends t.Any, T_PostBodyValidator extends t.Any, T_FixedParams> {
@@ -39,102 +63,68 @@ export default class APIWrapper<T_ResponseValidator extends t.Any, T_PostBodyVal
 					const content = data.urlEncodedData
 					return some({
 						content,
-						contentForValidation: null,
-						headers: {
-							"Content-Type": "application/x-www-form-urlencoded",
-							"Content-Length": String(content.length)
-						}
+						isJson: false,
+						headers: {}
 					})
 				} else {
-					const postData = removeOptions({convertEmptyStringToNull: true})({
+					const content = removeOptions({convertEmptyStringToNull: true})({
 						...data.jsonData,
 						...(self.config.fixedParams || {})
 					});
-					const content = JSON.stringify(postData);
-					if (postData == undefined) return none;
+					if (content == undefined) return none;
 					else return some({
 						content,
-						contentForValidation: postData,
-						headers: {
-							"Content-Type": "application/json",
-							"Content-Length": String(content.length)
-						}
+						isJson: true,
+						headers: {}
 					})
 				}
 			} else return none;
 		}());
 
-		const postBodyValidationError = postValues.chain(({contentForValidation, headers}) => {
-			if (headers["Content-Type"] != "application/json") return none;
-			const validationResult = self.config.resultValidator.decode(contentForValidation);
+		const postBodyValidationError = postValues.chain(({isJson, content}) => {
+			if (!isJson || self.config.type != "POST") return none;
+			console.log(content)
+			console.log(self.config.postBodyValidator)
+			const validationResult = self.config.postBodyValidator.decode(content);
 			if (validationResult.isLeft()) return some(PathReporter.report(validationResult).join(", "))
 			else return none;
 		});
+
+		console.log(postBodyValidationError)
 
 		if (postBodyValidationError.isSome()) {
 			return Promise.resolve({
 				type: "Failure", code: "post_body_parse_fail", message: "Invalid submit. Are you missing required fields?", extra: postBodyValidationError.getOrElse(null)
 			})
 		} else {
-			return new Promise((resolve, reject) => {
-				const options = {
-					hostname: serverParams.host,
-					port: serverParams.port,
-					path: (serverParams.pathPrefix || "") + self.config.path,
-					method: self.config.type,
-					headers: <any>{
-						...serverParams.staticHeaders,
-						...(self.config.extraHeaders || {}),
-						...postValues.map(v => v.headers).getOrElse(<any>{})
-					}
-				};
-		
-				// TODO: should we embed the special case for logout directive on any response?  Seems heavy handed
-				const reqCallback = (res: any) => {
-					let resData = '';
-					res.on('data', (chunk: any) => {
-						resData += chunk;
-					});
-					res.on('end', () => {
-						resolve(resData);
-					});
-				}
-		
-				// FIXME: figure out all this API vs SELF shit and why this function wont carry through
-				//const req = serverParams.makeRequest(options, reqCallback);
-				const req = (
-					serverParams.https
-					? https.request(options, reqCallback)
-					: http.request(options, reqCallback)
-				);
-		
-				req.on('error', (e: string) => {
-					// console.error("req error ", e)
-					reject(e);
-				});
-	
-				postValues.map(v => req.write(v.content))
-		
-				req.end();
-			}).then((result: string) => {
-				// console.log("attempting to parse response ", result)
-				const ret: Return = Promise.resolve(this.parseResponse(result));
-				return ret;
+			const headers = {
+				...serverParams.staticHeaders,
+				...(self.config.extraHeaders || {}),
+				...postValues.map(pv => pv.headers).getOrElse(null)
+			}
+
+			return getOrCreateAxios(serverParams)({
+				method: self.config.type,
+				url: (serverParams.pathPrefix || "") + self.config.path,
+				// params,
+				data: postValues.map(pv => pv.content).getOrElse(null),
+				headers
+			}).then((res: AxiosResponse) => {
+				return this.parseResponse(res.data);
 			}, err => {
-				// console.log("Error: ", err)
+				console.log("Error: ", err)
 				const ret: Return = Promise.resolve({type: "Failure", code: "fail_during_send", message: "An internal error has occurred.", extra: {err}});
-				// console.log(ret);
+				console.log(ret);
 				return ret;
 			})
 			.catch(err => {
-				// console.log(err)
 				const ret: Return = Promise.resolve({type: "Failure", code: "fail_during_parse", message: "An internal error has occurred.", extra: {err}});
-				// console.log(ret)
+				console.log(ret)
 				return ret;
 			})
 		}
 	}
-	private parseResponse: (response: string) => ApiResult<t.TypeOf<T_ResponseValidator>> = response => {
+	private parseResponse: (response: any) => ApiResult<t.TypeOf<T_ResponseValidator>> = response => {
 		type Result = t.TypeOf<T_ResponseValidator>;
 		type Return = ApiResult<t.TypeOf<T_ResponseValidator>>;
 
@@ -142,7 +132,7 @@ export default class APIWrapper<T_ResponseValidator extends t.Any, T_PostBodyVal
 
 		let parsed;
 		try {
-			parsed = JSON.parse(response)
+			parsed = response // JSON.parse(response)
 		} catch (e) {
 			const catchRet: Return = {type: "Failure", code: "client_not_json", message: "An internal error has occurred.", extra: {rawResponse: response}};
 			// console.log(catchRet)

@@ -3,16 +3,16 @@ import * as t from "io-ts";
 import { FormGroup, Label, Col, Input } from "reactstrap";
 
 // Table building utilities
-import { tableColWidth } from "@util/tableUtil";
+import { tableColWidth } from "util/tableUtil";
 
 // Validator and putter for the data type of this page
-import { tagValidator } from "@async/rest/tags";
-import { putWrapper as putTag } from "@async/rest/tags";
+import { tagValidator } from "async/rest/tags";
+import { putWrapper as putTag } from "async/rest/tags";
 
 // The common display structure which is a table editable via modal
-import ReportWithModalForm from "@components/ReportWithModalForm";
-import { StringifiedProps } from "@util/StringifyObjectProps";
-import { SimpleReportColumn } from "@core/SimpleReport";
+import ReportWithModalForm from "components/ReportWithModalForm";
+import { StringifiedProps } from "util/StringifyObjectProps";
+import { SimpleReportColumn } from "core/SimpleReport";
 
 type Tag = t.TypeOf<typeof tagValidator>;
 

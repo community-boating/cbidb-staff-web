@@ -1,4 +1,4 @@
-import PathWrapper from "@core/PathWrapper";
+import PathWrapper from "core/PathWrapper";
 
 export const pathAdminBase = new PathWrapper('admin');
 export const pathManageClassInstructors = pathAdminBase.appendPathSegment("class-instructors");

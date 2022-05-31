@@ -1,4 +1,4 @@
-import { OptionifiedProps, optionifyAndMakeDefault } from '@util/OptionifyObjectProps';
+import { OptionifiedProps, optionifyAndMakeDefault } from 'util/OptionifyObjectProps';
 import * as t from 'io-ts';
 import APIWrapper from '../../core/APIWrapper';
 import { HttpMethod } from "../../core/HttpMethod";

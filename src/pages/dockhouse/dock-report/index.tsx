@@ -7,14 +7,14 @@ import HullCounts, { HullType } from './HullCounts';
 import {DockmastersReport, StaffReport} from './FullStaff';
 import UapAppointments from './UapAppointments';
 import WeatherTable from './WeatherTable';
-import { ErrorPopup } from '@components/ErrorPopup';
+import { ErrorPopup } from 'components/ErrorPopup';
 import DockReportTextBox from './DockReportTextBox';
 import * as moment from 'moment'
-import { dockReportValidator, dockReportWeatherValidator, getDockReport, putDockReport } from '@async/rest/dock-report';
-import { makePostJSON } from '@core/APIWrapperUtil';
-import { DATE_FORMAT_LOCAL_DATE, DATE_FORMAT_LOCAL_DATETIME } from '@util/dateUtil';
-import { ButtonWrapper } from '@components/ButtonWrapper';
-import { ERROR_DELIMITER } from '@core/APIWrapper';
+import { dockReportValidator, dockReportWeatherValidator, getDockReport, putDockReport } from 'async/rest/dock-report';
+import { makePostJSON } from 'core/APIWrapperUtil';
+import { DATE_FORMAT_LOCAL_DATE, DATE_FORMAT_LOCAL_DATETIME } from 'util/dateUtil';
+import { ButtonWrapper } from 'components/ButtonWrapper';
+import { ERROR_DELIMITER } from 'core/APIWrapper';
 
 export type DockReportState = t.TypeOf<typeof dockReportValidator>;
 

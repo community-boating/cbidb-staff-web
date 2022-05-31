@@ -1,6 +1,6 @@
-import asc from '@app/AppStateContainer';
-import detectEnter from '@util/detectEnterPress';
-import { formUpdateStateHooks } from '@util/form-update-state';
+import asc from 'app/AppStateContainer';
+import detectEnter from 'util/detectEnterPress';
+import { formUpdateStateHooks } from 'util/form-update-state';
 import { none, Option } from 'fp-ts/lib/Option';
 import { toastr } from "react-redux-toastr";
 import * as React from 'react';

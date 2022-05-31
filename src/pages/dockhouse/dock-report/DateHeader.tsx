@@ -1,4 +1,4 @@
-import { padNumber } from '@util/padNumbers';
+import { padNumber } from 'util/padNumbers';
 import { none, Option, some } from 'fp-ts/lib/Option';
 import * as _ from 'lodash';
 import * as moment from 'moment'

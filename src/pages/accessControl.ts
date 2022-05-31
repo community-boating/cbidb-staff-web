@@ -1,5 +1,5 @@
-// import asc from "@app/AppStateContainer";
-import assertNever from "@util/assertNever";
+// import asc from "app/AppStateContainer";
+import assertNever from "util/assertNever";
 // import { Permissions } from "models/permissions";
 import { PageName } from "./pageNames";
 

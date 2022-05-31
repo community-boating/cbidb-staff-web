@@ -1,10 +1,10 @@
-import { TabularForm } from '@components/table/TabularForm';
-import { ERROR_DELIMITER } from '@core/APIWrapper';
-import { DATE_FORMAT_LOCAL_DATE, DATE_FORMAT_LOCAL_DATETIME, toMomentFromLocalDateTime } from '@util/dateUtil';
-import { Editable } from '@util/EditableType';
-import optionify from '@util/optionify';
-import { optionifyProps } from '@util/OptionifyObjectProps';
-import { combineValidations, validateNumber } from '@util/validate';
+import { TabularForm } from 'components/table/TabularForm';
+import { ERROR_DELIMITER } from 'core/APIWrapper';
+import { DATE_FORMAT_LOCAL_DATE, DATE_FORMAT_LOCAL_DATETIME, toMomentFromLocalDateTime } from 'util/dateUtil';
+import { Editable } from 'util/EditableType';
+import optionify from 'util/optionify';
+import { optionifyProps } from 'util/OptionifyObjectProps';
+import { combineValidations, validateNumber } from 'util/validate';
 import * as moment from 'moment'
 import * as React from 'react';
 import { Edit } from 'react-feather';

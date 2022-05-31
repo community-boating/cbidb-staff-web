@@ -9,9 +9,9 @@ import {
 	Lock as LockIcon,
 	MoreHorizontal,
 } from 'react-feather'
-import { tableColWidth } from '@util/tableUtil';
+import { tableColWidth } from 'util/tableUtil';
 import { userTypeDisplay } from 'models/UserType';
-import { pathUsersEdit } from "@app/paths";
+import { pathUsersEdit } from "app/paths";
 
 
 export default function UsersPage(props: { users: t.TypeOf<typeof validator> }) {

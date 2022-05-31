@@ -8,8 +8,8 @@ import {apiw as getUsers, validator} from "../../async/staff/get-users"
 import {apiw as getUser, validator as userValidator, formDefault} from "../../async/staff/get-user"
 import UserFormPage from '../../pages/users/UserFormPage';
 import { PageName } from 'pages/pageNames';
-import { optionifyProps } from '@util/OptionifyObjectProps';
-import { pathUsersEdit, pathUsersNew, pathUsers } from '@app/paths';
+import { optionifyProps } from 'util/OptionifyObjectProps';
+import { pathUsersEdit, pathUsersNew, pathUsers } from 'app/paths';
 
 export const routeUsersPage = new RouteWrapper({
 	requiresAuth: true,

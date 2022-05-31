@@ -9,13 +9,13 @@ import {formUpdateState} from '../../util/form-update-state';
 import FormElementCheckbox from '../../components/form/FormElementCheckbox';
 import {postWrapper} from "../../async/staff/put-user"
 import { makePostJSON } from '../../core/APIWrapperUtil';
-import FormElementSelect from '@components/form/FormElementSelect';
+import FormElementSelect from 'components/form/FormElementSelect';
 import { UserType, userTypeDisplay, userTypes } from 'models/UserType';
-import { deoptionifyProps } from '@util/OptionifyObjectProps';
-import { ErrorPopup } from '@components/ErrorPopup';
-import { pathUsers } from '@app/paths';
-import asc from '@app/AppStateContainer';
-import { ERROR_DELIMITER } from '@core/APIWrapper';
+import { deoptionifyProps } from 'util/OptionifyObjectProps';
+import { ErrorPopup } from 'components/ErrorPopup';
+import { pathUsers } from 'app/paths';
+import asc from 'app/AppStateContainer';
+import { ERROR_DELIMITER } from 'core/APIWrapper';
 
 type FormData = UserForm & {
 	pw1: Option<string>,

@@ -5,14 +5,14 @@ import {
 } from "react-feather";
 // import { routeUsersEditPage, routeUsersNewPage, routeUsersPage } from "./routes/users";
 import RouteWrapper from "../core/RouteWrapper";
-import { routeJpClassesPage } from "@routes/jp-classes";
-import { routeStaggeredOrder } from "@routes/staggered-order";
-import { routeManageClassInstructorsPage } from "@routes/admin/class-instructors";
-import { routeManageTagsPage } from "@routes/admin/tags";
-import { routeManageClassLocationsPage } from "@routes/admin/class-locations";
-import { routeManageHighSchools } from "@routes/admin/high-schools";
-import { routeManageDonationFundsPage } from "@routes/admin/donation-funds";
-import { routeDockReportPage } from "@routes/dh/dock-report";
+import { routeJpClassesPage } from "app/routes/jp-classes";
+import { routeStaggeredOrder } from "app/routes/staggered-order";
+import { routeManageClassInstructorsPage } from "app/routes/admin/class-instructors";
+import { routeManageTagsPage } from "app/routes/admin/tags";
+import { routeManageClassLocationsPage } from "app/routes/admin/class-locations";
+import { routeManageHighSchools } from "app/routes/admin/high-schools";
+import { routeManageDonationFundsPage } from "app/routes/admin/donation-funds";
+import { routeDockReportPage } from "app/routes/dh/dock-report";
 
 export type SideBarCategory = {
 	path: string,

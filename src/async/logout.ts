@@ -7,7 +7,7 @@ const path = "/logout"
 export const logout = new APIWrapper({
 	path,
 	type: HttpMethod.POST,
-	postBodyValidator: t.unknown,
+	postBodyValidator: t.type({}),
 	resultValidator: t.null
 })
 

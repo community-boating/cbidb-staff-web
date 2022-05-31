@@ -1,4 +1,4 @@
-import optionify from '@util/optionify';
+import optionify from 'util/optionify';
 import { Option } from 'fp-ts/lib/Option';
 import * as React from 'react';
 import { Edit } from 'react-feather';

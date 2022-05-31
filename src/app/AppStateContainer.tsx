@@ -2,8 +2,8 @@ import { none, Option, some } from 'fp-ts/lib/Option';
 
 import { apiw } from "../async/authenticate-staff";
 import { makePostString } from '../core/APIWrapperUtil';
-import {apiw as getPermissions} from "@async/staff/user-permissions"
-import { showSudoToastr } from '@components/SudoModal';
+import {apiw as getPermissions} from "async/staff/user-permissions"
+import { showSudoToastr } from 'components/SudoModal';
 
 // type ServerConfig = {
 // 		// TODO: dev vs prod config

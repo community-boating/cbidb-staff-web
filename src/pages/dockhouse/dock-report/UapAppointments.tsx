@@ -1,20 +1,20 @@
-import { dockReportUapApptValidator } from '@async/rest/dock-report';
+import { dockReportUapApptValidator } from 'async/rest/dock-report';
 import * as t from "io-ts";
-import { TabularForm } from '@components/table/TabularForm';
+import { TabularForm } from 'components/table/TabularForm';
 import * as React from 'react';
 import { Edit } from 'react-feather';
 import { Card, CardBody, CardHeader, CardTitle, Input, Table } from 'reactstrap';
 import { SubmitAction } from '.';
-import { Editable } from '@util/EditableType';
+import { Editable } from 'util/EditableType';
 import * as moment from 'moment'
-import { DATE_FORMAT_LOCAL_DATETIME } from '@util/dateUtil';
-import optionify from '@util/optionify';
-import { combineValidations, validateMilitaryTime, validateNotBlank } from '@util/validate';
-import { ERROR_DELIMITER } from '@core/APIWrapper';
+import { DATE_FORMAT_LOCAL_DATETIME } from 'util/dateUtil';
+import optionify from 'util/optionify';
+import { combineValidations, validateMilitaryTime, validateNotBlank } from 'util/validate';
+import { ERROR_DELIMITER } from 'core/APIWrapper';
 import { Column } from 'react-table';
-import { DropDownCell } from '@components/table/DropDownCell';
-import { MAGIC_NUMBERS } from '@app/magicNumbers';
-import { charToNullableBool, nullableBoolToChar } from '@util/boolean-to-char';
+import { DropDownCell } from 'components/table/DropDownCell';
+import { MAGIC_NUMBERS } from 'app/magicNumbers';
+import { charToNullableBool, nullableBoolToChar } from 'util/boolean-to-char';
 
 type UapAppointment = t.TypeOf<typeof dockReportUapApptValidator>
 

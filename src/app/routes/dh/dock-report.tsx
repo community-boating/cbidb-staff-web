@@ -1,13 +1,13 @@
 import * as React from 'react';
 import * as t from "io-ts";
 import { PageName } from 'pages/pageNames';
-import { pathDockReport } from '@app/paths';
-import RouteWrapper from '@core/RouteWrapper';
-import PageWrapper from '@core/PageWrapper';
+import { pathDockReport } from 'app/paths';
+import RouteWrapper from 'core/RouteWrapper';
+import PageWrapper from 'core/PageWrapper';
 import { Loader } from 'react-feather';
 import { DockReportPage } from 'pages/dockhouse/dock-report';
-import { dockReportValidator, getDockReport } from '@async/rest/dock-report';
-import { toMomentFromLocalDate, toMomentFromLocalDateTime } from '@util/dateUtil';
+import { dockReportValidator, getDockReport } from 'async/rest/dock-report';
+import { toMomentFromLocalDate, toMomentFromLocalDateTime } from 'util/dateUtil';
 
 export const routeDockReportPage = new RouteWrapper({
 	requiresAuth: true,

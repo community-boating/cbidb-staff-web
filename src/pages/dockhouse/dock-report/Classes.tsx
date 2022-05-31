@@ -1,17 +1,17 @@
-import { dockReportApClassValidator } from '@async/rest/dock-report';
+import { dockReportApClassValidator } from 'async/rest/dock-report';
 import * as t from "io-ts";
-import { TabularForm } from '@components/table/TabularForm';
+import { TabularForm } from 'components/table/TabularForm';
 import * as React from 'react';
 import { Edit } from 'react-feather';
 import { Card, CardBody, CardHeader, CardTitle, Table } from 'reactstrap';
 import { DockReportState, SubmitAction } from '.';
-import { Editable } from '@util/EditableType';
-import { DATE_FORMAT_LOCAL_DATETIME, toMomentFromLocalDateTime } from '@util/dateUtil';
-import optionify from '@util/optionify';
+import { Editable } from 'util/EditableType';
+import { DATE_FORMAT_LOCAL_DATETIME, toMomentFromLocalDateTime } from 'util/dateUtil';
+import optionify from 'util/optionify';
 import * as moment from 'moment';
-import { combineValidations, validateMilitaryTime, validateNotBlank, validateNumber } from '@util/validate';
-import { ERROR_DELIMITER } from '@core/APIWrapper';
-import { sortOnCol } from '@util/sort';
+import { combineValidations, validateMilitaryTime, validateNotBlank, validateNumber } from 'util/validate';
+import { ERROR_DELIMITER } from 'core/APIWrapper';
+import { sortOnCol } from 'util/sort';
 import { Column } from 'react-table';
 
 type Class = t.TypeOf<typeof dockReportApClassValidator>

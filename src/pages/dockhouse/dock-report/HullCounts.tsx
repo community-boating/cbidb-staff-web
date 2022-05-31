@@ -1,14 +1,14 @@
-import { dockReportHullCountValidator } from '@async/rest/dock-report';
+import { dockReportHullCountValidator } from 'async/rest/dock-report';
 import * as t from "io-ts";
-import { TabularForm } from '@components/table/TabularForm';
+import { TabularForm } from 'components/table/TabularForm';
 import * as React from 'react';
 import { Edit } from 'react-feather';
 import { Card, CardBody, CardHeader, CardTitle, Table } from 'reactstrap';
 import { DockReportState, SubmitAction } from '.';
-import { Editable } from '@util/EditableType';
-import optionify from '@util/optionify';
-import { ERROR_DELIMITER } from '@core/APIWrapper';
-import { combineValidations, validateNumber } from '@util/validate';
+import { Editable } from 'util/EditableType';
+import optionify from 'util/optionify';
+import { ERROR_DELIMITER } from 'core/APIWrapper';
+import { combineValidations, validateNumber } from 'util/validate';
 
 type HullCount = t.TypeOf<typeof dockReportHullCountValidator>
 

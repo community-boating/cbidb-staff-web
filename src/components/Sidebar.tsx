@@ -9,8 +9,8 @@ import * as PerfectScrollbarAll from "react-perfect-scrollbar";
 import { Box } from "react-feather";
 
 import { sideBarRoutes } from "../app/SidebarCategories";
-import { linkWithAccessControl } from "@core/LinkInterceptor";
-import RouteWrapper from "@core/RouteWrapper";
+import { linkWithAccessControl } from "core/LinkInterceptor";
+import RouteWrapper from "core/RouteWrapper";
 
 const SidebarCategory = ({
 	name,
