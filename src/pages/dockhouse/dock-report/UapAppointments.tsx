@@ -14,6 +14,7 @@ import { ERROR_DELIMITER } from '@core/APIWrapper';
 import { Column } from 'react-table';
 import { DropDownCell } from '@components/table/DropDownCell';
 import { MAGIC_NUMBERS } from '@app/magicNumbers';
+import { charToNullableBool, nullableBoolToChar } from '@util/boolean-to-char';
 
 type UapAppointment = t.TypeOf<typeof dockReportUapApptValidator>
 
@@ -28,14 +29,32 @@ const apptTypes = [
 	"Orientation and First Sail",
 	"Group Sailing Lesson",
 	"Keelboat Racing",
-]
+];
+
+const boatTypes = [{
+	key: MAGIC_NUMBERS.BOAT_TYPE_ID.SONAR,
+	display: "Sonar"
+}, {
+	key: MAGIC_NUMBERS.BOAT_TYPE_ID.KEEL_MERCURY,
+	display: "Keel Merc"
+}, {
+	key: MAGIC_NUMBERS.BOAT_TYPE_ID.IDEAL_18,
+	display: "Ideal"
+}, {
+	key: MAGIC_NUMBERS.BOAT_TYPE_ID.VENTURE,
+	display: "Venture"
+}, {
+	key: MAGIC_NUMBERS.BOAT_TYPE_ID.RHODES_19,
+	display: "Rhodes 19"
+}]
 
 const mapToDisplay: (u: UapAppointment) => UapAppointmentEditable = u => ({
 	...u,
 	BOAT_TYPE_ID: u.BOAT_TYPE_ID.map(String).getOrElse(""),
 	APPT_TYPE: u.APPT_TYPE.getOrElse(""),
 	INSTRUCTOR_NAME: u.INSTRUCTOR_NAME.getOrElse(""),
-	APPT_DATETIME: u.APPT_DATETIME.map(dt => moment(dt, DATE_FORMAT_LOCAL_DATETIME).format("HH:MM")).getOrElse("")
+	APPT_DATETIME: u.APPT_DATETIME.map(dt => moment(dt, DATE_FORMAT_LOCAL_DATETIME).format("HH:MM")).getOrElse(""),
+	HOYER: nullableBoolToChar(u.HOYER)
 })
 
 const mapToDto: (reportDate: string) => (u: UapAppointmentEditable) => UapAppointment = reportDate => u => ({
@@ -43,7 +62,8 @@ const mapToDto: (reportDate: string) => (u: UapAppointmentEditable) => UapAppoin
 	BOAT_TYPE_ID: optionify(u.BOAT_TYPE_ID).map(Number),
 	APPT_TYPE: optionify(u.APPT_TYPE),
 	INSTRUCTOR_NAME: optionify(u.INSTRUCTOR_NAME),
-	APPT_DATETIME: optionify(u.APPT_DATETIME).map(dt => moment(`${reportDate}T${dt}`, "YYYY-MM-DDTHH:mm").format(DATE_FORMAT_LOCAL_DATETIME))
+	APPT_DATETIME: optionify(u.APPT_DATETIME).map(dt => moment(`${reportDate}T${dt}`, "YYYY-MM-DDTHH:mm").format(DATE_FORMAT_LOCAL_DATETIME)),
+	HOYER: charToNullableBool(u.HOYER)
 })
 
 type Props = {
@@ -65,10 +85,12 @@ const EditUapAppts = (props: {
 			const errors = combineValidations(
 				validateNotBlank("Time", appts.map(c => c.APPT_DATETIME)),
 				validateNotBlank("Person", appts.map(c => c.PARTICIPANT_NAME)),
-				// validateNotBlank("Appt Type", appts.map(c => c.APPT_TYPE)),
-				// validateNotBlank("Boat", appts.map(c => c.BOAT_TYPE_ID)),
+				validateNotBlank("Appt Type", appts.map(c => c.APPT_TYPE)),
+				validateNotBlank("Boat", appts.map(c => c.BOAT_TYPE_ID)),
 				validateMilitaryTime(appts.map(c => c.APPT_DATETIME)),
 			)
+			console.log(appts.map(c => c.APPT_TYPE))
+			console.log(appts.map(c => c.BOAT_TYPE_ID))
 			if (errors.length) return Promise.reject(errors.join(ERROR_DELIMITER))
 			else return Promise.resolve({ uapAppts: appts.map(mapToDto(props.reportDate)) })
 		});
@@ -93,21 +115,17 @@ const EditUapAppts = (props: {
 		Header: <>Boat <img src="/images/required.png" /></>,
 		accessor: "BOAT_TYPE_ID",
 		cellWidth: 140,
+		Cell: DropDownCell(boatTypes)
+	}, {
+		Header: "Hoyer",
+		accessor: "HOYER",
+		cellWidth: 90,
 		Cell: DropDownCell([{
-			key: MAGIC_NUMBERS.BOAT_TYPE_ID.SONAR,
-			display: "Sonar"
+			key: "N",
+			display: "No"
 		}, {
-			key: MAGIC_NUMBERS.BOAT_TYPE_ID.KEEL_MERCURY,
-			display: "Keel Merc"
-		}, {
-			key: MAGIC_NUMBERS.BOAT_TYPE_ID.IDEAL_18,
-			display: "Ideal"
-		}, {
-			key: -1,
-			display: "Venture"
-		}, {
-			key: MAGIC_NUMBERS.BOAT_TYPE_ID.RHODES_19,
-			display: "Rhodes 19"
+			key: "Y",
+			display: "Yes"
 		}])
 	}, {
 		Header: "Instructor",
@@ -123,6 +141,7 @@ const EditUapAppts = (props: {
 		PARTICIPANT_NAME: "",
 		BOAT_TYPE_ID: "",
 		INSTRUCTOR_NAME: "",
+		HOYER: "",
 	}
 
 	return <div className="form-group row">
@@ -144,17 +163,19 @@ export default (props: Props) => {
 				<tbody>
 					<tr>
 						<th style={{ width: "75px" }}>Time</th>
-						<th style={{ width: "95px" }}>Appt Type</th>
+						<th style={{ width: "160px" }}>Appt Type</th>
 						<th>Person</th>
 						<th style={{ width: "75px" }}>Boat</th>
-						<th style={{ width: "120px" }}>Instructor</th>
+						<th style={{ width: "75px" }}>Hoyer</th>
+						<th style={{ width: "180px" }}>Instructor</th>
 					</tr>
 					{appts.map((appt, i) => {
 						return <tr key={`row_${i}`}>
-							<td>{appt.APPT_TYPE}</td>
+							<td>{appt.APPT_DATETIME}</td>
 							<td>{appt.APPT_TYPE}</td>
 							<td>{appt.PARTICIPANT_NAME}</td>
-							<td>{appt.BOAT_TYPE_ID}</td>
+							<td>{(boatTypes.find(b => String(b.key) == appt.BOAT_TYPE_ID) || {display: ""}).display}</td>
+							<td>{appt.HOYER}</td>
 							<td>{appt.INSTRUCTOR_NAME}</td>
 						</tr>
 					})}

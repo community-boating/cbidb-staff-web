@@ -1,4 +1,4 @@
-import { OptionalNumber, OptionalString } from "@util/OptionalTypeValidators";
+import { OptionalBoolean, OptionalNumber, OptionalString } from "@util/OptionalTypeValidators";
 import * as t from "io-ts";
 import APIWrapper from "../../core/APIWrapper";
 import { HttpMethod } from "../../core/HttpMethod";
@@ -32,7 +32,8 @@ export const dockReportUapApptValidator = t.type({
 	APPT_TYPE: OptionalString,
 	PARTICIPANT_NAME: t.string,
 	BOAT_TYPE_ID: OptionalNumber,
-	INSTRUCTOR_NAME: OptionalString
+	INSTRUCTOR_NAME: OptionalString,
+	HOYER: OptionalBoolean,
 })
 
 export const dockReportHullCountValidator = t.type({
@@ -50,7 +51,8 @@ export const dockReportWeatherValidator = t.type({
 	TEMP: OptionalNumber,
 	WEATHER_SUMMARY: OptionalString,
 	WIND_DIR: OptionalString,
-	WIND_SPEED_KTS: OptionalNumber,
+	WIND_SPEED_KTS_STEADY: OptionalNumber,
+	WIND_SPEED_KTS_GUST: OptionalNumber,
 	RESTRICTIONS: OptionalString
 })
 

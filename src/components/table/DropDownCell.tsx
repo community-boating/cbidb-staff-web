@@ -25,10 +25,10 @@ export const DropDownCell = (values: {key: any, display: string}[]) => ( {
 		type="select"
 		id="exampleCustomSelect"
 		name="customSelect"
-		value={value}
+		value={value || ""}
 		onChange={onChange}
 	>
-		<option>-</option>
+		<option value={""}>-</option>
 		{values.map((v, i) => <option value={v.key} key={`option_${i}`}>{v.display}</option> )}
 	</Input>;
 }

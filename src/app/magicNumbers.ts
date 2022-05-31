@@ -10,5 +10,6 @@ export const MAGIC_NUMBERS = {
 		WINDSURFER: 8,
 		SUP: 9,
 		IDEAL_18: 141,
+		VENTURE: 1001
 	}
 };

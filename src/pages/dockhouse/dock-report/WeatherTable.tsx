@@ -35,7 +35,8 @@ const getDisplayRows: (weatherRecords: WeatherRecord[], reportDate: string) => W
 			TEMP: r.TEMP.map(String).getOrElse(""),
 			WEATHER_SUMMARY: r.WEATHER_SUMMARY.getOrElse(""),
 			WIND_DIR: r.WIND_DIR.getOrElse(""),
-			WIND_SPEED_KTS: r.WIND_SPEED_KTS.map(String).getOrElse(""),
+			WIND_SPEED_KTS_STEADY: r.WIND_SPEED_KTS_STEADY.map(String).getOrElse(""),
+			WIND_SPEED_KTS_GUST: r.WIND_SPEED_KTS_GUST.map(String).getOrElse(""),
 			RESTRICTIONS: r.RESTRICTIONS.getOrElse("")
 		})).getOrElse({
 			WEATHER_ID: null,
@@ -44,7 +45,8 @@ const getDisplayRows: (weatherRecords: WeatherRecord[], reportDate: string) => W
 			TEMP: "",
 			WEATHER_SUMMARY: "",
 			WIND_DIR: "",
-			WIND_SPEED_KTS: "",
+			WIND_SPEED_KTS_STEADY: "",
+			WIND_SPEED_KTS_GUST: "",
 			RESTRICTIONS: "",
 		});
 	})
@@ -63,7 +65,8 @@ const EditWeather = (props: {
 		// console.log("setting submit action ", counts)
 		props.setSubmitAction(() => {
 			const errors = combineValidations(
-				validateNumber(weatherRecords.map(w => w.WIND_SPEED_KTS)),
+				validateNumber(weatherRecords.map(w => w.WIND_SPEED_KTS_STEADY)),
+				validateNumber(weatherRecords.map(w => w.WIND_SPEED_KTS_GUST)),
 				validateNumber(weatherRecords.map(w => w.TEMP)),
 				weatherRecords
 				.map(w => w.WIND_DIR)
@@ -76,7 +79,8 @@ const EditWeather = (props: {
 				TEMP: optionify(w.TEMP).map(Number),
 				WEATHER_ID: w.WEATHER_ID,
 				DOCK_REPORT_ID: null,
-				WIND_SPEED_KTS:optionify(w.WIND_SPEED_KTS).map(Number),
+				WIND_SPEED_KTS_STEADY:optionify(w.WIND_SPEED_KTS_STEADY).map(Number),
+				WIND_SPEED_KTS_GUST:optionify(w.WIND_SPEED_KTS_GUST).map(Number),
 				WEATHER_DATETIME: moment(`${props.reportDate}T${w.WEATHER_DATETIME}`, `${DATE_FORMAT_LOCAL_DATE}Thh:mmA`).format(DATE_FORMAT_LOCAL_DATETIME)
 			}))})
 		});
@@ -99,8 +103,12 @@ const EditWeather = (props: {
 		accessor: "WIND_DIR",
 		cellWidth: 70
 	}, {
-		Header: "Wind (kts)",
-		accessor: "WIND_SPEED_KTS",
+		Header: "Wind Stdy (kts)",
+		accessor: "WIND_SPEED_KTS_STEADY",
+		cellWidth: 90
+	}, {
+		Header: "Wind Gust (kts)",
+		accessor: "WIND_SPEED_KTS_GUST",
 		cellWidth: 90
 	}, {
 		Header: "Restrictions",
@@ -142,7 +150,7 @@ export default (props: {
 					<td>{row.TEMP}</td>
 					<td>{row.WEATHER_SUMMARY}</td>
 					<td>{row.WIND_DIR}</td>
-					<td>{row.WIND_SPEED_KTS}</td>
+					<td>{row.WIND_SPEED_KTS_STEADY} - {row.WIND_SPEED_KTS_GUST}</td>
 					<td>{row.RESTRICTIONS}</td>
 				</tr>)}
 			</tbody>

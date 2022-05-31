@@ -170,7 +170,7 @@ export const DockReportPage = (props: {
 					reportDate={dockReportState.REPORT_DATE}
 				/>
 			</Col>
-			<Col md="4">
+			<Col md="6">
 				<UapAppointments
 					openModal={(content: JSX.Element) => {setModalContentAndWidth(content, 1200)}}
 					setSubmitAction={(submitAction: SubmitAction) => setSubmitAction(() => submitAction)}
