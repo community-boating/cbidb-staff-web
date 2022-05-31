@@ -73,7 +73,7 @@ export const DockReportPage = (props: {
 		<Modal
 			isOpen={modalContent != null}
 			// toggle={() => setModalContent(null)}
-			style={{maxWidth: "900px"}}
+			style={{maxWidth: "1200px"}}
 		>
 			<ModalHeader toggle={() => setModalContent(null)}>
 				Edit Dock Report

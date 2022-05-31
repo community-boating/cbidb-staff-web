@@ -2,7 +2,7 @@ import * as React from 'react';
 import { useTable, Column } from 'react-table'
 import { faPlusCircle } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Table } from 'reactstrap';
+import { Input, Table } from 'reactstrap';
 
 const EditableCell = ({
 	value: initialValue,
@@ -35,7 +35,7 @@ const EditableCell = ({
 		} else if (column.textAreaHeight != undefined) {
 			return <textarea rows={column.textAreaHeight} style={{border: "none", width: cellWidth && cellWidth+"px"}} value={value} onChange={onChange} onBlur={onBlur} />
 		} else {
-			return <input style={{ borderColor:"#ccc", width: cellWidth && cellWidth+"px"}} value={value} onChange={onChange} onBlur={onBlur} />
+			return <Input style={{ borderColor:"#ccc", width: cellWidth && cellWidth+"px"}} value={value} onChange={onChange} onBlur={onBlur} />
 		}
 	}())
 	return display;
@@ -97,7 +97,7 @@ export function TabularForm<T>(props: {
 							{(
 								blankRow == null
 								? null
-								: <th></th>
+								: <th style={{width: "30px"}}></th>
 							)}
 							{headerGroup.headers.map(column => {
 								const cellWidth = (column as any).cellWidth

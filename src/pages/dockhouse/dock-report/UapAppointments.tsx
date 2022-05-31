@@ -13,12 +13,22 @@ import { combineValidations, validateMilitaryTime, validateNotBlank } from '@uti
 import { ERROR_DELIMITER } from '@core/APIWrapper';
 import { Column } from 'react-table';
 import { DropDownCell } from '@components/table/DropDownCell';
+import { MAGIC_NUMBERS } from '@app/magicNumbers';
 
 type UapAppointment = t.TypeOf<typeof dockReportUapApptValidator>
 
 type UapAppointmentNonEditable = "DOCK_REPORT_APPT_ID" | "DOCK_REPORT_ID"
 
 type UapAppointmentEditable = Editable<UapAppointment, UapAppointmentNonEditable>
+
+const apptTypes = [
+	"Open Sailing",
+	"Sailing Lesson",
+	"Recreational Sail",
+	"Orientation and First Sail",
+	"Group Sailing Lesson",
+	"Keelboat Racing",
+]
 
 const mapToDisplay: (u: UapAppointment) => UapAppointmentEditable = u => ({
 	...u,
@@ -71,25 +81,38 @@ const EditUapAppts = (props: {
 	}, {
 		Header: <>Appt Type <img src="/images/required.png" /></>,
 		accessor: "APPT_TYPE",
-		cellWidth: 90
+		cellWidth: 210,
+		Cell: DropDownCell(apptTypes.map(t => ({
+			key: t,
+			display: t
+		})))
 	}, {
 		Header: <>Person <img src="/images/required.png" /></>,
 		accessor: "PARTICIPANT_NAME"
 	}, {
 		Header: <>Boat <img src="/images/required.png" /></>,
 		accessor: "BOAT_TYPE_ID",
-		cellWidth: 125,
+		cellWidth: 140,
 		Cell: DropDownCell([{
-			key: 1,
-			display: "Mercury"
-		}, {
-			key: 2,
+			key: MAGIC_NUMBERS.BOAT_TYPE_ID.SONAR,
 			display: "Sonar"
+		}, {
+			key: MAGIC_NUMBERS.BOAT_TYPE_ID.KEEL_MERCURY,
+			display: "Keel Merc"
+		}, {
+			key: MAGIC_NUMBERS.BOAT_TYPE_ID.IDEAL_18,
+			display: "Ideal"
+		}, {
+			key: -1,
+			display: "Venture"
+		}, {
+			key: MAGIC_NUMBERS.BOAT_TYPE_ID.RHODES_19,
+			display: "Rhodes 19"
 		}])
 	}, {
 		Header: "Instructor",
 		accessor: "INSTRUCTOR_NAME",
-		cellWidth: 185
+		cellWidth: 130
 	}];
 
 	const blankRow: UapAppointmentEditable = {
