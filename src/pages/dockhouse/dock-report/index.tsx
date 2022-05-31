@@ -30,6 +30,7 @@ export const DockReportPage = (props: {
 	const defaultSubmitAction: SubmitAction = () => Promise.resolve(null);
 
 	const [modalContent, setModalContent] = React.useState(null as JSX.Element);
+	const [modalWidth, setModalWidth] = React.useState(1200)
 	const [submitAction, setSubmitAction] = React.useState(() => defaultSubmitAction);
 	const [modalErrors, setModalErrors] = React.useState(null as string[])
 
@@ -43,6 +44,11 @@ export const DockReportPage = (props: {
 		? <ErrorPopup errors={modalErrors}/>
 		: null
 	);
+
+	const setModalContentAndWidth = (content: JSX.Element, width: number) => {
+		setModalContent(content)
+		setModalWidth(width)
+	}
 
 	const incidentsCard = <DockReportTextBox
 		openModal={(content: JSX.Element) => {setModalContent(content)}}
@@ -73,7 +79,7 @@ export const DockReportPage = (props: {
 		<Modal
 			isOpen={modalContent != null}
 			// toggle={() => setModalContent(null)}
-			style={{maxWidth: "1200px"}}
+			style={{maxWidth: `${modalWidth}px`}}
 		>
 			<ModalHeader toggle={() => setModalContent(null)}>
 				Edit Dock Report
@@ -117,11 +123,11 @@ export const DockReportPage = (props: {
 				<DateHeader
 					date={moment(dockReportState.REPORT_DATE, DATE_FORMAT_LOCAL_DATE)}
 					sunset={dockReportState.SUNSET_DATETIME.map(t => moment(t, DATE_FORMAT_LOCAL_DATETIME))}
-					openModal={(content: JSX.Element) => {setModalContent(content)}}
+					openModal={(content: JSX.Element) => {setModalContentAndWidth(content, 600)}}
 					setSubmitAction={(submitAction: SubmitAction) => setSubmitAction(() => submitAction)}
 				/>
 				<DockmastersReport
-					openModal={(content: JSX.Element) => {setModalContent(content)}}
+					openModal={(content: JSX.Element) => {setModalContentAndWidth(content, 600)}}
 					setSubmitAction={(submitAction: SubmitAction) => setSubmitAction(() => submitAction)}
 					staff={dockReportState.dockmasters}
 					reportDate={dockReportState.REPORT_DATE}
@@ -129,7 +135,7 @@ export const DockReportPage = (props: {
 			</Col>
 			<Col md="4">
 				<Classes
-					openModal={(content: JSX.Element) => {setModalContent(content)}}
+					openModal={(content: JSX.Element) => {setModalContentAndWidth(content, 900)}}
 					setSubmitAction={(submitAction: SubmitAction) => setSubmitAction(() => submitAction)}
 					classes={dockReportState.apClasses}
 					reportDate={dockReportState.REPORT_DATE}
@@ -137,7 +143,7 @@ export const DockReportPage = (props: {
 			</Col>
 			<Col md="5">
 				<WeatherTable
-					openModal={(content: JSX.Element) => {setModalContent(content)}}
+					openModal={(content: JSX.Element) => {setModalContentAndWidth(content, 1200)}}
 					setSubmitAction={(submitAction: SubmitAction) => setSubmitAction(() => submitAction)}
 					weatherRecords={dockReportState.weather}
 					reportDate={dockReportState.REPORT_DATE}
@@ -158,7 +164,7 @@ export const DockReportPage = (props: {
 		<Row>
 			<Col md="3">
 				<StaffReport
-					openModal={(content: JSX.Element) => {setModalContent(content)}}
+					openModal={(content: JSX.Element) => {setModalContentAndWidth(content, 600)}}
 					setSubmitAction={(submitAction: SubmitAction) => setSubmitAction(() => submitAction)}
 					staff={dockReportState.dockstaff}
 					reportDate={dockReportState.REPORT_DATE}
@@ -166,7 +172,7 @@ export const DockReportPage = (props: {
 			</Col>
 			<Col md="4">
 				<UapAppointments
-					openModal={(content: JSX.Element) => {setModalContent(content)}}
+					openModal={(content: JSX.Element) => {setModalContentAndWidth(content, 1200)}}
 					setSubmitAction={(submitAction: SubmitAction) => setSubmitAction(() => submitAction)}
 					appts={dockReportState.uapAppts}
 					reportDate={dockReportState.REPORT_DATE}
@@ -174,7 +180,7 @@ export const DockReportPage = (props: {
 			</Col>
 			<Col md="3">
 				<HullCounts 
-					openModal={(content: JSX.Element) => {setModalContent(content)}}
+					openModal={(content: JSX.Element) => {setModalContentAndWidth(content, 600)}}
 					setSubmitAction={(submitAction: SubmitAction) => setSubmitAction(() => submitAction)}
 					counts={dockReportState.hullCounts}
 				/>

@@ -81,7 +81,7 @@ const EditUapAppts = (props: {
 	}, {
 		Header: <>Appt Type <img src="/images/required.png" /></>,
 		accessor: "APPT_TYPE",
-		cellWidth: 210,
+		cellWidth: 250,
 		Cell: DropDownCell(apptTypes.map(t => ({
 			key: t,
 			display: t
@@ -112,7 +112,7 @@ const EditUapAppts = (props: {
 	}, {
 		Header: "Instructor",
 		accessor: "INSTRUCTOR_NAME",
-		cellWidth: 130
+		cellWidth: 200
 	}];
 
 	const blankRow: UapAppointmentEditable = {

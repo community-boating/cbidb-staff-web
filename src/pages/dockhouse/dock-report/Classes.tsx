@@ -12,6 +12,7 @@ import * as moment from 'moment';
 import { combineValidations, validateMilitaryTime, validateNotBlank, validateNumber } from '@util/validate';
 import { ERROR_DELIMITER } from '@core/APIWrapper';
 import { sortOnCol } from '@util/sort';
+import { Column } from 'react-table';
 
 type Class = t.TypeOf<typeof dockReportApClassValidator>
 
@@ -103,15 +104,17 @@ const EditClassTable = (props: {
 	const columns = [{
 		Header: <>Time <img src="/images/required.png" /></>,
 		accessor: "CLASS_DATETIME",
-		cellWidth: 75
+		cellWidth: 75,
+		readonly: true
 	}, {
 		Header: <>Class <img src="/images/required.png" /></>,
 		accessor: "CLASS_NAME",
-		cellWidth: 150
+		cellWidth: 150,
+		readonly: true
 	}, {
 		Header: "Location",
 		accessor: "LOCATION",
-		cellWidth: 100
+		cellWidth: 250
 	}, {
 		Header: "Attend",
 		accessor: "ATTEND",
@@ -121,16 +124,18 @@ const EditClassTable = (props: {
 		accessor: "INSTRUCTOR"
 	}];
 
+	// const blankRow = {
+	// 	DOCK_REPORT_AP_CLASS_ID: null,
+	// 	DOCK_REPORT_ID: null,
+	// 	AP_INSTANCE_ID: null,
+	// 	CLASS_DATETIME: "",
+	// 	CLASS_NAME: "",
+	// 	LOCATION: "",
+	// 	ATTEND: "",
+	// 	INSTRUCTOR: ""
+	// }
+
 	return <div className="form-group row">
-		<TabularForm columns={columns} data={classes} setData={setClasses} blankRow={{
-			DOCK_REPORT_AP_CLASS_ID: null,
-			DOCK_REPORT_ID: null,
-			AP_INSTANCE_ID: null,
-			CLASS_DATETIME: "",
-			CLASS_NAME: "",
-			LOCATION: "",
-			ATTEND: "",
-			INSTRUCTOR: ""
-		}}/>
+		<TabularForm columns={columns} data={classes} setData={setClasses}/>
 	</div>
 }

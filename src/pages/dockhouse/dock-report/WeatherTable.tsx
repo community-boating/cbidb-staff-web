@@ -105,7 +105,7 @@ const EditWeather = (props: {
 	}, {
 		Header: "Restrictions",
 		accessor: "RESTRICTIONS",
-		cellWidth: 220,
+		cellWidth: 420,
 		textAreaHeight: 4
 	}];
 
