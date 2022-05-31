@@ -1,4 +1,4 @@
-import { TabularForm } from '@components/TabularForm';
+import { TabularForm } from '@components/table/TabularForm';
 import { ERROR_DELIMITER } from '@core/APIWrapper';
 import { DATE_FORMAT_LOCAL_DATE, DATE_FORMAT_LOCAL_DATETIME, toMomentFromLocalDateTime } from '@util/dateUtil';
 import { Editable } from '@util/EditableType';

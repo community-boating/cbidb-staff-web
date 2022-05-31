@@ -1,12 +1,14 @@
 import { dockReportHullCountValidator } from '@async/rest/dock-report';
 import * as t from "io-ts";
-import { TabularForm } from '@components/TabularForm';
+import { TabularForm } from '@components/table/TabularForm';
 import * as React from 'react';
 import { Edit } from 'react-feather';
 import { Card, CardBody, CardHeader, CardTitle, Table } from 'reactstrap';
 import { DockReportState, SubmitAction } from '.';
 import { Editable } from '@util/EditableType';
 import optionify from '@util/optionify';
+import { ERROR_DELIMITER } from '@core/APIWrapper';
+import { combineValidations, validateNumber } from '@util/validate';
 
 type HullCount = t.TypeOf<typeof dockReportHullCountValidator>
 
@@ -49,8 +51,14 @@ const EditHullCounts = (props: {
 	const [counts, setCounts] = React.useState(getDisplayRows(props.counts));
 
 	React.useEffect(() => {
-		// console.log("setting submit action ", counts)
-		props.setSubmitAction(() => Promise.resolve({hullCounts: counts.map(mapToDto)}));
+		props.setSubmitAction(() => {
+			const errors = combineValidations(
+				validateNumber(counts.map(c => c.IN_SERVICE)),
+				validateNumber(counts.map(c => c.STAFF_TALLY)),
+			)
+			if (errors.length) return Promise.reject(errors.join(ERROR_DELIMITER))
+			else return Promise.resolve({hullCounts: counts.map(mapToDto)})
+		});
 	}, [counts]);
 
 	const columns = [{

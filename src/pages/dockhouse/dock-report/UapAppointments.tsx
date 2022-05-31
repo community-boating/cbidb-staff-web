@@ -1,14 +1,18 @@
 import { dockReportUapApptValidator } from '@async/rest/dock-report';
 import * as t from "io-ts";
-import { TabularForm } from '@components/TabularForm';
+import { TabularForm } from '@components/table/TabularForm';
 import * as React from 'react';
 import { Edit } from 'react-feather';
-import { Card, CardBody, CardHeader, CardTitle, Table } from 'reactstrap';
+import { Card, CardBody, CardHeader, CardTitle, Input, Table } from 'reactstrap';
 import { SubmitAction } from '.';
 import { Editable } from '@util/EditableType';
 import * as moment from 'moment'
 import { DATE_FORMAT_LOCAL_DATETIME } from '@util/dateUtil';
 import optionify from '@util/optionify';
+import { combineValidations, validateMilitaryTime, validateNotBlank } from '@util/validate';
+import { ERROR_DELIMITER } from '@core/APIWrapper';
+import { Column } from 'react-table';
+import { DropDownCell } from '@components/table/DropDownCell';
 
 type UapAppointment = t.TypeOf<typeof dockReportUapApptValidator>
 
@@ -47,24 +51,41 @@ const EditUapAppts = (props: {
 	const [appts, setAppts] = React.useState(props.appts);
 
 	React.useEffect(() => {
-		props.setSubmitAction(() => Promise.resolve({uapAppts: appts.map(mapToDto(props.reportDate))}));
+		props.setSubmitAction(() => {
+			const errors = combineValidations(
+				validateNotBlank("Time", appts.map(c => c.APPT_DATETIME)),
+				validateNotBlank("Person", appts.map(c => c.PARTICIPANT_NAME)),
+				// validateNotBlank("Appt Type", appts.map(c => c.APPT_TYPE)),
+				// validateNotBlank("Boat", appts.map(c => c.BOAT_TYPE_ID)),
+				validateMilitaryTime(appts.map(c => c.APPT_DATETIME)),
+			)
+			if (errors.length) return Promise.reject(errors.join(ERROR_DELIMITER))
+			else return Promise.resolve({ uapAppts: appts.map(mapToDto(props.reportDate)) })
+		});
 	}, [appts]);
 
 	const columns = [{
-		Header: "Time",
+		Header: <>Time <img src="/images/required.png" /></>,
 		accessor: "APPT_DATETIME",
 		cellWidth: 75
 	}, {
-		Header: "Appt Type",
+		Header: <>Appt Type <img src="/images/required.png" /></>,
 		accessor: "APPT_TYPE",
-		cellWidth: 75
+		cellWidth: 90
 	}, {
-		Header: "Person",
+		Header: <>Person <img src="/images/required.png" /></>,
 		accessor: "PARTICIPANT_NAME"
 	}, {
-		Header: "Boat",
+		Header: <>Boat <img src="/images/required.png" /></>,
 		accessor: "BOAT_TYPE_ID",
-		cellWidth: 95
+		cellWidth: 125,
+		Cell: DropDownCell([{
+			key: 1,
+			display: "Mercury"
+		}, {
+			key: 2,
+			display: "Sonar"
+		}])
 	}, {
 		Header: "Instructor",
 		accessor: "INSTRUCTOR_NAME",
@@ -82,14 +103,14 @@ const EditUapAppts = (props: {
 	}
 
 	return <div className="form-group row">
-		<TabularForm columns={columns} data={appts} setData={setAppts} blankRow={blankRow}/>
+		<TabularForm columns={columns} data={appts} setData={setAppts} blankRow={blankRow} />
 	</div>
 }
 
 export default (props: Props) => {
 	const appts = props.appts.map(mapToDisplay)
 	return <Card>
-		<CardHeader style={{borderBottom: "none", paddingBottom: 0}}>
+		<CardHeader style={{ borderBottom: "none", paddingBottom: 0 }}>
 			<Edit height="18px" className="float-right" style={{ cursor: "pointer" }} onClick={() => props.openModal(
 				<EditUapAppts appts={appts} setSubmitAction={props.setSubmitAction} reportDate={props.reportDate} />
 			)} />
@@ -99,20 +120,20 @@ export default (props: Props) => {
 			<Table size="sm">
 				<tbody>
 					<tr>
-						<th style={{width: "75px"}}>Time</th>
-						<th style={{width: "95px"}}>Appt Type</th>
+						<th style={{ width: "75px" }}>Time</th>
+						<th style={{ width: "95px" }}>Appt Type</th>
 						<th>Person</th>
-						<th style={{width: "75px"}}>Boat</th>
-						<th style={{width: "120px"}}>Instructor</th>
+						<th style={{ width: "75px" }}>Boat</th>
+						<th style={{ width: "120px" }}>Instructor</th>
 					</tr>
 					{appts.map((appt, i) => {
 						return <tr key={`row_${i}`}>
-						<td>{appt.APPT_TYPE}</td>
-						<td>{appt.APPT_TYPE}</td>
-						<td>{appt.PARTICIPANT_NAME}</td>
-						<td>{appt.BOAT_TYPE_ID}</td>
-						<td>{appt.INSTRUCTOR_NAME}</td>
-					</tr>
+							<td>{appt.APPT_TYPE}</td>
+							<td>{appt.APPT_TYPE}</td>
+							<td>{appt.PARTICIPANT_NAME}</td>
+							<td>{appt.BOAT_TYPE_ID}</td>
+							<td>{appt.INSTRUCTOR_NAME}</td>
+						</tr>
 					})}
 				</tbody>
 			</Table>

@@ -1,6 +1,6 @@
 import { dockReportApClassValidator } from '@async/rest/dock-report';
 import * as t from "io-ts";
-import { TabularForm } from '@components/TabularForm';
+import { TabularForm } from '@components/table/TabularForm';
 import * as React from 'react';
 import { Edit } from 'react-feather';
 import { Card, CardBody, CardHeader, CardTitle, Table } from 'reactstrap';
@@ -89,7 +89,6 @@ const EditClassTable = (props: {
 
 	React.useEffect(() => {
 		props.setSubmitAction(() => {
-			console.log(classes)
 			const errors = combineValidations(
 				validateNumber(classes.map(c => c.ATTEND)),
 				validateMilitaryTime(classes.map(c => c.CLASS_DATETIME)),
