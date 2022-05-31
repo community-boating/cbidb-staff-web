@@ -59,10 +59,7 @@ const EditWeather = (props: {
 }) => {
 	const [weatherRecords, setWeatherRecords] = React.useState(getDisplayRows(props.weatherRecords, props.reportDate));
 
-	console.log(weatherRecords)
-
 	React.useEffect(() => {
-		// console.log("setting submit action ", counts)
 		props.setSubmitAction(() => {
 			const errors = combineValidations(
 				validateNumber(weatherRecords.map(w => w.WIND_SPEED_KTS_STEADY)),

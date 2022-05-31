@@ -19,15 +19,7 @@ export const routeDockReportPage = new RouteWrapper({
 	key="dockrpt"
 	history={history}
 	component={(urlProps: {}, async: t.TypeOf<typeof dockReportValidator>) => <DockReportPage
-		dockReportInitState={{
-			...async,
-			// dockstaff: [],
-			// dockmasters: [],
-			// classes: [],
-			// uapAppts: [],
-			// hullCounts: [],
-			// weatherRecords: [],
-		}}
+		dockReportInitState={async}
 	/>}
 	urlProps={{}}
 	getAsyncProps={() => {

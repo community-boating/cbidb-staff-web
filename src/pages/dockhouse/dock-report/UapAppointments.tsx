@@ -89,8 +89,6 @@ const EditUapAppts = (props: {
 				validateNotBlank("Boat", appts.map(c => c.BOAT_TYPE_ID)),
 				validateMilitaryTime(appts.map(c => c.APPT_DATETIME)),
 			)
-			console.log(appts.map(c => c.APPT_TYPE))
-			console.log(appts.map(c => c.BOAT_TYPE_ID))
 			if (errors.length) return Promise.reject(errors.join(ERROR_DELIMITER))
 			else return Promise.resolve({ uapAppts: appts.map(mapToDto(props.reportDate)) })
 		});
