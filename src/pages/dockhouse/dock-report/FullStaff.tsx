@@ -27,8 +27,8 @@ type Props = {
 
 const mapToDisplay: (staff: Staff) => StaffEditable = s => ({
 	...s,
-	TIME_IN: s.TIME_IN.map(t => moment(t, DATE_FORMAT_LOCAL_DATETIME).format("HH:MM")).getOrElse(""),
-	TIME_OUT: s.TIME_OUT.map(t => moment(t, DATE_FORMAT_LOCAL_DATETIME).format("HH:MM")).getOrElse("")
+	TIME_IN: s.TIME_IN.map(t => moment(t, DATE_FORMAT_LOCAL_DATETIME).format("HH:mm")).getOrElse(""),
+	TIME_OUT: s.TIME_OUT.map(t => moment(t, DATE_FORMAT_LOCAL_DATETIME).format("HH:mm")).getOrElse("")
 })
 
 const mapToDto: (reportDate: string) => (s: StaffEditable) => Staff = reportDate => s => ({

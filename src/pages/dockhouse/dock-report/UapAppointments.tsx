@@ -53,7 +53,7 @@ const mapToDisplay: (u: UapAppointment) => UapAppointmentEditable = u => ({
 	BOAT_TYPE_ID: u.BOAT_TYPE_ID.map(String).getOrElse(""),
 	APPT_TYPE: u.APPT_TYPE.getOrElse(""),
 	INSTRUCTOR_NAME: u.INSTRUCTOR_NAME.getOrElse(""),
-	APPT_DATETIME: u.APPT_DATETIME.map(dt => moment(dt, DATE_FORMAT_LOCAL_DATETIME).format("HH:MM")).getOrElse(""),
+	APPT_DATETIME: u.APPT_DATETIME.map(dt => moment(dt, DATE_FORMAT_LOCAL_DATETIME).format("HH:mm")).getOrElse(""),
 	HOYER: nullableBoolToChar(u.HOYER)
 })
 
