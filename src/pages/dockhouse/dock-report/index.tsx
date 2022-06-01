@@ -16,6 +16,8 @@ import { DATE_FORMAT_LOCAL_DATE, DATE_FORMAT_LOCAL_DATETIME } from 'util/dateUti
 import { ButtonWrapper } from 'components/ButtonWrapper';
 import { ERROR_DELIMITER } from 'core/APIWrapper';
 
+const POLL_FREQ_SEC = 10
+
 export type DockReportState = t.TypeOf<typeof dockReportValidator>;
 
 export type WeatherRecord = t.TypeOf<typeof dockReportWeatherValidator>;
@@ -34,10 +36,23 @@ export const DockReportPage = (props: {
 	const [submitAction, setSubmitAction] = React.useState(() => defaultSubmitAction);
 	const [modalErrors, setModalErrors] = React.useState(null as string[])
 
+	function updateStateForever() {
+		return getDockReport.send(null).then(res => {
+			if (res.type == "Success") {
+				setDockReportState(res.success)
+			}
+			setTimeout(updateStateForever, 1000*POLL_FREQ_SEC)
+		})
+	}
+
 	// clear errors whenever the modal is updated
 	React.useEffect(() => {
 		setModalErrors(null)
 	}, [modalContent])
+
+	React.useEffect(() => {
+		updateStateForever()
+	}, [])
 
 	const errorPopup = (
 		modalErrors
