@@ -35,13 +35,14 @@ export const DockReportPage = (props: {
 	const [modalWidth, setModalWidth] = React.useState(1200)
 	const [submitAction, setSubmitAction] = React.useState(() => defaultSubmitAction);
 	const [modalErrors, setModalErrors] = React.useState(null as string[])
+	const [refreshTimeout, setRefreshTimeout] = React.useState(null as NodeJS.Timeout)
 
 	function updateStateForever() {
 		return getDockReport.send(null).then(res => {
 			if (res.type == "Success") {
 				setDockReportState(res.success)
 			}
-			setTimeout(updateStateForever, 1000*POLL_FREQ_SEC)
+			setRefreshTimeout(setTimeout(updateStateForever, 1000*POLL_FREQ_SEC))
 		})
 	}
 
@@ -50,9 +51,14 @@ export const DockReportPage = (props: {
 		setModalErrors(null)
 	}, [modalContent])
 
+	// if the edit modal is closed, refresh every 10 sec. On opening the modal, clear the next refresh timeout
 	React.useEffect(() => {
-		updateStateForever()
-	}, [])
+		if (modalContent == null) {
+			updateStateForever()
+		} else {
+			refreshTimeout && clearTimeout(refreshTimeout);
+		}
+	}, [modalContent])
 
 	const errorPopup = (
 		modalErrors
