@@ -25,7 +25,7 @@
     "@fortawesome/fontawesome-svg-core": "^1.2.34",
     "@fortawesome/free-solid-svg-icons": "^5.15.2",
     "@fortawesome/react-fontawesome": "^0.1.14",
-    "@sentry/browser": "^6.2.4",
+    "@sentry/browser": "^6.19.7",
     "bootstrap": "^4.6.0",
     "fp-ts": "^1.18.1",
     "io-ts": "^1.8.6",
