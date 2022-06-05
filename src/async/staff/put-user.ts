@@ -20,5 +20,6 @@ const path = "/staff/put-user"
 export const postWrapper = new APIWrapper({
 	path: path,
 	type: HttpMethod.POST,
+	postBodyValidator: t.any,
 	resultValidator: validator,
 })

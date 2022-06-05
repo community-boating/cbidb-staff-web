@@ -2,14 +2,14 @@ import { History } from 'history';
 import * as React from "react";
 import * as t from 'io-ts';
 import { Card, CardHeader, CardTitle, CardBody, Button, Col, Row, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
-import { validator} from "@async/staff/open-order-details"
-import Currency from '@util/Currency';
-import {toMomentFromLocalDate} from '@util/dateUtil'
-import { ButtonWrapper } from '@components/ButtonWrapper';
-import {postWrapper as finishOrder} from "@async/staff/finish-open-order"
-import { makePostJSON } from '@core/APIWrapperUtil';
-import { ErrorPopup } from '@components/ErrorPopup';
-import { SimpleReport } from '@core/SimpleReport';
+import { validator} from "async/staff/open-order-details"
+import Currency from 'util/Currency';
+import {toMomentFromLocalDate} from 'util/dateUtil'
+import { ButtonWrapper } from 'components/ButtonWrapper';
+import {postWrapper as finishOrder} from "async/staff/finish-open-order"
+import { makePostJSON } from 'core/APIWrapperUtil';
+import { ErrorPopup } from 'components/ErrorPopup';
+import { SimpleReport } from 'core/SimpleReport';
 
 type PaymentList = t.TypeOf<typeof validator>
 

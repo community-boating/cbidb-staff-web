@@ -4,13 +4,13 @@ import { Card, CardHeader, CardTitle, CardBody, Modal, ModalHeader, ModalBody, M
 import {
 	Edit as EditIcon,
 } from 'react-feather'
-import { SimpleReport, SimpleReportColumn } from "@core/SimpleReport";
-import { ErrorPopup } from "@components/ErrorPopup";
+import { SimpleReport, SimpleReportColumn } from "core/SimpleReport";
+import { ErrorPopup } from "components/ErrorPopup";
 import { none, Option, some } from "fp-ts/lib/Option";
-import { makePostJSON } from "@core/APIWrapperUtil";
-import APIWrapper from "@core/APIWrapper";
+import { makePostJSON } from "core/APIWrapperUtil";
+import APIWrapper from "core/APIWrapper";
 import { ButtonWrapper } from "./ButtonWrapper";
-import { destringify, DisplayableProps, nullifyEmptyStrings, StringifiedProps, stringify, stringifyAndMakeBlank } from "@util/StringifyObjectProps";
+import { destringify, DisplayableProps, nullifyEmptyStrings, StringifiedProps, stringify, stringifyAndMakeBlank } from "util/StringifyObjectProps";
 
 export default function ReportWithModalForm<T extends t.TypeC<any>, U extends object = t.TypeOf<T>>(props: {
 	rowValidator: T
@@ -19,7 +19,7 @@ export default function ReportWithModalForm<T extends t.TypeC<any>, U extends ob
 	primaryKey: string & keyof U,
 	columns: SimpleReportColumn[],
 	formComponents: (rowForEdit: StringifiedProps<U>, updateState: (id: string, value: string | boolean) => void) => JSX.Element
-	submitRow: APIWrapper<any, U, any>
+	submitRow: APIWrapper<any, T, any>
 	cardTitle?: string;
 }) {
 	const blankForm = {

@@ -22,12 +22,9 @@ const resultValidator = t.type({
 	LOCATION_ID: t.number,
 });
 
-export const putWrapper = new APIWrapper<
-	typeof resultValidator,
-	t.TypeOf<typeof classLocationValidator>,
-	null
->({
+export const putWrapper = new APIWrapper({
 	path,
 	type: HttpMethod.POST,
+	postBodyValidator: classLocationValidator,
 	resultValidator,
 });

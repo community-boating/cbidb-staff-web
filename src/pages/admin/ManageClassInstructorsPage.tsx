@@ -1,11 +1,11 @@
 import * as React from "react";
 import * as t from 'io-ts';
-import {classInstructorValidator} from '@async/rest/class-instructor'
-import ReportWithModalForm from "@components/ReportWithModalForm";
-import {putWrapper as putInstructor} from "@async/rest/class-instructor"
+import {classInstructorValidator} from 'async/rest/class-instructor'
+import ReportWithModalForm from "components/ReportWithModalForm";
+import {putWrapper as putInstructor} from "async/rest/class-instructor"
 import { FormGroup, Label, Col, Input } from 'reactstrap';
-import { StringifiedProps } from "@util/StringifyObjectProps";
-import { SimpleReportColumn } from "@core/SimpleReport";
+import { StringifiedProps } from "util/StringifyObjectProps";
+import { SimpleReportColumn } from "core/SimpleReport";
 
 type ClassInstructor = t.TypeOf<typeof classInstructorValidator>;
 

@@ -1,4 +1,4 @@
-import PathWrapper from "@core/PathWrapper";
+import PathWrapper from "core/PathWrapper";
 
 export const pathAdminBase = new PathWrapper('admin');
 export const pathManageClassInstructors = pathAdminBase.appendPathSegment("class-instructors");
@@ -15,5 +15,8 @@ export const pathPersonSearch = new PathWrapper("person");
 export const pathPersonSummary = pathPersonSearch.appendPathSegment<{personId: string}>(":personId")
 
 export const pathJpClasses = new PathWrapper("jp-classes");
+
+export const pathDockhouseBase = new PathWrapper("dh")
+export const pathDockReport = pathDockhouseBase.appendPathSegment("dock-report")
 
 export const pathStaggeredOrder = new PathWrapper("staggered-order/:personId");

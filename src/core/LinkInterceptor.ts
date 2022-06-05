@@ -4,8 +4,8 @@ import { toastr } from "react-redux-toastr";
 import RouteWrapper from './RouteWrapper';
 import { canAccessPage } from "pages/accessControl";
 import { StringObject } from './PathWrapper';
-import asc from '@app/AppStateContainer';
-import { showSudoToastr } from '@components/SudoModal';
+import asc from 'app/AppStateContainer';
+import { showSudoToastr } from 'components/SudoModal';
 
 function showToastr() {
 	const options = {

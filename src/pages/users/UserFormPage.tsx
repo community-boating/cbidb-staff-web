@@ -9,12 +9,13 @@ import {formUpdateState} from '../../util/form-update-state';
 import FormElementCheckbox from '../../components/form/FormElementCheckbox';
 import {postWrapper} from "../../async/staff/put-user"
 import { makePostJSON } from '../../core/APIWrapperUtil';
-import FormElementSelect from '@components/form/FormElementSelect';
+import FormElementSelect from 'components/form/FormElementSelect';
 import { UserType, userTypeDisplay, userTypes } from 'models/UserType';
-import { deoptionifyProps } from '@util/OptionifyObjectProps';
-import { ErrorPopup } from '@components/ErrorPopup';
-import { pathUsers } from '@app/paths';
-import asc from '@app/AppStateContainer';
+import { deoptionifyProps } from 'util/OptionifyObjectProps';
+import { ErrorPopup } from 'components/ErrorPopup';
+import { pathUsers } from 'app/paths';
+import asc from 'app/AppStateContainer';
+import { ERROR_DELIMITER } from 'core/APIWrapper';
 
 type FormData = UserForm & {
 	pw1: Option<string>,
@@ -104,7 +105,7 @@ export default class UserFormPage extends React.PureComponent<Props, State> {
 						window.scrollTo(0, 0);
 						self.setState({
 							...self.state,
-							validationErrors: ret.message.split("\\n") // TODO
+							validationErrors: ret.message.split(ERROR_DELIMITER) // TODO
 						});
 					}
 				}

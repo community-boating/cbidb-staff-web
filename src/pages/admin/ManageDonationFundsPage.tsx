@@ -4,16 +4,16 @@ import { FormGroup, Label, Col, Input, CustomInput } from "reactstrap";
 import { Check as CheckIcon } from "react-feather";
 
 // Table building utilities
-import { tableColWidth } from "@util/tableUtil";
+import { tableColWidth } from "util/tableUtil";
 
 // Validator and putter for the data type of this page
-import { donationFundValidator } from "@async/rest/donation-funds";
-import { putWrapper as putDonationFund } from "@async/rest/donation-funds";
+import { donationFundValidator } from "async/rest/donation-funds";
+import { putWrapper as putDonationFund } from "async/rest/donation-funds";
 
 // The common display structure which is a table editable via modal
-import ReportWithModalForm from "@components/ReportWithModalForm";
-import { StringifiedProps } from "@util/StringifyObjectProps";
-import { SimpleReportColumn } from "@core/SimpleReport";
+import ReportWithModalForm from "components/ReportWithModalForm";
+import { StringifiedProps } from "util/StringifyObjectProps";
+import { SimpleReportColumn } from "core/SimpleReport";
 
 type DonationFund = t.TypeOf<typeof donationFundValidator>;
 

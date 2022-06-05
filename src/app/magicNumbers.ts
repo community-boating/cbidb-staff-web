@@ -1,0 +1,15 @@
+export const MAGIC_NUMBERS = {
+	BOAT_TYPE_ID: {
+		MERCURY: 1,
+		KEEL_MERCURY: 2,
+		KAYAK: 3,
+		RHODES_19: 4,
+		SONAR: 5,
+		LASER: 6,
+		420: 7,
+		WINDSURFER: 8,
+		SUP: 9,
+		IDEAL_18: 141,
+		VENTURE: 1001
+	}
+};

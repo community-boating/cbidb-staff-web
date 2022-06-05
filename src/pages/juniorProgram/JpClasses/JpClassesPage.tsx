@@ -3,13 +3,13 @@ import * as t from 'io-ts';
 import { Card, CardHeader, CardTitle, CardBody, FormGroup, Label, Col, Row, Form, CustomInput } from 'reactstrap';
 import * as _ from 'lodash';
 
-import { decoratedInstanceValidator, signupValidator, weekValidator, staggerValidator } from "@async/staff/all-jp-signups"
-import { sortOnMoment, toMomentFromLocalDateTime } from '@util/dateUtil';
+import { decoratedInstanceValidator, signupValidator, weekValidator, staggerValidator } from "async/staff/all-jp-signups"
+import { sortOnMoment, toMomentFromLocalDateTime } from 'util/dateUtil';
 import * as moment from 'moment';
 import { none, Option, some } from 'fp-ts/lib/Option';
-import FormElementSelect from '@components/form/FormElementSelect';
-import {formUpdateStateHooks} from '@util/form-update-state';
-import { tableColWidth } from '@util/tableUtil';
+import FormElementSelect from 'components/form/FormElementSelect';
+import {formUpdateStateHooks} from 'util/form-update-state';
+import { tableColWidth } from 'util/tableUtil';
 import JpClassSignupsRegion from './JpClassSignupsRegion';
 import {faAngleRight, faAngleDown, faUsers} from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';

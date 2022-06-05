@@ -1,8 +1,8 @@
 import * as React from 'react';
 import * as t from 'io-ts';
-import {signupValidator} from "@async/staff/all-jp-signups"
-import { tableColWidth } from '@util/tableUtil';
-import { toMomentFromLocalDateTime } from '@util/dateUtil';
+import {signupValidator} from "async/staff/all-jp-signups"
+import { tableColWidth } from 'util/tableUtil';
+import { toMomentFromLocalDateTime } from 'util/dateUtil';
 
 type Signup = t.TypeOf<typeof signupValidator>;
 

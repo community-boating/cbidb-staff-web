@@ -1,5 +1,5 @@
-// import asc from "@app/AppStateContainer";
-import assertNever from "@util/assertNever";
+// import asc from "app/AppStateContainer";
+import assertNever from "util/assertNever";
 // import { Permissions } from "models/permissions";
 import { PageName } from "./pageNames";
 
@@ -8,6 +8,7 @@ export function canAccessPage(pageName: PageName): boolean {
 		case PageName.HOME:
 		case PageName.JP_CLASSES:
 		case PageName.STAGGERED_ORDER:
+		case PageName.DOCK_REPORT:
 			return true;
 		case PageName.USERS:
 		case PageName.USERS_EDIT:

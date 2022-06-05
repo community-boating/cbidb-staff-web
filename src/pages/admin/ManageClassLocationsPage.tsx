@@ -4,15 +4,15 @@ import { FormGroup, Label, Col, Input, CustomInput } from "reactstrap";
 import { Check as CheckIcon } from "react-feather";
 
 // Table building utilities
-import { StringifiedProps } from "@util/StringifyObjectProps";
+import { StringifiedProps } from "util/StringifyObjectProps";
 
 // Validator and putter for the data type of this page
-import { classLocationValidator } from "@async/rest/class-locations";
-import { putWrapper as putClassLocation } from "@async/rest/class-locations";
+import { classLocationValidator } from "async/rest/class-locations";
+import { putWrapper as putClassLocation } from "async/rest/class-locations";
 
 // The common display structure which is a table editable via modal
-import ReportWithModalForm from "@components/ReportWithModalForm";
-import { SimpleReportColumn } from "@core/SimpleReport";
+import ReportWithModalForm from "components/ReportWithModalForm";
+import { SimpleReportColumn } from "core/SimpleReport";
 
 type ClassLocation = t.TypeOf<typeof classLocationValidator>;
 
