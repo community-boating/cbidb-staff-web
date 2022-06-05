@@ -57,7 +57,7 @@ const misc: SideBarCategory = {
 	],
 	unrenderedChildren: [
 		routeStaggeredOrder,
-		routeDockReportPage
+		// routeDockReportPage
 	]
 };
 
