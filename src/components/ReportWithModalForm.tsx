@@ -11,23 +11,34 @@ import { makePostJSON } from "core/APIWrapperUtil";
 import APIWrapper from "core/APIWrapper";
 import { ButtonWrapper } from "./ButtonWrapper";
 import { destringify, DisplayableProps, nullifyEmptyStrings, StringifiedProps, stringify, stringifyAndMakeBlank } from "util/StringifyObjectProps";
+import { left } from "fp-ts/lib/Either";
+import { Editable } from "util/EditableType";
+import { option } from "fp-ts";
 
-export default function ReportWithModalForm<T extends t.TypeC<any>, U extends object = t.TypeOf<T>>(props: {
+export type validationError = {
+	key: string,
+	display: string
+}
+
+export default function ReportWithModalForm<K extends keyof U, T extends t.TypeC<any>, U extends object = t.TypeOf<T>>(props: {
 	rowValidator: T
 	rows: U[],
 	formatRowForDisplay: (row: U) => DisplayableProps<U>,
 	primaryKey: string & keyof U,
 	columns: SimpleReportColumn[],
-	formComponents: (rowForEdit: StringifiedProps<U>, updateState: (id: string, value: string | boolean) => void) => JSX.Element
-	submitRow: APIWrapper<any, T, any>
+	formComponents: (rowForEdit: StringifiedProps<U>, updateState: (id: string, value: string | boolean) => void, currentRow?: U, validationResults?: validationError[]) => JSX.Element
+	submitRow: APIWrapper<any, any, any>
 	cardTitle?: string;
+	columnsNonEditable?: K[];
 }) {
+
 	const blankForm = {
 		rowForEdit: stringifyAndMakeBlank(props.rowValidator),
+		currentRow: {} as U
 	}
 
 	const [modalIsOpen, setModalIsOpen] = React.useState(false);
-	const [validationErrors, setValidationErrors] = React.useState([] as string[]);
+	const [validationErrors, setValidationErrors] = React.useState([] as validationError[]);
 	const [formData, setFormData] = React.useState(blankForm);
 	const [rowData, updateRowData] = React.useState(props.rows);
 
@@ -38,14 +49,16 @@ export default function ReportWithModalForm<T extends t.TypeC<any>, U extends ob
 			openForEdit(some(String(r[props.primaryKey])));
 		}}><EditIcon color="#777" size="1.4em" /></a>,
 	})), [rowData]);
-
+	data
 	const report = React.useMemo(() => <SimpleReport 
 		keyField={props.primaryKey}
 		data={data.map(props.formatRowForDisplay)}
 		columns={props.columns}
 		sizePerPage={12}
 		sizePerPageList={[12, 25, 50, 1000]}
-	/>, [rowData])
+	/>, [rowData, props.formatRowForDisplay]);
+	//Added dependency on formatRowForDisplay to allow changes to the converter function to propagate down
+	//This is needed for the async polling of semi static variables like boatTypes
 
 	const openForEdit = (id: Option<string>) => {
 		setModalIsOpen(true);
@@ -54,6 +67,7 @@ export default function ReportWithModalForm<T extends t.TypeC<any>, U extends ob
 			const row = rowData.find(i => String(i[props.primaryKey]) == id.getOrElse(null))
 			setFormData({
 				rowForEdit: stringify(row),
+				currentRow: row
 			})
 		} else {
 			setFormData(blankForm)
@@ -89,19 +103,25 @@ export default function ReportWithModalForm<T extends t.TypeC<any>, U extends ob
 				// HOWEVER, do not turn optional values back into options.  The validator is expecting the same shape as what would have come from the server,
 				// ie either a value or null.
 				const candidateForValidation = destringify(props.rowValidator, nullifyEmptyStrings(formData.rowForEdit), false, props.primaryKey);
-
 				// On a create, ID will be null which is not ok per the validator.  Shove some crap in there to make it happy
 				const pkValue = candidateForValidation[props.primaryKey] === null ? -1 : candidateForValidation[props.primaryKey];
 				const validateResult = props.rowValidator.decode({
 					...candidateForValidation,
 					[props.primaryKey]: pkValue
 				});
-				
-				if (validateResult.isRight()) {
+				const validationResults = validateResult.isLeft() ? validateResult.value.filter((a) => {return !props.columnsNonEditable.includes(a.context[1].key as K)}) : [];
+				const isValid = validateResult.isRight() || validationResults.length == 0;
+				if (isValid) {
 					// Destringify again, this time turning optional values back into options. It's a bit pointless since
 					// they will be stripped out again before sending to the server, but ApiWrapper expects actual option values
 					// Besides, we need to give that value back to the table anyway.
 					const toSend = destringify(props.rowValidator, nullifyEmptyStrings(formData.rowForEdit), true, props.primaryKey);
+					if(props.columnsNonEditable !== null){
+						props.columnsNonEditable.forEach((a) => {
+							const v = a as keyof typeof toSend;
+							toSend[v] = null;
+						});
+					}
 					props.submitRow.send(makePostJSON(toSend)).then(ret => {
 						if (ret.type == "Success") {
 							closeModal();
@@ -122,22 +142,19 @@ export default function ReportWithModalForm<T extends t.TypeC<any>, U extends ob
 								}]))
 							}
 						} else {
-							setValidationErrors([ret.message])
+							setValidationErrors([{key: undefined, display: ret.message}]);
 						}
 						resolve(null);
 					})
 				} else {
-					//TODO: I'm sure we can do better than this
-					setValidationErrors(["At least one field is not valid."]);
+					setValidationErrors(validationResults.map((b) => ({key:b.context[1].key, display: b.message})).filter((b) => b != undefined));
 					resolve(null);
+					//TODO: I'm sure we can do better than this
 				}
 			}, 0);
 		})
 		
 	}
-
-
-
 	return <React.Fragment>
 		<Modal
 			isOpen={modalIsOpen}
@@ -148,12 +165,12 @@ export default function ReportWithModalForm<T extends t.TypeC<any>, U extends ob
 				Add/Edit
 			</ModalHeader>
 			<ModalBody className="text-center m-3">
-				<ErrorPopup errors={validationErrors}/>
+				<ErrorPopup errors={validationErrors.map((a) => a.display)}/>
 				<Form onSubmit={e => {
 					e.preventDefault();
 					submit();
 				} }>
-					{props.formComponents(formData.rowForEdit, updateState)}
+					{props.formComponents(formData.rowForEdit, updateState, formData.currentRow, validationErrors)}
 				</Form>
 			</ModalBody>
 			<ModalFooter>

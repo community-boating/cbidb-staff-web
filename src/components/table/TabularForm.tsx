@@ -35,7 +35,7 @@ const EditableCell = ({
 		} else if (column.textAreaHeight != undefined) {
 			return <textarea rows={column.textAreaHeight} style={{border: "none", width: cellWidth && cellWidth+"px"}} value={value} onChange={onChange} onBlur={onBlur} />
 		} else {
-			return <Input style={{ borderColor:"#ccc", width: cellWidth && cellWidth+"px"}} value={value} onChange={onChange} onBlur={onBlur} />
+			return <Input type={column.type === undefined ? "" : column.type} style={{ borderColor:"#ccc", width: cellWidth && cellWidth+"px"}} value={value} onChange={onChange} onBlur={onBlur} />
 		}
 	}())
 	return display;

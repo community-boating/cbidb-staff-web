@@ -8,3 +8,7 @@ export declare type Editable<T extends object, F extends keyof T> = {
 } & {
 	[K in keyof Pick<T, F>]: T[K]
 }
+
+export declare type NonEditable<T extends object, F extends keyof T> = {
+	[K in keyof Pick<T, F>]: any
+}

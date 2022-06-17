@@ -45,6 +45,15 @@ export const OptionalBoolean = new t.Type<Option<boolean>, string, unknown>(
 		a => a.fold("None", (s) => `some(${s})`)
 )
 
+export const makeOptionalProps = <T extends t.TypeC<any>>(someValidator: T) => {
+	const newProps = Object.assign({}, someValidator.props);
+	Object.keys(someValidator.props).forEach((a) => {
+		newProps[a] = makeOptional(someValidator.props[a]);
+	})
+	return t.type(newProps);
+}
+
+
 export const makeOptional = <T extends t.Any>(someValidator: T) => new t.Type<Option<t.TypeOf<T>>, string, unknown>(
 	'Optional',
 	(u): u is Option<t.TypeOf<T>> => u instanceof Option,

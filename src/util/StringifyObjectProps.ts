@@ -1,5 +1,6 @@
 import { none, some } from 'fp-ts/lib/Option';
 import * as t from 'io-ts';
+import { Editable, NonEditable } from './EditableType';
 
 export declare type StringifiedProps<T extends object> = {
 	[Property in keyof T]: string;
@@ -82,6 +83,18 @@ function destringifyValue(v: string, typeName: string, useOption: boolean): any 
 		}
 	}
 
+}
+
+export function stringifyEditable<T extends object, U extends keyof T>(obj: T, non: U[]): Editable<T, U> {
+	let ret: any = {}
+	Object.keys(obj).forEach(key => {
+		if(non.contains(key as U)){
+			ret[key] = ret[key];
+		}else{
+			ret[key] = stringifyValue(obj[key]);
+		}
+	})
+	return <Editable<T, U>>ret;
 }
 
 export function stringify<T extends object>(obj: T): {[K in keyof T]: string} {

@@ -83,14 +83,10 @@ export default class APIWrapper<T_ResponseValidator extends t.Any, T_PostBodyVal
 
 		const postBodyValidationError = postValues.chain(({isJson, content}) => {
 			if (!isJson || self.config.type != "POST") return none;
-			console.log(content)
-			console.log(self.config.postBodyValidator)
 			const validationResult = self.config.postBodyValidator.decode(content);
 			if (validationResult.isLeft()) return some(PathReporter.report(validationResult).join(", "))
 			else return none;
 		});
-
-		console.log(postBodyValidationError)
 
 		if (postBodyValidationError.isSome()) {
 			return Promise.resolve({

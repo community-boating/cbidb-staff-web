@@ -7,10 +7,11 @@ import {
 	faSortDown,
 } from "@fortawesome/free-solid-svg-icons";
 import { TableOptionsCbi, TableInstanceCbi, TableStateCbi } from 'react-table-config';
+import { ReactNode } from 'react';
 
 export type SimpleReportColumn = {
 	accessor: string,
-	Header: string,
+	Header: ReactNode,
 	disableSortBy?: boolean,
 	width?: number,
 }

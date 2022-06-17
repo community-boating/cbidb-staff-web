@@ -1,10 +1,36 @@
-import { OptionalBoolean, OptionalNumber, OptionalString } from "util/OptionalTypeValidators";
+import { OptionalBoolean, OptionalNumber, OptionalString, makeOptional, makeOptionalProps } from "util/OptionalTypeValidators";
 import * as t from "io-ts";
 import APIWrapper from "../../core/APIWrapper";
 import { HttpMethod } from "../../core/HttpMethod";
+import { optionifyProps } from "util/OptionifyObjectProps";
+import optionify from "util/optionify";
+import { isInteger } from "lodash";
 
 const pathGet = "/rest/signouts-today";
 const pathPost = "/rest/signout";
+const pathGetBoatTypes = "/rest/boat-types";
+const pathGetRatings = "/rest/ratings";
+const pathRunagroundCapsize = "/rest/runaground-capsize";
+const pathPersonCardNumber = "/rest/person?cardNumber=$1";
+
+const HRNames = {
+	signoutType: "Signout Type",
+	sailNumber: "Sail Number"
+}
+
+const StringValidate = new t.Type<string, string, unknown>(
+	'OptionalString',
+	(input: unknown): input is string => typeof input === 'string',
+	(input, context) => (typeof input === 'string' && input.trim().length>0 ? t.success(input) : t.failure(input, context, HRNames[context[1].key] + " cannot be blank")),
+	t.identity
+);
+
+const IntValidate = new t.Type<number, string, unknown>(
+	'OptionalNumber',
+	(input: unknown): input is number => typeof input === 'number',
+	(input, context) => {return (isInteger(Number(input)) ? t.success(Number(input)) : t.failure(input, context, HRNames[context[1].key] + " is an invalid number"))},
+	(a) => String(a)
+);
 
 export const signoutCrewValidator = t.type({
 	crewId: OptionalNumber,
@@ -15,23 +41,70 @@ export const signoutCrewValidator = t.type({
 	endActive: OptionalString
 });
 
+export const personRatingValidator = t.type({
+	personId: t.number,
+	ratingId: t.number,
+	programId: t.number
+});
+
+export const skipperValidator = t.type({
+	$$personRatings: t.array(personRatingValidator),
+	nameFirst: t.string,
+	nameLast: t.string,
+	personId: t.number
+});
+
 export const signoutValidator = t.type({
-	signoutId: OptionalNumber,
-	programId: OptionalNumber,
-	boatId: OptionalNumber,
+	signoutId: t.number,
+	programId: t.number,
+	$$skipper: skipperValidator,
+	apAttendanceId: OptionalNumber,
+	jpAttendanceId: OptionalNumber,
+	boatId: IntValidate,
 	personId: OptionalNumber,
-	cardNumber: OptionalString,
-	sailNumber: OptionalString,
-	hullNumber: OptionalString,
+	cardNum: OptionalString,
+	sailNumber: StringValidate,
+	hullNumber: OptionalNumber,
 	signoutDatetime: OptionalString,
-	signinDatetime: OptionalNumber,
+	signinDatetime: OptionalString,
 	testRatingId: OptionalNumber,
 	testResult: OptionalString,
-	signoutType: OptionalString,
+	signoutType: StringValidate,
 	didCapsize: OptionalBoolean,
 	comments: OptionalString,
-	crew: t.array(signoutCrewValidator)
+	$$crew: t.array(signoutCrewValidator)
 });
+
+export const boatsValidator = t.type({
+	boatId: t.number,
+	assignId: t.number,
+	programId: t.number,
+	flag: t.string,
+	ratingId: t.number
+});
+
+export const programsValidator = t.type({
+	assignId: t.number,
+	ratingId: t.number,
+	programId: t.number
+});
+
+export const ratingsValidator = t.array(t.type({
+	ratingName: t.string,
+	$$boats: t.array(boatsValidator),
+	$$programs: t.array(programsValidator),
+	ratingId: t.number,
+	overriddenBy: OptionalNumber
+}));
+
+export const boatTypesValidator = t.array(t.type({
+	maxCrew: t.number,
+	boatName: t.string,
+	minCrew: t.number,
+	boatId: t.number,
+	displayOrder: t.number,
+	active: t.boolean
+}));
 
 export const signoutsValidator = t.array(signoutValidator);
 
@@ -41,10 +114,21 @@ export const getSignoutsToday = new APIWrapper({
 	resultValidator: signoutsValidator,
 });
 
+export const getBoatTypes = new APIWrapper({
+	path:pathGetBoatTypes,
+	type: HttpMethod.GET,
+	resultValidator: boatTypesValidator,
+});
+
+export const getRatings = new APIWrapper({
+	path:pathGetRatings,
+	type: HttpMethod.GET,
+	resultValidator: ratingsValidator,
+});
 
 export const putSignout = new APIWrapper({
 	path:pathPost,
 	type: HttpMethod.POST,
-	postBodyValidator: signoutValidator,
+	postBodyValidator: makeOptionalProps(signoutValidator),
 	resultValidator: signoutValidator,
 });

@@ -18,9 +18,10 @@ export function canAccessPage(pageName: PageName): boolean {
 		case PageName.MANAGE_CLASS_LOCATIONS:
 		case PageName.MANAGE_HIGH_SCHOOLS:
 		case PageName.MANAGE_DONATION_FUNDS:
+		case PageName.SIGNOUTS_TABLES:
 			return true; // !!asc.state.login.permissions[Permissions.PERM_GENERAL_ADMIN]
 		default:
-			assertNever(pageName);
+			//assertNever(pageName);
 			return false;
 	}
 }
