@@ -63,8 +63,8 @@ export const signoutValidator = t.type({
 	boatId: IntValidate,
 	personId: OptionalNumber,
 	cardNum: OptionalString,
-	sailNumber: StringValidate,
-	hullNumber: OptionalNumber,
+	sailNumber: OptionalString,
+	hullNumber: OptionalString,
 	signoutDatetime: OptionalString,
 	signinDatetime: OptionalString,
 	testRatingId: OptionalNumber,
@@ -89,22 +89,26 @@ export const programsValidator = t.type({
 	programId: t.number
 });
 
-export const ratingsValidator = t.array(t.type({
+export const ratingValidator = t.type({
 	ratingName: t.string,
 	$$boats: t.array(boatsValidator),
 	$$programs: t.array(programsValidator),
 	ratingId: t.number,
 	overriddenBy: OptionalNumber
-}));
+});
 
-export const boatTypesValidator = t.array(t.type({
+export const ratingsValidator = t.array(ratingValidator);
+
+export const boatTypeValidator = t.type({
 	maxCrew: t.number,
 	boatName: t.string,
 	minCrew: t.number,
 	boatId: t.number,
 	displayOrder: t.number,
 	active: t.boolean
-}));
+});
+
+export const boatTypesValidator = t.array(boatTypeValidator);
 
 export const signoutsValidator = t.array(signoutValidator);
 

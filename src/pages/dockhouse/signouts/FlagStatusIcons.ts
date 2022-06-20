@@ -8,9 +8,9 @@ import orange from "assets/img/orange.png";
 import blue from "assets/img/blue.jpg";
 
 export const FlagStatusIcons = {
-    "R":{src:red,sortOrder:3},
-    "G":{src:green,sortOrder:5},
-    "Y":{src:yellow,sortOrder:4},
-    "B":{src:black,sortOrder:2},
-    "W":{src:white,sortOrder:1},
+    "R":{src:red, sortOrder:3, hr:"Red"},
+    "G":{src:green, sortOrder:5, hr:"Green"},
+    "Y":{src:yellow, sortOrder:4, hr:"Yellow"},
+    "B":{src:black, sortOrder:2, hr:"Black"},
+    "W":{src:white, sortOrder:1, hr:"White"},
 }

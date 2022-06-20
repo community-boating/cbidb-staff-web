@@ -1,9 +1,9 @@
 import * as React from 'react';
-import { Button, Card, CardBody, CardHeader, CardTitle, Col, CustomInput, FormGroup, Input, Label, Modal, ModalBody, ModalFooter, ModalHeader, Table} from 'reactstrap';
+import { Button, Card, CardBody, CardHeader, CardTitle, Col, CustomInput, FormGroup, Input, Label, Modal, ModalBody, ModalFooter, ModalHeader, Popover, PopoverBody, PopoverHeader, Table} from 'reactstrap';
 import * as t from "io-ts";
 import { ErrorPopup } from 'components/ErrorPopup';
 
-import { boatTypesValidator, getBoatTypes, getRatings, getSignoutsToday, putSignout, ratingsValidator, signoutsValidator, signoutValidator } from 'async/rest/signouts-tables';
+import { boatsValidator, boatTypesValidator, getBoatTypes, getRatings, getSignoutsToday, programsValidator, putSignout, ratingsValidator, ratingValidator, signoutsValidator, signoutValidator } from 'async/rest/signouts-tables';
 import { MAGIC_NUMBERS } from 'app/magicNumbers';
 import { type } from 'os';
 import { highSchoolValidator } from 'async/rest/high-schools';
@@ -17,7 +17,12 @@ import * as moment from "moment";
 import { StringType } from 'io-ts';
 import { OptionifiedProps } from 'util/OptionifyObjectProps';
 
+import reassignedIcon from "assets/img/reassigned.png";
+import stopwatchIcon from "assets/img/stopwatch.jpg";
+
 import { FlagStatusIcons } from './FlagStatusIcons';
+import { ReactNode } from 'react';
+import { sortRatings, makeRatingsHover, findOrphanedRatings } from './RatingSorter';
 
 const POLL_FREQ_SEC = 10
 
@@ -25,6 +30,7 @@ export type SignoutsTablesState = t.TypeOf<typeof signoutsValidator>;
 export type SignoutTablesState = t.TypeOf<typeof signoutValidator>;
 export type BoatTypesValidatorState = t.TypeOf<typeof boatTypesValidator>;
 export type RatingsValidatorState = t.TypeOf<typeof ratingsValidator>;
+
 
 const SignoutTablesNonEditableObject : SignoutTablesNonEditable[] = ["$$crew", "$$skipper"];
 
@@ -43,12 +49,33 @@ const testResultsHR = [
 	{value:"Abort",display:"Abort"}
 ];
 
-const programsHR = [
-	{value:MAGIC_NUMBERS.PROGRAM_TYPE_ID.ADULT_PROGRAM,display:"AP"},
-	{value:MAGIC_NUMBERS.PROGRAM_TYPE_ID.HIGH_SCHOOL,display:"HS"},
-	{value:MAGIC_NUMBERS.PROGRAM_TYPE_ID.JUNIOR_PROGRAM,display:"JP"},
+export const programsHR = [
+	{value:MAGIC_NUMBERS.PROGRAM_TYPE_ID.ADULT_PROGRAM,display:"Adult Program"},
+	{value:MAGIC_NUMBERS.PROGRAM_TYPE_ID.HIGH_SCHOOL,display:"High School"},
+	{value:MAGIC_NUMBERS.PROGRAM_TYPE_ID.JUNIOR_PROGRAM,display:"Junion Program"},
 	{value:MAGIC_NUMBERS.PROGRAM_TYPE_ID.UNIVERSAL_ACCESS_PROGRAM,display:"UAP"}
 ];
+
+const iconWidth = 30;
+const iconHeight = 30;
+
+function isMax(n: number, a: number[]){
+	for(var v of a){
+		if(v > n){
+			return false;
+		}
+	}
+	return true;
+}
+
+function makeReassignedIcon(row: SignoutTablesState, reassignedHullsMap: {[key:string]: {[key:number]: number[]}}, reassignedSailsMap: {[key:string]: {[key:number]: number[]}}){
+	const reassignedHull = option.isSome(row.hullNumber) && !isMax(row.signoutId, reassignedHullsMap[row.hullNumber.getOrElse("")][row.boatId]);
+	const reassignedSail = option.isSome(row.sailNumber) && !isMax(row.signoutId, reassignedSailsMap[row.sailNumber.getOrElse("")][row.boatId]);
+	if(reassignedHull || reassignedSail){
+		return <img width={iconWidth} height={iconHeight} src={reassignedIcon}/>
+	}
+	return <></>;
+}
 
 function makeFlagIcon(row: SignoutTablesState, ratings: RatingsValidatorState){
 	if(ratings.length == 0){
@@ -60,7 +87,15 @@ function makeFlagIcon(row: SignoutTablesState, ratings: RatingsValidatorState){
 	})
 	const skipperRatings = row.$$skipper.$$personRatings.map((a) => mapped[a.ratingId])
 	const flags = skipperRatings.map((a) => getHighestFlag(a,row.programId,row.boatId)).flatten().sort((a,b) => FlagStatusIcons[a as string].sortOrder-FlagStatusIcons[b as string].sortOrder);
-	return <img width={30} height={30} src={FlagStatusIcons[flags[0] as string].src}/>
+	return <img width={iconWidth} height={iconHeight} src={FlagStatusIcons[flags[0] as string].src}/>
+}
+
+function makeStopwatchIcon(row: SignoutTablesState){
+	//2 hours
+	if(moment().diff(moment(row.signoutDatetime.getOrElse(""))) > 2*60*60*1000){
+		return <img width={iconWidth} height={iconHeight} src={stopwatchIcon} />;
+	}
+	return <></>;
 }
 
 function getHighestFlag(rating, programId, boatId){
@@ -217,12 +252,31 @@ const columnsActive: SimpleReportColumn[] = columnsBaseUpper.concat(columnsBaseL
 	}
 ])
 
+function mapOptional(n: Option<string>, boatId: number, signoutId: number, b : {[key:string]: {[key:number]: number[]}}){
+	if(option.isSome(n)){
+		var val = (b[n.getOrElse("")] || {})
+		val[boatId] = (val[boatId] || []).concat(signoutId);
+		b[n.getOrElse("")] = val;
+	}
+}
+
+const hiddenOrphanedRatings = {
+	66: true,
+	67: true,
+	1022: true,
+	1041: true
+}
+
 const SignoutsTable = (props: {
 	initState: SignoutsTablesState,
 	boatTypes: BoatTypesValidatorState,
 	ratings: RatingsValidatorState,
 	isActive: boolean
 }) => {
+	const [ratingsPopoverContent, setRatingsPopverContent] = React.useState(null);
+	//Anti pattern used for showing/hiding other modals, allows the parent not to update which is expensive
+	//In the future some of the computational expense of updating the signoutstable can be removed by caching elements.
+	const [closeOthers, setCloseOthers] = React.useState([]);
 	// Define table columns
 	const boatTypesHR = props.boatTypes.sort((a,b) => a.displayOrder-b.displayOrder).map((v) => ({value:v.boatId,display:v.boatName}));
 	const ratingsHR = props.ratings.sort((a,b) => a.ratingName.localeCompare(b.ratingName)).map((v) => ({value:v.ratingId,display:v.ratingName}));
@@ -357,11 +411,20 @@ const SignoutsTable = (props: {
 	const cardTitle=props.isActive ? "Active Signouts" : "Completed Signouts";
 	const f = props.isActive ? (a : SignoutTablesState) => option.isNone(a.signinDatetime) : (a : SignoutTablesState) => option.isSome(a.signinDatetime);
 	const columns = props.isActive ? columnsActive : columnsInactive;
+	const reassignedHullsMap = {};
+	const reassignedSailsMap = {};
+	const filteredSignouts = props.initState.filter(f);
+	if(props.isActive){
+		filteredSignouts.forEach((a) => {mapOptional(a.hullNumber,a.boatId,a.signoutId,reassignedHullsMap)});
+		filteredSignouts.forEach((a) => {mapOptional(a.sailNumber,a.boatId,a.signoutId,reassignedSailsMap)});
+	}
 	
+	const sortedRatings = sortRatings(props.ratings);
+	const orphanedRatings = findOrphanedRatings(props.ratings, sortedRatings);
 	return <>
 		<ReportWithModalForm
 			rowValidator={signoutValidator}
-			rows={props.initState.filter(f)}
+			rows={filteredSignouts}
 			formatRowForDisplay={(row) => ({
 				...stringify(row),
 				nameFirst: formatOptional(row.$$skipper.nameFirst),
@@ -373,7 +436,8 @@ const SignoutsTable = (props: {
 				boatId: formatSelection(row.boatId, boatTypesHR),
 				signoutDatetime: formatMoment(row.signoutDatetime, "hh:mm A"),
 				signinDatetime: formatMoment(row.signinDatetime, "hh:mm A"),
-				icons: makeFlagIcon(row, props.ratings),
+				icons: props.isActive ? <>{makeFlagIcon(row, props.ratings)}{makeStopwatchIcon(row)}{makeReassignedIcon(row,reassignedHullsMap,reassignedSailsMap)}</> : <></>,
+				ratings: makeRatingsHover(row, sortedRatings, orphanedRatings, hiddenOrphanedRatings, closeOthers),
 				crew:"Crew",
 				edit:row['edit'],
 			})}
