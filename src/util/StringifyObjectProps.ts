@@ -1,6 +1,8 @@
 import { none, some } from 'fp-ts/lib/Option';
 import * as t from 'io-ts';
 import { Editable, NonEditable } from './EditableType';
+import * as moment from "moment";
+import { DefaultDateTimeFormat } from './OptionalTypeValidators';
 
 export declare type StringifiedProps<T extends object> = {
 	[Property in keyof T]: string;
@@ -35,6 +37,8 @@ function stringifyValue(v: any): string {
 	} else if (v["_tag"]) {
 		// it's an option; recurse
 		return stringifyValue(v.getOrElse(""));
+	}else if(moment.isMoment(v)){
+		return v.format(v["_f"]);
 	} else {
 		switch (typeof(v)) {
 		case "boolean":

@@ -1,4 +1,4 @@
-import { OptionalBoolean, OptionalNumber, OptionalString, makeOptional, makeOptionalProps } from "util/OptionalTypeValidators";
+import { OptionalBoolean, OptionalNumber, OptionalString, makeOptional, makeOptionalProps, OptionalDateTime } from "util/OptionalTypeValidators";
 import * as t from "io-ts";
 import APIWrapper from "../../core/APIWrapper";
 import { HttpMethod } from "../../core/HttpMethod";
@@ -65,8 +65,8 @@ export const signoutValidator = t.type({
 	cardNum: OptionalString,
 	sailNumber: OptionalString,
 	hullNumber: OptionalString,
-	signoutDatetime: OptionalString,
-	signinDatetime: OptionalString,
+	signoutDatetime: OptionalDateTime,
+	signinDatetime: OptionalDateTime,
 	testRatingId: OptionalNumber,
 	testResult: OptionalString,
 	signoutType: StringValidate,

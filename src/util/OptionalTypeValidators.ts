@@ -1,5 +1,31 @@
 import * as t from 'io-ts'
 import { Option, some, none } from 'fp-ts/lib/Option';
+import * as moment from "moment";
+
+export const DefaultDateTimeFormat = "YYYY-MM-DDTHH:mm:ss";
+export const DefaultDateFormat = "YYYY-MM-DD";
+
+export const OptionalDateTime = new t.Type<Option<moment.Moment>, string, unknown>(
+	'OptionalDate',
+	(u) : u is Option<moment.Moment> => u["_tag"] !== undefined,
+	(u, c) => t.union([t.string, t.null, t.undefined]).validate(u, c).chain(s => {
+		console.log("whonk");
+		console.log(s);
+		if (s === null || s === undefined) return t.success(<Option<moment.Moment>>none)
+		else return t.success(some(moment(s, DefaultDateTimeFormat)))
+	}),
+	a => a.fold("None", (s) => `some(${s.format()})`)
+)
+
+export const OptionalDate = new t.Type<Option<moment.Moment>, string, unknown>(
+	'OptionalDate',
+	(u) : u is Option<moment.Moment> => u["_tag"] !== undefined,
+	(u, c) => t.union([t.string, t.null, t.undefined]).validate(u, c).chain(s => {
+		if (s === null || s === undefined) return t.success(<Option<moment.Moment>>none)
+		else return t.success(some(moment(s, DefaultDateFormat)))
+	}),
+	a => a.fold("None", (s) => `some(${s.format()})`)//a.fold("None", (s) => `some(${s.format()})`)
+)
 
 export const OptionalString = new t.Type<Option<string>, string, unknown>(
 	'OptionalString',

@@ -32,9 +32,9 @@ export type BoatTypesValidatorState = t.TypeOf<typeof boatTypesValidator>;
 export type RatingsValidatorState = t.TypeOf<typeof ratingsValidator>;
 
 
-const SignoutTablesNonEditableObject : SignoutTablesNonEditable[] = ["$$crew", "$$skipper"];
+const SignoutTablesNonEditableObject : SignoutTablesNonEditable[] = ["$$crew", "$$skipper", "personId", "programId"];
 
-type SignoutTablesNonEditable = "$$crew" | "$$skipper";
+type SignoutTablesNonEditable = "$$crew" | "$$skipper" | "personId" | "programId";
 
 const signoutTypesHR = [
 	{value: "S",display:"Sail"},
@@ -92,7 +92,7 @@ function makeFlagIcon(row: SignoutTablesState, ratings: RatingsValidatorState){
 
 function makeStopwatchIcon(row: SignoutTablesState){
 	//2 hours
-	if(moment().diff(moment(row.signoutDatetime.getOrElse(""))) > 2*60*60*1000){
+	if(moment().diff(row.signoutDatetime.getOrElse(moment())) > 2*60*60*1000){
 		return <img width={iconWidth} height={iconHeight} src={stopwatchIcon} />;
 	}
 	return <></>;
