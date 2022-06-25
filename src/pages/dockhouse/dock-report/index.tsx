@@ -11,7 +11,6 @@ import { ErrorPopup } from 'components/ErrorPopup';
 import DockReportTextBox from './DockReportTextBox';
 import * as moment from 'moment'
 import { dockReportValidator, dockReportWeatherValidator, getDockReport, putDockReport } from 'async/rest/dock-report';
-import { makePostJSON } from 'core/APIWrapperUtil';
 import { DATE_FORMAT_LOCAL_DATE, DATE_FORMAT_LOCAL_DATETIME } from 'util/dateUtil';
 import { ButtonWrapper } from 'components/ButtonWrapper';
 import { ERROR_DELIMITER } from 'core/APIWrapper';
@@ -38,7 +37,7 @@ export const DockReportPage = (props: {
 	const [refreshTimeout, setRefreshTimeout] = React.useState(null as NodeJS.Timeout)
 
 	function updateStateForever() {
-		return getDockReport.send(null).then(res => {
+		return getDockReport.sendJson(null).then(res => {
 			if (res.type == "Success") {
 				setDockReportState(res.success)
 			}
@@ -122,7 +121,7 @@ export const DockReportPage = (props: {
 								...additionalState,
 							}
 						}
-						return putDockReport.send(makePostJSON(newState))
+						return putDockReport.sendJson(newState)
 					}).then(res => {
 						if (res.type == "Failure") {
 							return Promise.reject(res.message)

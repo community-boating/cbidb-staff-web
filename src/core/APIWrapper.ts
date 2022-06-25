@@ -1,3 +1,4 @@
+import { PostString, PostJSON } from './APIWrapperTypes';
 import { Either } from 'fp-ts/lib/Either';
 import { none, Option, some } from 'fp-ts/lib/Option';
 import axios, { AxiosInstance, AxiosResponse } from "axios";
@@ -8,7 +9,6 @@ import asc from "app/AppStateContainer";
 import { removeOptions } from 'util/deserializeOption';
 import { HttpMethod } from "./HttpMethod";
 import { PostType, Config, ApiResult, ServerParams } from './APIWrapperTypes';
-
 export const ERROR_DELIMITER = "\\n"
 
 interface PostValues {content: string, isJson: boolean, headers: {}}
@@ -45,6 +45,20 @@ function getOrCreateAxios(serverParams: ServerParams) {
 	return apiAxios;
 }
 
+const PostURLEncoded: <T extends {[K: string]: string}>(o: T) => string = o => {
+	var arr = [];
+	for (var p in o) {
+		arr.push(encodeURIComponent(p) + "=" + encodeURIComponent(o[p]));
+	}
+	return arr.join('&')
+}
+
+const makePostString: <T_PostJSON extends {[K: string]: string}>(forString: T_PostJSON) => PostString<T_PostJSON> = forString => ({
+	type: "urlEncoded",
+	urlEncodedData: PostURLEncoded(forString)
+})
+const makePostJSON: <T_PostJSON extends object>(jsonData: T_PostJSON) => PostJSON<T_PostJSON> = jsonData => ({type: "json", jsonData})
+
 
 // TODO: do we still need do() vs send() vs sendWithHeaders(), can probably tidy this all up into one function that does the thing
 export default class APIWrapper<T_ResponseValidator extends t.Any, T_PostBodyValidator extends t.Any, T_FixedParams> {
@@ -52,7 +66,9 @@ export default class APIWrapper<T_ResponseValidator extends t.Any, T_PostBodyVal
 	constructor(config: Config<T_ResponseValidator, T_PostBodyValidator, T_FixedParams>) {
 		this.config = config;
 	}
-	send: (data: PostType<t.TypeOf<T_PostBodyValidator>>) => Promise<ApiResult<t.TypeOf<T_ResponseValidator>>> = data => this.sendWithParams(none)(data)
+	sendJson: (data: t.TypeOf<T_PostBodyValidator>) => Promise<ApiResult<t.TypeOf<T_ResponseValidator>>> = data => this.sendWithParams(none)(makePostJSON(data))
+	sendFormUrlEncoded: (data: t.TypeOf<T_PostBodyValidator>) => Promise<ApiResult<t.TypeOf<T_ResponseValidator>>> = data => this.sendWithParams(none)(makePostString(data))
+	// send: (data: PostType<t.TypeOf<T_PostBodyValidator>>) => Promise<ApiResult<t.TypeOf<T_ResponseValidator>>> = data => this.sendWithParams(none)(data)
 	sendWithParams: (serverParamsOption: Option<ServerParams>) => (data: PostType<t.TypeOf<T_PostBodyValidator>>) => Promise<ApiResult<t.TypeOf<T_ResponseValidator>>> = serverParamsOption => data => {
 		const serverParams = serverParamsOption.getOrElse((process.env as any).serverToUseForAPI);
 		const self = this;

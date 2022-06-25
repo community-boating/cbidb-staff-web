@@ -7,7 +7,6 @@ import Currency from 'util/Currency';
 import {toMomentFromLocalDate} from 'util/dateUtil'
 import { ButtonWrapper } from 'components/ButtonWrapper';
 import {postWrapper as finishOrder} from "async/staff/finish-open-order"
-import { makePostJSON } from 'core/APIWrapperUtil';
 import { ErrorPopup } from 'components/ErrorPopup';
 import { SimpleReport } from 'core/SimpleReport';
 
@@ -63,7 +62,7 @@ export default function StaggeredOrder(props: { history: History<any>, personId:
 				Cancel
 			</Button>{" "}
 			<ButtonWrapper spinnerOnClick onClick={() => {
-				return finishOrder(props.personId).send(makePostJSON({})).then(ret => {
+				return finishOrder(props.personId).sendJson({}).then(ret => {
 					if (ret.type == "Success") {
 						props.history.push("/redirect" + window.location.pathname)
 					} else {

@@ -44,7 +44,7 @@ export interface ServerParams {
 	staticHeaders?: object
 }
 
-export interface PostString {
+export interface PostString<T_PostJSON> {
 	type: "urlEncoded",
 	urlEncodedData: string
 }
@@ -54,4 +54,4 @@ export interface PostJSON<T_PostJSON> {
 	jsonData: T_PostJSON
 }
 
-export type PostType<T> = PostString | PostJSON<T>
+export type PostType<T> = PostString<T> | PostJSON<T>

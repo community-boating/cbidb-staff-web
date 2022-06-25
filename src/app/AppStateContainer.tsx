@@ -1,7 +1,6 @@
 import { none, Option, some } from 'fp-ts/lib/Option';
 
 import { apiw } from "../async/authenticate-staff";
-import { makePostString } from '../core/APIWrapperUtil';
 import {apiw as getPermissions} from "async/staff/user-permissions"
 import { showSudoToastr } from 'components/SudoModal';
 
@@ -70,7 +69,7 @@ export class AppStateContainer {
 		login: {
 			setLoggedIn: (function(userName: string) {
 				const self: AppStateContainer = this
-				getPermissions().send(null).then(res => {
+				getPermissions().sendJson(null).then(res => {
 					if (res.type == "Success") {
 						self.setState({
 							...self.state,
@@ -101,8 +100,7 @@ export class AppStateContainer {
 			}).bind(this),
 			attemptLogin: (function(userName: string, password: string): Promise<boolean> {
 				const self: AppStateContainer = this
-				const payload = makePostString("username=" + encodeURIComponent(userName) + "&password=" + encodeURIComponent(password))
-				return apiw().send(payload).then(res => {
+				return apiw().sendFormUrlEncoded({username: userName, password}).then(res => {
 					if (res.type == "Success" && res.success) {
 						self.updateState.login.setLoggedIn(userName);
 						return true;

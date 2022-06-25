@@ -8,7 +8,6 @@ import FormElementInput from '../../components/form/FormElementInput';
 import {formUpdateState} from '../../util/form-update-state';
 import FormElementCheckbox from '../../components/form/FormElementCheckbox';
 import {postWrapper} from "../../async/staff/put-user"
-import { makePostJSON } from '../../core/APIWrapperUtil';
 import FormElementSelect from 'components/form/FormElementSelect';
 import { UserType, userTypeDisplay, userTypes } from 'models/UserType';
 import { deoptionifyProps } from 'util/OptionifyObjectProps';
@@ -96,7 +95,7 @@ export default class UserFormPage extends React.PureComponent<Props, State> {
 				validationErrors: errors
 			});
 		} else {
-			return postWrapper.send(makePostJSON(deoptionifyProps(self.state.formData, validator))).then(
+			return postWrapper.sendJson(deoptionifyProps(self.state.formData, validator)).then(
 				// api success
 				ret => {
 					if (ret.type == "Success") {

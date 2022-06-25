@@ -7,7 +7,6 @@ import {
 import { SimpleReport, SimpleReportColumn } from "core/SimpleReport";
 import { ErrorPopup } from "components/ErrorPopup";
 import { none, Option, some } from "fp-ts/lib/Option";
-import { makePostJSON } from "core/APIWrapperUtil";
 import APIWrapper from "core/APIWrapper";
 import { ButtonWrapper } from "./ButtonWrapper";
 import { destringify, DisplayableProps, nullifyEmptyStrings, StringifiedProps, stringify, stringifyAndMakeBlank } from "util/StringifyObjectProps";
@@ -102,7 +101,7 @@ export default function ReportWithModalForm<T extends t.TypeC<any>, U extends ob
 					// they will be stripped out again before sending to the server, but ApiWrapper expects actual option values
 					// Besides, we need to give that value back to the table anyway.
 					const toSend = destringify(props.rowValidator, nullifyEmptyStrings(formData.rowForEdit), true, props.primaryKey);
-					props.submitRow.send(makePostJSON(toSend)).then(ret => {
+					props.submitRow.sendJson(toSend).then(ret => {
 						if (ret.type == "Success") {
 							closeModal();
 							if (rowData.find(r => String(r[props.primaryKey]) == formData.rowForEdit[props.primaryKey])) {

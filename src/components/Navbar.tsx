@@ -52,7 +52,7 @@ const NavbarComponent = ({ dispatch }) => {
 					{ifSudo}
 					<DropdownItem onClick={e => {
 						e.preventDefault();
-						logout.send({type: "json", jsonData: {}}).then(() => {
+						logout.sendJson({}).then(() => {
 							asc.updateState.login.logout()
 						})
 					}}>

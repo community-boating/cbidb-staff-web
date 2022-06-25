@@ -21,7 +21,7 @@ class App extends React.Component<Props> {
 		asc.setListener(() => {
 			self.forceUpdate();
 		})
-		isLoggedInAsStaff.send(null).then(usernameResult => {
+		isLoggedInAsStaff.sendJson(null).then(usernameResult => {
 			if (usernameResult.type == "Success") {
 				asc.updateState.login.setLoggedIn(usernameResult.success.value)
 			}

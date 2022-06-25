@@ -26,7 +26,7 @@ export const routeUsersPage = new RouteWrapper({
 	/>}
 	urlProps={{}}
 	getAsyncProps={() => {
-		return getUsers.send(null).catch(err => Promise.resolve(null));  // TODO: handle failure
+		return getUsers.sendJson(null).catch(err => Promise.resolve(null));  // TODO: handle failure
 	}}
 	shadowComponent={<Loader />}
 />);
@@ -46,7 +46,7 @@ export const routeUsersEditPage = new RouteWrapper({
 	/>}
 	urlProps={{userId: Number(pathUsersEdit.extractURLParams(history.location.pathname).userId)}}
 	getAsyncProps={(urlProps: {userId: number}) => {
-		return getUser(urlProps.userId).send(null).catch(err => {
+		return getUser(urlProps.userId).sendJson(null).catch(err => {
 			console.log("failed to get user: ", err)
 			history.push(pathUsers.getPathFromArgs({}));
 			return Promise.reject(null);
