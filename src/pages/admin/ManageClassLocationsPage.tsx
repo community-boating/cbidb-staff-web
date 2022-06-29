@@ -12,7 +12,9 @@ import { putWrapper as putClassLocation } from "async/rest/class-locations";
 
 // The common display structure which is a table editable via modal
 import ReportWithModalForm from "components/ReportWithModalForm";
-import { SimpleReportColumn } from "core/SimpleReport";
+import { Column } from "react-table";
+import { TableColumnOptionsCbi } from "react-table-config";
+import { CellBooleanIcon, SortTypeBoolean } from "util/tableUtil";
 
 type ClassLocation = t.TypeOf<typeof classLocationValidator>;
 
@@ -20,7 +22,7 @@ export default function ManageClassLocationsPage(props: {
 	locations: ClassLocation[];
 }) {
 	// Define table columns
-	const columns: SimpleReportColumn[] = [{
+	const columns: TableColumnOptionsCbi[] = [{
 		accessor: "edit",
 		Header: "",
 		disableSortBy: true,
@@ -36,6 +38,8 @@ export default function ManageClassLocationsPage(props: {
 		accessor: "ACTIVE",
 		Header: "Active",
 		width: 100,
+		Cell: CellBooleanIcon(<CheckIcon color="#777" size="1.4em" />),
+		sortType: SortTypeBoolean
 	}];
 
 	// Define edit/add form
@@ -92,12 +96,6 @@ export default function ManageClassLocationsPage(props: {
 		<ReportWithModalForm
 			rowValidator={classLocationValidator}
 			rows={props.locations}
-			formatRowForDisplay={(location) => ({
-				...location,
-				ACTIVE: location.ACTIVE ? (
-					<CheckIcon color="#777" size="1.4em" />
-				) : null,
-			})}
 			primaryKey="LOCATION_ID"
 			columns={columns}
 			formComponents={formComponents}

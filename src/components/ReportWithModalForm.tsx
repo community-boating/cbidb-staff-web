@@ -4,22 +4,27 @@ import { Card, CardHeader, CardTitle, CardBody, Modal, ModalHeader, ModalBody, M
 import {
 	Edit as EditIcon,
 } from 'react-feather'
-import { SimpleReport, SimpleReportColumn } from "core/SimpleReport";
+import { SimpleReport } from "core/SimpleReport";
 import { ErrorPopup } from "components/ErrorPopup";
 import { none, Option, some } from "fp-ts/lib/Option";
 import APIWrapper from "core/APIWrapper";
 import { ButtonWrapper } from "./ButtonWrapper";
 import { destringify, DisplayableProps, nullifyEmptyStrings, StringifiedProps, stringify, stringifyAndMakeBlank } from "util/StringifyObjectProps";
+import { TableColumnOptionsCbi } from "react-table-config";
 
 export default function ReportWithModalForm<T extends t.TypeC<any>, U extends object = t.TypeOf<T>>(props: {
 	rowValidator: T
 	rows: U[],
-	formatRowForDisplay: (row: U) => DisplayableProps<U>,
 	primaryKey: string & keyof U,
-	columns: SimpleReportColumn[],
+	columns: TableColumnOptionsCbi[],
 	formComponents: (rowForEdit: StringifiedProps<U>, updateState: (id: string, value: string | boolean) => void) => JSX.Element
 	submitRow: APIWrapper<any, T, any>
-	cardTitle?: string;
+	cardTitle?: string
+	addRowText?: string
+	validateSubmit?: (rowForEdit: StringifiedProps<U>) => string[],
+	postSubmit?: (rowForEdit: U) => U,
+	noCard?: boolean
+	initialSortBy?: {id: keyof U, desc?: boolean}[]
 }) {
 	const blankForm = {
 		rowForEdit: stringifyAndMakeBlank(props.rowValidator),
@@ -40,10 +45,11 @@ export default function ReportWithModalForm<T extends t.TypeC<any>, U extends ob
 
 	const report = React.useMemo(() => <SimpleReport 
 		keyField={props.primaryKey}
-		data={data.map(props.formatRowForDisplay)}
+		data={data}
 		columns={props.columns}
 		sizePerPage={12}
 		sizePerPageList={[12, 25, 50, 1000]}
+		initialSortBy={props.initialSortBy}
 	/>, [rowData])
 
 	const openForEdit = (id: Option<string>) => {
@@ -76,14 +82,24 @@ export default function ReportWithModalForm<T extends t.TypeC<any>, U extends ob
 
 	function closeModal() {
 		setModalIsOpen(false);
-		setFormData(blankForm);
+		setTimeout(() => setFormData(blankForm), 100); // wait for the animation to hide the modal
 	}
 
 	const submit = () => {
 		setValidationErrors([]);
+
 		return new Promise((resolve, reject) => {
 			// Let the event queue drain so the validation errors actually flicker off, before we push new ones
-			window.setTimeout(() => {
+			setTimeout(() => {
+				if (props.validateSubmit) {
+					const errors = props.validateSubmit(formData.rowForEdit)
+					if (errors.length > 0) {
+						setValidationErrors(errors);
+						resolve(null);
+						return;
+					}
+				}
+
 				// Turn empty strings to nulls, then turn strings back to numbers/booleans
 				// HOWEVER, do not turn optional values back into options.  The validator is expecting the same shape as what would have come from the server,
 				// ie either a value or null.
@@ -95,6 +111,15 @@ export default function ReportWithModalForm<T extends t.TypeC<any>, U extends ob
 					...candidateForValidation,
 					[props.primaryKey]: pkValue
 				});
+
+				const rowMatches: (r: U) => boolean = r => {
+					const pk = r[props.primaryKey];
+					if (pk["_tag"]) {
+						return (pk as unknown as Option<any>).map(p => String(p)).getOrElse("") == formData.rowForEdit[props.primaryKey]
+					} else {
+						return String(pk) == formData.rowForEdit[props.primaryKey]
+					}
+				}
 				
 				if (validateResult.isRight()) {
 					// Destringify again, this time turning optional values back into options. It's a bit pointless since
@@ -104,11 +129,17 @@ export default function ReportWithModalForm<T extends t.TypeC<any>, U extends ob
 					props.submitRow.sendJson(toSend).then(ret => {
 						if (ret.type == "Success") {
 							closeModal();
-							if (rowData.find(r => String(r[props.primaryKey]) == formData.rowForEdit[props.primaryKey])) {
+							const isUpdate = rowData.find(rowMatches) != null;
+							const toAdd = (
+								props.postSubmit
+								? props.postSubmit(toSend)
+								: toSend
+							)
+							if (isUpdate) {
 								// was an update.  Find the row and update it
 								updateRowData(rowData.map(row => {
-									if (formData.rowForEdit[props.primaryKey] == String(row[props.primaryKey])) {
-										return toSend;
+									if (rowMatches(row)) {
+										return toAdd;
 									} else {
 										return row;
 									}
@@ -116,7 +147,7 @@ export default function ReportWithModalForm<T extends t.TypeC<any>, U extends ob
 							} else {
 								// was a create.  Add the new row after injecting the PK from the server
 								updateRowData(rowData.concat([{
-									...toSend,
+									...toAdd,
 									[props.primaryKey]: ret.success[props.primaryKey]
 								}]))
 							}
@@ -128,6 +159,7 @@ export default function ReportWithModalForm<T extends t.TypeC<any>, U extends ob
 				} else {
 					//TODO: I'm sure we can do better than this
 					setValidationErrors(["At least one field is not valid."]);
+					console.log(validateResult.swap().getOrElse(null));
 					resolve(null);
 				}
 			}, 0);
@@ -135,7 +167,10 @@ export default function ReportWithModalForm<T extends t.TypeC<any>, U extends ob
 		
 	}
 
-
+	const toRender = <div>
+		{report}
+		<Button className="mr-1 mb-1" outline onClick={() => openForEdit(none) }>{props.addRowText || "Add Row"}</Button>
+	</div>;
 
 	return <React.Fragment>
 		<Modal
@@ -164,16 +199,13 @@ export default function ReportWithModalForm<T extends t.TypeC<any>, U extends ob
 				</ButtonWrapper>
 			</ModalFooter>
 		</Modal>
-		<Card>
+		{props.noCard ? toRender : <Card>
 			<CardHeader>
 				<CardTitle tag="h5" className="mb-0">{props.cardTitle ?? "Report Table"}</CardTitle>
 			</CardHeader>
 			<CardBody>
-				<div>
-					{report}
-					<Button className="mr-1 mb-1" outline onClick={() => openForEdit(none) }>Add Row</Button>
-				</div>
+				{toRender}
 			</CardBody>
-		</Card>
+		</Card>}
 	</React.Fragment>;
 }

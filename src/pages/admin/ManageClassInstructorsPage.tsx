@@ -5,12 +5,13 @@ import ReportWithModalForm from "components/ReportWithModalForm";
 import {putWrapper as putInstructor} from "async/rest/class-instructor"
 import { FormGroup, Label, Col, Input } from 'reactstrap';
 import { StringifiedProps } from "util/StringifyObjectProps";
-import { SimpleReportColumn } from "core/SimpleReport";
+import { Column } from "react-table";
+import { TableColumnOptionsCbi } from "react-table-config";
 
 type ClassInstructor = t.TypeOf<typeof classInstructorValidator>;
 
 export default function ManageClassInstructorsPage(props: { instructors: ClassInstructor[] }) {
-	const columns: SimpleReportColumn[] = [{
+	const columns: TableColumnOptionsCbi[] = [{
 		accessor: "edit",
 		Header: "",
 		disableSortBy: true,
@@ -73,7 +74,6 @@ export default function ManageClassInstructorsPage(props: { instructors: ClassIn
 	return <ReportWithModalForm
 		rowValidator={classInstructorValidator}
 		rows={props.instructors}
-		formatRowForDisplay={x => x}
 		primaryKey="INSTRUCTOR_ID"
 		columns={columns}
 		formComponents={formComponents}

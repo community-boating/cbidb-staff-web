@@ -10,5 +10,6 @@ export enum PageName {
 	MANAGE_HIGH_SCHOOLS = "manage_high_schools",
 	MANAGE_CLASS_LOCATIONS = "manage_class_locations",
 	MANAGE_DONATION_FUNDS = "manage_donation_funds",
-	DOCK_REPORT = "dock_report"
+	DOCK_REPORT = "dock_report",
+	MANAGE_PERMISSIONS = "manage-permissions"
 }

@@ -4,7 +4,7 @@ import { FormGroup, Label, Col, Input, CustomInput } from "reactstrap";
 import { Check as CheckIcon } from "react-feather";
 
 // Table building utilities
-import { tableColWidth } from "util/tableUtil";
+import { CellBooleanIcon, CellOption, SortTypeBoolean, SortTypeOptionalNumber, tableColWidth } from "util/tableUtil";
 
 // Validator and putter for the data type of this page
 import { donationFundValidator } from "async/rest/donation-funds";
@@ -13,7 +13,8 @@ import { putWrapper as putDonationFund } from "async/rest/donation-funds";
 // The common display structure which is a table editable via modal
 import ReportWithModalForm from "components/ReportWithModalForm";
 import { StringifiedProps } from "util/StringifyObjectProps";
-import { SimpleReportColumn } from "core/SimpleReport";
+import { Column } from "react-table";
+import { TableColumnOptionsCbi } from "react-table-config";
 
 type DonationFund = t.TypeOf<typeof donationFundValidator>;
 
@@ -21,7 +22,7 @@ export default function ManageDonationFundsPage(props: {
 	donationFunds: DonationFund[];
 }) {
 	// Define table columns
-	const columns: SimpleReportColumn[] = [
+	const columns: TableColumnOptionsCbi[] = [
 		{
 			accessor: "edit",
 			Header: "",
@@ -40,30 +41,40 @@ export default function ManageDonationFundsPage(props: {
 		{
 			accessor: "LETTER_TEXT",
 			Header: "Letter Text",
+			Cell: CellOption,
 		},
 		{
 			accessor: "ACTIVE",
 			Header: "Active",
 			width: 100,
+			Cell: CellBooleanIcon(<CheckIcon color="#777" size="1.4em" />),
+			sortType: SortTypeBoolean
 		},
 		{
 			accessor: "DISPLAY_ORDER",
 			Header: "Display Order",
 			width: 130,
+			Cell: CellOption,
+			sortType: SortTypeOptionalNumber
 		},
 		{
 			accessor: "SHOW_IN_CHECKOUT",
 			Header: "Show in Checkout",
 			width: 125,
+			Cell: CellBooleanIcon(<CheckIcon color="#777" size="1.4em" />),
+			sortType: SortTypeBoolean
 		},
 		{
 			accessor: "PORTAL_DESCRIPTION",
 			Header: "Portal Description",
+			Cell: CellOption,
 		},
 		{
 			accessor: "IS_ENDOWMENT",
 			Header: "Is Endowment",
 			width: 125,
+			Cell: CellBooleanIcon(<CheckIcon color="#777" size="1.4em" />),
+			sortType: SortTypeBoolean
 		},
 	];
 
@@ -200,20 +211,12 @@ export default function ManageDonationFundsPage(props: {
 		<ReportWithModalForm
 			rowValidator={donationFundValidator}
 			rows={props.donationFunds}
-			formatRowForDisplay={fund => ({
-				...fund,
-				LETTER_TEXT: fund.LETTER_TEXT.getOrElse(""),
-				DISPLAY_ORDER: fund.DISPLAY_ORDER.map(String).getOrElse(""),
-				PORTAL_DESCRIPTION: fund.PORTAL_DESCRIPTION.getOrElse(""),
-				ACTIVE: fund.ACTIVE ? <CheckIcon color="#777" size="1.4em" /> : null,
-				SHOW_IN_CHECKOUT: fund.SHOW_IN_CHECKOUT ? <CheckIcon color="#777" size="1.4em" /> : null,
-				IS_ENDOWMENT: fund.IS_ENDOWMENT ? <CheckIcon color="#777" size="1.4em" /> : null,
-			})}
 			primaryKey="FUND_ID"
 			columns={columns}
 			formComponents={formComponents}
 			submitRow={putDonationFund}
 			cardTitle="Manage Donation Funds"
+			initialSortBy={[{id: "DISPLAY_ORDER"}]}
 		/>
 	);
 }

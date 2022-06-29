@@ -1,29 +1,24 @@
 import * as React from 'react';
 import {Button, Col, DropdownItem, DropdownMenu, DropdownToggle, Row, Table, UncontrolledButtonDropdown} from 'reactstrap'
-import { useTable, useSortBy, usePagination, TableOptions, TableInstance } from "react-table";
+import { useTable, useSortBy, usePagination, TableOptions, TableInstance, Column, SortByFn } from "react-table";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
 	faSortUp,
 	faSortDown,
 } from "@fortawesome/free-solid-svg-icons";
-import { TableOptionsCbi, TableInstanceCbi, TableStateCbi } from 'react-table-config';
-
-export type SimpleReportColumn = {
-	accessor: string,
-	Header: string,
-	disableSortBy?: boolean,
-	width?: number,
-}
+import { TableOptionsCbi, TableInstanceCbi, TableStateCbi, TableColumnOptionsCbi } from 'react-table-config';
 
 type SimpleReportRequiredProps<T_Data> = {
 	keyField: keyof T_Data,
 	data: T_Data[],
-	columns: SimpleReportColumn[],
+	columns: TableColumnOptionsCbi[],
 	sizePerPage?: number,
 	sizePerPageList?: number[],
+	initialSortBy?: {id: keyof T_Data, desc?: boolean}[]
 }
 
-export const SimpleReport: <T_Data>(props: SimpleReportRequiredProps<T_Data>) => JSX.Element = ({columns, data: dataProp, sizePerPage, sizePerPageList, keyField}) => {
+export const SimpleReport: <T_Data extends object>(props: SimpleReportRequiredProps<T_Data>) => JSX.Element
+= ({columns, data: dataProp, sizePerPage, sizePerPageList, keyField, initialSortBy}) => {
 	const usingPagination = sizePerPage !== undefined && sizePerPageList !== undefined;
 	const [data, setData] = React.useState(dataProp);
 	React.useEffect(() => {
@@ -51,7 +46,10 @@ export const SimpleReport: <T_Data>(props: SimpleReportRequiredProps<T_Data>) =>
 			columns,
 			data,
 			disableSortRemove: true,
-			initialState: {pageSize: sizePerPage},
+			initialState: {
+				pageSize: sizePerPage,
+				...(initialSortBy ? {sortBy: initialSortBy} : {})
+			},
 			autoResetPage: false,
 			autoResetExpanded: false,
 			autoResetGroupBy: false,

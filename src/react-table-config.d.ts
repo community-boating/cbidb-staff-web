@@ -49,6 +49,16 @@ import {
 	TableOptions,
 	TableInstance,
 	TableState,
+	TableCommonProps,
+	UseTableColumnProps,
+	UseTableColumnOptions,
+	Column,
+	ColumnInterface,
+	ColumnWithStrictAccessor,
+	Accessor,
+	IdType,
+	CellProps,
+	Renderer,
 } from 'react-table'
 
 
@@ -61,7 +71,15 @@ export interface TableInstanceCbi<D extends Record<string, unknown> = Record<str
 export interface TableStateCbi<D extends Record<string, unknown> = Record<string, unknown>>
 	extends TableState<D>, UsePaginationState<D>, UseSortByState<D> {}
 
-
+export interface TableColumnOptionsCbi<D extends Record<string, unknown> = Record<string, unknown>>
+	extends UseTableColumnOptions<D>,
+	UseFiltersColumnOptions<D>,
+	UseGroupByColumnOptions<D>,
+	UseResizeColumnsColumnOptions<D>,
+	UseSortByColumnOptions<D> {
+		accessor?: IdType<D> | Accessor<D>,
+		Cell?: Renderer<CellProps<D, any>> | undefined;
+	}
 
 	// import {
 	// 	UseColumnOrderInstanceProps,
