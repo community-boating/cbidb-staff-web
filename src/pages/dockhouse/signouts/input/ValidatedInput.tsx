@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { FormGroup, FormGroupProps, Input, InputProps, Tooltip } from "reactstrap";
+import { CustomInput, FormFeedback, FormGroup, FormGroupProps, Input, InputProps, Tooltip } from "reactstrap";
 import { isSome, none, Option} from 'fp-ts/lib/Option';
 import { either, option, validation } from 'fp-ts';
 import { ReactNode } from 'react';
@@ -30,16 +30,15 @@ export class ValidatedInput<T> extends React.Component<(ValidatedInputProps<T> &
 	}
 	render() {
 		var {initValue,updateValue,children,makeInputProps,convertChange,validationResults,...other}=this.props;
-		var className = (validationResults.length == 0 ? "" : "new border border-danger");
 		var errorTooltip = <></>;
 		if(validationResults.length > 0){
-			errorTooltip=<Tooltip isOpen={this.state.showErrors} target={this.props.id} placement="right"><b>{validationResults.map((a) => a.display)}</b></Tooltip>;
+			errorTooltip=<FormFeedback>{validationResults.map((a) => a.display)}</FormFeedback>;
 		}
 		return (
 			<>
 			<Input {...other} {...makeInputProps(this.props.initValue)} 
 			onChange={(e) => {updateValue(convertChange(e))}}
-			className={className}
+			invalid={validationResults.length > 0}
 			onBlur={() => {
 				this.setState({...this.state,showErrors:false})
 				}}
@@ -275,7 +274,8 @@ export function wrapForFormComponentsMoment(rowForEdit: any, updateState: (id: s
 		updateValue:(v) => {
 			updateState(rowId, v.getOrElse("").format())
 		},
-		validationResults: validationResults.filter((a) => a.key == rowId)
+		validationResults: validationResults.filter((a) => a.key == rowId),
+		id: rowId
 	};
 }
 

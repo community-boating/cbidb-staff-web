@@ -14,6 +14,8 @@ import { destringify, DisplayableProps, nullifyEmptyStrings, StringifiedProps, s
 import { left } from "fp-ts/lib/Either";
 import { Editable } from "util/EditableType";
 import { option } from "fp-ts";
+import { ReactNode } from "react";
+import { Row } from "react-table";
 
 export type validationError = {
 	key: string,
@@ -30,6 +32,9 @@ export default function ReportWithModalForm<K extends keyof U, T extends t.TypeC
 	submitRow: APIWrapper<any, any, any>
 	cardTitle?: string;
 	columnsNonEditable?: K[];
+	globalFilter?: (rows: Row<any>[], columnIds: string[], filterValue: any) => Row<any>[];
+	globalFilterValueControlled?: any;
+	hidableColumns?: boolean,
 }) {
 
 	const blankForm = {
@@ -56,6 +61,10 @@ export default function ReportWithModalForm<K extends keyof U, T extends t.TypeC
 		columns={props.columns}
 		sizePerPage={12}
 		sizePerPageList={[12, 25, 50, 1000]}
+		globalFilter={props.globalFilter}
+		globalFilterValueControlled={props.globalFilterValueControlled}
+		hidableColumns={props.hidableColumns}
+		reportId={props.cardTitle.replace(" ", "")}
 	/>, [rowData, props.formatRowForDisplay]);
 	//Added dependency on formatRowForDisplay to allow changes to the converter function to propagate down
 	//This is needed for the async polling of semi static variables like boatTypes

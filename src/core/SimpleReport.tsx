@@ -1,6 +1,6 @@
 import * as React from 'react';
-import {Button, Col, DropdownItem, DropdownMenu, DropdownToggle, Row, Table, UncontrolledButtonDropdown} from 'reactstrap'
-import { useTable, useSortBy, usePagination, TableOptions, TableInstance } from "react-table";
+import {Button, Col, Row, DropdownItem, DropdownMenu, DropdownToggle, Table, UncontrolledButtonDropdown, Input, Label, Form, Popover, PopoverBody, PopoverHeader, UncontrolledPopover, ButtonGroup, FormGroup, Card} from 'reactstrap'
+import { useTable, useSortBy, usePagination, Row as RowRT, TableOptions, TableInstance, useFilters, Column, DefaultFilterTypes, FilterType, useGlobalFilter, PluginHook } from "react-table";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
 	faSortUp,
@@ -14,6 +14,7 @@ export type SimpleReportColumn = {
 	Header: ReactNode,
 	disableSortBy?: boolean,
 	width?: number,
+	toggleHidden?: boolean
 }
 
 type SimpleReportRequiredProps<T_Data> = {
@@ -22,14 +23,55 @@ type SimpleReportRequiredProps<T_Data> = {
 	columns: SimpleReportColumn[],
 	sizePerPage?: number,
 	sizePerPageList?: number[],
+	globalFilter?: (rows: RowRT<any>[], columnIds: string[], filterValue: any) => RowRT<any>[],
+	globalFilterValueControlled?: any
+	hidableColumns?: boolean
+	reportId?: string
 }
 
-export const SimpleReport: <T_Data>(props: SimpleReportRequiredProps<T_Data>) => JSX.Element = ({columns, data: dataProp, sizePerPage, sizePerPageList, keyField}) => {
+export const SimpleReport: <T_Data>(props: SimpleReportRequiredProps<T_Data>) => JSX.Element = ({columns, data: dataProp, sizePerPage, sizePerPageList, keyField, globalFilter, globalFilterValueControlled, hidableColumns, reportId}) => {
 	const usingPagination = sizePerPage !== undefined && sizePerPageList !== undefined;
 	const [data, setData] = React.useState(dataProp);
+	//const globalFilter = React.useMemo((rows, cols, filter) => {console.log("sdlfjskdfsdjfksjdfksdfl"); return rows}, [data, globalFilterS]);
 	React.useEffect(() => {
 		setData(dataProp);
 	}, [dataProp])
+
+	const tableInstance = (function() {
+		const config = {
+			columns,
+			data,
+			disableSortRemove: true,
+			globalFilter: globalFilter,
+			initialState: {pageSize: sizePerPage},
+			autoResetPage: false,
+			autoResetExpanded: false,
+			autoResetGroupBy: false,
+			autoResetSelectedRows: false,
+			autoResetSortBy: false,
+			autoResetFilters: true,
+			autoResetRowState: false,
+			autoResetGlobalFilter: false
+			
+		} as TableOptionsCbi<any>;
+
+		var plugins:PluginHook<any>[] = [];
+
+		if(globalFilter !== undefined){
+			plugins.push(useGlobalFilter);
+		}
+
+		plugins.push(useSortBy);
+
+		if(usePagination){
+			plugins.push(usePagination);
+		}
+
+		return useTable(
+			config,
+			...plugins
+		) as TableInstanceCbi<any>;
+	}());
 
 	const {
 		getTableProps,
@@ -38,47 +80,36 @@ export const SimpleReport: <T_Data>(props: SimpleReportRequiredProps<T_Data>) =>
 		prepareRow,
 		rows,
 		page,
+		allColumns,
 		canPreviousPage,
 		canNextPage,
 		pageOptions,
+
 		pageCount,
 		gotoPage,
 		nextPage,
 		previousPage,
 		setPageSize,
+		setFilter,
+		setAllFilters,
+		setGlobalFilter,
+		filteredRows,
+		setHiddenColumns,
+		allColumnsHidden,
+		preFilteredRows,
+		toggleHideAllColumns,
 		state,
-	} = (function() {
-		const config = {
-			columns,
-			data,
-			disableSortRemove: true,
-			initialState: {pageSize: sizePerPage},
-			autoResetPage: false,
-			autoResetExpanded: false,
-			autoResetGroupBy: false,
-			autoResetSelectedRows: false,
-			autoResetSortBy: false,
-			autoResetFilters: false,
-			autoResetRowState: false,
-		} as TableOptionsCbi<any>;
-
-		if (usePagination) {
-			return useTable(
-				config,
-				useSortBy,
-				usePagination
-			) as TableInstanceCbi<any>;
-		} else {
-			return useTable(
-				config,
-				useSortBy
-			) as TableInstanceCbi<any>;
-		}
-	}());
+	} = (tableInstance);
 
 	const {pageIndex, pageSize} = state as TableStateCbi<any>;
+	//console.log("oh oh" + String(filterValue));
+	//setGlobalFilter("filter");
+	//const memoizedFilteredRows = React.useMemo(() => globalFilter(rows, allColumns.map((a) => a.id), filterValue), [data, preFilteredRows, allColumns, filterValue]);
+	//tableInstance.globalFilter = (a, b, c) => memoizedFilteredRows;
 
-	const pagination = () => <Row>
+	React.useEffect(() => {setGlobalFilter(globalFilterValueControlled);}, [globalFilterValueControlled]);
+
+	const pagination = React.useMemo(() => <Row>
 		<Col>
 			<UncontrolledButtonDropdown  className="mr-1 mb-1">
 				<DropdownToggle caret >{pageSize}</DropdownToggle>
@@ -96,9 +127,23 @@ export const SimpleReport: <T_Data>(props: SimpleReportRequiredProps<T_Data>) =>
 				gotoPage
 			})}
 		</Col>
-	</Row>;
+	</Row>, [pageSize, pageIndex, pageCount]);
 
 	const dataToUse = usingPagination ? page : rows;
+	
+	const hiddenColumnsControl = hidableColumns ? 
+			<Form style={{marginBottom:"15px"}}>
+				<ButtonGroup>
+					{allColumns.filter((a) => a['canSort'] === true).map((a, i) =>
+						<Button outline color="primary" size="sm" active={!a.isVisible} key={i} onClick={
+							() => a.toggleHidden()
+						}>{a.render("Header")}</Button>)}
+						<Button outline color="primary" size="sm" active={true} onClick={
+							() => toggleHideAllColumns(false)
+						}>Show All</Button>
+				</ButtonGroup>
+			</Form>
+	 : null;
 
 	return <>
 		<Table striped bordered {...getTableProps()}>
@@ -106,9 +151,11 @@ export const SimpleReport: <T_Data>(props: SimpleReportRequiredProps<T_Data>) =>
 				{headerGroups.map((headerGroup) => (
 					<tr {...headerGroup.getHeaderGroupProps()}>
 						{headerGroup.headers.map((column: any) => {
+							//console.log(column);
 							// Add the sorting props to control sorting. For this example
 							// we can add them into the header props
 							const thProps = column.getHeaderProps(column.getSortByToggleProps());
+							//console.log(thProps);
 							thProps.style = thProps.style || {};
 							if (column.width) {
 								thProps.style.width = column.width+"px"
@@ -124,6 +171,7 @@ export const SimpleReport: <T_Data>(props: SimpleReportRequiredProps<T_Data>) =>
 										)
 									) : null}
 								</span>
+								
 							</th>
 						})}
 					</tr>
@@ -144,7 +192,8 @@ export const SimpleReport: <T_Data>(props: SimpleReportRequiredProps<T_Data>) =>
 				})}
 			</tbody>
 		</Table>
-		{usingPagination ? pagination() : null}
+		{hiddenColumnsControl}
+		{usingPagination ? pagination : null}
 	</>
 };
 

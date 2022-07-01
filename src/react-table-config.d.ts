@@ -53,13 +53,15 @@ import {
 
 
 export interface TableOptionsCbi<D extends Record<string, unknown>>
-	extends TableOptions<D>, UsePaginationOptions<D>, UseSortByOptions<D> {}
+	extends TableOptions<D>, UsePaginationOptions<D>, UseSortByOptions<D>, UseGlobalFiltersOptions<D>, UseFiltersOptions<D> {}
 
 export interface TableInstanceCbi<D extends Record<string, unknown> = Record<string, unknown>>
-	extends TableInstance<D>, UsePaginationInstanceProps<D>, UseSortByInstanceProps<D> {}
+	extends TableInstance<D>, UsePaginationInstanceProps<D>, UseSortByInstanceProps<D>, UseFiltersInstanceProps<D>, UseGlobalFiltersInstanceProps<D> {
+	[x: string]: any;
+}
 
 export interface TableStateCbi<D extends Record<string, unknown> = Record<string, unknown>>
-	extends TableState<D>, UsePaginationState<D>, UseSortByState<D> {}
+	extends TableState<D>, UsePaginationState<D>, UseSortByState<D>, UseGlobalFiltersState<D> {}
 
 
 

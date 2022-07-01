@@ -9,8 +9,6 @@ export const OptionalDateTime = new t.Type<Option<moment.Moment>, string, unknow
 	'OptionalDate',
 	(u) : u is Option<moment.Moment> => u["_tag"] !== undefined,
 	(u, c) => t.union([t.string, t.null, t.undefined]).validate(u, c).chain(s => {
-		console.log("whonk");
-		console.log(s);
 		if (s === null || s === undefined) return t.success(<Option<moment.Moment>>none)
 		else return t.success(some(moment(s, DefaultDateTimeFormat)))
 	}),

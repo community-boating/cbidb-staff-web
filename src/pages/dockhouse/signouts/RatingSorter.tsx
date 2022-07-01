@@ -1,138 +1,105 @@
-import { ratingValidator, programsValidator, boatsValidator } from "async/rest/signouts-tables";
+import { ratingValidator, programsValidator, boatsValidator, personRatingValidator } from "async/rest/signouts-tables";
 import { option } from "fp-ts";
-import { ReactNode } from "react";
 import * as React from 'react';
 import { FlagStatusIcons } from "./FlagStatusIcons"
 import * as t from "io-ts";
-import { Popover } from "reactstrap";
 import { SignoutTablesState, RatingsValidatorState, programsHR } from "./SignoutsTablesPage";
+import { MultiHover } from "./MultiHover";
+import { ReactNode } from "react";
 
 
 type RatingValidatorState = t.TypeOf<typeof ratingValidator>;
 type ProgramValidatorState = t.TypeOf<typeof programsValidator>;
 type BoatValidatorState = t.TypeOf<typeof boatsValidator>;
+type PersonRatingValidatorState = t.TypeOf<typeof personRatingValidator>;
 
-class RatingsHover extends React.Component<{
-	makeChildren: () => ReactNode,
-	id: string,
-	closeOthers: ((id: string) => void)[]
-},{
-	children: ReactNode,
-	open: boolean
-}>{
-	constructor(props){
-		super(props);
-		this.state = {open: false, children: undefined};
-		this.props.closeOthers.push((id: string) => {
-			if(id != this.props.id){
-				if(this.state.open){
-					this.setOpen(false);
-				}
-			}
-		});
-	}
-	setOpen(open: boolean){
-		if(open) {
-			this.props.closeOthers.forEach((a) => {
-				a(this.props.id);
-			});
-		}
-		if(open && this.state.children == undefined){
-		this.setState({
-			children: this.props.makeChildren(),
-			open: open
-		});
-		}else{
-			this.setState({
-				...this.state,
-				open: open
-			});
-		}
-	}
-	toggleOpen(){
-		this.setOpen(!this.state.open);
-	}
-	render(){
-		return (<>
-			<a id={this.props.id} onClick={() => this.toggleOpen} onMouseOver={() => this.setOpen(true)} onMouseOut={() => this.setOpen(false)}>
-				Ratings
-			</a>
-			<Popover placement="bottom" isOpen={this.state.open} target={this.props.id} toggle={() => this.toggleOpen()}>
-				{this.state.children || ""}
-			</Popover>
-		</>);
-	}
-}
-
-function drawRatingBucket(currentRatings: {[key:number] : boolean}, ratingBucket: RatingTreeNode[], program: number){
+//Display a precomputed ratingBucket with current ratings and program information for a given person.
+function drawRatingBucket(currentRatings: {[key:number] : PersonRatingValidatorState[]}, ratingBucket: RatingTreeNode[], program: number, isOrphaned: boolean){
 	if(ratingBucket.length == 0){
-		return "";
+		return undefined;
 	}
-	var highest : RatingValidatorState = undefined;
+	var highest : RatingTreeNode[] = undefined;
 	for(var node of ratingBucket){
-		highest = findHighestRating(currentRatings, node, program);
-		if(highest != undefined){
-			break;
+		const nodeHighest = findHighestRating(currentRatings, node, program, isOrphaned);
+		if(nodeHighest != undefined){
+			highest = (highest || []).concat(nodeHighest);
 		}
 	}
-	var hasRating = true;
+	var isDefault = false;
 	if(highest == undefined){
-		highest = ratingBucket[0].rating;
-		hasRating = false;
+		highest = [ratingBucket[0]];
+		isDefault = true;
+		if(!hasProgram(program, highest[0].rating.$$programs, highest[0].rating.$$boats) && !hasRatingRecursive(currentRatings, highest[0], program, isOrphaned ? undefined : highest[0].rating.ratingId)){
+			return undefined;
+		}
 	}
-	return <span style={hasRating ? {color: "red"} : {}}>{highest.ratingName}</span>
+	return <>{highest.map((a, i) => <span style={hasRating(currentRatings, a.rating.ratingId, program) ? {color: "red"} : {}}key={i}>{a.rating.ratingName}</span>)}</>;
 }
-
-export function makeRatingsHover(row: SignoutTablesState, sortedRatings: RatingTreeNode[][][], orphanedRatings: RatingValidatorState[], hiddenOrphanedRatings: {[key: number]: boolean}, closeOthers: ((id: string) => void)[]){
-	if(sortedRatings.length == 0){
-		return <p>Loading...</p>;
+export function getMakeRatingsTable(row: SignoutTablesState, sortedRatings: SortedRatings, orphanedRatingsShownByDefault: {[key: number]: boolean}){
+	if(sortedRatings.ratingsRows.length == 0){
+		return () => <p>Loading...</p>;
 	}
 
 	const currentRatings = {};
 
 	row.$$skipper.$$personRatings.forEach((a) => {
-		currentRatings[a.ratingId] = true;
+		if(row.programId == a.programId){
+			currentRatings[a.ratingId] = (currentRatings[a.ratingId] || []).concat(a);
+		}
 	});
 
-	const makeHover = () => {
+	const makeTable = () => {
 		var programHR = "Unknown Program";
 		programsHR.forEach((a) => {
 			if(a.value == row.programId){
 				programHR = a.display;
 			}
-		})
+		});
+		var drawnRows: ReactNode[][] = sortedRatings.ratingsRows.map((a, i) => a.map((b, i) => drawRatingBucket(currentRatings,b,row.programId,false)));
+		drawnRows.forEach((a, i) => {
+			drawnRows[i] = a.filter((b) => b !== undefined);
+		});
+		drawnRows = drawnRows.filter((a) => a.length > 0);
 		return (<div>
 			<h3 style={{textAlign:"center"}}>{programHR}</h3>
-			<table>
+			<table className="table table-sm">
 				<tbody>
-					{sortedRatings.map((a, i) => {return <tr key={i}>
-						{a.map((b, j) => {return <td key={j} valign="top">
-							{drawRatingBucket(currentRatings,b,row.programId)}
+					{drawnRows.map((a, i) => {return <tr key={i}>
+						{a.map((drawnRow, j) => {return <td key={j} valign="top">
+							{drawnRow}
 						</td>})}
 					</tr>})}
-					<tr>
-						<td><hr/></td>
-						<td><hr/></td>
-						<td><hr/></td>
-					</tr>
-					{makeOrphanedTableRows(currentRatings, orphanedRatings, hiddenOrphanedRatings, row.programId)}
+					{makeOrphanedTableRows(currentRatings, sortedRatings.orphanedRatings, orphanedRatingsShownByDefault, row.programId)}
 				</tbody>
 			</table></div>);
-	}
+	};
+	return makeTable;
+}
+
+export function makeRatingsHover(row: SignoutTablesState, sortedRatings: SortedRatings, orphanedRatingsShownByDefault: {[key: number]: boolean}, closeOthers: ((id: string) => void)[]){
+
+	/*row.programId = 2;
+	row.$$skipper.$$personRatings.push({ratingId: 963, personId: row.$$skipper.personId, programId: row.programId});
+	row.$$skipper.$$personRatings.push({ratingId: 122, personId: row.$$skipper.personId, programId: row.programId});
+	row.$$skipper.$$personRatings.push({ratingId: 12, personId: row.$$skipper.personId, programId: row.programId});
+	row.$$skipper.$$personRatings.push({ratingId: 20, personId: row.$$skipper.personId, programId: row.programId});
+	//row.$$skipper.$$personRatings.push({ratingId: 21, personId: row.$$skipper.personId, programId: row.programId});
+	row.$$skipper.$$personRatings.push({ratingId: 22, personId: row.$$skipper.personId, programId: row.programId});*/
+
+	const makeHover = getMakeRatingsTable(row, sortedRatings, orphanedRatingsShownByDefault);
 
 	return (
-		<RatingsHover id={"ratings" + String(row.signoutId)} makeChildren={makeHover} closeOthers={closeOthers}/>
+		<MultiHover id={"ratings" + String(row.signoutId)} makeChildren={makeHover} closeOthers={closeOthers}/>
 	)
 }
 
-function makeOrphanedTableRows(currentRatings, orphanedRatings: RatingValidatorState[], hiddenOrphanedRatings: {[key: number] : boolean}, program: number){
-	const filteredOrphanedRatings = orphanedRatings.filter((a) => hiddenOrphanedRatings[a.ratingId] == undefined && hasProgram(program, a.$$programs, a.$$boats));
+function makeOrphanedTableRows(currentRatings: {[key: number]: PersonRatingValidatorState[]}, orphanedRatings: RatingTreeNode[], orphanedRatingsShownByDefault: {[key: number] : boolean}, program: number){
+	const filteredOrphanedRatings = orphanedRatings.filter((a) => (orphanedRatingsShownByDefault[a.rating.ratingId] !== undefined && hasProgram(program, a.rating.$$programs, a.rating.$$boats)) || hasRatingRecursive(currentRatings, a, program, undefined));
 	const tableRows = [];
-	for(var i = 0; i < Math.ceil(filteredOrphanedRatings.length/3); i++){
+	for(var i = 0; i < Math.ceil(filteredOrphanedRatings.length/2); i++){
 		tableRows.push(<tr key={i}>
-			<td key="1" valign="top">{3*i < filteredOrphanedRatings.length ? drawRatingBucket(currentRatings, [{rating:filteredOrphanedRatings[3*i], children: []}], program) : ""}</td>
-			<td key="2" valign="top">{3*i + 1 < filteredOrphanedRatings.length ? drawRatingBucket(currentRatings, [{rating:filteredOrphanedRatings[3*i+1], children: []}], program) : ""}</td>
-			<td key="3" valign="top">{3*i + 2 < filteredOrphanedRatings.length ? drawRatingBucket(currentRatings, [{rating:filteredOrphanedRatings[3*i+2], children: []}], program) : ""}</td>
+			<td key="1" valign="top">{2*i < filteredOrphanedRatings.length ? drawRatingBucket(currentRatings, [filteredOrphanedRatings[2*i]], program,true) : ""}</td>
+			<td key="2" valign="top">{2*i + 1 < filteredOrphanedRatings.length ? drawRatingBucket(currentRatings, [filteredOrphanedRatings[2*i+1]], program,true) : ""}</td>
 		</tr>);
 	}
 	return tableRows;
@@ -145,35 +112,76 @@ type RatingTreeNode = {
 	children: RatingTreeNode[],
 	//Similar parents (overriding this rating and not a different flag color, ordered by override)
 	parents?: RatingValidatorState[],
-	//Flag to know if this is a different color than its parent
-	clipped?: boolean
+	//Rating Id for the base node of this tree (useful when the node is a child of a similar parent)
+	baseNodeId?: number
 }
 
-function findHighestRating(currentRatings: {[key:number] : boolean}, ratingBucket: RatingTreeNode, program: number) : RatingValidatorState{
+function findHighestRating(currentRatings: {[key:number] : PersonRatingValidatorState[]}, ratingBucket: RatingTreeNode, program: number, isOrphaned: boolean) : RatingTreeNode[]{
 	if(ratingBucket.parents != undefined){
 		for(var parent of ratingBucket.parents){
-			if(currentRatings[parent.ratingId] != undefined && hasProgram(program, parent.$$programs, parent.$$boats)){
-				return parent;
+			if(hasRating(currentRatings, parent.ratingId, program)){
+				return [{rating: parent, children: []}];
 			}
 		}
 	}
-	return findHighestRatingRecursive(currentRatings, ratingBucket, program);
+	return findHighestRatingRecursive(currentRatings, ratingBucket, program, isOrphaned ? undefined : ratingBucket.rating.ratingId);
 }
 
-function findHighestRatingRecursive(currentRatings: {[key:number] : boolean}, ratingBucket: RatingTreeNode, program: number) : RatingValidatorState{
-	if((currentRatings[ratingBucket.rating.ratingId] != undefined) && hasProgram(program, ratingBucket.rating.$$programs, ratingBucket.rating.$$boats)){
-		return ratingBucket.rating;
+function findHighestRatingRecursive(currentRatings: {[key:number] : PersonRatingValidatorState[]}, ratingBucket: RatingTreeNode, program: number, baseNodeId: number) : RatingTreeNode[]{
+	if(hasRating(currentRatings, ratingBucket.rating.ratingId, program)){
+		return [ratingBucket];
 	}else{
+		var multiRet = [];
 		for(var child of ratingBucket.children){
-			if(child.clipped != true){
-				var ret = findHighestRatingRecursive(currentRatings, child, program);
+			if(isContinued(child, baseNodeId)){
+				var ret = findHighestRatingRecursive(currentRatings, child, program, baseNodeId);
 				if(ret != undefined){
-					return ret;
+					multiRet = multiRet.concat(ret);
 				}
 			}
 		}
+		if(multiRet.length > 0){
+			return multiRet;
+		}
 	}
 	return undefined;
+}
+
+function isContinued(ratingTreeNode: RatingTreeNode, baseNodeId: number){
+	return baseNodeId === undefined || ratingTreeNode.baseNodeId === baseNodeId;
+}
+
+function hasRating(currentRatings: {[key:number] : PersonRatingValidatorState[]}, ratingId: number, program: number){
+	if(currentRatings[ratingId] === undefined){
+		return false;
+	}
+	for(var rating of currentRatings[ratingId]){
+		if(rating.programId == program){
+			return true;
+		}
+	}
+	return false;
+}
+
+
+function hasRatingRecursive(currentRatings: {[key:number] : PersonRatingValidatorState[]}, rating: RatingTreeNode, program: number, baseNodeId: number){
+	if(rating.parents != undefined){
+		for(var parent of rating.parents){
+			if(hasRating(currentRatings, parent.ratingId, program)){
+				return true;
+			}
+		}
+	}
+	if(hasRating(currentRatings, rating.rating.ratingId, program)){
+		return true;
+	}else{
+		for(var child of rating.children){
+			if(isContinued(child, baseNodeId) && hasRatingRecursive(currentRatings, child, program, baseNodeId)){
+				return true;
+			}
+		}
+	}
+	return false;
 }
 
 function endsHRColor(color: string, rating: RatingValidatorState){
@@ -183,18 +191,32 @@ function endsHRColor(color: string, rating: RatingValidatorState){
 function isColor(color: string, rating: RatingValidatorState, isOther: boolean){
 	if(rating.$$boats.length == 0){
 		//TODO this is pretty hacky, need to pass more information about the rating so we know if it is a single colored rating but has no assigned boats (spinnaker currently)
+		//Probably just add a boat with a null id or a -1 id and a flag color, that way no database schema changes would be required.
 		if(rating.ratingName.startsWith("Spinnaker")){
 			return isOther ? !endsHRColor(color, rating) : endsHRColor(color, rating);
 		}else{
 			return false;
 		}
 	}
+	const singleColor = getSingleColor(rating);
+	if(isOther){
+		return singleColor !== undefined && singleColor != color;
+	}
+	return singleColor !== undefined && singleColor == color;
+}
+
+function getSingleColor(rating: RatingValidatorState){
+	var color = undefined;
 	for(var boat of rating.$$boats){
-		if(isOther ? boat.flag == color : boat.flag != color){
-			return false;
+		if(color !== undefined){
+			if(boat.flag != color){
+				return undefined;
+			}
+		}else{
+			color = boat.flag;
 		}
 	}
-	return true;
+	return color;
 }
 
 function isSingleColor(color: string, rating: RatingValidatorState){
@@ -205,7 +227,7 @@ function isOtherColor(color: string, rating: RatingValidatorState){
 	return isColor(color, rating, true);
 }
 
-function findFirstSingleColors(color: string, parentColor: string, ratingsTree: RatingTreeNode){
+function findFirstSingleColors(color: string, parentColor: string, ratingsTree: RatingTreeNode): RatingTreeNode[]{
 	if(isSingleColor(color, ratingsTree.rating)){
 		return [ratingsTree];
 	}else if(isOtherColor(color, ratingsTree.rating) && !isSingleColor(parentColor, ratingsTree.rating)){
@@ -220,13 +242,33 @@ function findFirstSingleColors(color: string, parentColor: string, ratingsTree: 
 	}
 }
 
-function clipChildrenSimilarColor(color: string, ratingsTree: RatingTreeNode){
-	if(isSingleColor(color, ratingsTree.rating)){
+function listHasRatingId(ratingList: RatingValidatorState[], ratingId: number){
+	for(var rating of ratingList){
+		if(rating.ratingId == ratingId){
+			return true;
+		}
+	}
+	return false;
+}
+
+function flagChildrenSimilarColor(color: string, ratingsTree: RatingTreeNode, baseNodeId: number, lowerParents: RatingValidatorState[]){
+	if(!isOtherColor(color, ratingsTree.rating)){
+		if(!listHasRatingId(lowerParents, ratingsTree.rating.ratingId)){
+			ratingsTree.baseNodeId = baseNodeId;
+		}
+		var isBottom = ratingsTree.children.length > 1;
 		ratingsTree.children.forEach((a) => {
-			clipChildrenSimilarColor(color, a);
+			if(a.children.length != 0){
+				isBottom=false;
+			}
 		});
-	}else{
-		ratingsTree.clipped=true;
+		if(isBottom){
+			//Dont s
+			return;
+		}
+		ratingsTree.children.forEach((a) => {
+			flagChildrenSimilarColor(color, a, baseNodeId, lowerParents);
+		});
 	}
 }
 
@@ -240,9 +282,15 @@ function getSimilarColorParents(color: string, ratingId: number, ratingsById: {[
 	return parents;
 }
 
-function makeRatingsRows(ratingTreeTop: RatingValidatorState, ratingsById: {[key: number]: RatingValidatorState}, ratingsByOverrideId: {[key: number]: number[]}){
+var getChildrenWatcher = 0;
+
+function makeRatingsRows(ratingTreeTop: RatingValidatorState, ratingsById: {[key: number]: RatingValidatorState}, ratingsByOverrideId: {[key: number]: number[]}) : RatingTreeNode | RatingTreeNode[][][]{
+	getChildrenWatcher = 0;
 	const tree = getChildren({rating: ratingTreeTop, children:[]},ratingsById,ratingsByOverrideId);
 	const red = findFirstSingleColors("R", "", tree);
+	if(red.length == 0){
+		return tree;
+	}
 	const ratingsRows: RatingTreeNode[][][] = [];
 	red.forEach((a) => {
 		ratingsRows.push(makeRatingsBuckets(a,ratingsById));
@@ -252,22 +300,33 @@ function makeRatingsRows(ratingTreeTop: RatingValidatorState, ratingsById: {[key
 
 function makeRatingsBuckets(red: RatingTreeNode, ratingsById: {[key: number]: RatingValidatorState}) : RatingTreeNode[][]{
 	red.parents = getSimilarColorParents("R",red.rating.ratingId, ratingsById);
-	clipChildrenSimilarColor("R", red);
 	var yellows = findFirstSingleColors("Y", "R", red);
+	var allYellowParents = [];
 	var greens = [];
 	yellows.forEach((a) => {
 		a.parents = getSimilarColorParents("Y", a.rating.ratingId, ratingsById);
-		clipChildrenSimilarColor("Y", a);
+		allYellowParents = allYellowParents.concat(a.parents);
 		greens = greens.concat(findFirstSingleColors("G", "Y", a));
 	});
+	flagChildrenSimilarColor("R", red, red.rating.ratingId, allYellowParents);
+	var allGreenParents = [];
 	greens.forEach((a) => {
 		a.parents = getSimilarColorParents("G", a.rating.ratingId, ratingsById);
-		clipChildrenSimilarColor("G", a);
+		allGreenParents = allGreenParents.concat(a.parents);
+		flagChildrenSimilarColor("G", a, a.rating.ratingId, []);
 	});
+	yellows.forEach((a) => {
+		flagChildrenSimilarColor("Y", a, a.rating.ratingId, allGreenParents);
+	})
 	return [[red],yellows,greens];
 }
 
-export function sortRatings(ratings: RatingsValidatorState) : RatingTreeNode[][][]{
+export type SortedRatings = {
+	ratingsRows: RatingTreeNode[][][];
+	orphanedRatings: RatingTreeNode[];
+}
+
+export function sortRatings(ratings: RatingsValidatorState) : SortedRatings{
 	const ratingsById : {[key: number]: RatingValidatorState} = {};
 	const ratingsByOverrideId: {[key: number]: number[]} = {};
 	const inferredProgramIds: number[] = [];
@@ -284,25 +343,30 @@ export function sortRatings(ratings: RatingsValidatorState) : RatingTreeNode[][]
 	});
 	var ratingsTreesTops = ratings.filter((a) => option.isNone(a.overriddenBy) && ratingsByOverrideId[a.ratingId] !== undefined);
 	var ratingsRowsTotal: RatingTreeNode[][][] = [];
-	ratingsTreesTops = ratingsTreesTops.filter((a) => a.$$programs.length > 0);
+	var orphanedRatings: RatingTreeNode[] = [];
 	ratingsTreesTops.forEach((a) => {
 		const ratingsRows = makeRatingsRows(a, ratingsById, ratingsByOverrideId);
-		if(ratingsRows.length > 0){
-			ratingsRowsTotal = ratingsRowsTotal.concat(ratingsRows);
+		if((ratingsRows as RatingTreeNode).rating != undefined){
+			orphanedRatings = orphanedRatings.concat(ratingsRows as RatingTreeNode);
+		}else if((ratingsRows as RatingTreeNode[][][]).length > 0){
+			ratingsRowsTotal = ratingsRowsTotal.concat(ratingsRows as RatingTreeNode[][][]);
 		}
 	});
-
+	//TODO fix this
 	ratingsRowsTotal = ratingsRowsTotal.sort((a, b) => a[0][0].rating.ratingId-b[0][0].rating.ratingId);
-	
-	return ratingsRowsTotal;
+	orphanedRatings = orphanedRatings.concat(findOrphanedRatings(ratings,ratingsRowsTotal, orphanedRatings));
+	return {ratingsRows: ratingsRowsTotal, orphanedRatings: orphanedRatings};
 }
 
-export function findOrphanedRatings(ratings: RatingsValidatorState, ratingsRows: RatingTreeNode[][][]){
+export function findOrphanedRatings(ratings: RatingsValidatorState, ratingsRows: RatingTreeNode[][][], currentOrphans: RatingTreeNode[]) : RatingTreeNode[]{
 	var foundRatings: {[key: number]: boolean} = {};
+	currentOrphans.forEach((a) => {
+		findOrphanedRecursive(foundRatings, a, undefined);
+	})
 	ratingsRows.forEach((a) =>{
 		a.forEach((b) => {
 			b.forEach((c) => {
-				findOrphanedRecursive(foundRatings, c);
+				findOrphanedRecursive(foundRatings, c, c.rating.ratingId);
 				if(c.parents != undefined){
 					c.parents.forEach((d) => {
 						foundRatings[d.ratingId] = true;
@@ -311,38 +375,43 @@ export function findOrphanedRatings(ratings: RatingsValidatorState, ratingsRows:
 			});
 		});
 	});
-	return ratings.filter((a) => foundRatings[a.ratingId] == undefined).sort((a, b) => {
-		if(option.isSome(a.overriddenBy) && option.isSome(b.overriddenBy)){
-			return (a.overriddenBy.getOrElse(0) - b.overriddenBy.getOrElse(0));
-		}else if(option.isSome(a.overriddenBy)){
-			return 1;
-		}else if(option.isSome(b.overriddenBy)){
+	return ratings.map((a) => {return {rating: a, children: []}}).filter((a) => foundRatings[a.rating.ratingId] == undefined).sort((a, b) => {
+		if(option.isSome(a.rating.overriddenBy) && option.isSome(b.rating.overriddenBy)){
+			return (a.rating.overriddenBy.getOrElse(0) - b.rating.overriddenBy.getOrElse(0));
+		}else if(option.isSome(a.rating.overriddenBy)){
 			return -1;
+		}else if(option.isSome(b.rating.overriddenBy)){
+			return 1;
 		}else{
-			return a.ratingId - b.ratingId;
+			return a.rating.ratingId - b.rating.ratingId;
 		}
 		});
 }
 
-function findOrphanedRecursive(foundRatings: {[key: number]: boolean}, node: RatingTreeNode){
-	foundRatings[node.rating.ratingId] = true;
+function findOrphanedRecursive(foundRatings: {[key: number]: boolean}, node: RatingTreeNode, baseNodeId: number){
+	if(baseNodeId === undefined || isContinued(node, baseNodeId)){
+		foundRatings[node.rating.ratingId] = true;
+	}
 	node.children.forEach((a) => {
-		if(a.clipped != true){
-			findOrphanedRecursive(foundRatings, a);
-		}
+		findOrphanedRecursive(foundRatings, a, baseNodeId);
 	});
 }
 
 function getChildren(cur: RatingTreeNode,ratingsById: {[key: number]: RatingValidatorState}, ratingsByOverrideId: {[key: number]: number[]}){
+	if(getChildrenWatcher > 10000){
+		alert("Overflow while building ratings inheritance tree, contact Jon!");
+		return;
+	}
+	getChildrenWatcher=getChildrenWatcher+1;
 	return {rating: cur.rating, children: (ratingsByOverrideId[cur.rating.ratingId] || []).map((a) => getChildren({rating: ratingsById[a], children:[]},ratingsById,ratingsByOverrideId))};
 }
 
 function hasProgram(programId: number, programs: ProgramValidatorState[], boats: BoatValidatorState[]){
-	if(boats.length == 0){
+	if(boats.length === 0){
 		//return false;
 	}
 	for(var a of programs) {
-		if(a.programId == programId){
+		if(a.programId === programId){
 			return true;
 		}
 	}
