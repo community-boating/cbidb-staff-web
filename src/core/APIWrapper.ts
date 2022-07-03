@@ -8,6 +8,7 @@ import asc from "app/AppStateContainer";
 import { removeOptions } from 'util/deserializeOption';
 import { HttpMethod } from "./HttpMethod";
 import { PostType, Config, ApiResult, ServerParams } from './APIWrapperTypes';
+import * as moment from 'moment';
 
 export const ERROR_DELIMITER = "\\n"
 
@@ -22,6 +23,8 @@ const searchJSCONMetaData: (metaData: any[]) => (toFind: string) => number = met
 }
 
 var apiAxios: AxiosInstance = null;
+
+moment.fn.toJSON = function() { return this.format(this["_f"]); }
 
 function getOrCreateAxios(serverParams: ServerParams) {
 	if (apiAxios == null) {
@@ -89,6 +92,7 @@ export default class APIWrapper<T_ResponseValidator extends t.Any, T_PostBodyVal
 		});
 
 		if (postBodyValidationError.isSome()) {
+			console.log(postBodyValidationError);
 			return Promise.resolve({
 				type: "Failure", code: "post_body_parse_fail", message: "Invalid submit. Are you missing required fields?", extra: postBodyValidationError.getOrElse(null)
 			})
@@ -190,7 +194,8 @@ export default class APIWrapper<T_ResponseValidator extends t.Any, T_PostBodyVal
 				ret = {type: "Success", success: decoded.getOrElse(null)};
 			} else {
 				ret = {type: "Failure", code: "parse_failure", message: "An internal error has occurred.", extra: {parseError: PathReporter.report(decoded).join(", ")}};
-				// console.log(ret)
+				console.log("herpaderpderp");
+				console.log(ret);
 			} 
 			return ret;
 		}());

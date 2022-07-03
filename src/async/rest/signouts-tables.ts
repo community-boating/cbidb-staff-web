@@ -26,25 +26,32 @@ const StringValidate = new t.Type<string, string, unknown>(
 );
 
 const IntValidate = new t.Type<number, string, unknown>(
-	'OptionalNumber',
+	'number',
 	(input: unknown): input is number => typeof input === 'number',
 	(input, context) => {return (isInteger(Number(input)) ? t.success(Number(input)) : t.failure(input, context, HRNames[context[1].key] + " is an invalid number"))},
 	(a) => String(a)
 );
 
-export const signoutCrewValidator = t.type({
-	crewId: OptionalNumber,
-	signoutId: OptionalNumber,
-	cardNumber: OptionalString,
-	personId: OptionalNumber,
-	startActive: OptionalString,
-	endActive: OptionalString
-});
-
 export const personRatingValidator = t.type({
 	personId: t.number,
 	ratingId: t.number,
 	programId: t.number
+});
+
+export const crewPersonValidator = t.type({
+	personId: t.number,
+	nameFirst: t.string,
+	nameLast: t.string
+})
+
+export const signoutCrewValidator = t.type({
+	$$person: crewPersonValidator,
+	crewId: OptionalNumber,
+	signoutId: OptionalNumber,
+	cardNum: OptionalString,
+	personId: OptionalNumber,
+	startActive: OptionalString,
+	endActive: OptionalString
 });
 
 export const skipperValidator = t.type({
@@ -60,7 +67,7 @@ export const signoutValidator = t.type({
 	$$skipper: skipperValidator,
 	apAttendanceId: OptionalNumber,
 	jpAttendanceId: OptionalNumber,
-	boatId: IntValidate,
+	boatId: t.number,
 	personId: OptionalNumber,
 	cardNum: OptionalString,
 	sailNumber: OptionalString,
@@ -129,10 +136,9 @@ export const getRatings = new APIWrapper({
 	type: HttpMethod.GET,
 	resultValidator: ratingsValidator,
 });
-
 export const putSignout = new APIWrapper({
 	path:pathPost,
 	type: HttpMethod.POST,
 	postBodyValidator: makeOptionalProps(signoutValidator),
-	resultValidator: signoutValidator,
+	resultValidator: new t.Type("putSignoutValidator", (u): u is string => u instanceof String, (i: any) => (i == "Ok") ? t.success("") : t.failure("", []), (a) => undefined),
 });

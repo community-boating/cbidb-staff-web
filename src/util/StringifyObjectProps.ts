@@ -2,7 +2,7 @@ import { none, some } from 'fp-ts/lib/Option';
 import * as t from 'io-ts';
 import { Editable, NonEditable } from './EditableType';
 import * as moment from "moment";
-import { DefaultDateTimeFormat } from './OptionalTypeValidators';
+import { DefaultDateFormat, DefaultDateTimeFormat, OptionalDateTime } from './OptionalTypeValidators';
 
 export declare type StringifiedProps<T extends object> = {
 	[Property in keyof T]: string;
@@ -38,6 +38,8 @@ function stringifyValue(v: any): string {
 		// it's an option; recurse
 		return stringifyValue(v.getOrElse(""));
 	}else if(moment.isMoment(v)){
+		console.log("doing formatter");
+		console.log(v["_f"]);
 		return v.format(v["_f"]);
 	} else {
 		switch (typeof(v)) {
@@ -65,6 +67,10 @@ function destringifyValue(v: string, typeName: string, useOption: boolean): any 
 	const isNone = v == null || v == "";
 	if (useOption) {
 		switch (typeName) {
+		case "OptionalDateTime":
+			return isNone ? none : some(moment(v, DefaultDateTimeFormat))
+		case "OptionalDate":
+			return isNone ? none : some(moment(v, DefaultDateFormat))
 		case "OptionalNumber":
 			return isNone ? none : some(destringifyPrimitive(v, "number"))
 		case "OptionalBoolean":
@@ -76,6 +82,10 @@ function destringifyValue(v: string, typeName: string, useOption: boolean): any 
 		}
 	} else {
 		switch (typeName) {
+		case "OptionalDateTime":
+			return isNone ? null : moment(v, DefaultDateTimeFormat)
+		case "OptionalDate":
+			return isNone ? null : moment(v, DefaultDateFormat)
 		case "OptionalNumber":
 			return isNone ? null : destringifyPrimitive(v, "number")
 		case "OptionalBoolean":

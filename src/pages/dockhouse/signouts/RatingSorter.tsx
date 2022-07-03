@@ -89,7 +89,7 @@ export function makeRatingsHover(row: SignoutTablesState, sortedRatings: SortedR
 	const makeHover = getMakeRatingsTable(row, sortedRatings, orphanedRatingsShownByDefault);
 
 	return (
-		<MultiHover id={"ratings" + String(row.signoutId)} makeChildren={makeHover} closeOthers={closeOthers}/>
+		<MultiHover id={"ratings" + String(row.signoutId)} makeChildren={makeHover} closeOthers={closeOthers} openDisplay={"Ratings"}/>
 	)
 }
 

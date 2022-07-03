@@ -3,12 +3,13 @@ import * as React from 'react';
 import { Popover } from "reactstrap";
 
 export class MultiHover extends React.Component<{
-	makeChildren: () => ReactNode;
-	id: string;
-	closeOthers: ((id: string) => void)[];
+	makeChildren: () => ReactNode,
+	id: string,
+	openDisplay: ReactNode,
+	closeOthers: ((id: string) => void)[]
 }, {
-	children: ReactNode;
-	open: boolean;
+	children: ReactNode,
+	open: boolean
 }> {
 	constructor(props) {
 		super(props);
@@ -45,7 +46,7 @@ export class MultiHover extends React.Component<{
 	render() {
 		return (<>
 			<a id={this.props.id} onClick={() => this.toggleOpen} onMouseOver={() => this.setOpen(true)} onMouseOut={() => this.setOpen(true)}>
-				Ratings
+				{this.props.openDisplay}
 			</a>
 			<Popover placement="right" isOpen={this.state.open} target={this.props.id} toggle={() => this.toggleOpen()}>
 				{this.state.children || ""}

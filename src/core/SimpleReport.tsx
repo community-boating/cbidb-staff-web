@@ -84,7 +84,6 @@ export const SimpleReport: <T_Data>(props: SimpleReportRequiredProps<T_Data>) =>
 		canPreviousPage,
 		canNextPage,
 		pageOptions,
-
 		pageCount,
 		gotoPage,
 		nextPage,
@@ -107,7 +106,9 @@ export const SimpleReport: <T_Data>(props: SimpleReportRequiredProps<T_Data>) =>
 	//const memoizedFilteredRows = React.useMemo(() => globalFilter(rows, allColumns.map((a) => a.id), filterValue), [data, preFilteredRows, allColumns, filterValue]);
 	//tableInstance.globalFilter = (a, b, c) => memoizedFilteredRows;
 
-	React.useEffect(() => {setGlobalFilter(globalFilterValueControlled);}, [globalFilterValueControlled]);
+	if(setGlobalFilter){
+		React.useEffect(() => {setGlobalFilter(globalFilterValueControlled);}, [globalFilterValueControlled]);
+	}
 
 	const pagination = React.useMemo(() => <Row>
 		<Col>

@@ -6,13 +6,13 @@ export const DefaultDateTimeFormat = "YYYY-MM-DDTHH:mm:ss";
 export const DefaultDateFormat = "YYYY-MM-DD";
 
 export const OptionalDateTime = new t.Type<Option<moment.Moment>, string, unknown>(
-	'OptionalDate',
-	(u) : u is Option<moment.Moment> => u["_tag"] !== undefined,
-	(u, c) => t.union([t.string, t.null, t.undefined]).validate(u, c).chain(s => {
+	'OptionalDateTime',
+	(u) : u is Option<moment.Moment> => {return u["_tag"] !== undefined || u['isMoment']},
+	(u, c) => t.union([t.string, t.null, t.undefined, t.object]).validate(u, c).chain(s => {
 		if (s === null || s === undefined) return t.success(<Option<moment.Moment>>none)
 		else return t.success(some(moment(s, DefaultDateTimeFormat)))
 	}),
-	a => a.fold("None", (s) => `some(${s.format()})`)
+	a => a.fold("None", (s) => `some(${s.format(DefaultDateTimeFormat)})`)
 )
 
 export const OptionalDate = new t.Type<Option<moment.Moment>, string, unknown>(

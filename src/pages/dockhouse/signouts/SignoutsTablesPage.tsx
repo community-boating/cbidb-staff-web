@@ -3,7 +3,7 @@ import { Button, Card, CardBody, CardHeader, CardTitle, Col, CustomInput, Form, 
 import * as t from "io-ts";
 import { ErrorPopup } from 'components/ErrorPopup';
 
-import { boatsValidator, boatTypesValidator, getBoatTypes, getRatings, getSignoutsToday, programsValidator, putSignout, ratingsValidator, ratingValidator, signoutsValidator, signoutValidator } from 'async/rest/signouts-tables';
+import { boatsValidator, boatTypesValidator, getBoatTypes, getRatings, getSignoutsToday, programsValidator, putSignout, ratingsValidator, ratingValidator, signoutsValidator, signoutValidator, signoutCrewValidator } from 'async/rest/signouts-tables';
 import { MAGIC_NUMBERS } from 'app/magicNumbers';
 import { type } from 'os';
 import { highSchoolValidator } from 'async/rest/high-schools';
@@ -24,6 +24,8 @@ import { FlagStatusIcons } from './FlagStatusIcons';
 import { ReactNode } from 'react';
 import { sortRatings, makeRatingsHover, findOrphanedRatings } from './RatingSorter';
 import { Row } from 'react-table';
+import { MultiHover } from './MultiHover';
+import { X } from 'react-feather';
 
 const POLL_FREQ_SEC = 10;
 
@@ -32,10 +34,9 @@ export type SignoutTablesState = t.TypeOf<typeof signoutValidator>;
 export type BoatTypesValidatorState = t.TypeOf<typeof boatTypesValidator>;
 export type RatingsValidatorState = t.TypeOf<typeof ratingsValidator>;
 
+const SignoutTablesNonEditableObject : SignoutTablesNonEditable[] = ["$$crew", "$$skipper", "personId", "programId", "cardNum"];
 
-const SignoutTablesNonEditableObject : SignoutTablesNonEditable[] = ["$$crew", "$$skipper", "personId", "programId", "cardNum", "sailNumber", "signoutType", "boatId"];
-
-type SignoutTablesNonEditable = "$$crew" | "$$skipper" | "personId" | "programId" | "cardNum" | "sailNumber" | "signoutType" | "boatId";
+type SignoutTablesNonEditable = "$$crew" | "$$skipper" | "personId" | "programId" | "cardNum";
 
 const signoutTypesHR = [
 	{value: "S",display:"Sail"},
@@ -77,18 +78,6 @@ function makeReassignedIcon(row: SignoutTablesState, reassignedHullsMap: {[key:s
 	}
 	return <></>;
 }
-
-//Add memo to some of the more expensive function calls on this page to allow for lower cost rerender 30
-//Add a map of skippers so we can add a sort by skipper function 60
-//Format the filter area for the page 30
-//Make the filter function actually do something 20
-//Redo orderBy/showHide column header 60
-//Finish edit signout page 60
-//Add multi-sign in feature 60
-//Add comments modal 60
-//Add crew display 20
-//Add crew lookup/add 120
-//8:40
 
 function makeFlagIcon(row: SignoutTablesState, ratings: RatingsValidatorState){
 	if(ratings.length == 0){
@@ -155,7 +144,7 @@ function filterRows(rows: Row<any>[], columnIds: string[], filterValue: Signouts
 	//console.log(((rows[0] || {}).values || {})['sailNumber']);
 	return rows.filter((a) => {
 		return (filterValue.sail.trim().length === 0 || (a.values['sailNumber'] || "") == (filterValue.sail.trim())) &&
-		(filterValue.nameOrCard.trim().length === 0 || (a.values['nameFirst'] || "").concat(a.values['nameLast'] || "").concat(a.values['cardNum'] || "").includes(filterValue.nameOrCard)) &&
+		(filterValue.nameOrCard.trim().length === 0 || (a.values['nameFirst'] || "").concat(a.values['nameLast'] || "").concat(a.values['cardNum'] || "").toLowerCase().includes(filterValue.nameOrCard.toLowerCase())) &&
 		(filterValue.boatType.length === 0 || (a.values['boatId'] == filterValue.boatType)) &&
 		(filterValue.programId.length === 0 || (a.values['programId'] == filterValue.programId)) &&
 		(filterValue.signoutType.length === 0 || (a.values['signoutType'] == filterValue.signoutType))
@@ -383,9 +372,39 @@ const orphanedRatingsShownByDefault = {
 	134: true
 }
 
-function makeBoatTypesHR(boatTypes: BoatTypesValidatorState){
-	return boatTypes.sort((a,b) => a.displayOrder-b.displayOrder).map((v) => ({value:v.boatId,display:v.boatName}));
+function makeBoatTypesHR(boatTypes: BoatTypesValidatorState) {
+	return boatTypes.sort((a, b) => a.displayOrder - b.displayOrder).map((v) => ({ value: v.boatId, display: v.boatName }));
 }
+
+function makeCrewRow(crew: t.TypeOf<typeof signoutCrewValidator>, removeCrew?: (crewId: number) => void) {
+	console.log(crew);
+	return <tr key={crew.crewId.getOrElse(-1)}>
+		{removeCrew !== undefined ? <td><a onClick={() => removeCrew(crew.crewId.getOrElse(-1))}><X color="#777" size="1.4em" /></a></td> : <></>}
+		<td>{crew.cardNum.getOrElse("None")}</td>
+		<td>{crew.$$person.nameFirst}</td>
+		<td>{crew.$$person.nameLast}</td>
+	</tr>
+}
+
+function makeCrewHover(row: SignoutTablesState, removeCrew?: (crewId: number) => void) {
+	if (row.$$crew.length === 0) {
+		return "-";
+	}
+	return <MultiHover id={"crew_" + row.signoutId} makeChildren={() => crewTable({row:row, removeCrew: removeCrew})} closeOthers={[]} openDisplay={"Crew"} />
+}
+
+const crewTable = (props: { row: SignoutTablesState, removeCrew?: (crewId: number) => void }) => <Table size="sm">
+	<thead>
+		<tr>
+			<td>Card #</td>
+			<td>First</td>
+			<td>Last</td>
+		</tr>
+	</thead>
+	<tbody>
+		{(props.row.$$crew || []).map((a) => makeCrewRow(a, props.removeCrew))}
+	</tbody>
+</Table>
 
 const SignoutsTable = (props: {
 	initState: SignoutsTablesState,
@@ -402,6 +421,7 @@ const SignoutsTable = (props: {
 	const boatTypesHR = makeBoatTypesHR(props.boatTypes);
 	const ratingsHR = props.ratings.sort((a,b) => a.ratingName.localeCompare(b.ratingName)).map((v) => ({value:v.ratingId,display:v.ratingName}));
 	// Define edit/add form
+	const [state, setState] = React.useState(props.initState);
 	const formComponents = (
 		rowForEdit: StringifiedProps<SignoutTablesState>,
 		updateState: (id: string, value: string | boolean) => void,
@@ -526,6 +546,12 @@ const SignoutsTable = (props: {
 					<ValidatedAmPmInput {...wrapForFormComponentsMoment(rowForEdit, updateState, "signoutDatetime" , validationResults)} lower={lower} upper={upper}/>
 				</Col>
 			</FormGroup>
+			<FormGroup row>
+				<Col>
+				<h1>Crew</h1>
+				{crewTable({row:currentRow, removeCrew: (crewId: number) => console.log(crewId)})}
+				</Col>
+			</FormGroup>
 		</React.Fragment>
 		</>
 	};
@@ -534,7 +560,7 @@ const SignoutsTable = (props: {
 	const columns = props.isActive ? columnsActive : columnsInactive;
 	const reassignedHullsMap = {};
 	const reassignedSailsMap = {};
-	const filteredSignouts = props.initState.filter(f);
+	const filteredSignouts = state.filter(f);
 	if(props.isActive){
 		filteredSignouts.forEach((a) => {mapOptional(a.hullNumber,a.boatId,a.signoutId,reassignedHullsMap)});
 		filteredSignouts.forEach((a) => {mapOptional(a.sailNumber,a.boatId,a.signoutId,reassignedSailsMap)});
@@ -560,7 +586,7 @@ const SignoutsTable = (props: {
 				signinDatetime: formatMoment(row.signinDatetime, "hh:mm A"),
 				icons: props.isActive ? <>{makeFlagIcon(row, props.ratings)}{makeStopwatchIcon(row)}{makeReassignedIcon(row,reassignedHullsMap,reassignedSailsMap)}</> : <></>,
 				ratings: makeRatingsHover(row, sortedRatings, orphanedRatingsShownByDefault, closeOthers),
-				crew:"Crew",
+				crew: makeCrewHover(row),
 				edit:row['edit'],
 			})}
 				//ACTIVE: hs.ACTIVE ? <CheckIcon color="#777" size="1.4em" /> : null,
@@ -570,6 +596,7 @@ const SignoutsTable = (props: {
 			submitRow={putSignout}
 			cardTitle={cardTitle}
 			columnsNonEditable={SignoutTablesNonEditableObject}
+			setRowData={setState}
 			hidableColumns={true}
 		/>
 	</>;

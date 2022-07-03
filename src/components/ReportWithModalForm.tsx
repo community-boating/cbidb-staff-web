@@ -34,6 +34,7 @@ export default function ReportWithModalForm<K extends keyof U, T extends t.TypeC
 	columnsNonEditable?: K[];
 	globalFilter?: (rows: Row<any>[], columnIds: string[], filterValue: any) => Row<any>[];
 	globalFilterValueControlled?: any;
+	setRowData?: (rows: U[]) => void, 
 	hidableColumns?: boolean,
 }) {
 
@@ -45,7 +46,11 @@ export default function ReportWithModalForm<K extends keyof U, T extends t.TypeC
 	const [modalIsOpen, setModalIsOpen] = React.useState(false);
 	const [validationErrors, setValidationErrors] = React.useState([] as validationError[]);
 	const [formData, setFormData] = React.useState(blankForm);
-	const [rowData, updateRowData] = React.useState(props.rows);
+	var rowData = props.rows;
+	var updateRowData = props.setRowData;
+	if(!updateRowData){
+		[rowData, updateRowData] = React.useState(props.rows);
+	}
 
 	const data = React.useMemo(() => rowData.map(r => ({
 		...r,
@@ -66,6 +71,7 @@ export default function ReportWithModalForm<K extends keyof U, T extends t.TypeC
 		hidableColumns={props.hidableColumns}
 		reportId={props.cardTitle.replace(" ", "")}
 	/>, [rowData, props.formatRowForDisplay]);
+
 	//Added dependency on formatRowForDisplay to allow changes to the converter function to propagate down
 	//This is needed for the async polling of semi static variables like boatTypes
 
@@ -103,6 +109,17 @@ export default function ReportWithModalForm<K extends keyof U, T extends t.TypeC
 		setFormData(blankForm);
 	}
 
+	function getOnlyNonEditableFields (currentRow: U){
+		const onlyNonEditableRow: U = {} as U;
+		if(props.columnsNonEditable === undefined){
+			return onlyNonEditableRow;
+		}
+		props.columnsNonEditable.forEach((a) => {
+			onlyNonEditableRow[a] = currentRow[a];
+		})
+		return onlyNonEditableRow;
+	}
+
 	const submit = () => {
 		setValidationErrors([]);
 		return new Promise((resolve, reject) => {
@@ -125,25 +142,29 @@ export default function ReportWithModalForm<K extends keyof U, T extends t.TypeC
 					// they will be stripped out again before sending to the server, but ApiWrapper expects actual option values
 					// Besides, we need to give that value back to the table anyway.
 					const toSend = destringify(props.rowValidator, nullifyEmptyStrings(formData.rowForEdit), true, props.primaryKey);
-					if(props.columnsNonEditable !== null){
+					var toSendEditable = toSend;
+					if(props.columnsNonEditable !== undefined){
+						toSendEditable = Object.assign({}, toSend);
 						props.columnsNonEditable.forEach((a) => {
 							const v = a as keyof typeof toSend;
-							toSend[v] = null;
+							toSendEditable[v] = undefined;
 						});
 					}
-					props.submitRow.send(makePostJSON(toSend)).then(ret => {
+					props.submitRow.send(makePostJSON(toSendEditable)).then(ret => {
 						if (ret.type == "Success") {
 							closeModal();
 							if (rowData.find(r => String(r[props.primaryKey]) == formData.rowForEdit[props.primaryKey])) {
+								console.log("first thing");
 								// was an update.  Find the row and update it
 								updateRowData(rowData.map(row => {
 									if (formData.rowForEdit[props.primaryKey] == String(row[props.primaryKey])) {
-										return toSend;
+										return {...toSend, ...getOnlyNonEditableFields(formData.currentRow)};
 									} else {
 										return row;
 									}
 								}))
 							} else {
+								console.log("other thing");
 								// was a create.  Add the new row after injecting the PK from the server
 								updateRowData(rowData.concat([{
 									...toSend,
