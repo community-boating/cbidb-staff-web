@@ -28,13 +28,13 @@ export default function ReportWithModalForm<K extends keyof U, T extends t.TypeC
 	formatRowForDisplay: (row: U) => DisplayableProps<U>,
 	primaryKey: string & keyof U,
 	columns: SimpleReportColumn[],
-	formComponents: (rowForEdit: StringifiedProps<U>, updateState: (id: string, value: string | boolean) => void, currentRow?: U, validationResults?: validationError[]) => JSX.Element
+	formComponents: (rowForEdit: StringifiedProps<U>, updateState: (id: string, value: string | boolean) => void, currentRow?: U, validationResults?: validationError[], updateCurrentRow?: (row: U) => void) => JSX.Element
 	submitRow: APIWrapper<any, any, any>
 	cardTitle?: string;
 	columnsNonEditable?: K[];
 	globalFilter?: (rows: Row<any>[], columnIds: string[], filterValue: any) => Row<any>[];
 	globalFilterValueControlled?: any;
-	setRowData?: (rows: U[]) => void, 
+	setRowData?: (rows: U[]) => void,
 	hidableColumns?: boolean,
 }) {
 
@@ -51,6 +51,7 @@ export default function ReportWithModalForm<K extends keyof U, T extends t.TypeC
 	if(!updateRowData){
 		[rowData, updateRowData] = React.useState(props.rows);
 	}
+	const updateCurrentRow = (row: U) => setFormData({...formData, currentRow:row});
 
 	const data = React.useMemo(() => rowData.map(r => ({
 		...r,
@@ -59,7 +60,6 @@ export default function ReportWithModalForm<K extends keyof U, T extends t.TypeC
 			openForEdit(some(String(r[props.primaryKey])));
 		}}><EditIcon color="#777" size="1.4em" /></a>,
 	})), [rowData]);
-	data
 	const report = React.useMemo(() => <SimpleReport 
 		keyField={props.primaryKey}
 		data={data.map(props.formatRowForDisplay)}
@@ -200,7 +200,7 @@ export default function ReportWithModalForm<K extends keyof U, T extends t.TypeC
 					e.preventDefault();
 					submit();
 				} }>
-					{props.formComponents(formData.rowForEdit, updateState, formData.currentRow, validationErrors)}
+					{props.formComponents(formData.rowForEdit, updateState, formData.currentRow, validationErrors, updateCurrentRow)}
 				</Form>
 			</ModalBody>
 			<ModalFooter>

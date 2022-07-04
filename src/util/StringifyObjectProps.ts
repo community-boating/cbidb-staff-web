@@ -38,8 +38,6 @@ function stringifyValue(v: any): string {
 		// it's an option; recurse
 		return stringifyValue(v.getOrElse(""));
 	}else if(moment.isMoment(v)){
-		console.log("doing formatter");
-		console.log(v["_f"]);
 		return v.format(v["_f"]);
 	} else {
 		switch (typeof(v)) {

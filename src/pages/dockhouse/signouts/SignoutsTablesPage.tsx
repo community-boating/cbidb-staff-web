@@ -3,7 +3,7 @@ import { Button, Card, CardBody, CardHeader, CardTitle, Col, CustomInput, Form, 
 import * as t from "io-ts";
 import { ErrorPopup } from 'components/ErrorPopup';
 
-import { boatsValidator, boatTypesValidator, getBoatTypes, getRatings, getSignoutsToday, programsValidator, putSignout, ratingsValidator, ratingValidator, signoutsValidator, signoutValidator, signoutCrewValidator, getPersonByCardNumber } from 'async/rest/signouts-tables';
+import { boatsValidator, boatTypesValidator, getBoatTypes, getRatings, getSignoutsToday, programsValidator, putSignout, ratingsValidator, ratingValidator, signoutsValidator, signoutValidator, signoutCrewValidator, getPersonByCardNumber, crewPersonValidator } from 'async/rest/signouts-tables';
 import { MAGIC_NUMBERS } from 'app/magicNumbers';
 import { type } from 'os';
 import { highSchoolValidator } from 'async/rest/high-schools';
@@ -377,7 +377,6 @@ function makeBoatTypesHR(boatTypes: BoatTypesValidatorState) {
 }
 
 function makeCrewRow(crew: t.TypeOf<typeof signoutCrewValidator>, removeCrew?: (crewId: number) => void) {
-	console.log(crew);
 	return <tr key={crew.crewId.getOrElse(-1)}>
 		{removeCrew !== undefined ? <td><a onClick={() => removeCrew(crew.crewId.getOrElse(-1))}><X color="#777" size="1.4em" /></a></td> : <></>}
 		<td>{crew.cardNum.getOrElse("None")}</td>
@@ -393,16 +392,33 @@ function makeCrewHover(row: SignoutTablesState, removeCrew?: (crewId: number) =>
 	return <MultiHover id={"crew_" + row.signoutId} makeChildren={() => crewTable({row:row, removeCrew: removeCrew})} closeOthers={[]} openDisplay={"Crew"} />
 }
 
-const addCrew = (props: {row: SignoutTablesState}) => {
+const addCrew = (props: { row: SignoutTablesState }) => {
 	const [cardNum, setCardNum] = React.useState(option.none as Option<string>);
-	const throttler: ThrottledUpdater = React.useMemo(() => new ThrottledUpdater(2000, () => {
-		console.log("time to fetch");
-	}), []);
+	const [person, setPerson] = React.useState(undefined as t.TypeOf<typeof crewPersonValidator>);
+	const throttler: ThrottledUpdater = React.useMemo(() => new ThrottledUpdater(2000, () => {}), []);
 	React.useEffect(() => {
+		throttler.handleUpdate = () => {
+			getPersonByCardNumber.sendWithParams(none, { cardNumber: Number(cardNum.getOrElse("")) })(null).then((a) => {
+				if(a.type === "Success"){
+					setPerson(a.success);
+				}else{
+					setPerson(undefined);
+				}
+			});
+		};
 		throttler.startUpdate();
 	}, [cardNum]);
+	if (props.row.signoutId === undefined) {
+		return <></>;
+	}
 	return <>
-	<ValidatedTextInput type={"text"} initValue={cardNum} updateValue={(val) => setCardNum(val)} validationResults={[]}/>
+		<ValidatedTextInput type={"text"} initValue={cardNum} updateValue={(val) => setCardNum(val)} validationResults={[]} />
+		{person !== undefined ? makeCrewRow({$$person:person,cardNum:cardNum, crewId:option.some(-1), personId:option.some(person.personId),signoutId: undefined, startActive: undefined, endActive:undefined}) : "Not found"}
+		{person !== undefined ? <button onClick={(e) => {
+			e.preventDefault();
+			console.log(props.row.signoutId);
+			console.log(props.row);
+		}}>Add</button> : ""}
 	</>
 }
 
@@ -411,7 +427,6 @@ class ThrottledUpdater {
 	timeout: number;
 	handleUpdate: () => void;
 	constructor(timeout: number, handleUpdate: () => void){
-		console.log("making new throttler")
 		this.timerID = undefined;
 		this.timeout = timeout;
 		this.handleUpdate = handleUpdate;
@@ -424,12 +439,8 @@ class ThrottledUpdater {
 			this.handleUpdate();
 			this.timerID = undefined;
 		}.bind(this), this.timeout);
-		console.log("what");
-		console.log(this);
 	}
 	cancel(){
-		console.log("cancelling");
-		console.log(this);
 		if(this.timerID != undefined){
 			clearTimeout(this.timerID);
 		}
