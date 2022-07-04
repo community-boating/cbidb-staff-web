@@ -56,13 +56,15 @@ export default class APIWrapper<T_ResponseValidator extends t.Any, T_PostBodyVal
 		this.config = config;
 	}
 	send: (data: PostType<t.TypeOf<T_PostBodyValidator>>) => Promise<ApiResult<t.TypeOf<T_ResponseValidator>>> = data => this.sendWithParams(none)(data)
-	sendWithParams: (serverParamsOption: Option<ServerParams>) => (data: PostType<t.TypeOf<T_PostBodyValidator>>) => Promise<ApiResult<t.TypeOf<T_ResponseValidator>>> = serverParamsOption => data => {
+	sendWithParams: (serverParamsOption: Option<ServerParams>, params?: any) => (data: PostType<t.TypeOf<T_PostBodyValidator>>) => Promise<ApiResult<t.TypeOf<T_ResponseValidator>>> = (serverParamsOption, params?) => data => {
 		const serverParams = serverParamsOption.getOrElse((process.env as any).serverToUseForAPI);
 		const self = this;
 		type Return = Promise<ApiResult<t.TypeOf<T_ResponseValidator>>>;
 		const postValues: Option<PostValues> = (function() {
 			if (self.config.type === HttpMethod.POST) {
 				if (data.type == "urlEncoded") {
+					console.log("url encoded");
+					console.log(data.urlEncodedData);
 					const content = data.urlEncodedData
 					return some({
 						content,
@@ -103,13 +105,18 @@ export default class APIWrapper<T_ResponseValidator extends t.Any, T_PostBodyVal
 				...postValues.map(pv => pv.headers).getOrElse(null)
 			}
 
-			return getOrCreateAxios(serverParams)({
+			return (params != undefined ? getOrCreateAxios(serverParams)({
 				method: self.config.type,
 				url: (serverParams.pathPrefix || "") + self.config.path,
-				// params,
+				params: params,
 				data: postValues.map(pv => pv.content).getOrElse(null),
 				headers
-			}).then((res: AxiosResponse) => {
+			}) : getOrCreateAxios(serverParams)({
+				method: self.config.type,
+				url: (serverParams.pathPrefix || "") + self.config.path,
+				data: postValues.map(pv => pv.content).getOrElse(null),
+				headers
+			})).then((res: AxiosResponse) => {
 				return this.parseResponse(res.data);
 			}, err => {
 				console.log("Error: ", err)

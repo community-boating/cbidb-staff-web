@@ -3,7 +3,7 @@ import { Button, Card, CardBody, CardHeader, CardTitle, Col, CustomInput, Form, 
 import * as t from "io-ts";
 import { ErrorPopup } from 'components/ErrorPopup';
 
-import { boatsValidator, boatTypesValidator, getBoatTypes, getRatings, getSignoutsToday, programsValidator, putSignout, ratingsValidator, ratingValidator, signoutsValidator, signoutValidator, signoutCrewValidator } from 'async/rest/signouts-tables';
+import { boatsValidator, boatTypesValidator, getBoatTypes, getRatings, getSignoutsToday, programsValidator, putSignout, ratingsValidator, ratingValidator, signoutsValidator, signoutValidator, signoutCrewValidator, getPersonByCardNumber } from 'async/rest/signouts-tables';
 import { MAGIC_NUMBERS } from 'app/magicNumbers';
 import { type } from 'os';
 import { highSchoolValidator } from 'async/rest/high-schools';
@@ -393,9 +393,54 @@ function makeCrewHover(row: SignoutTablesState, removeCrew?: (crewId: number) =>
 	return <MultiHover id={"crew_" + row.signoutId} makeChildren={() => crewTable({row:row, removeCrew: removeCrew})} closeOthers={[]} openDisplay={"Crew"} />
 }
 
+const addCrew = (props: {row: SignoutTablesState}) => {
+	const [cardNum, setCardNum] = React.useState(option.none as Option<string>);
+	const throttler: ThrottledUpdater = React.useMemo(() => new ThrottledUpdater(2000, () => {
+		console.log("time to fetch");
+	}), []);
+	React.useEffect(() => {
+		throttler.startUpdate();
+	}, [cardNum]);
+	return <>
+	<ValidatedTextInput type={"text"} initValue={cardNum} updateValue={(val) => setCardNum(val)} validationResults={[]}/>
+	</>
+}
+
+class ThrottledUpdater {
+	timerID: NodeJS.Timeout;
+	timeout: number;
+	handleUpdate: () => void;
+	constructor(timeout: number, handleUpdate: () => void){
+		console.log("making new throttler")
+		this.timerID = undefined;
+		this.timeout = timeout;
+		this.handleUpdate = handleUpdate;
+		this.startUpdate = this.startUpdate.bind(this);
+		this.cancel = this.cancel.bind(this);
+	}
+	startUpdate(){
+		this.cancel();
+		this.timerID = setTimeout(function() {
+			this.handleUpdate();
+			this.timerID = undefined;
+		}.bind(this), this.timeout);
+		console.log("what");
+		console.log(this);
+	}
+	cancel(){
+		console.log("cancelling");
+		console.log(this);
+		if(this.timerID != undefined){
+			clearTimeout(this.timerID);
+		}
+	}
+
+}
+
 const crewTable = (props: { row: SignoutTablesState, removeCrew?: (crewId: number) => void }) => <Table size="sm">
 	<thead>
 		<tr>
+			{props.removeCrew != undefined ? <td>Remove</td> : <></>}
 			<td>Card #</td>
 			<td>First</td>
 			<td>Last</td>
@@ -550,6 +595,12 @@ const SignoutsTable = (props: {
 				<Col>
 				<h1>Crew</h1>
 				{crewTable({row:currentRow, removeCrew: (crewId: number) => console.log(crewId)})}
+				</Col>
+			</FormGroup>
+			<FormGroup row>
+				<Col>
+				<h1>Add Crew</h1>
+				{addCrew({row:currentRow})}
 				</Col>
 			</FormGroup>
 		</React.Fragment>

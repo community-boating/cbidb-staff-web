@@ -11,7 +11,7 @@ const pathPost = "/rest/signout";
 const pathGetBoatTypes = "/rest/boat-types";
 const pathGetRatings = "/rest/ratings";
 const pathRunagroundCapsize = "/rest/runaground-capsize";
-const pathPersonCardNumber = "/rest/person?cardNumber=$1";
+const pathPersonByCardNumber = "/rest/person/by-card";
 
 const HRNames = {
 	signoutType: "Signout Type",
@@ -136,6 +136,13 @@ export const getRatings = new APIWrapper({
 	type: HttpMethod.GET,
 	resultValidator: ratingsValidator,
 });
+
+export const getPersonByCardNumber = new APIWrapper({
+	path: pathPersonByCardNumber,
+	type: HttpMethod.GET,
+	resultValidator: crewPersonValidator,
+});
+
 export const putSignout = new APIWrapper({
 	path:pathPost,
 	type: HttpMethod.POST,
