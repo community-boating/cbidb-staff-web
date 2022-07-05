@@ -24,8 +24,6 @@ const searchJSCONMetaData: (metaData: any[]) => (toFind: string) => number = met
 
 var apiAxios: AxiosInstance = null;
 
-moment.fn.toJSON = function() { return this.format(this["_f"]); }
-
 function getOrCreateAxios(serverParams: ServerParams) {
 	if (apiAxios == null) {
 		console.log('instantiating axios');
@@ -57,6 +55,7 @@ export default class APIWrapper<T_ResponseValidator extends t.Any, T_PostBodyVal
 	}
 	send: (data: PostType<t.TypeOf<T_PostBodyValidator>>) => Promise<ApiResult<t.TypeOf<T_ResponseValidator>>> = data => this.sendWithParams(none)(data)
 	sendWithParams: (serverParamsOption: Option<ServerParams>, params?: any) => (data: PostType<t.TypeOf<T_PostBodyValidator>>) => Promise<ApiResult<t.TypeOf<T_ResponseValidator>>> = (serverParamsOption, params?) => data => {
+		moment.fn.toJSON = function() { return this.format(this["_f"]); }
 		const serverParams = serverParamsOption.getOrElse((process.env as any).serverToUseForAPI);
 		const self = this;
 		type Return = Promise<ApiResult<t.TypeOf<T_ResponseValidator>>>;

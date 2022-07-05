@@ -76,20 +76,12 @@ export function getMakeRatingsTable(row: SignoutTablesState, sortedRatings: Sort
 	return makeTable;
 }
 
-export function makeRatingsHover(row: SignoutTablesState, sortedRatings: SortedRatings, orphanedRatingsShownByDefault: {[key: number]: boolean}, closeOthers: ((id: string) => void)[]){
+export const RatingsHover = (props: {row: SignoutTablesState, sortedRatings: SortedRatings, orphanedRatingsShownByDefault: {[key: number]: boolean}, closeOthers: ((id: string) => void)[]}) => {
 
-	/*row.programId = 2;
-	row.$$skipper.$$personRatings.push({ratingId: 963, personId: row.$$skipper.personId, programId: row.programId});
-	row.$$skipper.$$personRatings.push({ratingId: 122, personId: row.$$skipper.personId, programId: row.programId});
-	row.$$skipper.$$personRatings.push({ratingId: 12, personId: row.$$skipper.personId, programId: row.programId});
-	row.$$skipper.$$personRatings.push({ratingId: 20, personId: row.$$skipper.personId, programId: row.programId});
-	//row.$$skipper.$$personRatings.push({ratingId: 21, personId: row.$$skipper.personId, programId: row.programId});
-	row.$$skipper.$$personRatings.push({ratingId: 22, personId: row.$$skipper.personId, programId: row.programId});*/
-
-	const makeHover = getMakeRatingsTable(row, sortedRatings, orphanedRatingsShownByDefault);
+	const makeHover = getMakeRatingsTable(props.row, props.sortedRatings, props.orphanedRatingsShownByDefault);
 
 	return (
-		<MultiHover id={"ratings" + String(row.signoutId)} makeChildren={makeHover} closeOthers={closeOthers} openDisplay={"Ratings"}/>
+		<MultiHover id={"ratings" + String(props.row.signoutId)} makeChildren={makeHover} closeOthers={props.closeOthers} openDisplay={"Ratings"}/>
 	)
 }
 

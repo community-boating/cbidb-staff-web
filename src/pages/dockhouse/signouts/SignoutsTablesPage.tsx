@@ -22,13 +22,14 @@ import stopwatchIcon from "assets/img/stopwatch.jpg";
 
 import { FlagStatusIcons } from './FlagStatusIcons';
 import { ReactNode } from 'react';
-import { sortRatings, makeRatingsHover, findOrphanedRatings } from './RatingSorter';
+import { sortRatings, RatingsHover, findOrphanedRatings } from './RatingSorter';
 import { Row } from 'react-table';
 import { MultiHover } from './MultiHover';
 import { X, Info } from 'react-feather';
 import { makePostJSON } from 'core/APIWrapperUtil';
 import { EditCommentsModal } from './input/EditCommentModal';
 import { ButtonWrapper } from 'components/ButtonWrapper';
+import { DefaultDateTimeFormat } from 'util/OptionalTypeValidators';
 
 const POLL_FREQ_SEC = 10;
 
@@ -73,31 +74,51 @@ function isMax(n: number, a: number[]){
 	return true;
 }
 
-function makeReassignedIcon(row: SignoutTablesState, reassignedHullsMap: {[key:string]: {[key:number]: number[]}}, reassignedSailsMap: {[key:string]: {[key:number]: number[]}}){
-	const reassignedHull = option.isSome(row.hullNumber) && !isMax(row.signoutId, reassignedHullsMap[row.hullNumber.getOrElse("")][row.boatId]);
-	const reassignedSail = option.isSome(row.sailNumber) && !isMax(row.signoutId, reassignedSailsMap[row.sailNumber.getOrElse("")][row.boatId]);
+const ReassignedIcon = (props: {row: SignoutTablesState, reassignedHullsMap: {[key:string]: {[key:number]: number[]}}, reassignedSailsMap: {[key:string]: {[key:number]: number[]}}}) => {
+	const reassignedHull = option.isSome(props.row.hullNumber) && !isMax(props.row.signoutId, props.reassignedHullsMap[props.row.hullNumber.getOrElse("")][props.row.boatId]);
+	const reassignedSail = option.isSome(props.row.sailNumber) && !isMax(props.row.signoutId, props.reassignedSailsMap[props.row.sailNumber.getOrElse("")][props.row.boatId]);
 	if(reassignedHull || reassignedSail){
 		return <img width={iconWidth} height={iconHeight} src={reassignedIcon}/>
 	}
 	return <></>;
 }
 
-function makeFlagIcon(row: SignoutTablesState, ratings: RatingsValidatorState){
-	if(ratings.length == 0){
+const FlagIcon = (props: {row: SignoutTablesState, ratings: RatingsValidatorState}) => {
+	if(props.ratings.length == 0){
 		return <p>Loading...</p>;
 	}
 	const mapped = {};
-	ratings.forEach((a) => {
+	props.ratings.forEach((a) => {
 		mapped[String(a.ratingId)] = a;
 	});
-	const skipperRatings = row.$$skipper.$$personRatings.map((a) => mapped[a.ratingId]);
-	const flags = skipperRatings.map((a) => getHighestFlag(a,row.programId,row.boatId)).flatten().filter((a) => FlagStatusIcons[a as string] !== undefined).sort((a,b) => FlagStatusIcons[a as string].sortOrder-FlagStatusIcons[b as string].sortOrder);
-	return <img width={iconWidth} height={iconHeight} src={(FlagStatusIcons[flags[0] as string] || {}).src}/>;
+	const skipperRatings = props.row.$$skipper.$$personRatings.map((a) => mapped[a.ratingId]);
+	const flags = skipperRatings.map((a) => getHighestFlag(a,props.row.programId,props.row.boatId)).flatten().filter((a) => FlagStatusIcons[a as string] !== undefined).sort((a,b) => FlagStatusIcons[a as string].sortOrder-FlagStatusIcons[b as string].sortOrder);
+	return <img width={iconWidth} height={iconHeight} src={(FlagStatusIcons[flags[0] as string] || FlagStatusIcons.B).src}/>;
 }
 
-function makeStopwatchIcon(row: SignoutTablesState){
+const MakeLinks = (props: {row: SignoutTablesState, isActive: boolean}) => {
+	if(props.isActive){
+		return <a onClick={() => handleSingleSignIn(props.row.signoutId, false)}>Sign In</a>
+	}else{
+		return <a onClick={() => handleSingleSignIn(props.row.signoutId, true)}>Undo Sign In</a>;
+	}
+}
+
+function momentNowDefaultDateTime(){
+	const momentNow = moment();
+	momentNow["_f"] = DefaultDateTimeFormat;
+	return momentNow;
+}
+
+function handleSingleSignIn(signoutId: number, isUndo: boolean){
+	return putSignout.send(makePostJSON({signoutId: signoutId, signinDatetime: isUndo ? option.none : option.some(momentNowDefaultDateTime())})).then((a) => {
+		console.log(a);
+	})
+}
+
+const StopwatchIcon = (props: {row: SignoutTablesState}) => {
 	//2 hours
-	if(moment().diff(row.signoutDatetime.getOrElse(moment())) > 2*60*60*1000){
+	if(moment().diff(props.row.signoutDatetime.getOrElse(moment())) > 2*60*60*1000){
 		return <img width={iconWidth} height={iconHeight} src={stopwatchIcon} />;
 	}
 	return <></>;
@@ -377,23 +398,23 @@ function makeBoatTypesHR(boatTypes: BoatTypesValidatorState) {
 	return boatTypes.sort((a, b) => a.displayOrder - b.displayOrder).map((v) => ({ value: v.boatId, display: v.boatName }));
 }
 
-function makeCrewRow(crew: t.TypeOf<typeof signoutCrewValidator>, removeCrew?: (crewId: number) => void) {
-	return <tr key={crew.crewId.getOrElse(-1)}>
-		{removeCrew !== undefined ? <td><a onClick={() => removeCrew(crew.crewId.getOrElse(-1))}><X color="#777" size="1.4em" /></a></td> : <></>}
-		<td>{crew.cardNum.getOrElse("None")}</td>
-		<td>{crew.$$person.nameFirst}</td>
-		<td>{crew.$$person.nameLast}</td>
+const CrewRow = (props: {crew: t.TypeOf<typeof signoutCrewValidator>, removeCrew?: (crewId: number) => void}) => {
+	return <tr key={props.crew.crewId.getOrElse(-1)}>
+		{props.removeCrew !== undefined ? <td><a onClick={() => props.removeCrew(props.crew.crewId.getOrElse(-1))}><X color="#777" size="1.4em" /></a></td> : <></>}
+		<td>{props.crew.cardNum.getOrElse("None")}</td>
+		<td>{props.crew.$$person.nameFirst}</td>
+		<td>{props.crew.$$person.nameLast}</td>
 	</tr>
 }
 
-function makeCrewHover(row: SignoutTablesState, removeCrew?: (crewId: number) => void) {
-	if (row.$$crew.length === 0) {
-		return "-";
+const CrewHover = (props: {row: SignoutTablesState, removeCrew?: (crewId: number) => void}) => {
+	if (props.row.$$crew.length === 0) {
+		return <p>-</p>;
 	}
-	return <MultiHover id={"crew_" + row.signoutId} makeChildren={() => crewTable({row:row, removeCrew: removeCrew})} closeOthers={[]} openDisplay={"Crew"} />
+	return <MultiHover id={"crew_" + props.row.signoutId} makeChildren={() => <CrewTable row={props.row} removeCrew={props.removeCrew} />} closeOthers={[]} openDisplay={"Crew"} />
 }
 
-const addCrew = (props: { row: SignoutTablesState, updateCurrentRow: (row: SignoutTablesState) => void}) => {
+const AddCrew = (props: { row: SignoutTablesState, updateCurrentRow: (row: SignoutTablesState) => void}) => {
 	const [cardNum, setCardNum] = React.useState(option.none as Option<string>);
 	const [person, setPerson] = React.useState(undefined as t.TypeOf<typeof crewPersonValidator>);
 	const throttler: ThrottledUpdater = React.useMemo(() => new ThrottledUpdater(200, () => {}), []);
@@ -414,7 +435,7 @@ const addCrew = (props: { row: SignoutTablesState, updateCurrentRow: (row: Signo
 	}
 	return <>
 		<ValidatedTextInput type={"text"} initValue={cardNum} updateValue={(val) => setCardNum(val)} validationResults={[]} />
-		{person !== undefined ? makeCrewRow({$$person:person,cardNum:cardNum, crewId:option.some(-1), personId:option.some(person.personId),signoutId: undefined, startActive: undefined, endActive:undefined}) : "Not found"}
+		{person !== undefined ? <CrewRow crew={{$$person:person,cardNum:cardNum, crewId:option.some(-1), personId:option.some(person.personId),signoutId: undefined, startActive: undefined, endActive:undefined}} /> : "Not found"}
 		{person !== undefined ? <button onClick={(e) => {
 			e.preventDefault();
 			const newCrew = [...props.row.$$crew];
@@ -424,9 +445,9 @@ const addCrew = (props: { row: SignoutTablesState, updateCurrentRow: (row: Signo
 	</>
 }
 
-function makeCommentsHover(row: SignoutTablesState, setUpdateCommentsModal: (singoutId: number) => void) {
-	const display = <><p>Comments{row.comments["_tag"] === "Some" ? <Info color="#777" size="1.4em" /> : <></>}</p></>;
-	return <MultiHover id={"comments_" + row.signoutId} makeChildren={() => row.comments["_tag"] === "Some" ? <p>{row.comments.getOrElse("")}</p> : undefined} handleClick={() => setUpdateCommentsModal(row.signoutId)} closeOthers={[]} openDisplay={display} noMemoChildren={true}/>;
+const CommentsHover = (props: {row: SignoutTablesState, setUpdateCommentsModal: (singoutId: number) => void}) => {
+	const display = <><p>Comments{props.row.comments["_tag"] === "Some" ? <Info color="#777" size="1.4em" /> : <></>}</p></>;
+	return <MultiHover id={"comments_" + props.row.signoutId} makeChildren={() => props.row.comments["_tag"] === "Some" ? <p>{props.row.comments.getOrElse("")}</p> : undefined} handleClick={() => props.setUpdateCommentsModal(props.row.signoutId)} closeOthers={[]} openDisplay={display} noMemoChildren={true}/>;
 }
 
 const MultiSigninCheckbox = (props : {row: SignoutTablesState, multiSignInSelected: number[], setMultiSignInSelected: (multiSignInSelected: number[]) => void}) => {
@@ -459,7 +480,7 @@ class ThrottledUpdater {
 
 }
 
-const crewTable = (props: { row: SignoutTablesState, removeCrew?: (crewId: number) => void }) => <Table size="sm">
+const CrewTable = (props: { row: SignoutTablesState, removeCrew?: (crewId: number) => void }) => <Table size="sm">
 	<thead>
 		<tr>
 			{props.removeCrew != undefined ? <td>Remove</td> : <></>}
@@ -469,16 +490,16 @@ const crewTable = (props: { row: SignoutTablesState, removeCrew?: (crewId: numbe
 		</tr>
 	</thead>
 	<tbody>
-		{(props.row.$$crew || []).map((a) => makeCrewRow(a, props.removeCrew))}
+		{(props.row.$$crew || []).map((a) => <CrewRow crew={a} removeCrew={props.removeCrew} />)}
 	</tbody>
 </Table>
 
 function handleMultiSignIn(multiSignInSelected: number[]) : Promise<any> {
-	const signinDateTime = option.some(moment());
+	const signinDateTime = option.some(momentNowDefaultDateTime());
 	if(multiSignInSelected.length === 0){
 		return Promise.resolve();
 	}
-	return putSignouts.send({type: "json", jsonData: multiSignInSelected.map((a) => ({signoutId: a, signinDateTime: signinDateTime}))}).then((a) => {
+	return putSignouts.send({type: "json", jsonData: multiSignInSelected.map((a) => ({signoutId: a, signinDatetime: signinDateTime}))}).then((a) => {
 		console.log(a);
 	});
 }
@@ -629,16 +650,16 @@ const SignoutsTable = (props: {
 			<FormGroup row>
 				<Col>
 				<h1>Crew</h1>
-				{crewTable({row:currentRow, removeCrew: (crewId: number) => {
+				<CrewTable row={currentRow} removeCrew={(crewId: number) => {
 					const newCrew = currentRow.$$crew.filter((a) => a.crewId.getOrElse(-1) != crewId);
 					updateCurrentRow({...currentRow, $$crew:newCrew})
-				}})}
+				}} />
 				</Col>
 			</FormGroup>
 			<FormGroup row>
 				<Col>
 				<h1>Add Crew</h1>
-				{addCrew({row:currentRow, updateCurrentRow:updateCurrentRow})}
+					<AddCrew row={currentRow} updateCurrentRow={updateCurrentRow} />
 				</Col>
 			</FormGroup>
 		</React.Fragment>
@@ -697,11 +718,12 @@ const SignoutsTable = (props: {
 				boatId: formatSelection(row.boatId, boatTypesHR),
 				signoutDatetime: formatMoment(row.signoutDatetime, "hh:mm A"),
 				signinDatetime: formatMoment(row.signinDatetime, "hh:mm A"),
-				icons: props.isActive ? <>{makeFlagIcon(row, props.ratings)}{makeStopwatchIcon(row)}{makeReassignedIcon(row,reassignedHullsMap,reassignedSailsMap)}</> : <></>,
-				ratings: makeRatingsHover(row, sortedRatings, orphanedRatingsShownByDefault, closeOthers),
-				crew: makeCrewHover(row),
-				comments: makeCommentsHover(row, setUpdateCommentsModal),
+				icons: props.isActive ? <>{<FlagIcon row={row} ratings={props.ratings}/>}{<StopwatchIcon row={row}/>}{<ReassignedIcon row={row} reassignedHullsMap={reassignedHullsMap} reassignedSailsMap={reassignedSailsMap}/>}</> : <></>,
+				ratings: <RatingsHover row={row} sortedRatings={sortedRatings} orphanedRatingsShownByDefault={orphanedRatingsShownByDefault} closeOthers={closeOthers}/>,
+				crew: <CrewHover row={row}/>,
+				comments: <CommentsHover row={row} setUpdateCommentsModal={setUpdateCommentsModal} />,
 				multisignin: <MultiSigninCheckbox row={row} multiSignInSelected={multiSignInSelected} setMultiSignInSelected={setMultiSignInSelected} />,
+				links: <MakeLinks row={row} isActive={props.isActive}/>,
 				edit:row['edit'],
 			})}
 				//ACTIVE: hs.ACTIVE ? <CheckIcon color="#777" size="1.4em" /> : null,
