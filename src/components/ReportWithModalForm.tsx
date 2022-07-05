@@ -32,10 +32,12 @@ export default function ReportWithModalForm<K extends keyof U, T extends t.TypeC
 	submitRow: APIWrapper<any, any, any>
 	cardTitle?: string;
 	columnsNonEditable?: K[];
+	columnsRaw?: K[];
 	globalFilter?: (rows: Row<any>[], columnIds: string[], filterValue: any) => Row<any>[];
 	globalFilterValueControlled?: any;
 	setRowData?: (rows: U[]) => void,
 	hidableColumns?: boolean,
+	makeExtraModal?: (rowData: U[]) => ReactNode
 }) {
 
 	const blankForm = {
@@ -53,13 +55,13 @@ export default function ReportWithModalForm<K extends keyof U, T extends t.TypeC
 	}
 	const updateCurrentRow = (row: U) => setFormData({...formData, currentRow:row});
 
-	const data = React.useMemo(() => rowData.map(r => ({
+	const data = React.useMemo(() => {return rowData.map(r => ({
 		...r,
 		edit: <a href="" onClick={e => {
 			e.preventDefault();
 			openForEdit(some(String(r[props.primaryKey])));
 		}}><EditIcon color="#777" size="1.4em" /></a>,
-	})), [rowData]);
+	}))}, [rowData]);
 	const report = React.useMemo(() => <SimpleReport 
 		keyField={props.primaryKey}
 		data={data.map(props.formatRowForDisplay)}
@@ -150,11 +152,16 @@ export default function ReportWithModalForm<K extends keyof U, T extends t.TypeC
 							toSendEditable[v] = undefined;
 						});
 					}
+					if(props.columnsRaw !== undefined){
+						props.columnsRaw.forEach((a) => {
+							const v = a as keyof typeof toSend;
+							toSendEditable[v] = formData.currentRow[v];
+						})
+					}
 					props.submitRow.send(makePostJSON(toSendEditable)).then(ret => {
 						if (ret.type == "Success") {
 							closeModal();
 							if (rowData.find(r => String(r[props.primaryKey]) == formData.rowForEdit[props.primaryKey])) {
-								console.log("first thing");
 								// was an update.  Find the row and update it
 								updateRowData(rowData.map(row => {
 									if (formData.rowForEdit[props.primaryKey] == String(row[props.primaryKey])) {
@@ -164,7 +171,6 @@ export default function ReportWithModalForm<K extends keyof U, T extends t.TypeC
 									}
 								}))
 							} else {
-								console.log("other thing");
 								// was a create.  Add the new row after injecting the PK from the server
 								updateRowData(rowData.concat([{
 									...toSend,
@@ -186,6 +192,7 @@ export default function ReportWithModalForm<K extends keyof U, T extends t.TypeC
 		
 	}
 	return <React.Fragment>
+		{props.makeExtraModal !== undefined ? props.makeExtraModal(rowData) : <></>}
 		<Modal
 			isOpen={modalIsOpen}
 			toggle={closeModal}

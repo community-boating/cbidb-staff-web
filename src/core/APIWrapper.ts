@@ -63,8 +63,6 @@ export default class APIWrapper<T_ResponseValidator extends t.Any, T_PostBodyVal
 		const postValues: Option<PostValues> = (function() {
 			if (self.config.type === HttpMethod.POST) {
 				if (data.type == "urlEncoded") {
-					console.log("url encoded");
-					console.log(data.urlEncodedData);
 					const content = data.urlEncodedData
 					return some({
 						content,
@@ -72,10 +70,15 @@ export default class APIWrapper<T_ResponseValidator extends t.Any, T_PostBodyVal
 						headers: {}
 					})
 				} else {
-					const content = removeOptions({convertEmptyStringToNull: true})({
+					console.log(data.jsonData);
+
+					const content = !(data.jsonData as any instanceof Array ) ? removeOptions({convertEmptyStringToNull: true})({
 						...data.jsonData,
 						...(self.config.fixedParams || {})
-					});
+					}) : removeOptions({convertEmptyStringToNull: true})(
+							Object.assign(data.jsonData, self.config.fixedParams)
+					);
+					console.log(content);
 					if (content == undefined) return none;
 					else return some({
 						content,
@@ -85,8 +88,9 @@ export default class APIWrapper<T_ResponseValidator extends t.Any, T_PostBodyVal
 				}
 			} else return none;
 		}());
-
+		console.log(postValues);
 		const postBodyValidationError = postValues.chain(({isJson, content}) => {
+			console.log(content);
 			if (!isJson || self.config.type != "POST") return none;
 			const validationResult = self.config.postBodyValidator.decode(content);
 			if (validationResult.isLeft()) return some(PathReporter.report(validationResult).join(", "))
@@ -201,8 +205,6 @@ export default class APIWrapper<T_ResponseValidator extends t.Any, T_PostBodyVal
 				ret = {type: "Success", success: decoded.getOrElse(null)};
 			} else {
 				ret = {type: "Failure", code: "parse_failure", message: "An internal error has occurred.", extra: {parseError: PathReporter.report(decoded).join(", ")}};
-				console.log("herpaderpderp");
-				console.log(ret);
 			} 
 			return ret;
 		}());

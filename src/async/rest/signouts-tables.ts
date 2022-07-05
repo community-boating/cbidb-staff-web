@@ -8,6 +8,7 @@ import { isInteger } from "lodash";
 
 const pathGet = "/rest/signouts-today";
 const pathPost = "/rest/signout";
+const pathPostMulti = "/rest/signouts";
 const pathGetBoatTypes = "/rest/boat-types";
 const pathGetRatings = "/rest/ratings";
 const pathRunagroundCapsize = "/rest/runaground-capsize";
@@ -147,5 +148,12 @@ export const putSignout = new APIWrapper({
 	path:pathPost,
 	type: HttpMethod.POST,
 	postBodyValidator: makeOptionalProps(signoutValidator),
+	resultValidator: new t.Type("putSignoutValidator", (u): u is string => u instanceof String, (i: any) => (i == "Ok") ? t.success("") : t.failure("", []), (a) => undefined),
+});
+
+export const putSignouts = new APIWrapper({
+	path:pathPostMulti,
+	type: HttpMethod.POST,
+	postBodyValidator: t.array(makeOptionalProps(signoutValidator)),
 	resultValidator: new t.Type("putSignoutValidator", (u): u is string => u instanceof String, (i: any) => (i == "Ok") ? t.success("") : t.failure("", []), (a) => undefined),
 });

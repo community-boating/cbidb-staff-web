@@ -3,7 +3,7 @@ import { Button, Card, CardBody, CardHeader, CardTitle, Col, CustomInput, Form, 
 import * as t from "io-ts";
 import { ErrorPopup } from 'components/ErrorPopup';
 
-import { boatsValidator, boatTypesValidator, getBoatTypes, getRatings, getSignoutsToday, programsValidator, putSignout, ratingsValidator, ratingValidator, signoutsValidator, signoutValidator, signoutCrewValidator, getPersonByCardNumber, crewPersonValidator } from 'async/rest/signouts-tables';
+import { boatsValidator, boatTypesValidator, getBoatTypes, getRatings, getSignoutsToday, programsValidator, putSignout, ratingsValidator, ratingValidator, signoutsValidator, signoutValidator, signoutCrewValidator, getPersonByCardNumber, crewPersonValidator, putSignouts } from 'async/rest/signouts-tables';
 import { MAGIC_NUMBERS } from 'app/magicNumbers';
 import { type } from 'os';
 import { highSchoolValidator } from 'async/rest/high-schools';
@@ -25,7 +25,10 @@ import { ReactNode } from 'react';
 import { sortRatings, makeRatingsHover, findOrphanedRatings } from './RatingSorter';
 import { Row } from 'react-table';
 import { MultiHover } from './MultiHover';
-import { X } from 'react-feather';
+import { X, Info } from 'react-feather';
+import { makePostJSON } from 'core/APIWrapperUtil';
+import { EditCommentsModal } from './input/EditCommentModal';
+import { ButtonWrapper } from 'components/ButtonWrapper';
 
 const POLL_FREQ_SEC = 10;
 
@@ -140,8 +143,6 @@ function formatSelection(s: undefined | null | string | number | moment.Moment |
 }
 
 function filterRows(rows: Row<any>[], columnIds: string[], filterValue: SignoutsTableFilterState){
-	//console.log(rows[0]);
-	//console.log(((rows[0] || {}).values || {})['sailNumber']);
 	return rows.filter((a) => {
 		return (filterValue.sail.trim().length === 0 || (a.values['sailNumber'] || "") == (filterValue.sail.trim())) &&
 		(filterValue.nameOrCard.trim().length === 0 || (a.values['nameFirst'] || "").concat(a.values['nameLast'] || "").concat(a.values['cardNum'] || "").toLowerCase().includes(filterValue.nameOrCard.toLowerCase())) &&
@@ -268,7 +269,7 @@ type SignoutsTableFilterState = {
 const columnsBaseUpper: SimpleReportColumn[] = [
 	{
 		accessor: "edit",
-		Header: "",
+		Header: "Edit",
 		disableSortBy: true,
 		width: 50,
 		toggleHidden: true
@@ -328,7 +329,7 @@ const columnsBaseLower: SimpleReportColumn[] = [
 	}, {
 		Header: "Comments",
 		accessor: "comments",
-		width: 90
+		width: 120
 	}
 ];
 
@@ -340,7 +341,7 @@ const columnsInactive: SimpleReportColumn[] = columnsBaseUpper.concat([
 	}]).concat(columnsBaseLower);
 const columnsActive: SimpleReportColumn[] = columnsBaseUpper.concat(columnsBaseLower).concat([
 	{
-		Header: <Button style={{whiteSpace: "nowrap"}}>Multi Sign In</Button>,
+		Header: "Multi Sign In",
 		accessor: "multisignin",
 		disableSortBy: true,
 		width: 90
@@ -392,10 +393,10 @@ function makeCrewHover(row: SignoutTablesState, removeCrew?: (crewId: number) =>
 	return <MultiHover id={"crew_" + row.signoutId} makeChildren={() => crewTable({row:row, removeCrew: removeCrew})} closeOthers={[]} openDisplay={"Crew"} />
 }
 
-const addCrew = (props: { row: SignoutTablesState }) => {
+const addCrew = (props: { row: SignoutTablesState, updateCurrentRow: (row: SignoutTablesState) => void}) => {
 	const [cardNum, setCardNum] = React.useState(option.none as Option<string>);
 	const [person, setPerson] = React.useState(undefined as t.TypeOf<typeof crewPersonValidator>);
-	const throttler: ThrottledUpdater = React.useMemo(() => new ThrottledUpdater(2000, () => {}), []);
+	const throttler: ThrottledUpdater = React.useMemo(() => new ThrottledUpdater(200, () => {}), []);
 	React.useEffect(() => {
 		throttler.handleUpdate = () => {
 			getPersonByCardNumber.sendWithParams(none, { cardNumber: Number(cardNum.getOrElse("")) })(null).then((a) => {
@@ -416,10 +417,20 @@ const addCrew = (props: { row: SignoutTablesState }) => {
 		{person !== undefined ? makeCrewRow({$$person:person,cardNum:cardNum, crewId:option.some(-1), personId:option.some(person.personId),signoutId: undefined, startActive: undefined, endActive:undefined}) : "Not found"}
 		{person !== undefined ? <button onClick={(e) => {
 			e.preventDefault();
-			console.log(props.row.signoutId);
-			console.log(props.row);
+			const newCrew = [...props.row.$$crew];
+			newCrew.push({crewId: option.none, personId: option.some(person.personId), cardNum: cardNum, signoutId: option.some(props.row.signoutId), startActive: option.none, endActive: option.none, $$person:person, apAttendanceId: null, jpAttendanceId: null} as any);
+			props.updateCurrentRow({...props.row, $$crew: newCrew});
 		}}>Add</button> : ""}
 	</>
+}
+
+function makeCommentsHover(row: SignoutTablesState, setUpdateCommentsModal: (singoutId: number) => void) {
+	const display = <><p>Comments{row.comments["_tag"] === "Some" ? <Info color="#777" size="1.4em" /> : <></>}</p></>;
+	return <MultiHover id={"comments_" + row.signoutId} makeChildren={() => row.comments["_tag"] === "Some" ? <p>{row.comments.getOrElse("")}</p> : undefined} handleClick={() => setUpdateCommentsModal(row.signoutId)} closeOthers={[]} openDisplay={display} noMemoChildren={true}/>;
+}
+
+const MultiSigninCheckbox = (props : {row: SignoutTablesState, multiSignInSelected: number[], setMultiSignInSelected: (multiSignInSelected: number[]) => void}) => {
+	return <FormGroup check><Input type="checkbox" checked={props.multiSignInSelected.contains(props.row.signoutId)} onChange={(e) => {if(e.target.checked){props.setMultiSignInSelected(props.multiSignInSelected.concat(props.row.signoutId))}else{props.setMultiSignInSelected(props.multiSignInSelected.filter((a) => a != props.row.signoutId))}}}/></FormGroup>;
 }
 
 class ThrottledUpdater {
@@ -462,6 +473,16 @@ const crewTable = (props: { row: SignoutTablesState, removeCrew?: (crewId: numbe
 	</tbody>
 </Table>
 
+function handleMultiSignIn(multiSignInSelected: number[]) : Promise<any> {
+	const signinDateTime = option.some(moment());
+	if(multiSignInSelected.length === 0){
+		return Promise.resolve();
+	}
+	return putSignouts.send({type: "json", jsonData: multiSignInSelected.map((a) => ({signoutId: a, signinDateTime: signinDateTime}))}).then((a) => {
+		console.log(a);
+	});
+}
+
 const SignoutsTable = (props: {
 	initState: SignoutsTablesState,
 	boatTypes: BoatTypesValidatorState,
@@ -473,6 +494,8 @@ const SignoutsTable = (props: {
 	//Anti pattern used for showing/hiding other modals, allows the parent not to update which is expensive
 	//In the future some of the computational expense of updating the signoutstable can be removed by caching elements.
 	const [closeOthers, setCloseOthers] = React.useState([]);
+	const [updateCommentsModal, setUpdateCommentsModal] = React.useState(undefined as number);
+	const [multiSignInSelected, setMultiSignInSelected] = React.useState([] as number[]);
 	// Define table columns
 	const boatTypesHR = makeBoatTypesHR(props.boatTypes);
 	const ratingsHR = props.ratings.sort((a,b) => a.ratingName.localeCompare(b.ratingName)).map((v) => ({value:v.ratingId,display:v.ratingName}));
@@ -482,7 +505,8 @@ const SignoutsTable = (props: {
 		rowForEdit: StringifiedProps<SignoutTablesState>,
 		updateState: (id: string, value: string | boolean) => void,
 		currentRow: SignoutTablesState,
-		validationResults: validationError[]
+		validationResults: validationError[],
+		updateCurrentRow: (row) => void
 	) => {
 			const lower = moment("2000","yyyy");
 			const upper = moment("2032","yyyy").add(6,"months").add(1,"days");
@@ -605,13 +629,16 @@ const SignoutsTable = (props: {
 			<FormGroup row>
 				<Col>
 				<h1>Crew</h1>
-				{crewTable({row:currentRow, removeCrew: (crewId: number) => console.log(crewId)})}
+				{crewTable({row:currentRow, removeCrew: (crewId: number) => {
+					const newCrew = currentRow.$$crew.filter((a) => a.crewId.getOrElse(-1) != crewId);
+					updateCurrentRow({...currentRow, $$crew:newCrew})
+				}})}
 				</Col>
 			</FormGroup>
 			<FormGroup row>
 				<Col>
 				<h1>Add Crew</h1>
-				{addCrew({row:currentRow})}
+				{addCrew({row:currentRow, updateCurrentRow:updateCurrentRow})}
 				</Col>
 			</FormGroup>
 		</React.Fragment>
@@ -619,7 +646,17 @@ const SignoutsTable = (props: {
 	};
 	const cardTitle=props.isActive ? "Active Signouts" : "Completed Signouts";
 	const f = props.isActive ? (a : SignoutTablesState) => option.isNone(a.signinDatetime) : (a : SignoutTablesState) => option.isSome(a.signinDatetime);
-	const columns = props.isActive ? columnsActive : columnsInactive;
+	var columns = props.isActive ? columnsActive : columnsInactive;
+	if(props.isActive){
+		columns = Object.assign([], columns);
+		for(var i = 0; i < columns.length; i++){
+			if(columns[i].accessor === "multisignin"){
+				columns[i] = Object.assign({}, columns[i]);
+				columns[i].Header = <ButtonWrapper spinnerOnClick onClick={() => handleMultiSignIn(multiSignInSelected)}>Multi Sign In</ButtonWrapper>
+			}
+		}
+		//columnsActive.find((a) => a.accessor === "multisignin").Header = <p>do it</p>;
+	}
 	const reassignedHullsMap = {};
 	const reassignedSailsMap = {};
 	const filteredSignouts = state.filter(f);
@@ -629,6 +666,20 @@ const SignoutsTable = (props: {
 	}
 	
 	const sortedRatings = sortRatings(props.ratings);
+	const updateCommentsSubmit = (comments: Option<string>, signoutId: number) => putSignout.send(makePostJSON({signoutId: signoutId, comments:comments})).then((a) => {
+		if(a.type === "Success"){
+			setUpdateCommentsModal(undefined);
+			const newRows = Object.assign([], state);
+			for(var row of newRows){
+				if(row.signoutId == signoutId){
+					row.comments = comments;
+				}
+			}
+			setState(newRows);
+		}else{
+			alert("Server error");
+		}
+	});
 	return <>
 		<ReportWithModalForm
 			globalFilterValueControlled={props.filterValue}
@@ -649,6 +700,8 @@ const SignoutsTable = (props: {
 				icons: props.isActive ? <>{makeFlagIcon(row, props.ratings)}{makeStopwatchIcon(row)}{makeReassignedIcon(row,reassignedHullsMap,reassignedSailsMap)}</> : <></>,
 				ratings: makeRatingsHover(row, sortedRatings, orphanedRatingsShownByDefault, closeOthers),
 				crew: makeCrewHover(row),
+				comments: makeCommentsHover(row, setUpdateCommentsModal),
+				multisignin: <MultiSigninCheckbox row={row} multiSignInSelected={multiSignInSelected} setMultiSignInSelected={setMultiSignInSelected} />,
 				edit:row['edit'],
 			})}
 				//ACTIVE: hs.ACTIVE ? <CheckIcon color="#777" size="1.4em" /> : null,
@@ -658,8 +711,10 @@ const SignoutsTable = (props: {
 			submitRow={putSignout}
 			cardTitle={cardTitle}
 			columnsNonEditable={SignoutTablesNonEditableObject}
+			columnsRaw={["$$crew"]}
 			setRowData={setState}
 			hidableColumns={true}
+			makeExtraModal={(rowData: SignoutsTablesState) => <EditCommentsModal modalIsOpen={updateCommentsModal !== undefined} setModalIsOpen={() => {setUpdateCommentsModal(undefined)}} currentRow={rowData.find((a) => a.signoutId == updateCommentsModal)} updateComments={updateCommentsSubmit}></EditCommentsModal>}
 		/>
 	</>;
 }
