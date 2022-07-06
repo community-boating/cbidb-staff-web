@@ -81,7 +81,7 @@ export const RatingsHover = (props: {row: SignoutTablesState, sortedRatings: Sor
 	const makeHover = getMakeRatingsTable(props.row, props.sortedRatings, props.orphanedRatingsShownByDefault);
 
 	return (
-		<MultiHover id={"ratings" + String(props.row.signoutId)} makeChildren={makeHover} closeOthers={props.closeOthers} openDisplay={"Ratings"}/>
+		<MultiHover id={"ratings" + String(props.row.signoutId)} makeChildren={makeHover} openDisplay={"Ratings"}/>
 	)
 }
 

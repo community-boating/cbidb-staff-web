@@ -181,9 +181,8 @@ export const SignoutsTablesPage = (props: {
 	const [filterValue, setFilterValue] = React.useState(makeInitFilter());
 	const boatTypesHR = React.useMemo(() => makeBoatTypesHR(boatTypes), [boatTypes]);
 	const [state, setState] = React.useState(props.initState);
-	const timeoutID = React.useMemo(() => {console.log("called create"); return setInterval(() => {
+	const timeoutID = React.useMemo(() => {return setInterval(() => {
 			getSignoutsToday.send(null).then((a) => {
-				//console.log("fetching...");
 				if(a.type === "Success"){
 					setState(a.success);
 				}else{
@@ -195,11 +194,6 @@ export const SignoutsTablesPage = (props: {
 	React.useEffect(() => {
 		setState(props.initState);
 	}, [props.initState]);
-	//var initStateCloned = [];
-	//for(var i = 0; i < 1000; i++){
-	//	initStateCloned[i] = Object.assign({}, props.initState[0]);
-	//	initStateCloned[i].signoutId = i*10;
-	//}
 	if(boatTypes.length == 0){
 		getBoatTypes.send(null).then((a) => {
 			if(a.type == "Success"){
@@ -220,10 +214,26 @@ export const SignoutsTablesPage = (props: {
 		newFilterState[id] = value;
 		setFilterValue(newFilterState);
 	};
-	const optionsMap = (a) => ({ value: a.display, display: a.display });
 	const tdStyle: React.CSSProperties = { verticalAlign: "middle", textAlign: "right" };
 	const labelStyle: React.CSSProperties = { margin: 0 };
-	const signoutsTableFilter = React.useMemo(() => <><Table>
+
+	return <>
+		<SignoutsTableFilter tdStyle={tdStyle} labelStyle={labelStyle} filterValue={filterValue} updateState={updateState} boatTypesHR={boatTypesHR} setFilterValue={setFilterValue}/>
+		<SignoutsTable {...props} state={state} setState={setState} boatTypes={boatTypes} ratings={ratings} isActive={true} filterValue={filterValue} globalFilter={filterRows}/>
+		<SignoutsTable {...props} state={state} setState={setState} boatTypes={boatTypes} ratings={ratings} isActive={false} filterValue={filterValue} globalFilter={filterRows}/>
+	</>;
+
+	
+}
+
+const optionsMap = (a) => ({ value: a.display, display: a.display });
+
+const SignoutsTableFilter = (props: {tdStyle: React.CSSProperties, labelStyle: React.CSSProperties, filterValue: SignoutsTableFilterState, updateState: (id: string, value: string | boolean) => void, boatTypesHR: SelectOption[], setFilterValue: (filterValue: SignoutsTableFilterState) => void}) => {
+	const tdStyle = props.tdStyle;
+	const labelStyle = props.labelStyle;
+	const filterValue = props.filterValue;
+	const updateState = props.updateState;
+	return (<><Table>
 		<tbody>
 			<tr>
 				<td style={tdStyle}>
@@ -240,7 +250,7 @@ export const SignoutsTablesPage = (props: {
 					</Label>
 				</td>
 				<td>
-					<ValidatedSelectInput {...wrapForFormComponents(filterValue, updateState, "boatType", [])} selectOptions={boatTypesHR.map(optionsMap)} showNone="None" selectNone={true} />
+					<ValidatedSelectInput {...wrapForFormComponents(filterValue, updateState, "boatType", [])} selectOptions={props.boatTypesHR.map(optionsMap)} showNone="None" selectNone={true} />
 				</td>
 			</tr>
 			<tr>
@@ -273,19 +283,11 @@ export const SignoutsTablesPage = (props: {
 				<td style={tdStyle}>
 				</td>
 				<td style={tdStyle}>
-					<Button onClick={() => setFilterValue(makeInitFilter())}>Clear Filters</Button>
+					<Button onClick={() => props.setFilterValue(makeInitFilter())}>Clear Filters</Button>
 				</td>
 			</tr>
 		</tbody>
-	</Table></>, [filterValue, boatTypesHR]);
-
-	return <>
-		{signoutsTableFilter}
-		<SignoutsTable {...props} state={state} setState={setState} boatTypes={boatTypes} ratings={ratings} isActive={true} filterValue={filterValue} globalFilter={filterRows}/>
-		<SignoutsTable {...props} state={state} setState={setState} boatTypes={boatTypes} ratings={ratings} isActive={false} filterValue={filterValue} globalFilter={filterRows}/>
-	</>;
-
-	
+	</Table></>);
 }
 
 type SignoutsTableFilterState = {
@@ -420,7 +422,7 @@ const CrewHover = (props: {row: SignoutTablesState, removeCrew?: (crewId: number
 	if (props.row.$$crew.length === 0) {
 		return <p>-</p>;
 	}
-	return <MultiHover id={"crew_" + props.row.signoutId} makeChildren={() => <CrewTable row={props.row} removeCrew={props.removeCrew} />} closeOthers={[]} openDisplay={"Crew"} />
+	return <MultiHover id={"crew_" + props.row.signoutId} makeChildren={() => <CrewTable row={props.row} removeCrew={props.removeCrew} />} openDisplay={"Crew"} />
 }
 
 const AddCrew = (props: { row: SignoutTablesState, updateCurrentRow: (row: SignoutTablesState) => void}) => {
@@ -456,7 +458,7 @@ const AddCrew = (props: { row: SignoutTablesState, updateCurrentRow: (row: Signo
 
 const CommentsHover = (props: {row: SignoutTablesState, setUpdateCommentsModal: (singoutId: number) => void}) => {
 	const display = <><p>Comments{props.row.comments["_tag"] === "Some" ? <Info color="#777" size="1.4em" /> : <></>}</p></>;
-	return <MultiHover id={"comments_" + props.row.signoutId} makeChildren={() => props.row.comments["_tag"] === "Some" ? <p>{props.row.comments.getOrElse("")}</p> : undefined} handleClick={() => props.setUpdateCommentsModal(props.row.signoutId)} closeOthers={[]} openDisplay={display} noMemoChildren={true}/>;
+	return <MultiHover id={"comments_" + props.row.signoutId} makeChildren={() => props.row.comments["_tag"] === "Some" ? <p>{props.row.comments.getOrElse("")}</p> : undefined} handleClick={() => props.setUpdateCommentsModal(props.row.signoutId)} openDisplay={display} noMemoChildren={true}/>;
 }
 
 const MultiSigninCheckbox = (props : {row: SignoutTablesState, multiSignInSelected: number[], setMultiSignInSelected: (multiSignInSelected: number[]) => void}) => {
@@ -556,8 +558,8 @@ const SignoutsTable = (props: {
 	const [updateCommentsModal, setUpdateCommentsModal] = React.useState(undefined as number);
 	const [multiSignInSelected, setMultiSignInSelected] = React.useState([] as number[]);
 	// Define table columns
-	const boatTypesHR = makeBoatTypesHR(props.boatTypes);
-	const ratingsHR = props.ratings.sort((a,b) => a.ratingName.localeCompare(b.ratingName)).map((v) => ({value:v.ratingId,display:v.ratingName}));
+	const boatTypesHR = React.useMemo(() => makeBoatTypesHR(props.boatTypes), [props.boatTypes]);
+	const ratingsHR = React.useMemo(() => props.ratings.sort((a,b) => a.ratingName.localeCompare(b.ratingName)).map((v) => ({value:v.ratingId,display:v.ratingName})), [props.ratings]);
 	// Define edit/add form
 	const formComponents = (
 		rowForEdit: StringifiedProps<SignoutTablesState>,

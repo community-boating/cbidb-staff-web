@@ -69,15 +69,12 @@ export default class APIWrapper<T_ResponseValidator extends t.Any, T_PostBodyVal
 						headers: {}
 					})
 				} else {
-					console.log(data.jsonData);
-
 					const content = !(data.jsonData as any instanceof Array ) ? removeOptions({convertEmptyStringToNull: true})({
 						...data.jsonData,
 						...(self.config.fixedParams || {})
 					}) : removeOptions({convertEmptyStringToNull: true})(
 							Object.assign(data.jsonData, self.config.fixedParams)
 					);
-					console.log(content);
 					if (content == undefined) return none;
 					else return some({
 						content,
@@ -87,7 +84,6 @@ export default class APIWrapper<T_ResponseValidator extends t.Any, T_PostBodyVal
 				}
 			} else return none;
 		}());
-		console.log(postValues);
 		const postBodyValidationError = postValues.chain(({isJson, content}) => {
 			console.log(content);
 			if (!isJson || self.config.type != "POST") return none;
