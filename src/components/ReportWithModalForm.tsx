@@ -37,6 +37,7 @@ export default function ReportWithModalForm<K extends keyof U, T extends t.TypeC
 	globalFilterValueControlled?: any;
 	setRowData?: (rows: U[]) => void,
 	hidableColumns?: boolean,
+	hideAdd?: boolean,
 	makeExtraModal?: (rowData: U[]) => ReactNode
 }) {
 
@@ -226,7 +227,7 @@ export default function ReportWithModalForm<K extends keyof U, T extends t.TypeC
 			<CardBody>
 				<div>
 					{report}
-					<Button className="mr-1 mb-1" outline onClick={() => openForEdit(none) }>Add Row</Button>
+					{props.hideAdd === true ? <></> : <Button className="mr-1 mb-1" outline onClick={() => openForEdit(none) }>Add Row</Button>}
 				</div>
 			</CardBody>
 		</Card>

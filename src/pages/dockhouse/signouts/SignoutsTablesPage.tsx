@@ -776,6 +776,7 @@ const SignoutsTable = (props: {
 			columnsRaw={["$$crew"]}
 			setRowData={props.setState}
 			hidableColumns={true}
+			hideAdd={true}
 			makeExtraModal={(rowData: SignoutsTablesState) => <EditCommentsModal modalIsOpen={updateCommentsModal !== undefined} setModalIsOpen={() => {setUpdateCommentsModal(undefined)}} currentRow={rowData.find((a) => a.signoutId == updateCommentsModal)} updateComments={updateCommentsSubmit}></EditCommentsModal>}
 		/>
 	</>;
