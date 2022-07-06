@@ -175,13 +175,12 @@ function makeInitFilter(){
 export const SignoutsTablesPage = (props: {
 	initState: SignoutsTablesState,
 }) => {
-	
 	const [boatTypes, setBoatTypes] = React.useState([] as BoatTypesValidatorState);
 	const [ratings, setRatings] = React.useState([] as RatingsValidatorState);
 	const [filterValue, setFilterValue] = React.useState(makeInitFilter());
 	const boatTypesHR = React.useMemo(() => makeBoatTypesHR(boatTypes), [boatTypes]);
 	const [state, setState] = React.useState(props.initState);
-	const timeoutID = React.useMemo(() => {return setInterval(() => {
+	/*const timeoutID = React.useMemo(() => {return setInterval(() => {
 			getSignoutsToday.send(null).then((a) => {
 				if(a.type === "Success"){
 					setState(a.success);
@@ -190,24 +189,26 @@ export const SignoutsTablesPage = (props: {
 					clearInterval(timeoutID);
 				}
 			})
-		}, 10000)}, []);
+		}, 10000)}, []);*/
 	React.useEffect(() => {
 		setState(props.initState);
 	}, [props.initState]);
-	if(boatTypes.length == 0){
+	React.useEffect(() => {
+		console.log("getting boats");
 		getBoatTypes.send(null).then((a) => {
 			if(a.type == "Success"){
 				setBoatTypes(a.success);
 			}
-		});
-	}
-	if(ratings.length == 0){
+		});}
+	, []);
+	React.useEffect(() => {
+		console.log("getting ratings");
 		getRatings.send(null).then((a) => {
 			if(a.type == "Success"){
 				setRatings(a.success);
 			}
 		});
-	}
+	}, []);
 
 	const updateState = (id: string, value: string | boolean) => {
 		const newFilterState = Object.assign({}, filterValue);

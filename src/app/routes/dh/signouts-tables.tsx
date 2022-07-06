@@ -57,6 +57,7 @@ export const routeSignoutsTablesPage = new RouteWrapper({
 	sidebarTitle: "Signouts Tables",
 	pageName: PageName.SIGNOUTS_TABLES,
 }, history => <PageWrapper
+	autoRefresh={10000}
 	key="signoutstables"
 	history={history}
 	component={(urlProps: {}, async: t.TypeOf<typeof signoutsValidator>) => <SignoutsTablesPage
