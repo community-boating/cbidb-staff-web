@@ -96,11 +96,11 @@ const FlagIcon = (props: {row: SignoutTablesState, ratings: RatingsValidatorStat
 	return <img width={iconWidth} height={iconHeight} src={(FlagStatusIcons[flags[0] as string] || FlagStatusIcons.B).src}/>;
 }
 
-const MakeLinks = (props: {row: SignoutTablesState, isActive: boolean}) => {
+const MakeLinks = (props: {row: SignoutTablesState, isActive: boolean, state: SignoutsTablesState, setState: (state: SignoutsTablesState) => void}) => {
 	if(props.isActive){
-		return <a onClick={() => handleSingleSignIn(props.row.signoutId, false)}>Sign In</a>
+		return <a onClick={() => handleSingleSignIn(props.row.signoutId, false, props.state, props.setState)}>Sign In</a>
 	}else{
-		return <a onClick={() => handleSingleSignIn(props.row.signoutId, true)}>Undo Sign In</a>;
+		return <a onClick={() => handleSingleSignIn(props.row.signoutId, true, props.state, props.setState)}>Undo Sign In</a>;
 	}
 }
 
@@ -108,12 +108,6 @@ function momentNowDefaultDateTime(){
 	const momentNow = moment();
 	momentNow["_f"] = DefaultDateTimeFormat;
 	return momentNow;
-}
-
-function handleSingleSignIn(signoutId: number, isUndo: boolean){
-	return putSignout.send(makePostJSON({signoutId: signoutId, signinDatetime: isUndo ? option.none : option.some(momentNowDefaultDateTime())})).then((a) => {
-		console.log(a);
-	})
 }
 
 const StopwatchIcon = (props: {row: SignoutTablesState}) => {
@@ -186,6 +180,21 @@ export const SignoutsTablesPage = (props: {
 	const [ratings, setRatings] = React.useState([] as RatingsValidatorState);
 	const [filterValue, setFilterValue] = React.useState(makeInitFilter());
 	const boatTypesHR = React.useMemo(() => makeBoatTypesHR(boatTypes), [boatTypes]);
+	const [state, setState] = React.useState(props.initState);
+	const timeoutID = React.useMemo(() => {console.log("called create"); return setInterval(() => {
+			getSignoutsToday.send(null).then((a) => {
+				//console.log("fetching...");
+				if(a.type === "Success"){
+					setState(a.success);
+				}else{
+					alert("error refreshing signouts");
+					clearInterval(timeoutID);
+				}
+			})
+		}, 10000)}, []);
+	React.useEffect(() => {
+		setState(props.initState);
+	}, [props.initState]);
 	//var initStateCloned = [];
 	//for(var i = 0; i < 1000; i++){
 	//	initStateCloned[i] = Object.assign({}, props.initState[0]);
@@ -272,8 +281,8 @@ export const SignoutsTablesPage = (props: {
 
 	return <>
 		{signoutsTableFilter}
-		<SignoutsTable {...props} initState={props.initState} boatTypes={boatTypes} ratings={ratings} isActive={true} filterValue={filterValue} globalFilter={filterRows}/>
-		<SignoutsTable {...props} boatTypes={boatTypes} ratings={ratings} isActive={false} filterValue={filterValue} globalFilter={filterRows}/>
+		<SignoutsTable {...props} state={state} setState={setState} boatTypes={boatTypes} ratings={ratings} isActive={true} filterValue={filterValue} globalFilter={filterRows}/>
+		<SignoutsTable {...props} state={state} setState={setState} boatTypes={boatTypes} ratings={ratings} isActive={false} filterValue={filterValue} globalFilter={filterRows}/>
 	</>;
 
 	
@@ -494,18 +503,47 @@ const CrewTable = (props: { row: SignoutTablesState, removeCrew?: (crewId: numbe
 	</tbody>
 </Table>
 
-function handleMultiSignIn(multiSignInSelected: number[]) : Promise<any> {
-	const signinDateTime = option.some(momentNowDefaultDateTime());
+function handleMultiSignIn(multiSignInSelected: number[], state: SignoutsTablesState, setState: (state: SignoutsTablesState) => void) : Promise<any> {
+	const signinDatetime = option.some(momentNowDefaultDateTime());
 	if(multiSignInSelected.length === 0){
 		return Promise.resolve();
 	}
-	return putSignouts.send({type: "json", jsonData: multiSignInSelected.map((a) => ({signoutId: a, signinDatetime: signinDateTime}))}).then((a) => {
-		console.log(a);
+	return putSignouts.send({type: "json", jsonData: multiSignInSelected.map((a) => ({signoutId: a, signinDatetime: signinDatetime}))}).then((a) => {
+		if(a.type === "Success"){
+			const newState = Object.assign([], state);
+			for(var i = 0; i < newState.length; i++){
+				if(multiSignInSelected.contains(state[i].signoutId)){
+					newState[i] = Object.assign({}, state[i]);
+					newState[i].signinDatetime = signinDatetime;
+				}
+			}
+			setState(newState);
+		}else{
+			alert("internal server error");
+		}
 	});
 }
 
+function handleSingleSignIn(signoutId: number, isUndo: boolean, state: SignoutsTablesState, setState: (state: SignoutsTablesState) => void){
+	const signinDatetime = isUndo ? option.none : option.some(momentNowDefaultDateTime());
+	return putSignout.send(makePostJSON({signoutId: signoutId, signinDatetime: signinDatetime})).then((a) => {
+		if(a.type === "Success"){
+			const newState = Object.assign([], state);
+			for(var i = 0; i < newState.length; i++){
+				if(state[i].signoutId == signoutId){
+					newState[i] = Object.assign({}, state[i]);
+					newState[i].signinDatetime = signinDatetime;
+					break;
+				}
+			}
+			setState(newState);
+		}
+	})
+}
+
 const SignoutsTable = (props: {
-	initState: SignoutsTablesState,
+	state: SignoutsTablesState,
+	setState: (state: SignoutsTablesState) => void,
 	boatTypes: BoatTypesValidatorState,
 	ratings: RatingsValidatorState,
 	isActive: boolean,
@@ -521,7 +559,6 @@ const SignoutsTable = (props: {
 	const boatTypesHR = makeBoatTypesHR(props.boatTypes);
 	const ratingsHR = props.ratings.sort((a,b) => a.ratingName.localeCompare(b.ratingName)).map((v) => ({value:v.ratingId,display:v.ratingName}));
 	// Define edit/add form
-	const [state, setState] = React.useState(props.initState);
 	const formComponents = (
 		rowForEdit: StringifiedProps<SignoutTablesState>,
 		updateState: (id: string, value: string | boolean) => void,
@@ -673,14 +710,14 @@ const SignoutsTable = (props: {
 		for(var i = 0; i < columns.length; i++){
 			if(columns[i].accessor === "multisignin"){
 				columns[i] = Object.assign({}, columns[i]);
-				columns[i].Header = <ButtonWrapper spinnerOnClick onClick={() => handleMultiSignIn(multiSignInSelected)}>Multi Sign In</ButtonWrapper>
+				columns[i].Header = <ButtonWrapper spinnerOnClick onClick={() => handleMultiSignIn(multiSignInSelected, props.state, props.setState)}>Multi Sign In</ButtonWrapper>
 			}
 		}
 		//columnsActive.find((a) => a.accessor === "multisignin").Header = <p>do it</p>;
 	}
 	const reassignedHullsMap = {};
 	const reassignedSailsMap = {};
-	const filteredSignouts = state.filter(f);
+	const filteredSignouts = props.state.filter(f);
 	if(props.isActive){
 		filteredSignouts.forEach((a) => {mapOptional(a.hullNumber,a.boatId,a.signoutId,reassignedHullsMap)});
 		filteredSignouts.forEach((a) => {mapOptional(a.sailNumber,a.boatId,a.signoutId,reassignedSailsMap)});
@@ -690,13 +727,13 @@ const SignoutsTable = (props: {
 	const updateCommentsSubmit = (comments: Option<string>, signoutId: number) => putSignout.send(makePostJSON({signoutId: signoutId, comments:comments})).then((a) => {
 		if(a.type === "Success"){
 			setUpdateCommentsModal(undefined);
-			const newRows = Object.assign([], state);
+			const newRows = Object.assign([], props.state);
 			for(var row of newRows){
 				if(row.signoutId == signoutId){
 					row.comments = comments;
 				}
 			}
-			setState(newRows);
+			props.setState(newRows);
 		}else{
 			alert("Server error");
 		}
@@ -723,7 +760,7 @@ const SignoutsTable = (props: {
 				crew: <CrewHover row={row}/>,
 				comments: <CommentsHover row={row} setUpdateCommentsModal={setUpdateCommentsModal} />,
 				multisignin: <MultiSigninCheckbox row={row} multiSignInSelected={multiSignInSelected} setMultiSignInSelected={setMultiSignInSelected} />,
-				links: <MakeLinks row={row} isActive={props.isActive}/>,
+				links: <MakeLinks row={row} isActive={props.isActive} state={props.state} setState={props.setState}/>,
 				edit:row['edit'],
 			})}
 				//ACTIVE: hs.ACTIVE ? <CheckIcon color="#777" size="1.4em" /> : null,
@@ -734,7 +771,7 @@ const SignoutsTable = (props: {
 			cardTitle={cardTitle}
 			columnsNonEditable={SignoutTablesNonEditableObject}
 			columnsRaw={["$$crew"]}
-			setRowData={setState}
+			setRowData={props.setState}
 			hidableColumns={true}
 			makeExtraModal={(rowData: SignoutsTablesState) => <EditCommentsModal modalIsOpen={updateCommentsModal !== undefined} setModalIsOpen={() => {setUpdateCommentsModal(undefined)}} currentRow={rowData.find((a) => a.signoutId == updateCommentsModal)} updateComments={updateCommentsSubmit}></EditCommentsModal>}
 		/>
