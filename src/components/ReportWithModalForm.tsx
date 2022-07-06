@@ -38,7 +38,7 @@ export default function ReportWithModalForm<K extends keyof U, T extends t.TypeC
 	setRowData?: (rows: U[]) => void,
 	hidableColumns?: boolean,
 	hideAdd?: boolean,
-	makeExtraModal?: (rowData: U[]) => ReactNode
+	//makeExtraModal?: (rowData: U[]) => ReactNode
 }) {
 
 	const blankForm = {
@@ -184,7 +184,7 @@ export default function ReportWithModalForm<K extends keyof U, T extends t.TypeC
 						resolve(null);
 					})
 				} else {
-					setValidationErrors(validationResults.map((b) => ({key:b.context[1].key, display: b.message})).filter((b) => b != undefined));
+					setValidationErrors(validationResults.map((b) => ({key:(((b || {}).context || [])[1] || {}).key, display: b.message})).filter((b) => b != undefined));
 					resolve(null);
 					//TODO: I'm sure we can do better than this
 				}
@@ -193,7 +193,6 @@ export default function ReportWithModalForm<K extends keyof U, T extends t.TypeC
 		
 	}
 	return <React.Fragment>
-		{props.makeExtraModal !== undefined ? props.makeExtraModal(rowData) : <></>}
 		<Modal
 			isOpen={modalIsOpen}
 			toggle={closeModal}

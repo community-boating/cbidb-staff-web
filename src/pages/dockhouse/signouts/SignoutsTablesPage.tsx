@@ -158,6 +158,7 @@ function formatSelection(s: undefined | null | string | number | moment.Moment |
 }
 
 function filterRows(rows: Row<any>[], columnIds: string[], filterValue: SignoutsTableFilterState){
+	console.log("filtering");
 	return rows.filter((a) => {
 		return (filterValue.sail.trim().length === 0 || (a.values['sailNumber'] || "") == (filterValue.sail.trim())) &&
 		(filterValue.nameOrCard.trim().length === 0 || (a.values['nameFirst'] || "").concat(a.values['nameLast'] || "").concat(a.values['cardNum'] || "").toLowerCase().includes(filterValue.nameOrCard.toLowerCase())) &&
@@ -217,7 +218,6 @@ export const SignoutsTablesPage = (props: {
 	};
 	const tdStyle: React.CSSProperties = { verticalAlign: "middle", textAlign: "right" };
 	const labelStyle: React.CSSProperties = { margin: 0 };
-
 	return <>
 		<SignoutsTableFilter tdStyle={tdStyle} labelStyle={labelStyle} filterValue={filterValue} updateState={updateState} boatTypesHR={boatTypesHR} setFilterValue={setFilterValue}/>
 		<SignoutsTable {...props} state={state} setState={setState} boatTypes={boatTypes} ratings={ratings} isActive={true} filterValue={filterValue} globalFilter={filterRows}/>
@@ -777,7 +777,7 @@ const SignoutsTable = (props: {
 			setRowData={props.setState}
 			hidableColumns={true}
 			hideAdd={true}
-			makeExtraModal={(rowData: SignoutsTablesState) => <EditCommentsModal modalIsOpen={updateCommentsModal !== undefined} setModalIsOpen={() => {setUpdateCommentsModal(undefined)}} currentRow={rowData.find((a) => a.signoutId == updateCommentsModal)} updateComments={updateCommentsSubmit}></EditCommentsModal>}
-		/>
+			/>
+			<EditCommentsModal modalIsOpen={updateCommentsModal !== undefined} setModalIsOpen={() => {setUpdateCommentsModal(undefined)}} currentRow={props.state.find((a) => a.signoutId == updateCommentsModal)} updateComments={updateCommentsSubmit}></EditCommentsModal>
 	</>;
 }
