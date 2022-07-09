@@ -18,7 +18,7 @@ export function canAccessPage(pageName: PageName): boolean {
 		case PageName.MANAGE_CLASS_LOCATIONS:
 		case PageName.MANAGE_HIGH_SCHOOLS:
 		case PageName.MANAGE_DONATION_FUNDS:
-		case PageName.MANAGE_PERMISSIONS:
+		case PageName.MANAGE_ACCESS:
 			return !!asc.state.login.permissions[PERMISSIONS.PERM_GENERAL_ADMIN]
 		default:
 			assertNever(pageName);

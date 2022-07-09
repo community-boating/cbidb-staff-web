@@ -21,4 +21,4 @@ export const pathDockReport = pathDockhouseBase.appendPathSegment("dock-report")
 
 export const pathStaggeredOrder = new PathWrapper("staggered-order/:personId");
 
-export const pathManagePermissions = pathAdminBase.appendPathSegment("permissions")
+export const pathManageAccess = pathAdminBase.appendPathSegment("access")

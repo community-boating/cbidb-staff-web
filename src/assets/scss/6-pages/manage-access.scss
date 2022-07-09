@@ -1,0 +1,24 @@
+$rotation-deg: -50deg;
+
+.rotate-th {
+
+    transform: rotate($rotation-deg);
+  
+  
+    /* Legacy vendor prefixes that you probably don't need... */
+  
+    /* Safari */
+    -webkit-transform: rotate($rotation-deg);
+  
+    /* Firefox */
+    -moz-transform: rotate($rotation-deg);
+  
+    /* IE */
+    -ms-transform: rotate($rotation-deg);
+  
+    /* Opera */
+    -o-transform: rotate($rotation-deg);  
+
+    white-space: nowrap;
+    vertical-align: middle !important;
+  }
