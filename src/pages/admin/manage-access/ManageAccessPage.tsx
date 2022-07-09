@@ -16,7 +16,11 @@ export const ManageAccessPage = (props: {accessState: AccessState}) => {
 		<tbody>
 			{props.accessState.roles.map((role, i) => <tr>
 				<td style={{border: "1px solid #dee2e6"}}>{role.name}</td>
-				{props.accessState.accessProfiles.map((profile, i) => <td style={{border: "1px solid #dee2e6"}}>X</td>)}
+				{props.accessState.accessProfiles.map((profile, i) =>
+					<td style={{border: "1px solid #dee2e6"}}>
+						{profile.roles.find(r => r == role.id) ? "X" : ""}
+					</td>
+				)}
 			</tr>)}
 		</tbody>
 	</Table>

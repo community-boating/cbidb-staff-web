@@ -13,15 +13,17 @@ import { pathUsersEdit } from "app/paths";
 import ReportWithModalForm from "components/ReportWithModalForm";
 import {  StringifiedProps } from "util/StringifyObjectProps";
 import { none } from "fp-ts/lib/Option";
-import { ACCESS_PROFILES } from "models/permissions";
 import optionify from "util/optionify";
 import { CellBooleanIcon, CellOption, SortType, SortTypeBoolean, SortTypeOptionalNumber, SortTypeOptionalStringCI, SortTypeStringCI } from "util/tableUtil";
 import { Column } from "react-table";
 import { TableColumnOptionsCbi, TableOptionsCbi } from "react-table-config";
+import { accessProfileValidator } from "async/rest/access-profiles";
 
 type User = t.TypeOf<typeof userValidator>
+type AccessProfile = t.TypeOf<typeof accessProfileValidator>
 
-export default function UsersPage(props: { users: User[] }) {
+export default function UsersPage(props: { users: User[], accessProfiles: AccessProfile[] }) {
+	console.log(props)
 	const columns: TableColumnOptionsCbi[] = [{
 		accessor: "edit",
 		Header: "Edit",
@@ -53,8 +55,8 @@ export default function UsersPage(props: { users: User[] }) {
 		accessor: "accessProfileId",
 		Header: "Access",
 		width: 90,
-		Cell: ({value}) => optionify(ACCESS_PROFILES.find(ap => ap.id == value)).map(ap => ap.name).getOrElse("(unknown)"),
-		sortType: SortType(id => ACCESS_PROFILES.find(ap => ap.id == id).name)
+		Cell: ({value}) => optionify(props.accessProfiles.find(ap => ap.accessProfileId == value)).map(ap => ap.name).getOrElse("(unknown)"),
+		sortType: SortType(id => props.accessProfiles.find(ap => ap.accessProfileId == id).name)
 	}, {
 		accessor: "email",
 		Header: "Email",
@@ -196,7 +198,7 @@ export default function UsersPage(props: { users: User[] }) {
 						value={rowForEdit.accessProfileId}
 						onChange={(event) => updateState("accessProfileId", event.target.value)}
 					>
-						{ACCESS_PROFILES.map(ap => <option key={ap.id} value={ap.id}>{ap.name}</option>)}
+						{props.accessProfiles.map(ap => <option key={ap.accessProfileId} value={ap.accessProfileId}>{ap.name}</option>)}
 					</Input>
 					</Col>
 				</FormGroup>
