@@ -32,7 +32,7 @@ export default function ReportWithModalForm<K extends keyof U, T extends t.TypeC
 	submitRow: APIWrapper<any, any, any>
 	cardTitle?: string;
 	columnsNonEditable?: K[];
-	columnsRaw?: K[];
+	//columnsRaw?: K[];
 	globalFilter?: (rows: Row<any>[], columnIds: string[], filterValue: any) => Row<any>[];
 	globalFilterValueControlled?: any;
 	setRowData?: (rows: U[]) => void,
@@ -153,20 +153,23 @@ export default function ReportWithModalForm<K extends keyof U, T extends t.TypeC
 							toSendEditable[v] = undefined;
 						});
 					}
-					if(props.columnsRaw !== undefined){
+					/*if(props.columnsRaw !== undefined){
 						props.columnsRaw.forEach((a) => {
 							const v = a as keyof typeof toSend;
 							toSendEditable[v] = formData.currentRow[v];
 						})
-					}
+					}*/
 					props.submitRow.send(makePostJSON(toSendEditable)).then(ret => {
+						console.log("doing it");
+						console.log(ret);
 						if (ret.type == "Success") {
 							closeModal();
 							if (rowData.find(r => String(r[props.primaryKey]) == formData.rowForEdit[props.primaryKey])) {
 								// was an update.  Find the row and update it
 								updateRowData(rowData.map(row => {
 									if (formData.rowForEdit[props.primaryKey] == String(row[props.primaryKey])) {
-										return {...toSend, ...getOnlyNonEditableFields(formData.currentRow)};
+										console.log(ret.success);
+										return {...ret.success, ...getOnlyNonEditableFields(formData.currentRow)};
 									} else {
 										return row;
 									}

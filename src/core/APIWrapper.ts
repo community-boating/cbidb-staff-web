@@ -60,7 +60,7 @@ export default class APIWrapper<T_ResponseValidator extends t.Any, T_PostBodyVal
 		const self = this;
 		type Return = Promise<ApiResult<t.TypeOf<T_ResponseValidator>>>;
 		const postValues: Option<PostValues> = (function() {
-			if (self.config.type === HttpMethod.POST) {
+			if (self.config.type === HttpMethod.POST || self.config.type === HttpMethod.DELETE) {
 				if (data.type == "urlEncoded") {
 					const content = data.urlEncodedData
 					return some({
@@ -85,7 +85,6 @@ export default class APIWrapper<T_ResponseValidator extends t.Any, T_PostBodyVal
 			} else return none;
 		}());
 		const postBodyValidationError = postValues.chain(({isJson, content}) => {
-			console.log(content);
 			if (!isJson || self.config.type != "POST") return none;
 			const validationResult = self.config.postBodyValidator.decode(content);
 			if (validationResult.isLeft()) return some(PathReporter.report(validationResult).join(", "))
@@ -93,11 +92,13 @@ export default class APIWrapper<T_ResponseValidator extends t.Any, T_PostBodyVal
 		});
 
 		if (postBodyValidationError.isSome()) {
+			console.log("postBodyError");
 			console.log(postBodyValidationError);
 			return Promise.resolve({
 				type: "Failure", code: "post_body_parse_fail", message: "Invalid submit. Are you missing required fields?", extra: postBodyValidationError.getOrElse(null)
 			})
 		} else {
+			console.log("attempting sending");
 			const headers = {
 				...serverParams.staticHeaders,
 				...(self.config.extraHeaders || {}),
@@ -116,16 +117,17 @@ export default class APIWrapper<T_ResponseValidator extends t.Any, T_PostBodyVal
 				data: postValues.map(pv => pv.content).getOrElse(null),
 				headers
 			})).then((res: AxiosResponse) => {
+				console.log(res.data);
 				return this.parseResponse(res.data);
 			}, err => {
-				console.log("Error: ", err)
+				console.log("Send Error: ", err);
 				const ret: Return = Promise.resolve({type: "Failure", code: "fail_during_send", message: "An internal error has occurred.", extra: {err}});
 				console.log(ret);
 				return ret;
 			})
 			.catch(err => {
 				const ret: Return = Promise.resolve({type: "Failure", code: "fail_during_parse", message: "An internal error has occurred.", extra: {err}});
-				console.log(ret)
+				console.log("Parse Error: ", err);
 				return ret;
 			})
 		}
@@ -133,7 +135,6 @@ export default class APIWrapper<T_ResponseValidator extends t.Any, T_PostBodyVal
 	private parseResponse: (response: any) => ApiResult<t.TypeOf<T_ResponseValidator>> = response => {
 		type Result = t.TypeOf<T_ResponseValidator>;
 		type Return = ApiResult<t.TypeOf<T_ResponseValidator>>;
-
 		const self = this;
 
 		let parsed;
@@ -192,7 +193,6 @@ export default class APIWrapper<T_ResponseValidator extends t.Any, T_PostBodyVal
 				}
 			}
 		}());
-
 		const decoded: Either<t.Errors, Result> = this.config.resultValidator.decode(candidate)
 		return (function() {
 			let ret: Return

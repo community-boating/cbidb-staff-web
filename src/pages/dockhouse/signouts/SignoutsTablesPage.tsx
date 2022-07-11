@@ -1,12 +1,9 @@
 import * as React from 'react';
 import { Button, Card, CardBody, CardHeader, CardTitle, Col, CustomInput, Form, FormGroup, Input, Label, Modal, ModalBody, ModalFooter, ModalHeader, Popover, PopoverBody, PopoverHeader, Table} from 'reactstrap';
 import * as t from "io-ts";
-import { ErrorPopup } from 'components/ErrorPopup';
 
-import { boatsValidator, boatTypesValidator, getBoatTypes, getRatings, getSignoutsToday, programsValidator, putSignout, ratingsValidator, ratingValidator, signoutsValidator, signoutValidator, signoutCrewValidator, getPersonByCardNumber, crewPersonValidator, putSignouts } from 'async/rest/signouts-tables';
+import { boatsValidator, boatTypesValidator, getBoatTypes, getRatings, getSignoutsToday, programsValidator, putSignout, ratingsValidator, ratingValidator, signoutsValidator, signoutValidator, signoutCrewValidator, getPersonByCardNumber, crewPersonValidator, putSignouts, putSignoutCrew, deleteSignoutCrew } from 'async/rest/signouts-tables';
 import { MAGIC_NUMBERS } from 'app/magicNumbers';
-import { type } from 'os';
-import { highSchoolValidator } from 'async/rest/high-schools';
 import ReportWithModalForm, { validationError } from 'components/ReportWithModalForm';
 import { SimpleReportColumn } from 'core/SimpleReport';
 import { StringifiedProps, stringify, stringifyEditable } from 'util/StringifyObjectProps';
@@ -14,14 +11,11 @@ import { ValidatedSelectInput, ValidatedTextInput, ValidatedHourInput, Validated
 import { isSome, none, Option} from 'fp-ts/lib/Option';
 import { option } from 'fp-ts';
 import * as moment from "moment";
-import { StringType } from 'io-ts';
-import { OptionifiedProps } from 'util/OptionifyObjectProps';
 
 import reassignedIcon from "assets/img/reassigned.png";
 import stopwatchIcon from "assets/img/stopwatch.jpg";
 
 import { FlagStatusIcons } from './FlagStatusIcons';
-import { ReactNode } from 'react';
 import { sortRatings, RatingsHover, findOrphanedRatings } from './RatingSorter';
 import { Row } from 'react-table';
 import { MultiHover } from './MultiHover';
@@ -158,7 +152,6 @@ function formatSelection(s: undefined | null | string | number | moment.Moment |
 }
 
 function filterRows(rows: Row<any>[], columnIds: string[], filterValue: SignoutsTableFilterState){
-	console.log("filtering");
 	return rows.filter((a) => {
 		return (filterValue.sail.trim().length === 0 || (a.values['sailNumber'] || "") == (filterValue.sail.trim())) &&
 		(filterValue.nameOrCard.trim().length === 0 || (a.values['nameFirst'] || "").concat(a.values['nameLast'] || "").concat(a.values['cardNum'] || "").toLowerCase().includes(filterValue.nameOrCard.toLowerCase())) &&
@@ -195,7 +188,6 @@ export const SignoutsTablesPage = (props: {
 		setState(props.initState);
 	}, [props.initState]);
 	React.useEffect(() => {
-		console.log("getting boats");
 		getBoatTypes.send(null).then((a) => {
 			if(a.type == "Success"){
 				setBoatTypes(a.success);
@@ -203,7 +195,6 @@ export const SignoutsTablesPage = (props: {
 		});}
 	, []);
 	React.useEffect(() => {
-		console.log("getting ratings");
 		getRatings.send(null).then((a) => {
 			if(a.type == "Success"){
 				setRatings(a.success);
@@ -423,7 +414,7 @@ const CrewHover = (props: {row: SignoutTablesState, removeCrew?: (crewId: number
 	if (props.row.$$crew.length === 0) {
 		return <p>-</p>;
 	}
-	return <MultiHover id={"crew_" + props.row.signoutId} makeChildren={() => <CrewTable row={props.row} removeCrew={props.removeCrew} />} openDisplay={"Crew"} />
+	return <MultiHover id={"crew_" + props.row.signoutId} makeChildren={() => <><CrewTable row={props.row} removeCrew={props.removeCrew} isFormer={false} /><CrewTable row={props.row} removeCrew={props.removeCrew} isFormer={true} /></>} openDisplay={"Crew"} />
 }
 
 const AddCrew = (props: { row: SignoutTablesState, updateCurrentRow: (row: SignoutTablesState) => void}) => {
@@ -451,8 +442,24 @@ const AddCrew = (props: { row: SignoutTablesState, updateCurrentRow: (row: Signo
 		{person !== undefined ? <button onClick={(e) => {
 			e.preventDefault();
 			const newCrew = [...props.row.$$crew];
-			newCrew.push({crewId: option.none, personId: option.some(person.personId), cardNum: cardNum, signoutId: option.some(props.row.signoutId), startActive: option.none, endActive: option.none, $$person:person, apAttendanceId: null, jpAttendanceId: null} as any);
-			props.updateCurrentRow({...props.row, $$crew: newCrew});
+			const newSignoutCrew: t.TypeOf<typeof signoutCrewValidator> = {
+				startActive: option.some(momentNowDefaultDateTime()), $$person: person,
+				signoutId: option.some(props.row.signoutId),
+				cardNum: cardNum,
+				personId: option.some(person.personId),
+			} as any;
+			putSignoutCrew.send(makePostJSON(newSignoutCrew)).then((a) => {
+				if(a.type === "Success"){
+					//TODO this is a little bit bad, probably should just be sending all the fields of the object in the api call
+					const successCombined = {...a.success, ...newSignoutCrew};
+					newCrew.push(successCombined);
+					props.updateCurrentRow({...props.row, $$crew: newCrew});
+				}else{
+					console.log("Error", a);
+					alert("Server error adding crew");
+				}
+			})
+			//props.updateCurrentRow({...props.row, $$crew: newCrew});
 		}}>Add</button> : ""}
 	</>
 }
@@ -492,7 +499,9 @@ class ThrottledUpdater {
 
 }
 
-const CrewTable = (props: { row: SignoutTablesState, removeCrew?: (crewId: number) => void }) => <Table size="sm">
+const CrewTable = (props: { row: SignoutTablesState, removeCrew?: (crewId: number) => void, isFormer:boolean}) => {
+	const filteredCrew = React.useMemo(() => (props.row.$$crew || []).filter((a) => props.isFormer ? option.isSome(a.endActive) : option.isNone(a.endActive)), [props.row.$$crew]);
+	return <Table size="sm">
 	<thead>
 		<tr>
 			{props.removeCrew != undefined ? <td>Remove</td> : <></>}
@@ -502,9 +511,9 @@ const CrewTable = (props: { row: SignoutTablesState, removeCrew?: (crewId: numbe
 		</tr>
 	</thead>
 	<tbody>
-		{(props.row.$$crew || []).map((a) => <CrewRow crew={a} removeCrew={props.removeCrew} />)}
+		{(filteredCrew).map((a) => <CrewRow crew={a} removeCrew={props.removeCrew} />)}
 	</tbody>
-</Table>
+</Table>};
 
 function handleMultiSignIn(multiSignInSelected: number[], state: SignoutsTablesState, setState: (state: SignoutsTablesState) => void) : Promise<any> {
 	const signinDatetime = option.some(momentNowDefaultDateTime());
@@ -691,9 +700,39 @@ const SignoutsTable = (props: {
 				<Col>
 				<h1>Crew</h1>
 				<CrewTable row={currentRow} removeCrew={(crewId: number) => {
-					const newCrew = currentRow.$$crew.filter((a) => a.crewId.getOrElse(-1) != crewId);
-					updateCurrentRow({...currentRow, $$crew:newCrew})
-				}} />
+					//const newCrew = currentRow.$$crew.map((a) => (a.crewId.getOrElse(-1) === crewId) ? {...a, endActive: option.some(momentNowDefaultDateTime())} : a);
+					const foundCrew = currentRow.$$crew.find((a) => a.crewId.getOrElse(-1) == crewId);
+					console.log(currentRow.$$crew);
+					console.log(foundCrew);
+					deleteSignoutCrew.send(makePostJSON(foundCrew)).then((a) => {
+						if(a.type === "Success"){
+							const newCrew = currentRow.$$crew.map((b) => {
+								if(b.crewId.getOrElse(-1) == crewId){
+									//TODO not ideal as well
+									delete a.success.$$person;
+									console.log(a.success);
+									console.log(b);
+									console.log({...b, ...a.success});
+									return {...b, ...a.success};
+								}else{
+									return b;
+								}
+							});
+							console.log(newCrew);
+							updateCurrentRow({...currentRow, $$crew:newCrew});
+						}else{
+							alert("Server error deleting crew");
+							console.log(a);
+						}
+					});
+					//updateCurrentRow({...currentRow, $$crew:newCrew})
+				}} isFormer={false} />
+				</Col>
+			</FormGroup>
+			<FormGroup row>
+				<Col>
+				<h1>Former Crew</h1>
+				<CrewTable row={currentRow} isFormer={true} />
 				</Col>
 			</FormGroup>
 			<FormGroup row>
@@ -773,7 +812,6 @@ const SignoutsTable = (props: {
 			submitRow={putSignout}
 			cardTitle={cardTitle}
 			columnsNonEditable={SignoutTablesNonEditableObject}
-			columnsRaw={["$$crew"]}
 			setRowData={props.setState}
 			hidableColumns={true}
 			hideAdd={true}

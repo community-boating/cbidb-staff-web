@@ -84,6 +84,7 @@ export const makeOptional = <T extends t.Any>(someValidator: T) => new t.Type<Op
 	(u, c) =>
 		t.union([someValidator as t.Any, t.null, t.undefined]).validate(u, c).chain(s => {
 			if (s === null || s === undefined) return t.success(<Option<t.TypeOf<T>>>none)
+			else if(s["_tag"] !== undefined) return t.success(s)
 			else return t.success(some(s))
 		}),
 		a => a.fold("None", (s) => `some(${s})`)

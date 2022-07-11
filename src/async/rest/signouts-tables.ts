@@ -9,6 +9,7 @@ import { isInteger } from "lodash";
 const pathGet = "/rest/signouts-today";
 const pathPost = "/rest/signout";
 const pathPostMulti = "/rest/signouts";
+const pathSignoutCrew = "/rest/signout-crew";
 const pathGetBoatTypes = "/rest/boat-types";
 const pathGetRatings = "/rest/ratings";
 const pathRunagroundCapsize = "/rest/runaground-capsize";
@@ -51,8 +52,8 @@ export const signoutCrewValidator = t.type({
 	signoutId: OptionalNumber,
 	cardNum: OptionalString,
 	personId: OptionalNumber,
-	startActive: OptionalString,
-	endActive: OptionalString
+	startActive: OptionalDateTime,
+	endActive: OptionalDateTime
 });
 
 export const skipperValidator = t.type({
@@ -144,11 +145,25 @@ export const getPersonByCardNumber = new APIWrapper({
 	resultValidator: crewPersonValidator,
 });
 
+export const putSignoutCrew = new APIWrapper({
+	path: pathSignoutCrew,
+	type: HttpMethod.POST,
+	postBodyValidator: signoutCrewValidator,
+	resultValidator: makeOptionalProps(signoutCrewValidator),
+});
+
+export const deleteSignoutCrew = new APIWrapper({
+	path: pathSignoutCrew,
+	type: HttpMethod.DELETE,
+	resultValidator: makeOptionalProps(signoutCrewValidator),
+	postBodyValidator: makeOptionalProps(signoutCrewValidator)
+});
+
 export const putSignout = new APIWrapper({
 	path:pathPost,
 	type: HttpMethod.POST,
 	postBodyValidator: makeOptionalProps(signoutValidator),
-	resultValidator: new t.Type("putSignoutValidator", (u): u is string => u instanceof String, (i: any) => (i == "Ok") ? t.success("") : t.failure("", []), (a) => undefined),
+	resultValidator: makeOptionalProps(signoutValidator),
 });
 
 export const putSignouts = new APIWrapper({
