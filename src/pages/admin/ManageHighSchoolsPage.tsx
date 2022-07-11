@@ -4,7 +4,7 @@ import { FormGroup, Label, Col, Input, CustomInput } from "reactstrap";
 import { Check as CheckIcon } from "react-feather";
 
 // Table building utilities
-import { tableColWidth } from "util/tableUtil";
+import { CellBooleanIcon, SortTypeBoolean, tableColWidth } from "util/tableUtil";
 import { StringifiedProps } from "util/StringifyObjectProps";
 
 // Validator and putter for the data type of this page
@@ -13,7 +13,8 @@ import { putWrapper as putHighSchool } from "async/rest/high-schools";
 
 // The common display structure which is a table editable via modal
 import ReportWithModalForm from "components/ReportWithModalForm";
-import { SimpleReportColumn } from "core/SimpleReport";
+import { Column } from "react-table";
+import { TableColumnOptionsCbi } from "react-table-config";
 
 type HighSchool = t.TypeOf<typeof highSchoolValidator>;
 // class FormCheckbox extends FormElementCheckbox<FormData> {}
@@ -21,27 +22,32 @@ type HighSchool = t.TypeOf<typeof highSchoolValidator>;
 export default function ManageHighSchoolsPage(props: {
 	highSchools: HighSchool[];
 }) {
+	console.log("doing high schoolmake");
 	// Define table columns
-	const columns: SimpleReportColumn[] = [
+	const columns: TableColumnOptionsCbi[] = [
 		{
 			accessor: "edit",
 			Header: "",
 			disableSortBy: true,
-			width: 50,
+			width: 50
 		},
 		{
 			accessor: "SCHOOL_ID",
 			Header: "ID",
 			width: 80,
+			sortType: SortTypeBoolean
 		},
 		{
 			accessor: "SCHOOL_NAME",
 			Header: "School Name",
+			sortType: SortTypeBoolean
 		},
 		{
 			accessor: "ACTIVE",
 			Header: "Active",
 			width: 100,
+			Cell: CellBooleanIcon(<CheckIcon color="#777" size="1.4em" />),
+			sortType: SortTypeBoolean
 		},
 	];
 
@@ -96,10 +102,6 @@ export default function ManageHighSchoolsPage(props: {
 		<ReportWithModalForm
 			rowValidator={highSchoolValidator}
 			rows={props.highSchools}
-			formatRowForDisplay={(hs) => ({
-				...hs,
-				ACTIVE: hs.ACTIVE ? <CheckIcon color="#777" size="1.4em" /> : null,
-			})}
 			primaryKey="SCHOOL_ID"
 			columns={columns}
 			formComponents={formComponents}

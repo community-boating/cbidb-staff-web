@@ -1,13 +1,18 @@
 import * as React from 'react';
+
 import {Button, Col, Row, DropdownItem, DropdownMenu, DropdownToggle, Table, UncontrolledButtonDropdown, Input, Label, Form, Popover, PopoverBody, PopoverHeader, UncontrolledPopover, ButtonGroup, FormGroup, Card} from 'reactstrap'
 import { useTable, useSortBy, usePagination, Row as RowRT, TableOptions, TableInstance, useFilters, Column, DefaultFilterTypes, FilterType, useGlobalFilter, PluginHook } from "react-table";
+
+
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
 	faSortUp,
 	faSortDown,
 } from "@fortawesome/free-solid-svg-icons";
-import { TableOptionsCbi, TableInstanceCbi, TableStateCbi } from 'react-table-config';
+
 import { ReactNode } from 'react';
+
+import { TableOptionsCbi, TableInstanceCbi, TableStateCbi, TableColumnOptionsCbi } from 'react-table-config';
 
 export type SimpleReportColumn = {
 	accessor: string,
@@ -17,19 +22,21 @@ export type SimpleReportColumn = {
 	toggleHidden?: boolean
 }
 
+
 type SimpleReportRequiredProps<T_Data> = {
 	keyField: keyof T_Data,
 	data: T_Data[],
-	columns: SimpleReportColumn[],
+	columns: TableColumnOptionsCbi[],
 	sizePerPage?: number,
 	sizePerPageList?: number[],
 	globalFilter?: (rows: RowRT<any>[], columnIds: string[], filterValue: any) => RowRT<any>[],
 	globalFilterValueControlled?: any
 	hidableColumns?: boolean
 	reportId?: string
+	initialSortBy?: {id: keyof T_Data, desc?: boolean}[]
 }
 
-export const SimpleReport: <T_Data>(props: SimpleReportRequiredProps<T_Data>) => JSX.Element = ({columns, data: dataProp, sizePerPage, sizePerPageList, keyField, globalFilter, globalFilterValueControlled, hidableColumns, reportId}) => {
+export const SimpleReport: <T_Data>(props: SimpleReportRequiredProps<T_Data>) => JSX.Element = ({columns, data: dataProp, sizePerPage, sizePerPageList, keyField, globalFilter, globalFilterValueControlled, hidableColumns, reportId, initialSortBy}) => {
 	const usingPagination = sizePerPage !== undefined && sizePerPageList !== undefined;
 	const [data, setData] = React.useState(dataProp);
 	//const globalFilter = React.useMemo((rows, cols, filter) => {console.log("sdlfjskdfsdjfksjdfksdfl"); return rows}, [data, globalFilterS]);
@@ -43,7 +50,10 @@ export const SimpleReport: <T_Data>(props: SimpleReportRequiredProps<T_Data>) =>
 			data,
 			disableSortRemove: true,
 			globalFilter: globalFilter,
-			initialState: {pageSize: sizePerPage},
+			initialState: {
+				pageSize: sizePerPage,
+				...(initialSortBy ? {sortBy: initialSortBy} : {})
+			},
 			autoResetPage: false,
 			autoResetExpanded: false,
 			autoResetGroupBy: false,
@@ -52,6 +62,7 @@ export const SimpleReport: <T_Data>(props: SimpleReportRequiredProps<T_Data>) =>
 			autoResetFilters: true,
 			autoResetRowState: false,
 			autoResetGlobalFilter: false
+
 			
 		} as TableOptionsCbi<any>;
 
@@ -99,6 +110,7 @@ export const SimpleReport: <T_Data>(props: SimpleReportRequiredProps<T_Data>) =>
 		toggleHideAllColumns,
 		state,
 	} = (tableInstance);
+
 
 	const {pageIndex, pageSize} = state as TableStateCbi<any>;
 	//console.log("oh oh" + String(filterValue));

@@ -20,7 +20,7 @@ import { sortRatings, RatingsHover, findOrphanedRatings } from './RatingSorter';
 import { Row } from 'react-table';
 import { MultiHover } from './MultiHover';
 import { X, Info } from 'react-feather';
-import { makePostJSON } from 'core/APIWrapperUtil';
+import { makePostJSON } from 'core/APIWrapper';
 import { EditCommentsModal } from './input/EditCommentModal';
 import { ButtonWrapper } from 'components/ButtonWrapper';
 import { DefaultDateTimeFormat } from 'util/OptionalTypeValidators';

@@ -23,7 +23,7 @@ export const routeManageClassInstructorsPage = new RouteWrapper({
 	/>}
 	urlProps={{}}
 	getAsyncProps={() => {
-		return getWrapper.send(null)
+		return getWrapper.sendJson(null)
 	}}
 	shadowComponent={<Loader />}
 />);

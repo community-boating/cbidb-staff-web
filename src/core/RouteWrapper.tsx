@@ -27,10 +27,13 @@ export default class RouteWrapper<T extends StringObject>{
 	public requireSudo = this.config.requireSudo;
 
 	asRoute(history: History<any>) {
+		console.log("attempt for thing");
 		if (!canAccessPage(this.config.pageName)) {
+			console.log("redirecting" + this.config.pageName);
 			return <Redirect key={"redirect-" + this.config.pageName} to={'/'}  />
 		} else {
-			return <Route key={this.pathWrapper.path} path={this.pathWrapper.path} exact={this.config.exact} render={() => this.render(history)} />;
+			console.log("doing main route");
+			return <Route key={this.pathWrapper.path} path={this.pathWrapper.path} exact={this.config.exact} render={() => {console.log("rendering"); return this.render(history)}} />;
 		}
 		
 	}

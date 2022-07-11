@@ -109,7 +109,7 @@ export function stringifyEditable<T extends object, U extends keyof T>(obj: T, n
 	return <Editable<T, U>>ret;
 }
 
-export function stringify<T extends object>(obj: T): {[K in keyof T]: string} {
+export function stringify<T extends object>(obj: T): StringifiedProps<T> {
 	let ret: any = {}
 	Object.keys(obj).forEach(key => {
 		ret[key] = stringifyValue(obj[key]);
@@ -122,7 +122,8 @@ export function destringify<T extends t.Props, U extends t.TypeC<T>>
 	let ret: any = {}
 	Object.keys(stringy).forEach(key => {
 		if (primaryKey && key == primaryKey && stringy[key] === null) {
-			ret[key] = stringy[key];
+		//	ret[key] = stringy[key];
+		// omit a null PK value
 		} else {
 			ret[key] = destringifyValue(stringy[key], validator.props[key].name, useOption);
 		}

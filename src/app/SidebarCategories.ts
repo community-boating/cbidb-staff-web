@@ -14,6 +14,8 @@ import { routeManageHighSchools } from "app/routes/admin/high-schools";
 import { routeManageDonationFundsPage } from "app/routes/admin/donation-funds";
 import { routeDockReportPage } from "app/routes/dh/dock-report";
 import { routeSignoutsTablesPage } from "./routes/dh/signouts-tables";
+import { routeUsersPage } from "./routes/admin/users";
+import { routeManagePermissions } from "./routes/admin/manage-permissions";
 
 export type SideBarCategory = {
 	path: string,
@@ -37,7 +39,8 @@ const admin: SideBarCategory = {
 	name: "Admin",
 	icon: SlidersIcon,
 	children: [
-		// routeUsersPage,
+		routeUsersPage,
+		routeManagePermissions,
 		routeManageClassInstructorsPage,
 		routeManageTagsPage,
 		routeManageClassLocationsPage,
@@ -45,8 +48,6 @@ const admin: SideBarCategory = {
 		routeManageDonationFundsPage,
 	],
 	unrenderedChildren: [
-		// routeUsersNewPage,
-		// routeUsersEditPage,
 	]
 };
 

@@ -24,7 +24,7 @@ export const routeStaggeredOrder = new RouteWrapper({
 	/>}
 	urlProps={{personId: Number(pathStaggeredOrder.extractURLParams(history.location.pathname).personId)}}
 	getAsyncProps={(urlProps: {personId: number}) => {
-		return apiw(urlProps.personId).send(null)
+		return apiw(urlProps.personId).sendJson(null)
 	}}
 	shadowComponent={<Loader />}
 />);

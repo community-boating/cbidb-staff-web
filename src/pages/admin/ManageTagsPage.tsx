@@ -12,13 +12,14 @@ import { putWrapper as putTag } from "async/rest/tags";
 // The common display structure which is a table editable via modal
 import ReportWithModalForm from "components/ReportWithModalForm";
 import { StringifiedProps } from "util/StringifyObjectProps";
-import { SimpleReportColumn } from "core/SimpleReport";
+import { Column } from "react-table";
+import { TableColumnOptionsCbi } from "react-table-config";
 
 type Tag = t.TypeOf<typeof tagValidator>;
 
 export default function ManageTagsPage(props: { tags: Tag[] }) {
 	// Define table columns
-	const columns: SimpleReportColumn[] = [
+	const columns: TableColumnOptionsCbi[] = [
 		{
 			accessor: "edit",
 			Header: "",
@@ -74,7 +75,6 @@ export default function ManageTagsPage(props: { tags: Tag[] }) {
 		<ReportWithModalForm
 			rowValidator={tagValidator}
 			rows={props.tags}
-			formatRowForDisplay={x => x}
 			primaryKey="TAG_ID"
 			columns={columns}
 			formComponents={formComponents}

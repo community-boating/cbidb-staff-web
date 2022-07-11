@@ -7,7 +7,6 @@ import {
 import { SimpleReport, SimpleReportColumn } from "core/SimpleReport";
 import { ErrorPopup } from "components/ErrorPopup";
 import { none, Option, some } from "fp-ts/lib/Option";
-import { makePostJSON } from "core/APIWrapperUtil";
 import APIWrapper from "core/APIWrapper";
 import { ButtonWrapper } from "./ButtonWrapper";
 import { destringify, DisplayableProps, nullifyEmptyStrings, StringifiedProps, stringify, stringifyAndMakeBlank } from "util/StringifyObjectProps";
@@ -16,6 +15,7 @@ import { Editable } from "util/EditableType";
 import { option } from "fp-ts";
 import { ReactNode } from "react";
 import { Row } from "react-table";
+import { TableColumnOptionsCbi } from "react-table-config";
 
 export type validationError = {
 	key: string,
@@ -25,9 +25,8 @@ export type validationError = {
 export default function ReportWithModalForm<K extends keyof U, T extends t.TypeC<any>, U extends object = t.TypeOf<T>>(props: {
 	rowValidator: T
 	rows: U[],
-	formatRowForDisplay: (row: U) => DisplayableProps<U>,
 	primaryKey: string & keyof U,
-	columns: SimpleReportColumn[],
+	columns: TableColumnOptionsCbi[],
 	formComponents: (rowForEdit: StringifiedProps<U>, updateState: (id: string, value: string | boolean) => void, currentRow?: U, validationResults?: validationError[], updateCurrentRow?: (row: U) => void) => JSX.Element
 	submitRow: APIWrapper<any, any, any>
 	cardTitle?: string;
@@ -38,6 +37,12 @@ export default function ReportWithModalForm<K extends keyof U, T extends t.TypeC
 	setRowData?: (rows: U[]) => void,
 	hidableColumns?: boolean,
 	hideAdd?: boolean,
+	addRowText?: string
+	validateSubmit?: (rowForEdit: StringifiedProps<U>) => string[],
+	postSubmit?: (rowForEdit: U) => U,
+	noCard?: boolean
+	initialSortBy?: {id: keyof U, desc?: boolean}[]
+	formatRowForDisplay?: (row: U) => ({[key in keyof U]: string | JSX.Element})
 	//makeExtraModal?: (rowData: U[]) => ReactNode
 }) {
 
@@ -63,9 +68,10 @@ export default function ReportWithModalForm<K extends keyof U, T extends t.TypeC
 			openForEdit(some(String(r[props.primaryKey])));
 		}}><EditIcon color="#777" size="1.4em" /></a>,
 	}))}, [rowData]);
-	const report = React.useMemo(() => <SimpleReport 
+
+	const report = <SimpleReport 
 		keyField={props.primaryKey}
-		data={data.map(props.formatRowForDisplay)}
+		data={data}
 		columns={props.columns}
 		sizePerPage={12}
 		sizePerPageList={[12, 25, 50, 1000]}
@@ -73,7 +79,8 @@ export default function ReportWithModalForm<K extends keyof U, T extends t.TypeC
 		globalFilterValueControlled={props.globalFilterValueControlled}
 		hidableColumns={props.hidableColumns}
 		reportId={props.cardTitle.replace(" ", "")}
-	/>, [rowData, props.formatRowForDisplay]);
+		initialSortBy={props.initialSortBy}
+	/>;
 
 	//Added dependency on formatRowForDisplay to allow changes to the converter function to propagate down
 	//This is needed for the async polling of semi static variables like boatTypes
@@ -109,7 +116,7 @@ export default function ReportWithModalForm<K extends keyof U, T extends t.TypeC
 
 	function closeModal() {
 		setModalIsOpen(false);
-		setFormData(blankForm);
+		setTimeout(() => setFormData(blankForm), 100); // wait for the animation to hide the modal
 	}
 
 	function getOnlyNonEditableFields (currentRow: U){
@@ -125,9 +132,21 @@ export default function ReportWithModalForm<K extends keyof U, T extends t.TypeC
 
 	const submit = () => {
 		setValidationErrors([]);
+
 		return new Promise((resolve, reject) => {
 			// Let the event queue drain so the validation errors actually flicker off, before we push new ones
-			window.setTimeout(() => {
+			setTimeout(() => {
+				if (props.validateSubmit) {
+					const errors = props.validateSubmit(formData.rowForEdit)
+					if (errors.length > 0) {
+						//TODO fix this
+						alert("TODO fix this");
+						//setValidationErrors(errors);
+						resolve(null);
+						return;
+					}
+				}
+
 				// Turn empty strings to nulls, then turn strings back to numbers/booleans
 				// HOWEVER, do not turn optional values back into options.  The validator is expecting the same shape as what would have come from the server,
 				// ie either a value or null.
@@ -140,6 +159,14 @@ export default function ReportWithModalForm<K extends keyof U, T extends t.TypeC
 				});
 				const validationResults = validateResult.isLeft() ? validateResult.value.filter((a) => {return !props.columnsNonEditable.includes(a.context[1].key as K)}) : [];
 				const isValid = validateResult.isRight() || validationResults.length == 0;
+				const rowMatches: (r: U) => boolean = r => {
+					const pk = r[props.primaryKey];
+					if (pk["_tag"]) {
+						return (pk as unknown as Option<any>).map(p => String(p)).getOrElse("") == formData.rowForEdit[props.primaryKey]
+					} else {
+						return String(pk) == formData.rowForEdit[props.primaryKey]
+					}
+				}
 				if (isValid) {
 					// Destringify again, this time turning optional values back into options. It's a bit pointless since
 					// they will be stripped out again before sending to the server, but ApiWrapper expects actual option values
@@ -159,17 +186,26 @@ export default function ReportWithModalForm<K extends keyof U, T extends t.TypeC
 							toSendEditable[v] = formData.currentRow[v];
 						})
 					}*/
-					props.submitRow.send(makePostJSON(toSendEditable)).then(ret => {
+					props.submitRow.sendJson(toSendEditable).then(ret => {
 						console.log("doing it");
 						console.log(ret);
 						if (ret.type == "Success") {
 							closeModal();
-							if (rowData.find(r => String(r[props.primaryKey]) == formData.rowForEdit[props.primaryKey])) {
+							const isUpdate = rowData.find(rowMatches) != null;
+							const toAdd = (
+								props.postSubmit
+								? props.postSubmit(toSend)
+								: toSend
+							)
+							if (isUpdate) {
 								// was an update.  Find the row and update it
 								updateRowData(rowData.map(row => {
-									if (formData.rowForEdit[props.primaryKey] == String(row[props.primaryKey])) {
-										console.log(ret.success);
-										return {...ret.success, ...getOnlyNonEditableFields(formData.currentRow)};
+									if (rowMatches(row)) {
+										if(props.columnsNonEditable !== undefined){
+											return {...ret.success, ...getOnlyNonEditableFields(formData.currentRow)};
+										}else{
+											return toAdd;
+										}
 									} else {
 										return row;
 									}
@@ -177,7 +213,7 @@ export default function ReportWithModalForm<K extends keyof U, T extends t.TypeC
 							} else {
 								// was a create.  Add the new row after injecting the PK from the server
 								updateRowData(rowData.concat([{
-									...toSend,
+									...toAdd,
 									[props.primaryKey]: ret.success[props.primaryKey]
 								}]))
 							}
@@ -188,13 +224,18 @@ export default function ReportWithModalForm<K extends keyof U, T extends t.TypeC
 					})
 				} else {
 					setValidationErrors(validationResults.map((b) => ({key:(((b || {}).context || [])[1] || {}).key, display: b.message})).filter((b) => b != undefined));
-					resolve(null);
-					//TODO: I'm sure we can do better than this
+					console.log(validateResult.swap().getOrElse(null));
 				}
 			}, 0);
 		})
 		
 	}
+
+	const toRender = <div>
+		{report}
+		<Button className="mr-1 mb-1" outline onClick={() => openForEdit(none) }>{props.addRowText || "Add Row"}</Button>
+	</div>;
+
 	return <React.Fragment>
 		<Modal
 			isOpen={modalIsOpen}
@@ -222,16 +263,13 @@ export default function ReportWithModalForm<K extends keyof U, T extends t.TypeC
 				</ButtonWrapper>
 			</ModalFooter>
 		</Modal>
-		<Card>
+		{props.noCard ? toRender : <Card>
 			<CardHeader>
 				<CardTitle tag="h5" className="mb-0">{props.cardTitle ?? "Report Table"}</CardTitle>
 			</CardHeader>
 			<CardBody>
-				<div>
-					{report}
-					{props.hideAdd === true ? <></> : <Button className="mr-1 mb-1" outline onClick={() => openForEdit(none) }>Add Row</Button>}
-				</div>
+				{toRender}
 			</CardBody>
-		</Card>
+		</Card>}
 	</React.Fragment>;
 }

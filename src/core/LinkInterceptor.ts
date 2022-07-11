@@ -30,10 +30,13 @@ export const linkWithAccessControl = <T extends StringObject>(
 	pathString?: string
 ) => {
 	if (!canAccessPage(rw.pageName)) {
+		console.log("showing toast");
 		showToastr();
 	} else if (requireSudo && !asc.state.sudo) {
+		console.log("showing sudo toast");
 		showSudoToastr();
 	} else {
+		console.log("normal history push");
 		history.push(pathString || rw.getPathFromArgs(args))
 	}
 }
