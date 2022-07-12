@@ -17,6 +17,7 @@ export function canAccessPage(pageName: PageName): boolean {
 		case PageName.MANAGE_CLASS_LOCATIONS:
 		case PageName.MANAGE_HIGH_SCHOOLS:
 		case PageName.MANAGE_DONATION_FUNDS:
+			return !!asc.state.login.permissions[PERMISSIONS.PERM_GENERAL_ADMIN]
 		case PageName.SIGNOUTS_TABLES:
 			return true; // !!asc.state.login.permissions[Permissions.PERM_GENERAL_ADMIN]
 		case PageName.MANAGE_PERMISSIONS:
