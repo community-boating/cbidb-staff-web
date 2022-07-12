@@ -116,7 +116,6 @@ export default class APIWrapper<T_ResponseValidator extends t.Any, T_PostBodyVal
 				type: "Failure", code: "post_body_parse_fail", message: "Invalid submit. Are you missing required fields?", extra: postBodyValidationError.getOrElse(null)
 			})
 		} else {
-			console.log("attempting sending");
 			const headers = {
 				...serverParams.staticHeaders,
 				...(self.config.extraHeaders || {}),
@@ -135,7 +134,6 @@ export default class APIWrapper<T_ResponseValidator extends t.Any, T_PostBodyVal
 				data: postValues.map(pv => pv.content).getOrElse(null),
 				headers
 			})).then((res: AxiosResponse) => {
-				console.log(res.data);
 				return this.parseResponse(res.data);
 			}, err => {
 				console.log("Send Error: ", err);

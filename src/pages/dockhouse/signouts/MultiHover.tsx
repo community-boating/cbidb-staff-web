@@ -61,12 +61,13 @@ export class MultiHover extends React.Component<{
 		}
 	}
 	render() {
+		const useChildren = this.props.noMemoChildren === false ? this.state.children : this.props.makeChildren();
 		return (<div ref={this.ref}>
 			<a id={this.props.id} onClick={() => this.handleClick()} onMouseOver={() => this.setOpen(true)} onMouseOut={() => this.setOpen(false)}>
 				{this.props.openDisplay}
 			</a>
-			<Popover placement="right" isOpen={this.state.open} target={this.props.id} toggle={() => this.toggleOpen}>
-				{this.props.noMemoChildren === false ? this.state.children : this.props.makeChildren() || ""}
+			<Popover placement="right" isOpen={this.state.open && useChildren !== undefined} target={this.props.id} toggle={() => this.toggleOpen}>
+				{useChildren}
 			</Popover>
 		</div>);
 	}

@@ -6,33 +6,25 @@ import { SignoutTablesState } from "../SignoutsTablesPage";
 import { ValidatedTextInput } from "./ValidatedInput";
 import { option } from "fp-ts";
 import { Option } from "fp-ts/lib/Option";
+import { EditModal, EditModalCommonProps } from "./EditModal";
 
-export const EditCommentsModal = (props: {modalIsOpen: boolean, setModalIsOpen: (modalOpen: boolean) => void, currentRow: SignoutTablesState, updateComments: (comments: Option<string>, signoutId: number) => Promise<any>}) => {
+export const EditCommentsModal = (props: EditModalCommonProps & {updateComments: (comments: Option<string>, signoutId: number, setErrors: (errors: React.SetStateAction<string[]>) => void) => Promise<any>}) => {
     const [comments, setComments] = React.useState((props.currentRow || {}).comments);
+    const [errors, setErrors] = React.useState([] as string[]);
     React.useEffect(() => {
-            setComments((props.currentRow || {}).comments);
+        setComments((props.currentRow || {}).comments);
     }, [props.currentRow]);
     const commentsPadded = comments === undefined ? option.none : comments;
-return <>
-<Modal
-    isOpen={props.modalIsOpen}
-    toggle={() => props.setModalIsOpen(false)}
-    centered
-    >
-    <ModalHeader toggle={() => props.setModalIsOpen(false)}>
-        Edit Comments
-    </ModalHeader>
-    <ModalBody className="text-center m-3">
-        <ValidatedTextInput type={"textarea"} initValue={commentsPadded} updateValue={setComments} validationResults={[]}/>
-    </ModalBody>
-    <ModalFooter>
-        <Button color="secondary" outline onClick={() => props.setModalIsOpen(false)}>
-            Cancel
-        </Button>{" "}
-        <ButtonWrapper spinnerOnClick onClick={() => props.updateComments(comments, props.currentRow.signoutId)} >
-            Save
-        </ButtonWrapper>
-    </ModalFooter>
-</Modal>
-</>
+    return <>
+        <EditModal {...props} errors={errors} headerChildren={
+            "Edit Comments"
+        }
+            footerChildren={
+                <ButtonWrapper spinnerOnClick onClick={() => props.updateComments(comments, props.currentRow.signoutId, setErrors)} >
+                    Save
+                </ButtonWrapper>
+            }>
+            <ValidatedTextInput type={"textarea"} initValue={commentsPadded} updateValue={setComments} validationResults={[]} />
+        </EditModal>
+    </>
 };

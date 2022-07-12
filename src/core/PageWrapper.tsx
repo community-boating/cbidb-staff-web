@@ -20,7 +20,6 @@ interface State<T> {
 export default class PageWrapper<T_URL, T_Async> extends React.Component<Props<T_URL, T_Async>, State<T_Async>> {
 	constructor(props: Props<T_URL, T_Async>) {
 		super(props);
-		console.log("init page wrapper");
 		if (this.props.getAsyncProps != undefined) {
 			this.state = {
 				readyToRender: false,
@@ -58,7 +57,6 @@ export default class PageWrapper<T_URL, T_Async> extends React.Component<Props<T
 		})
 	}
 	componentDidMount() {
-		console.log("did mount");
 		window.scrollTo(0, 0);
 		this.loadAsyncProps();
 		if(this.props.autoRefresh !== undefined){

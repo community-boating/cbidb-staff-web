@@ -33,7 +33,6 @@ class App extends React.Component<Props> {
 	render() {
 		return (
 			<Provider store={store}>
-				<Button onClick={() => {this.forceUpdate()}}>USE THE FORCE</Button>
 				<Routes authenticatedUserName={asc.state.login.authenticatedUserName} history={this.props.history}/>
 				<ReduxToastr
 					timeOut={15000}

@@ -24,6 +24,8 @@ import { makePostJSON } from 'core/APIWrapper';
 import { EditCommentsModal } from './input/EditCommentModal';
 import { ButtonWrapper } from 'components/ButtonWrapper';
 import { DefaultDateTimeFormat } from 'util/OptionalTypeValidators';
+import { CrewHover, EditCrewModal } from './input/EditCrewModal';
+import { ErrorPopup } from 'components/ErrorPopup';
 
 const POLL_FREQ_SEC = 10;
 
@@ -98,7 +100,7 @@ const MakeLinks = (props: {row: SignoutTablesState, isActive: boolean, state: Si
 	}
 }
 
-function momentNowDefaultDateTime(){
+export function momentNowDefaultDateTime(){
 	const momentNow = moment();
 	momentNow["_f"] = DefaultDateTimeFormat;
 	return momentNow;
@@ -401,69 +403,6 @@ function makeBoatTypesHR(boatTypes: BoatTypesValidatorState) {
 	return boatTypes.sort((a, b) => a.displayOrder - b.displayOrder).map((v) => ({ value: v.boatId, display: v.boatName }));
 }
 
-const CrewRow = (props: {crew: t.TypeOf<typeof signoutCrewValidator>, removeCrew?: (crewId: number) => void}) => {
-	return <tr key={props.crew.crewId.getOrElse(-1)}>
-		{props.removeCrew !== undefined ? <td><a onClick={() => props.removeCrew(props.crew.crewId.getOrElse(-1))}><X color="#777" size="1.4em" /></a></td> : <></>}
-		<td>{props.crew.cardNum.getOrElse("None")}</td>
-		<td>{props.crew.$$person.nameFirst}</td>
-		<td>{props.crew.$$person.nameLast}</td>
-	</tr>
-}
-
-const CrewHover = (props: {row: SignoutTablesState, removeCrew?: (crewId: number) => void}) => {
-	if (props.row.$$crew.length === 0) {
-		return <p>-</p>;
-	}
-	return <MultiHover id={"crew_" + props.row.signoutId} makeChildren={() => <><CrewTable row={props.row} removeCrew={props.removeCrew} isFormer={false} /><CrewTable row={props.row} removeCrew={props.removeCrew} isFormer={true} /></>} openDisplay={"Crew"} />
-}
-
-const AddCrew = (props: { row: SignoutTablesState, updateCurrentRow: (row: SignoutTablesState) => void}) => {
-	const [cardNum, setCardNum] = React.useState(option.none as Option<string>);
-	const [person, setPerson] = React.useState(undefined as t.TypeOf<typeof crewPersonValidator>);
-	const throttler: ThrottledUpdater = React.useMemo(() => new ThrottledUpdater(200, () => {}), []);
-	React.useEffect(() => {
-		throttler.handleUpdate = () => {
-			getPersonByCardNumber.sendWithParams(none, { cardNumber: Number(cardNum.getOrElse("")) })(null).then((a) => {
-				if(a.type === "Success"){
-					setPerson(a.success);
-				}else{
-					setPerson(undefined);
-				}
-			});
-		};
-		throttler.startUpdate();
-	}, [cardNum]);
-	if (props.row.signoutId === undefined) {
-		return <></>;
-	}
-	return <>
-		<ValidatedTextInput type={"text"} initValue={cardNum} updateValue={(val) => setCardNum(val)} validationResults={[]} />
-		{person !== undefined ? <CrewRow crew={{$$person:person,cardNum:cardNum, crewId:option.some(-1), personId:option.some(person.personId),signoutId: undefined, startActive: undefined, endActive:undefined}} /> : "Not found"}
-		{person !== undefined ? <button onClick={(e) => {
-			e.preventDefault();
-			const newCrew = [...props.row.$$crew];
-			const newSignoutCrew: t.TypeOf<typeof signoutCrewValidator> = {
-				startActive: option.some(momentNowDefaultDateTime()), $$person: person,
-				signoutId: option.some(props.row.signoutId),
-				cardNum: cardNum,
-				personId: option.some(person.personId),
-			} as any;
-			putSignoutCrew.send(makePostJSON(newSignoutCrew)).then((a) => {
-				if(a.type === "Success"){
-					//TODO this is a little bit bad, probably should just be sending all the fields of the object in the api call
-					const successCombined = {...a.success, ...newSignoutCrew};
-					newCrew.push(successCombined);
-					props.updateCurrentRow({...props.row, $$crew: newCrew});
-				}else{
-					console.log("Error", a);
-					alert("Server error adding crew");
-				}
-			})
-			//props.updateCurrentRow({...props.row, $$crew: newCrew});
-		}}>Add</button> : ""}
-	</>
-}
-
 const CommentsHover = (props: {row: SignoutTablesState, setUpdateCommentsModal: (singoutId: number) => void}) => {
 	const display = <><p>Comments{props.row.comments["_tag"] === "Some" ? <Info color="#777" size="1.4em" /> : <></>}</p></>;
 	return <MultiHover id={"comments_" + props.row.signoutId} makeChildren={() => props.row.comments["_tag"] === "Some" ? <p>{props.row.comments.getOrElse("")}</p> : undefined} handleClick={() => props.setUpdateCommentsModal(props.row.signoutId)} openDisplay={display} noMemoChildren={true}/>;
@@ -472,48 +411,6 @@ const CommentsHover = (props: {row: SignoutTablesState, setUpdateCommentsModal: 
 const MultiSigninCheckbox = (props : {row: SignoutTablesState, multiSignInSelected: number[], setMultiSignInSelected: (multiSignInSelected: number[]) => void}) => {
 	return <FormGroup check><Input type="checkbox" checked={props.multiSignInSelected.contains(props.row.signoutId)} onChange={(e) => {if(e.target.checked){props.setMultiSignInSelected(props.multiSignInSelected.concat(props.row.signoutId))}else{props.setMultiSignInSelected(props.multiSignInSelected.filter((a) => a != props.row.signoutId))}}}/></FormGroup>;
 }
-
-class ThrottledUpdater {
-	timerID: NodeJS.Timeout;
-	timeout: number;
-	handleUpdate: () => void;
-	constructor(timeout: number, handleUpdate: () => void){
-		this.timerID = undefined;
-		this.timeout = timeout;
-		this.handleUpdate = handleUpdate;
-		this.startUpdate = this.startUpdate.bind(this);
-		this.cancel = this.cancel.bind(this);
-	}
-	startUpdate(){
-		this.cancel();
-		this.timerID = setTimeout(function() {
-			this.handleUpdate();
-			this.timerID = undefined;
-		}.bind(this), this.timeout);
-	}
-	cancel(){
-		if(this.timerID != undefined){
-			clearTimeout(this.timerID);
-		}
-	}
-
-}
-
-const CrewTable = (props: { row: SignoutTablesState, removeCrew?: (crewId: number) => void, isFormer:boolean}) => {
-	const filteredCrew = React.useMemo(() => (props.row.$$crew || []).filter((a) => props.isFormer ? option.isSome(a.endActive) : option.isNone(a.endActive)), [props.row.$$crew]);
-	return <Table size="sm">
-	<thead>
-		<tr>
-			{props.removeCrew != undefined ? <td>Remove</td> : <></>}
-			<td>Card #</td>
-			<td>First</td>
-			<td>Last</td>
-		</tr>
-	</thead>
-	<tbody>
-		{(filteredCrew).map((a) => <CrewRow crew={a} removeCrew={props.removeCrew} />)}
-	</tbody>
-</Table>};
 
 function handleMultiSignIn(multiSignInSelected: number[], state: SignoutsTablesState, setState: (state: SignoutsTablesState) => void) : Promise<any> {
 	const signinDatetime = option.some(momentNowDefaultDateTime());
@@ -566,6 +463,7 @@ const SignoutsTable = (props: {
 	//In the future some of the computational expense of updating the signoutstable can be removed by caching elements.
 	const [closeOthers, setCloseOthers] = React.useState([]);
 	const [updateCommentsModal, setUpdateCommentsModal] = React.useState(undefined as number);
+	const [updateCrewModal, setUpdateCrewModal] = React.useState(undefined as number);
 	const [multiSignInSelected, setMultiSignInSelected] = React.useState([] as number[]);
 	// Define table columns
 	const boatTypesHR = React.useMemo(() => makeBoatTypesHR(props.boatTypes), [props.boatTypes]);
@@ -696,51 +594,6 @@ const SignoutsTable = (props: {
 					<ValidatedAmPmInput {...wrapForFormComponentsMoment(rowForEdit, updateState, "signoutDatetime" , validationResults)} lower={lower} upper={upper}/>
 				</Col>
 			</FormGroup>
-			<FormGroup row>
-				<Col>
-				<h1>Crew</h1>
-				<CrewTable row={currentRow} removeCrew={(crewId: number) => {
-					//const newCrew = currentRow.$$crew.map((a) => (a.crewId.getOrElse(-1) === crewId) ? {...a, endActive: option.some(momentNowDefaultDateTime())} : a);
-					const foundCrew = currentRow.$$crew.find((a) => a.crewId.getOrElse(-1) == crewId);
-					console.log(currentRow.$$crew);
-					console.log(foundCrew);
-					deleteSignoutCrew.send(makePostJSON(foundCrew)).then((a) => {
-						if(a.type === "Success"){
-							const newCrew = currentRow.$$crew.map((b) => {
-								if(b.crewId.getOrElse(-1) == crewId){
-									//TODO not ideal as well
-									delete a.success.$$person;
-									console.log(a.success);
-									console.log(b);
-									console.log({...b, ...a.success});
-									return {...b, ...a.success};
-								}else{
-									return b;
-								}
-							});
-							console.log(newCrew);
-							updateCurrentRow({...currentRow, $$crew:newCrew});
-						}else{
-							alert("Server error deleting crew");
-							console.log(a);
-						}
-					});
-					//updateCurrentRow({...currentRow, $$crew:newCrew})
-				}} isFormer={false} />
-				</Col>
-			</FormGroup>
-			<FormGroup row>
-				<Col>
-				<h1>Former Crew</h1>
-				<CrewTable row={currentRow} isFormer={true} />
-				</Col>
-			</FormGroup>
-			<FormGroup row>
-				<Col>
-				<h1>Add Crew</h1>
-					<AddCrew row={currentRow} updateCurrentRow={updateCurrentRow} />
-				</Col>
-			</FormGroup>
 		</React.Fragment>
 		</>
 	};
@@ -766,7 +619,7 @@ const SignoutsTable = (props: {
 	}
 	
 	const sortedRatings = sortRatings(props.ratings);
-	const updateCommentsSubmit = (comments: Option<string>, signoutId: number) => putSignout.send(makePostJSON({signoutId: signoutId, comments:comments})).then((a) => {
+	const updateCommentsSubmit = (comments: Option<string>, signoutId: number, setErrors: (errors: React.SetStateAction<string[]>) => void) => putSignout.sendJson({signoutId: signoutId, comments:comments}).then((a) => {
 		if(a.type === "Success"){
 			setUpdateCommentsModal(undefined);
 			const newRows = Object.assign([], props.state);
@@ -777,7 +630,7 @@ const SignoutsTable = (props: {
 			}
 			props.setState(newRows);
 		}else{
-			alert("Server error");
+			setErrors(["Server error updating comments"]);
 		}
 	});
 	return <>
@@ -799,10 +652,10 @@ const SignoutsTable = (props: {
 				signinDatetime: formatMoment(row.signinDatetime, "hh:mm A"),
 				icons: props.isActive ? <>{<FlagIcon row={row} ratings={props.ratings}/>}{<StopwatchIcon row={row}/>}{<ReassignedIcon row={row} reassignedHullsMap={reassignedHullsMap} reassignedSailsMap={reassignedSailsMap}/>}</> : <></>,
 				ratings: <RatingsHover row={row} sortedRatings={sortedRatings} orphanedRatingsShownByDefault={orphanedRatingsShownByDefault} closeOthers={closeOthers}/>,
-				crew: <CrewHover row={row}/>,
+				crew: <CrewHover row={row} setUpdateCrewModal={setUpdateCrewModal} />,
 				comments: <CommentsHover row={row} setUpdateCommentsModal={setUpdateCommentsModal} />,
 				multisignin: <MultiSigninCheckbox row={row} multiSignInSelected={multiSignInSelected} setMultiSignInSelected={setMultiSignInSelected} />,
-				links: <MakeLinks row={row} isActive={props.isActive} state={props.state} setState={props.setState}/>,
+				links: <MakeLinks row={row} isActive={props.isActive} state={props.state} setState={props.setState} />,
 				edit:row['edit'],
 			})}
 				//ACTIVE: hs.ACTIVE ? <CheckIcon color="#777" size="1.4em" /> : null,
@@ -816,6 +669,13 @@ const SignoutsTable = (props: {
 			hidableColumns={true}
 			hideAdd={true}
 			/>
-			<EditCommentsModal modalIsOpen={updateCommentsModal !== undefined} setModalIsOpen={() => {setUpdateCommentsModal(undefined)}} currentRow={props.state.find((a) => a.signoutId == updateCommentsModal)} updateComments={updateCommentsSubmit}></EditCommentsModal>
+			<EditCommentsModal modalIsOpen={updateCommentsModal !== undefined} closeModal={() => {setUpdateCommentsModal(undefined)}} currentRow={props.state.find((a) => a.signoutId == updateCommentsModal)} updateComments={updateCommentsSubmit}/>
+			<EditCrewModal modalIsOpen={updateCrewModal !== undefined} closeModal={() => {setUpdateCrewModal(undefined)}} currentRow={props.state.find((a) => a.signoutId == updateCrewModal)} updateCurrentRow={(row) => {props.setState(props.state.map((a) => {
+				if(a.signoutId == row.signoutId){
+					return row;
+				}else{
+					return a;
+				}
+				}))}}/>
 	</>;
 }

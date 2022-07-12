@@ -4,9 +4,6 @@ import assertNever from "util/assertNever";
 import { PageName } from "./pageNames";
 
 export function canAccessPage(pageName: PageName): boolean {
-	if(pageName === PageName.MANAGE_HIGH_SCHOOLS){
-		//throw "error" + pageName;
-	}
 	switch (pageName) {
 		case PageName.HOME:
 		case PageName.JP_CLASSES:
@@ -21,7 +18,6 @@ export function canAccessPage(pageName: PageName): boolean {
 		case PageName.MANAGE_HIGH_SCHOOLS:
 		case PageName.MANAGE_DONATION_FUNDS:
 		case PageName.SIGNOUTS_TABLES:
-			console.log("accessable: " + pageName);
 			return true; // !!asc.state.login.permissions[Permissions.PERM_GENERAL_ADMIN]
 		case PageName.MANAGE_PERMISSIONS:
 			return !!asc.state.login.permissions[PERMISSIONS.PERM_GENERAL_ADMIN]
