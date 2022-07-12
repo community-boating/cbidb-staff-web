@@ -8,6 +8,7 @@ import asc from "./app/AppStateContainer";
 import {apiw as isLoggedInAsStaff} from './async/is-logged-in-as-staff';
 import {AppStateContainer} from "./app/AppStateContainer"
 import SudoModal from "components/SudoModal";
+import { Button } from "reactstrap";
 
 interface Props {
 	history: any
@@ -32,6 +33,7 @@ class App extends React.Component<Props> {
 	render() {
 		return (
 			<Provider store={store}>
+				<Button onClick={() => {this.forceUpdate()}}>USE THE FORCE</Button>
 				<Routes authenticatedUserName={asc.state.login.authenticatedUserName} history={this.props.history}/>
 				<ReduxToastr
 					timeOut={15000}

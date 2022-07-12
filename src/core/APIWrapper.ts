@@ -77,7 +77,6 @@ export default class APIWrapper<T_ResponseValidator extends t.Any, T_PostBodyVal
 		const serverParams = serverParamsOption.getOrElse((process.env as any).serverToUseForAPI);
 		const self = this;
 		type Return = Promise<ApiResult<t.TypeOf<T_ResponseValidator>>>;
-		console.log("doing send");
 		const postValues: Option<PostValues> = (function() {
 			if (self.config.type === HttpMethod.POST || self.config.type === HttpMethod.DELETE) {
 				if (data.type == "urlEncoded") {

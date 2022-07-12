@@ -13,6 +13,7 @@ import {
 import { ReactNode } from 'react';
 
 import { TableOptionsCbi, TableInstanceCbi, TableStateCbi, TableColumnOptionsCbi } from 'react-table-config';
+import { DisplayableProps } from 'util/StringifyObjectProps';
 
 export type SimpleReportColumn = {
 	accessor: string,
@@ -25,7 +26,7 @@ export type SimpleReportColumn = {
 
 type SimpleReportRequiredProps<T_Data> = {
 	keyField: keyof T_Data,
-	data: T_Data[],
+	data: T_Data[] | DisplayableProps<T_Data[]>,
 	columns: TableColumnOptionsCbi[],
 	sizePerPage?: number,
 	sizePerPageList?: number[],

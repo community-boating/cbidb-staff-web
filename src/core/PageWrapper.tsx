@@ -26,7 +26,6 @@ export default class PageWrapper<T_URL, T_Async> extends React.Component<Props<T
 				readyToRender: false,
 				componentAsyncProps: null
 			}
-			this.loadAsyncProps();
 		} else {
 			this.state = {
 				readyToRender: true,
@@ -59,7 +58,9 @@ export default class PageWrapper<T_URL, T_Async> extends React.Component<Props<T
 		})
 	}
 	componentDidMount() {
+		console.log("did mount");
 		window.scrollTo(0, 0);
+		this.loadAsyncProps();
 		if(this.props.autoRefresh !== undefined){
 			setInterval(() => {
 				this.loadAsyncProps();

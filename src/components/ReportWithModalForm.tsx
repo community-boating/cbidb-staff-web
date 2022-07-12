@@ -42,7 +42,7 @@ export default function ReportWithModalForm<K extends keyof U, T extends t.TypeC
 	postSubmit?: (rowForEdit: U) => U,
 	noCard?: boolean
 	initialSortBy?: {id: keyof U, desc?: boolean}[]
-	formatRowForDisplay?: (row: U) => ({[key in keyof U]: string | JSX.Element})
+	formatRowForDisplay?: (row: U) => {[key in keyof U]: any}
 	//makeExtraModal?: (rowData: U[]) => ReactNode
 }) {
 
@@ -62,7 +62,7 @@ export default function ReportWithModalForm<K extends keyof U, T extends t.TypeC
 	const updateCurrentRow = (row: U) => setFormData({...formData, currentRow:row});
 
 	const data = React.useMemo(() => {return rowData.map(r => ({
-		...r,
+		...(props.formatRowForDisplay === undefined ? r : props.formatRowForDisplay(r)),
 		edit: <a href="" onClick={e => {
 			e.preventDefault();
 			openForEdit(some(String(r[props.primaryKey])));
