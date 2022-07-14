@@ -28,27 +28,27 @@ const columnsBaseUpper: SimpleReportColumn[] = [
 	}, {
 		Header: "Signout Type",
 		accessor: "signoutType",
-		width: 90
+		width: 30
 	}, {
 		Header: "Card #",
 		accessor: "cardNum",
-		width: 90
+		width: 100
 	}, {
 		Header: "Name First",
 		accessor: "nameFirst",
-		width: 90
+		width: 100
 	}, {
 		Header: "Name Last",
 		accessor: "nameLast",
-		width: 90
+		width: 100
 	}, {
 		Header: "Sail #",
 		accessor: "sailNumber",
-		width: 90
+		width: 50
 	}, {
 		Header: "Hull #",
 		accessor: "hullNumber",
-		width: 90
+		width: 50
 	}, {
 		Header: "Boat",
 		accessor: "boatId",
@@ -56,7 +56,7 @@ const columnsBaseUpper: SimpleReportColumn[] = [
 	}, {
 		Header: "Signout Time",
 		accessor: "signoutDatetime",
-		width: 90
+		width: 100
 	}
 ];
 
@@ -64,7 +64,7 @@ const columnsBaseLower: SimpleReportColumn[] = [
 	{
 		Header: "Crew",
 		accessor: "crew",
-		width: 90
+		width: 50
 	}, {
 		Header: "Links",
 		accessor: "links",
