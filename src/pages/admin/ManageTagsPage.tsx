@@ -74,7 +74,7 @@ export default function ManageTagsPage(props: { tags: Tag[] }) {
 	return (
 		<ReportWithModalForm
 			rowValidator={tagValidator}
-			rows={props.tags}
+			rows={props.tags.map(t => ({ ...t, TAG_ID: t.TAG_ID.getOrElse(null)}))}
 			primaryKey="TAG_ID"
 			columns={columns}
 			formComponents={formComponents}

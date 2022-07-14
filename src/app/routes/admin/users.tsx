@@ -8,7 +8,7 @@ import {getWrapper as getUsers, userValidator} from "async/staff/user"
 import { PageName } from 'pages/pageNames';
 import { optionifyProps } from 'util/OptionifyObjectProps';
 import { pathUsersEdit, pathUsersNew, pathUsers } from 'app/paths';
-import {getWrapper as getAccessProfiles, validator as accessProfilesValidator} from 'async/rest/access-profiles'
+import {getWrapper as getAccessState, accessStateValidator} from 'async/staff/access-state'
 
 const userArrayValidator = t.array(userValidator);
 
@@ -24,16 +24,16 @@ export const routeUsersPage = new RouteWrapper({
 	history={history}
 	component={(
 		urlProps: {},
-		[users, accessProfiles]: [t.TypeOf<typeof userArrayValidator>, t.TypeOf<typeof accessProfilesValidator>]
+		[users, accessState]: [t.TypeOf<typeof userArrayValidator>, t.TypeOf<typeof accessStateValidator>]
 	) => <UsersPage
 		users={users}
-		accessProfiles={accessProfiles}
+		accessState={accessState}
 	/>}
 	urlProps={{}}
 	getAsyncProps={() => {
 		return Promise.all([
 			getUsers.sendJson(null),
-			getAccessProfiles.sendJson(null)
+			getAccessState.sendJson(null)
 		]).catch(err => Promise.resolve(null));
 	}}
 	shadowComponent={<Loader />}

@@ -95,7 +95,7 @@ export default function ManageClassLocationsPage(props: {
 	return (
 		<ReportWithModalForm
 			rowValidator={classLocationValidator}
-			rows={props.locations}
+			rows={props.locations.map(l => ({ ...l, LOCATION_ID: l.LOCATION_ID.getOrElse(null)}))}
 			primaryKey="LOCATION_ID"
 			columns={columns}
 			formComponents={formComponents}

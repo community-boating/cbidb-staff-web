@@ -1,9 +1,10 @@
 import * as t from 'io-ts';
+import { OptionalNumber } from 'util/OptionalTypeValidators';
 import APIWrapper from '../../core/APIWrapper';
 import { HttpMethod } from "../../core/HttpMethod";
 
 export const classInstructorValidator = t.type({
-	INSTRUCTOR_ID: t.number,
+	INSTRUCTOR_ID: OptionalNumber,
 	NAME_FIRST: t.string,
 	NAME_LAST: t.string,
 });

@@ -4,7 +4,7 @@ import APIWrapper from "../../core/APIWrapper";
 import { HttpMethod } from "../../core/HttpMethod";
 
 export const donationFundValidator = t.type({
-	FUND_ID: t.number,
+	FUND_ID: OptionalNumber,
 	FUND_NAME: t.string,
 	LETTER_TEXT: OptionalString,
 	ACTIVE: t.boolean,

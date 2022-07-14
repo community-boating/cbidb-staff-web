@@ -24,7 +24,8 @@ export default function ReportWithModalForm<T extends t.TypeC<any>, U extends ob
 	validateSubmit?: (rowForEdit: StringifiedProps<U>) => string[],
 	postSubmit?: (rowForEdit: U) => U,
 	noCard?: boolean
-	initialSortBy?: {id: keyof U, desc?: boolean}[]
+	initialSortBy?: {id: keyof U, desc?: boolean}[],
+	blockEdit?: {[K: string]: true}
 }) {
 	const blankForm = {
 		rowForEdit: stringifyAndMakeBlank(props.rowValidator),
@@ -35,13 +36,24 @@ export default function ReportWithModalForm<T extends t.TypeC<any>, U extends ob
 	const [formData, setFormData] = React.useState(blankForm);
 	const [rowData, updateRowData] = React.useState(props.rows);
 
-	const data = React.useMemo(() => rowData.map(r => ({
-		...r,
-		edit: <a href="" onClick={e => {
-			e.preventDefault();
-			openForEdit(some(String(r[props.primaryKey])));
-		}}><EditIcon color="#777" size="1.4em" /></a>,
-	})), [rowData]);
+	const makeEditCol = (value: number) => <a href="" onClick={e => {
+		e.preventDefault();
+		openForEdit(some(value));
+	}}><EditIcon color="#777" size="1.4em" /></a>
+
+	const data = React.useMemo(() => rowData.map(r => {
+		const pk = r[props.primaryKey];
+		if (pk["_tag"]) throw "Option PK Found"
+
+		return {
+			...r,
+			edit: (
+				(props.blockEdit && props.blockEdit[String(pk)])
+				? null
+				: makeEditCol(pk as unknown as number)
+			),
+		}
+	}), [rowData]);
 
 	const report = React.useMemo(() => <SimpleReport 
 		keyField={props.primaryKey}
@@ -52,11 +64,11 @@ export default function ReportWithModalForm<T extends t.TypeC<any>, U extends ob
 		initialSortBy={props.initialSortBy}
 	/>, [rowData])
 
-	const openForEdit = (id: Option<string>) => {
+	const openForEdit = (id: Option<number>) => {
 		setModalIsOpen(true);
 		setValidationErrors([]);
 		if (id.isSome()) {
-			const row = rowData.find(i => String(i[props.primaryKey]) == id.getOrElse(null))
+			const row = rowData.find(i => i[props.primaryKey] as unknown as number == id.getOrElse(null))
 			setFormData({
 				rowForEdit: stringify(row),
 			})
@@ -106,7 +118,8 @@ export default function ReportWithModalForm<T extends t.TypeC<any>, U extends ob
 				const candidateForValidation = destringify(props.rowValidator, nullifyEmptyStrings(formData.rowForEdit), false, props.primaryKey);
 
 				// On a create, ID will be null which is not ok per the validator.  Shove some crap in there to make it happy
-				const pkValue = candidateForValidation[props.primaryKey] === null ? -1 : candidateForValidation[props.primaryKey];
+				const pkValue = candidateForValidation[props.primaryKey] == null ? -1 : candidateForValidation[props.primaryKey];
+
 				const validateResult = props.rowValidator.decode({
 					...candidateForValidation,
 					[props.primaryKey]: pkValue
@@ -139,16 +152,22 @@ export default function ReportWithModalForm<T extends t.TypeC<any>, U extends ob
 								// was an update.  Find the row and update it
 								updateRowData(rowData.map(row => {
 									if (rowMatches(row)) {
-										return toAdd;
+										return { ...toAdd, [props.primaryKey]:( toAdd[props.primaryKey] as unknown as Option<number>).getOrElse(null)};
 									} else {
 										return row;
 									}
 								}))
 							} else {
 								// was a create.  Add the new row after injecting the PK from the server
+								const newPkRaw = ret.success[props.primaryKey];
+								const newPk = (
+									newPkRaw["_tag"]
+									? (newPkRaw as Option<number>).getOrElse(null)
+									: newPkRaw
+								)
 								updateRowData(rowData.concat([{
 									...toAdd,
-									[props.primaryKey]: ret.success[props.primaryKey]
+									[props.primaryKey]: newPk
 								}]))
 							}
 						} else {

@@ -12,18 +12,43 @@ import {
 import { pathUsersEdit } from "app/paths";
 import ReportWithModalForm from "components/ReportWithModalForm";
 import {  StringifiedProps } from "util/StringifyObjectProps";
-import { none } from "fp-ts/lib/Option";
+import { none, some } from "fp-ts/lib/Option";
 import optionify from "util/optionify";
 import { CellBooleanIcon, CellOption, SortType, SortTypeBoolean, SortTypeOptionalNumber, SortTypeOptionalStringCI, SortTypeStringCI } from "util/tableUtil";
 import { Column } from "react-table";
 import { TableColumnOptionsCbi, TableOptionsCbi } from "react-table-config";
-import { accessProfileValidator } from "async/rest/access-profiles";
+import {accessStateValidator} from 'async/staff/access-state'
+import asc from "app/AppStateContainer";
+import { MAGIC_NUMBERS } from "app/magicNumbers";
 
 type User = t.TypeOf<typeof userValidator>
-type AccessProfile = t.TypeOf<typeof accessProfileValidator>
+type AccessState = t.TypeOf<typeof accessStateValidator>;
 
-export default function UsersPage(props: { users: User[], accessProfiles: AccessProfile[] }) {
-	console.log(props)
+export default function UsersPage(props: { users: User[], accessState: AccessState }) {
+	const myUser = React.useMemo(() => {
+		return props.users.find(u => u.userName.toLowerCase() == asc.state.login.authenticatedUserName.getOrElse("").toLowerCase());
+	}, []);
+
+	const canManage = React.useMemo(() => {
+		const mySubordinateRoles = props.accessState.accessProfileRelationships.filter(r => true || r.managingProfileId == myUser.accessProfileId);
+		return mySubordinateRoles.reduce((hash, e) => {
+			hash[e.subordinateProfileId] = true;
+			return hash;
+		}, {} as {[K: number]: true})
+	}, []);
+
+	const blockEdit = React.useMemo(() => {
+		return props.users
+		.filter(u => !(myUser.accessProfileId == MAGIC_NUMBERS.ACCESS_PROFILE_ID.GLOBAL_ADMIN || canManage[u.accessProfileId]))
+		.reduce((hash, u) => {
+			hash[String(u.userId.getOrElse(null))] = true;
+			return hash;
+		}, {} as {[K: string]: true})
+	}, [])
+
+	console.log(canManage)
+	console.log("blockedit ", blockEdit)
+
 	const columns: TableColumnOptionsCbi[] = [{
 		accessor: "edit",
 		Header: "Edit",
@@ -33,8 +58,6 @@ export default function UsersPage(props: { users: User[], accessProfiles: Access
 		accessor: "userId",
 		Header: "ID",
 		width: 50,
-		Cell: CellOption,
-		sortType: SortTypeOptionalNumber,
 	}, {
 		accessor: "userName",
 		Header: "Username",
@@ -55,8 +78,8 @@ export default function UsersPage(props: { users: User[], accessProfiles: Access
 		accessor: "accessProfileId",
 		Header: "Access",
 		width: 90,
-		Cell: ({value}) => optionify(props.accessProfiles.find(ap => ap.accessProfileId == value)).map(ap => ap.name).getOrElse("(unknown)"),
-		sortType: SortType(id => props.accessProfiles.find(ap => ap.accessProfileId == id).name)
+		Cell: ({value}) => optionify(props.accessState.accessProfiles.find(ap => ap.id == value)).map(ap => ap.name).getOrElse("(unknown)"),
+		sortType: SortType(id => props.accessState.accessProfiles.find(ap => ap.id == id).name)
 	}, {
 		accessor: "email",
 		Header: "Email",
@@ -198,7 +221,9 @@ export default function UsersPage(props: { users: User[], accessProfiles: Access
 						value={rowForEdit.accessProfileId}
 						onChange={(event) => updateState("accessProfileId", event.target.value)}
 					>
-						{props.accessProfiles.map(ap => <option key={ap.accessProfileId} value={ap.accessProfileId}>{ap.name}</option>)}
+						{props.accessState.accessProfiles
+						.filter(ap => myUser.accessProfileId == MAGIC_NUMBERS.ACCESS_PROFILE_ID.GLOBAL_ADMIN || canManage[ap.id])
+						.map(ap => <option key={ap.id} value={ap.id}>{ap.name}</option>)}
 					</Input>
 					</Col>
 				</FormGroup>
@@ -303,7 +328,7 @@ export default function UsersPage(props: { users: User[], accessProfiles: Access
 		<CardBody>
 			<ReportWithModalForm
 				rowValidator={userValidator}
-				rows={props.users.map(u => ({ ...u, pw1: none, pw2: none }))}
+				rows={props.users.map(u => ({ ...u, pw1: none, pw2: none, userId: u.userId.getOrElse(null) }))}
 				primaryKey="userId"
 				columns={columns}
 				formComponents={formComponents}
@@ -313,6 +338,7 @@ export default function UsersPage(props: { users: User[], accessProfiles: Access
 				validateSubmit={validate}
 				postSubmit={user => ({ ...user, pw1: none, pw2: none})}
 				initialSortBy={[{id: "active"}, {id: "userName"}]}
+				blockEdit={blockEdit}
 			/>
 		</CardBody>
 	</Card>;
