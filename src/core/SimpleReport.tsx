@@ -23,7 +23,6 @@ export type SimpleReportColumn = {
 	toggleHidden?: boolean
 }
 
-
 type SimpleReportRequiredProps<T_Data> = {
 	keyField: keyof T_Data,
 	data: T_Data[] | DisplayableProps<T_Data[]>,
@@ -37,6 +36,24 @@ type SimpleReportRequiredProps<T_Data> = {
 	initialSortBy?: {id: keyof T_Data, desc?: boolean}[]
 }
 
+export type FilterFunctionType = (rows: RowRT<any>[], columnIds: string[], filterValue: any) => RowRT<any>[];
+
+export type PreviousValuesType = {params: any, rows: RowRT<any>[]};
+
+const memoizedFilter : (previousValues: PreviousValuesType, setPreviousValues: (previousValues: PreviousValuesType) => void, filterFunction: FilterFunctionType) => FilterFunctionType = (previousValues, setPreviousValues, filterFunction) => {
+	const wrappedFilterFunction: FilterFunctionType = (rows, columnIds, filterValue) => {
+		const newParams = JSON.stringify({r: rows.map((a) => String(a.values)), c: columnIds, f: filterValue});
+		if(newParams != previousValues.params){
+			const filteredRows = filterFunction(rows, columnIds, filterValue);
+			const newValues = {params: newParams, rows: filteredRows};
+			setPreviousValues(newValues);
+			return filteredRows;
+		}
+		return previousValues.rows;
+	}
+	return wrappedFilterFunction;
+}
+
 export const SimpleReport: <T_Data>(props: SimpleReportRequiredProps<T_Data>) => JSX.Element = ({columns, data: dataProp, sizePerPage, sizePerPageList, keyField, globalFilter, globalFilterValueControlled, hidableColumns, reportId, initialSortBy}) => {
 	const usingPagination = sizePerPage !== undefined && sizePerPageList !== undefined;
 	const [data, setData] = React.useState(dataProp);
@@ -44,6 +61,8 @@ export const SimpleReport: <T_Data>(props: SimpleReportRequiredProps<T_Data>) =>
 	React.useEffect(() => {
 		setData(dataProp);
 	}, [dataProp])
+
+	const [previousValues, setPreviousValues] = React.useState({} as PreviousValuesType);
 
 	const tableInstance = (function() {
 		const config = {

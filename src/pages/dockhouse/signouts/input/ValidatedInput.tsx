@@ -6,7 +6,7 @@ import { ReactNode } from 'react';
 import { OptionalString } from 'util/OptionalTypeValidators';
 import { max, some, update } from 'lodash';
 import * as moment from "moment";
-import { validationError } from 'components/ReportWithModalForm';
+import { UpdateStateType, validationError } from 'components/ReportWithModalForm';
 
 export type ValidatedInputProps<T> = {
 	initValue: T,
@@ -32,7 +32,7 @@ export class ValidatedInput<T> extends React.Component<(ValidatedInputProps<T> &
 		var {initValue,updateValue,children,makeInputProps,convertChange,validationResults,...other}=this.props;
 		var errorTooltip = <></>;
 		if(validationResults.length > 0){
-			errorTooltip=<FormFeedback>{validationResults.map((a) => a.display)}</FormFeedback>;
+			errorTooltip=<FormFeedback>{validationResults.map((a) => a["display"] || a)}</FormFeedback>;
 		}
 		return (
 			<>
@@ -100,10 +100,33 @@ function stringToMoment(s: Option<string>, timeVar: moment.unitOfTime.All, initV
 	return option.some(initValue.getOrElse(moment()).set(timeVar, timeVarValue));
 }
 
+var lastMoment;
+
 export const ValidatedMomentInput = (props: ValidatedInputProps<Option<moment.Moment>> & InputProps & {format : string, start:moment.Moment,end:moment.Moment, lower?:moment.Moment, upper?:moment.Moment, inc: any, timeVar: moment.unitOfTime.All, sToM? : typeof stringToMoment, mToS?: typeof momentToString}) => {
 	const {format,start,end,inc,timeVar,sToM,mToS,updateValue,upper,lower,...others} = props;
 	const selectOptions: {value: SelectOptionType, display: ReactNode} [] = [];
 	const initValue = props.initValue;
+	const valval = lower === undefined ? undefined : lower.toJSON();
+	React.useEffect(() => {
+		if(upper == undefined || lower == undefined){
+			console.log("bad");
+			return;
+		}
+		if(format == "mm"){
+			console.log(lastMoment == upper);
+			lastMoment = upper;
+		}
+		if(initValue.isSome()){
+			if(initValue.value > upper){
+				console.log("bonk");
+				updateValue(option.some(upper));
+			}
+			if(initValue.value < lower){
+				console.log("donk");
+				updateValue(option.some(lower));
+			}
+		}
+	}, [JSON.stringify(lower), JSON.stringify(upper), JSON.stringify(initValue)]);
 	for(let m = start.clone(); m <= end; m.add(inc)){
 		if(mToS === undefined){
 			selectOptions.push({value: m.get(timeVar), display: m.format(format)});
@@ -116,9 +139,9 @@ export const ValidatedMomentInput = (props: ValidatedInputProps<Option<moment.Mo
 		const paddedValue = (sToM === undefined ? stringToMoment(value, timeVar, initValue) : sToM(value, timeVar, initValue));
 		if(paddedValue.isNone()){
 			updateValue(option.none);
-		}else if(paddedValue.getOrElse(undefined) > upper){
+		}else if(paddedValue.value > upper){
 			updateValue(option.some(upper));
-		}else if(paddedValue.getOrElse(undefined) < lower){
+		}else if(paddedValue.value < lower){
 			updateValue(option.some(lower));
 		}else{
 			updateValue(paddedValue);
@@ -174,18 +197,27 @@ export const ValidatedMinuteInput = (props: ValidatedInputProps<Option<moment.Mo
 	return makeValidatedInputBounded(moreProps);
 }
 
+function hourStart (initTime: moment.Moment){
+	var nextTime = initTime.clone();
+	while(nextTime.get("hour") % 12 !== 0){
+		nextTime = nextTime.subtract(1, "hour");
+	}
+	return nextTime;
+}
+
 export const ValidatedHourInput = (props: ValidatedInputProps<Option<moment.Moment>> & InputProps & MomentInputBoundary) => {
 	const {lower,upper,...other} = props;
 	const initialValue = props.initValue.getOrElse(moment());
+	const valueStart = hourStart(initialValue);
 	return (
 		<ValidatedMomentInput {...other}
 		format="hh"
 		inc={{hour:1}}
-		start={moment.max(initialValue.clone().startOf("day"),lower)}
-		end={moment.min(initialValue.clone().startOf("day").add(11, "hours"),upper)}
+		start={moment.max(valueStart,lower.clone().startOf("hour"))}
+		end={moment.min(valueStart.clone().add(11, "hours"),upper.clone().endOf("hour"))}
 		timeVar="hours"
 		mToS={(o, t) => {
-			return o.isNone() ? option.none : option.some(String(o.getOrElse(undefined).get(t) % 12));
+			return o.isNone() ? option.none : option.some(String(o.value.get("hour") % 12));
 		}}
 		sToM={
 			(s,t,i) => {
@@ -193,7 +225,7 @@ export const ValidatedHourInput = (props: ValidatedInputProps<Option<moment.Mome
 					return option.none;
 				}
 				var newHour = Number(s.getOrElse(undefined))
-				if(i.getOrElse(moment()).get(t) >= 12){
+				if(i.getOrElse(moment()).format("a") === "pm"){
 					newHour += 12;
 				}
 				return option.some(i.getOrElse(moment()).clone().set(t,newHour));
@@ -267,25 +299,25 @@ export const ValidatedYearInput = (props: ValidatedInputProps<Option<moment.Mome
 		/>);
 }
 
-export function wrapForFormComponentsMoment(rowForEdit: any, updateState: (id: string, value: string | boolean) => void, rowId: string, validationResults: validationError[]){
+export function wrapForFormComponentsMoment(rowForEdit: any, updateState: UpdateStateType, rowId: string, validationResults: validationError[]){
 	const initMoment = moment(rowForEdit[rowId]);
 	return {
 		initValue:initMoment.isValid() ? option.some(initMoment) : option.none,
 		updateValue:(v) => {
-			updateState(rowId, v.getOrElse("").format())
+			updateState(rowId, v.getOrElse(moment()).format())
 		},
-		validationResults: validationResults.filter((a) => a.key == rowId),
+		validationResults: validationResults.filter((a) => a["key"] == rowId),
 		id: rowId
 	};
 }
 
-export function wrapForFormComponents (rowForEdit: any, updateState: (id: string, value: string | boolean) => void, rowId: string, validationResults: validationError[]){
+export function wrapForFormComponents (rowForEdit: any, updateState: UpdateStateType, rowId: string, validationResults: validationError[]){
 	return {
 		initValue:option.some(rowForEdit[rowId]),
 		updateValue:(v) => {
-			updateState(rowId, v.getOrElse(""))
+			updateState(rowId, v.getOrElse(""));
 		},
-		validationResults: validationResults.filter((a) => a.key == rowId),
+		validationResults: validationResults.filter((a) => a["key"] == rowId),
 		id: rowId
 	};
 }

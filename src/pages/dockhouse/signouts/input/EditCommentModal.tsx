@@ -8,7 +8,9 @@ import { option } from "fp-ts";
 import { Option } from "fp-ts/lib/Option";
 import { EditModal, EditModalCommonProps } from "./EditModal";
 
-export const EditCommentsModal = (props: EditModalCommonProps & {updateComments: (comments: Option<string>, signoutId: number, setErrors: (errors: React.SetStateAction<string[]>) => void) => Promise<any>}) => {
+export type SetErrorsType = (errors: React.SetStateAction<string[]>) => void;
+
+export const EditCommentsModal = (props: EditModalCommonProps & {updateComments: (comments: Option<string>, signoutId: number, setErrors: SetErrorsType) => Promise<any>}) => {
     const [comments, setComments] = React.useState((props.currentRow || {}).comments);
     const [errors, setErrors] = React.useState([] as string[]);
     React.useEffect(() => {
@@ -16,7 +18,7 @@ export const EditCommentsModal = (props: EditModalCommonProps & {updateComments:
     }, [props.currentRow]);
     const commentsPadded = comments === undefined ? option.none : comments;
     return <>
-        <EditModal {...props} errors={errors} headerChildren={
+        <EditModal {...props} errors={errors} setErrors={setErrors} headerChildren={
             "Edit Comments"
         }
             footerChildren={

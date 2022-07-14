@@ -6,21 +6,28 @@ const OPEN_STATE_CLOSED = 0;
 const OPEN_STATE_HOVER = 1;
 const OPEN_STATE_CLICK = 2;
 
+var currentUID = 0;
+
+function getUID() : string{
+	currentUID += 1;
+	return "ID_" + String(currentUID);
+}
+
 export class MultiHover extends React.Component<{
 	makeChildren: () => ReactNode,
 	handleClick?: () => void,
-	id: string,
 	noMemoChildren?: boolean,
 	openDisplay: ReactNode,
 }, {
 	children: ReactNode,
+	id: string,
 	open: boolean
 }> {
 	ref: React.RefObject<HTMLDivElement>;
 	constructor(props) {
 		super(props);
 		this.ref = React.createRef();
-		this.state = { open: false, children: undefined };
+		this.state = { open: false, children: undefined, id: getUID()};
 	}
 	componentDidMount(): void {
 		const clickHandler = function(e) {
@@ -63,10 +70,10 @@ export class MultiHover extends React.Component<{
 	render() {
 		const useChildren = this.props.noMemoChildren === false ? this.state.children : this.props.makeChildren();
 		return (<div ref={this.ref}>
-			<a id={this.props.id} onClick={() => this.handleClick()} onMouseOver={() => this.setOpen(true)} onMouseOut={() => this.setOpen(false)}>
+			<a id={this.state.id} onClick={() => this.handleClick()} onMouseOver={() => this.setOpen(true)} onMouseOut={() => this.setOpen(false)}>
 				{this.props.openDisplay}
 			</a>
-			<Popover placement="right" isOpen={this.state.open && useChildren !== undefined} target={this.props.id} toggle={() => this.toggleOpen}>
+			<Popover placement="right" isOpen={this.state.open && useChildren !== undefined} target={this.state.id} toggle={() => this.toggleOpen}>
 				{useChildren}
 			</Popover>
 		</div>);

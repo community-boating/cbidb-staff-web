@@ -2,7 +2,7 @@ import { ButtonWrapper } from "components/ButtonWrapper";
 import { Modal, ModalHeader, ModalBody, ModalFooter, Button, Table } from "reactstrap";
 
 import * as React from "react";
-import { momentNowDefaultDateTime, SignoutTablesState } from "../SignoutsTablesPage";
+import { BoatTypesValidatorState, isCrewValid, SignoutTablesState } from "../SignoutsTablesPage";
 import { ValidatedTextInput } from "./ValidatedInput";
 import { option } from "fp-ts";
 import { Option } from "fp-ts/lib/Option";
@@ -11,11 +11,12 @@ import { crewPersonValidator, getPersonByCardNumber, putSignoutCrew, signoutCrew
 import { X } from "react-feather";
 import { MultiHover } from "../MultiHover";
 import { EditModal, EditModalCommonProps } from "./EditModal";
+import { momentNowDefaultDateTime } from "util/OptionalTypeValidators";
 
-export const EditCrewModal = (props: EditModalCommonProps & { updateCurrentRow: (row: SignoutTablesState) => void }) => {
+export const EditCrewModal = (props: EditModalCommonProps & { updateCurrentRow: (row: SignoutTablesState) => void, boatTypes: BoatTypesValidatorState }) => {
     const [errors, setErrors] = React.useState([] as string[]);
     return <>
-        <EditModal {...props} errors={errors} headerChildren={
+        <EditModal {...props} errors={errors} setErrors={setErrors} headerChildren={
             "Edit Crew"
         }>
             {props.currentRow !== undefined ? <>
@@ -23,17 +24,23 @@ export const EditCrewModal = (props: EditModalCommonProps & { updateCurrentRow: 
                 <CrewTable row={props.currentRow} isFormer={false} removeCrew={(crewId: number) => {
                     const foundCrew = Object.assign({}, props.currentRow.$$crew.find((a) => a.crewId.getOrElse(-1) == crewId));
                     foundCrew.endActive = option.some(momentNowDefaultDateTime());
+                    const newCrew = props.currentRow.$$crew.map((a) => {
+                        if (a.crewId.getOrElse(-1) == crewId) {
+                            return foundCrew;
+                        } else {
+                            return a;
+                        }
+                    });
+                    const crewBoatErrors = isCrewValid(newCrew, props.currentRow.boatId, props.boatTypes);
+                    if(crewBoatErrors !== undefined){
+                        setErrors(crewBoatErrors);
+                        return;
+                    }
                     putSignoutCrew.sendJson(foundCrew).then((a) => {
                         if (a.type === "Success") {
                             //TODO fix this eventually to use response value instead of post value
                             props.updateCurrentRow({
-                                ...props.currentRow, $$crew: props.currentRow.$$crew.map((a) => {
-                                    if (a.crewId.getOrElse(-1) == crewId) {
-                                        return foundCrew;
-                                    } else {
-                                        return a;
-                                    }
-                                })
+                                ...props.currentRow, $$crew: newCrew
                             });
                         } else {
                             setErrors(["Server error deleting crew"]);
@@ -42,7 +49,8 @@ export const EditCrewModal = (props: EditModalCommonProps & { updateCurrentRow: 
                 }} />
                 <h1>Past Crew</h1>
             <CrewTable row={props.currentRow} isFormer={true} />
-            <AddCrew row={props.currentRow} updateCurrentRow={props.updateCurrentRow} setErrors={setErrors} />
+            <h1>Add Crew</h1>
+            <AddCrew row={props.currentRow} updateCurrentRow={props.updateCurrentRow} setErrors={setErrors} boatTypes={props.boatTypes} />
             </> : <></>}
         </EditModal>
     </>
@@ -101,15 +109,19 @@ export const CrewRow = (props: { crew: t.TypeOf<typeof signoutCrewValidator>, re
     </tr>
 }
 
-const AddCrew = (props: { row: SignoutTablesState, updateCurrentRow: (row: SignoutTablesState) => void, setErrors: (value: React.SetStateAction<string[]>) => void }) => {
+const AddCrew = (props: { row: SignoutTablesState, updateCurrentRow: (row: SignoutTablesState) => void, setErrors: (value: React.SetStateAction<string[]>) => void, boatTypes: BoatTypesValidatorState }) => {
     const [cardNum, setCardNum] = React.useState(option.none as Option<string>);
     const [person, setPerson] = React.useState(undefined as t.TypeOf<typeof crewPersonValidator>);
     const throttler: ThrottledUpdater = React.useMemo(() => new ThrottledUpdater(200, () => { }), []);
     React.useEffect(() => {
         throttler.handleUpdate = () => {
+            if(cardNum.isNone()){
+                return;
+            }
             getPersonByCardNumber.sendWithParams(option.none, { cardNumber: Number(cardNum.getOrElse("")) })(null).then((a) => {
                 if (a.type === "Success") {
                     setPerson(a.success);
+                    console.log(a.success);
                 } else {
                     setPerson(undefined);
                 }
@@ -125,6 +137,7 @@ const AddCrew = (props: { row: SignoutTablesState, updateCurrentRow: (row: Signo
         {person !== undefined ? <Table><tbody><CrewRow crew={{ $$person: person, cardNum: cardNum, crewId: option.some(-1), personId: option.some(person.personId), signoutId: undefined, startActive: undefined, endActive: undefined }} /></tbody></Table> : "Not found"}
         {person !== undefined ? <ButtonWrapper spinnerOnClick onClick={(e) => {
             e.preventDefault();
+            console.log("doing");
             if (props.row.$$skipper.personId == person.personId) {
                 props.setErrors(["Cannot add skipper as crew"]);
                 return Promise.resolve();
@@ -133,28 +146,50 @@ const AddCrew = (props: { row: SignoutTablesState, updateCurrentRow: (row: Signo
                 props.setErrors(["Person is already a crew member"]);
                 return Promise.resolve();
             }
-            const newCrew = [...props.row.$$crew];
-            const newSignoutCrew: t.TypeOf<typeof signoutCrewValidator> = {
-                startActive: option.some(momentNowDefaultDateTime()), $$person: person,
-                signoutId: option.some(props.row.signoutId),
+            const newSignoutCrew: t.TypeOf<typeof signoutCrewValidator> = Object.assign({}, props.row.$$crew.find((a) => a.personId.getOrElse(-1) == person.personId) || {} as any);
+            const isBlank = newSignoutCrew.signoutId === undefined;
+            Object.assign(newSignoutCrew, {
+                startActive: option.some(momentNowDefaultDateTime()),
+                $$person: person,
+                endActive: option.none,
+                signoutId: props.row.signoutId,
                 cardNum: cardNum,
-                personId: option.some(person.personId),
-            } as any;
-            return putSignoutCrew.sendJson(newSignoutCrew).then((a) => {
-                if (a.type === "Success") {
-                    //TODO this is a little bit bad, probably should just be sending all the fields of the object in the api call
-                    const successCombined = { ...a.success, ...newSignoutCrew };
-                    newCrew.push(successCombined);
-                    props.updateCurrentRow({ ...props.row, $$crew: newCrew });
-                } else {
-                    console.log("Error", a);
-                    props.setErrors(["Server error adding crew"]);
+                personId: option.some(person.personId)});
+            const newCrew = props.row.$$crew.map((a) => {
+                if(a.personId.getOrElse(-1) == person.personId){
+                    return Object.assign({}, newSignoutCrew);
+                }else{
+                    return a;
                 }
             });
+            if(isBlank){
+                newCrew.push(newSignoutCrew);
+            }
+            const crewBoatErrors = isCrewValid(newCrew, props.row.boatId, props.boatTypes);
+            if(crewBoatErrors !== undefined){
+                props.setErrors(crewBoatErrors);
+                return Promise.resolve();
+            }else{
+                return putSignoutCrew.sendJson(newSignoutCrew).then((a) => {
+                    console.log("response");
+                    if (a.type === "Success") {
+                        //TODO this is a little bit bad, probably should just be sending all the fields of the object in the api call
+                        const success = a.success;
+                        delete success["$$person"];
+                        Object.assign(newSignoutCrew, a.success);
+                        props.setErrors([]);
+                        console.log(newCrew);
+                        props.updateCurrentRow({ ...props.row, $$crew: newCrew });
+                    } else {
+                        console.log("Error", a);
+                        props.setErrors(["Server error adding crew"]);
+                    }
+                });
+            }
         }}>Add</ButtonWrapper> : ""}
     </>
 }
 
 export const CrewHover = (props: { row: SignoutTablesState, setUpdateCrewModal: (signoutId: number) => void }) => {
-    return <MultiHover id={"crew_" + props.row.signoutId} makeChildren={() => { return props.row.$$crew.length > 0 ? <><p>Current</p><CrewTable row={props.row} isFormer={false} /><p>Former</p><CrewTable row={props.row} isFormer={true} /></> : undefined }} handleClick={() => props.setUpdateCrewModal(props.row.signoutId)} openDisplay={props.row.$$crew.length > 0 ? "Crew" : "-"} noMemoChildren={true} />
+    return <MultiHover makeChildren={() => { return props.row.$$crew.length > 0 ? <><p>Current</p><CrewTable row={props.row} isFormer={false} /><p>Former</p><CrewTable row={props.row} isFormer={true} /></> : undefined }} handleClick={() => props.setUpdateCrewModal(props.row.signoutId)} openDisplay={props.row.$$crew.length > 0 ? "Crew" : "-"} noMemoChildren={true} />
 }

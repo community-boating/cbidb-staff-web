@@ -3,9 +3,10 @@ import { option } from "fp-ts";
 import * as React from 'react';
 import { FlagStatusIcons } from "./FlagStatusIcons"
 import * as t from "io-ts";
-import { SignoutTablesState, RatingsValidatorState, programsHR } from "./SignoutsTablesPage";
+import { SignoutTablesState, RatingsValidatorState } from "./SignoutsTablesPage";
 import { MultiHover } from "./MultiHover";
 import { ReactNode } from "react";
+import { programsHR } from "./Constants";
 
 
 type RatingValidatorState = t.TypeOf<typeof ratingValidator>;
@@ -76,12 +77,12 @@ export function getMakeRatingsTable(row: SignoutTablesState, sortedRatings: Sort
 	return makeTable;
 }
 
-export const RatingsHover = (props: {row: SignoutTablesState, sortedRatings: SortedRatings, orphanedRatingsShownByDefault: {[key: number]: boolean}, closeOthers: ((id: string) => void)[]}) => {
+export const RatingsHover = (props: {row: SignoutTablesState, sortedRatings: SortedRatings, orphanedRatingsShownByDefault: {[key: number]: boolean}}) => {
 
 	const makeHover = getMakeRatingsTable(props.row, props.sortedRatings, props.orphanedRatingsShownByDefault);
 
 	return (
-		<MultiHover id={"ratings" + String(props.row.signoutId)} makeChildren={makeHover} openDisplay={"Ratings"}/>
+		<MultiHover makeChildren={makeHover} openDisplay={"Ratings"}/>
 	)
 }
 

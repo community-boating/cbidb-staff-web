@@ -18,6 +18,7 @@ interface State<T> {
 }
 
 export default class PageWrapper<T_URL, T_Async> extends React.Component<Props<T_URL, T_Async>, State<T_Async>> {
+	timerID;
 	constructor(props: Props<T_URL, T_Async>) {
 		super(props);
 		if (this.props.getAsyncProps != undefined) {
@@ -59,12 +60,19 @@ export default class PageWrapper<T_URL, T_Async> extends React.Component<Props<T
 	componentDidMount() {
 		window.scrollTo(0, 0);
 		this.loadAsyncProps();
-		if(this.props.autoRefresh !== undefined){
-			setInterval(() => {
+		if(this.props.autoRefresh !== undefined && this.timerID === undefined){
+			this.timerID = setInterval(() => {
 				this.loadAsyncProps();
 			}, this.props.autoRefresh);
 		}
 	}
+	componentWillUnmount() {
+		if(this.timerID !== undefined){
+			clearInterval(this.timerID);
+			this.timerID = undefined;
+		}
+	}
+
 	render() {
 		if (this.state.readyToRender) {
 			return this.props.component(this.props.urlProps, this.state.componentAsyncProps)

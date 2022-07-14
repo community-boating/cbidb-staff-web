@@ -5,6 +5,16 @@ import * as moment from "moment";
 export const DefaultDateTimeFormat = "YYYY-MM-DDTHH:mm:ss";
 export const DefaultDateFormat = "YYYY-MM-DD";
 
+
+export function formatMomentDefaultDateTime(moment: moment.Moment) {
+	moment["_f"] = DefaultDateTimeFormat;
+	return moment;
+}
+
+export function momentNowDefaultDateTime(){
+	return formatMomentDefaultDateTime(moment());
+}
+
 export const OptionalDateTime = new t.Type<Option<moment.Moment>, string, unknown>(
 	'OptionalDateTime',
 	(u) : u is Option<moment.Moment> => {return u["_tag"] !== undefined || u['isMoment']},

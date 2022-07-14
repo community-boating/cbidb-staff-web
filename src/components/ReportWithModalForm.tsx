@@ -4,7 +4,7 @@ import { Card, CardHeader, CardTitle, CardBody, Modal, ModalHeader, ModalBody, M
 import {
 	Edit as EditIcon,
 } from 'react-feather'
-import { SimpleReport, SimpleReportColumn } from "core/SimpleReport";
+import { FilterFunctionType, PreviousValuesType, SimpleReport, SimpleReportColumn } from "core/SimpleReport";
 import { ErrorPopup } from "components/ErrorPopup";
 import { none, Option, some } from "fp-ts/lib/Option";
 import APIWrapper from "core/APIWrapper";
@@ -20,30 +20,30 @@ import { TableColumnOptionsCbi } from "react-table-config";
 export type validationError = {
 	key: string,
 	display: string
-}
+} | string
+
+export type UpdateStateType = ((id: string, value: string | boolean) => void) & ((id: string[], value: string[] | boolean[]) => void);
 
 export default function ReportWithModalForm<K extends keyof U, T extends t.TypeC<any>, U extends object = t.TypeOf<T>>(props: {
 	rowValidator: T
 	rows: U[],
 	primaryKey: string & keyof U,
 	columns: TableColumnOptionsCbi[],
-	formComponents: (rowForEdit: StringifiedProps<U>, updateState: (id: string, value: string | boolean) => void, currentRow?: U, validationResults?: validationError[], updateCurrentRow?: (row: U) => void) => JSX.Element
+	formComponents: (rowForEdit: StringifiedProps<U>, updateState: UpdateStateType, currentRow?: U, validationResults?: validationError[]) => JSX.Element
 	submitRow: APIWrapper<any, any, any>
 	cardTitle?: string;
 	columnsNonEditable?: K[];
-	//columnsRaw?: K[];
-	globalFilter?: (rows: Row<any>[], columnIds: string[], filterValue: any) => Row<any>[];
+	globalFilter?: FilterFunctionType;
 	globalFilterValueControlled?: any;
 	setRowData?: (rows: U[]) => void,
 	hidableColumns?: boolean,
 	hideAdd?: boolean,
 	addRowText?: string
-	validateSubmit?: (rowForEdit: StringifiedProps<U>) => string[],
+	validateSubmit?: (rowForEdit: StringifiedProps<U>, currentRow?: U) => validationError[],
 	postSubmit?: (rowForEdit: U) => U,
 	noCard?: boolean
 	initialSortBy?: {id: keyof U, desc?: boolean}[]
 	formatRowForDisplay?: (row: U) => {[key in keyof U]: any}
-	//makeExtraModal?: (rowData: U[]) => ReactNode
 }) {
 
 	const blankForm = {
@@ -51,6 +51,7 @@ export default function ReportWithModalForm<K extends keyof U, T extends t.TypeC
 		currentRow: {} as U
 	}
 
+	const [previousValues, setPreviousValues] = React.useState({} as PreviousValuesType);
 	const [modalIsOpen, setModalIsOpen] = React.useState(false);
 	const [validationErrors, setValidationErrors] = React.useState([] as validationError[]);
 	const [formData, setFormData] = React.useState(blankForm);
@@ -59,8 +60,6 @@ export default function ReportWithModalForm<K extends keyof U, T extends t.TypeC
 	if(!updateRowData){
 		[rowData, updateRowData] = React.useState(props.rows);
 	}
-	const updateCurrentRow = (row: U) => setFormData({...formData, currentRow:row});
-
 	const data = React.useMemo(() => {return rowData.map(r => ({
 		...(props.formatRowForDisplay === undefined ? r : props.formatRowForDisplay(r)),
 		edit: <a href="" onClick={e => {
@@ -81,9 +80,6 @@ export default function ReportWithModalForm<K extends keyof U, T extends t.TypeC
 		reportId={props.cardTitle.replace(" ", "")}
 		initialSortBy={props.initialSortBy}
 	/>;
-
-	//Added dependency on formatRowForDisplay to allow changes to the converter function to propagate down
-	//This is needed for the async polling of semi static variables like boatTypes
 
 	const openForEdit = (id: Option<string>) => {
 		setModalIsOpen(true);
@@ -114,6 +110,22 @@ export default function ReportWithModalForm<K extends keyof U, T extends t.TypeC
 		})
 	}
 
+	const updateStates = (id: string[], value: string[] | boolean[]) => {
+		const newRowForEdit = Object.assign({}, formData.rowForEdit);
+		id.forEach((a, i) => {
+			(newRowForEdit as any)[a] = String(value[i]);
+		});
+		setFormData({...formData,rowForEdit: newRowForEdit});
+	}
+
+	const updateStatesCombined = (id, value) => {
+		if(id instanceof Array<string>){
+			updateStates(id, value);
+		}else{
+			updateState(id, value);
+		}
+	}
+
 	function closeModal() {
 		setModalIsOpen(false);
 		setTimeout(() => setFormData(blankForm), 100); // wait for the animation to hide the modal
@@ -137,11 +149,9 @@ export default function ReportWithModalForm<K extends keyof U, T extends t.TypeC
 			// Let the event queue drain so the validation errors actually flicker off, before we push new ones
 			setTimeout(() => {
 				if (props.validateSubmit) {
-					const errors = props.validateSubmit(formData.rowForEdit)
+					const errors = props.validateSubmit(formData.rowForEdit, formData.currentRow);
 					if (errors.length > 0) {
-						//TODO fix this
-						alert("TODO fix this");
-						//setValidationErrors(errors);
+						setValidationErrors(errors);
 						resolve(null);
 						return;
 					}
@@ -233,7 +243,7 @@ export default function ReportWithModalForm<K extends keyof U, T extends t.TypeC
 
 	const toRender = <div>
 		{report}
-		<Button className="mr-1 mb-1" outline onClick={() => openForEdit(none) }>{props.addRowText || "Add Row"}</Button>
+		{props.hideAdd !== true ? <Button className="mr-1 mb-1" outline onClick={() => openForEdit(none) }>{props.addRowText || "Add Row"}</Button> : <></>}
 	</div>;
 
 	return <React.Fragment>
@@ -246,12 +256,12 @@ export default function ReportWithModalForm<K extends keyof U, T extends t.TypeC
 				Add/Edit
 			</ModalHeader>
 			<ModalBody className="text-center m-3">
-				<ErrorPopup errors={validationErrors.map((a) => a.display)}/>
+				<ErrorPopup errors={validationErrors.map((a) => (a["display"] || a))}/>
 				<Form onSubmit={e => {
 					e.preventDefault();
 					submit();
 				} }>
-					{props.formComponents(formData.rowForEdit, updateState, formData.currentRow, validationErrors, updateCurrentRow)}
+					{props.formComponents(formData.rowForEdit, updateStatesCombined ,formData.currentRow, validationErrors)}
 				</Form>
 			</ModalBody>
 			<ModalFooter>
