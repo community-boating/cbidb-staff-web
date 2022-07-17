@@ -128,6 +128,9 @@ export default function UsersPage(props: { users: User[], accessState: AccessSta
 		}, {
 			check: user.userId != "" || user.pw1 != "",
 			msg:  "Password must be specified for new users."
+		}, {
+			check: user.accessProfileId != "",
+			msg:  "Access profile must be specified for new users."
 		}].filter(v => !v.check).map(v => v.msg)
 	}
 
@@ -221,9 +224,10 @@ export default function UsersPage(props: { users: User[], accessState: AccessSta
 						value={rowForEdit.accessProfileId}
 						onChange={(event) => updateState("accessProfileId", event.target.value)}
 					>
-						{props.accessState.accessProfiles
+						{[<option value="">- Select -</option>].concat(props.accessState.accessProfiles
 						.filter(ap => myUser.accessProfileId == MAGIC_NUMBERS.ACCESS_PROFILE_ID.GLOBAL_ADMIN || canManage[ap.id])
-						.map(ap => <option key={ap.id} value={ap.id}>{ap.name}</option>)}
+						.map(ap => <option key={ap.id} value={ap.id}>{ap.name}</option>)
+						)}
 					</Input>
 					</Col>
 				</FormGroup>
