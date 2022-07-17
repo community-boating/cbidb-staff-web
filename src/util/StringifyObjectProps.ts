@@ -85,7 +85,6 @@ function destringifyValue(v: string, typeName: string, useOption: boolean): any 
 }
 
 export function stringify<T extends object>(obj: T): StringifiedProps<T> {
-	console.log(obj)
 	let ret: any = {}
 	Object.keys(obj).forEach(key => {
 		ret[key] = stringifyValue(obj[key]);
