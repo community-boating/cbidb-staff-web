@@ -46,9 +46,6 @@ export default function UsersPage(props: { users: User[], accessState: AccessSta
 		}, {} as {[K: string]: true})
 	}, [])
 
-	console.log(canManage)
-	console.log("blockedit ", blockEdit)
-
 	const columns: TableColumnOptionsCbi[] = [{
 		accessor: "edit",
 		Header: "Edit",

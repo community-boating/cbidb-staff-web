@@ -34,7 +34,6 @@ const EditDockReportTextBox = (props: {
 	const [message, setMessage] = React.useState(props.message);
 
 	React.useEffect(() => {
-		// console.log("setting submit action ", staff)
 		props.setSubmitAction(() => Promise.resolve({ [props.statekey]: optionify(message) }));
 	}, [message]);
 
