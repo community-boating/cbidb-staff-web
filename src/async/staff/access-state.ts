@@ -21,10 +21,16 @@ const userValidator = t.type({
 	extraRoles: t.array(t.number)
 })
 
+const accessProfileRelationshipValidator = t.type({
+	managingProfileId: t.number,
+	subordinateProfileId: t.number
+})
+
 export const accessStateValidator = t.type({
 	accessProfiles: t.array(accessProfileValidator),
 	roles: t.array(roleValidator),
-	users: t.array(userValidator)
+	users: t.array(userValidator),
+	accessProfileRelationships: t.array(accessProfileRelationshipValidator)
 })
 
 const path = "/staff/access-state"

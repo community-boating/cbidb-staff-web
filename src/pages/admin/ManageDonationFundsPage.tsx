@@ -210,7 +210,7 @@ export default function ManageDonationFundsPage(props: {
 	return (
 		<ReportWithModalForm
 			rowValidator={donationFundValidator}
-			rows={props.donationFunds}
+			rows={props.donationFunds.map(f => ({ ...f, FUND_ID: f.FUND_ID.getOrElse(null)}))}
 			primaryKey="FUND_ID"
 			columns={columns}
 			formComponents={formComponents}

@@ -11,5 +11,8 @@ export const MAGIC_NUMBERS = {
 		SUP: 9,
 		IDEAL_18: 141,
 		VENTURE: 1001
+	},
+	ACCESS_PROFILE_ID: {
+		GLOBAL_ADMIN: 1
 	}
 };
