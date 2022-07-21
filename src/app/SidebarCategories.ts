@@ -15,7 +15,7 @@ import { routeManageDonationFundsPage } from "app/routes/admin/donation-funds";
 import { routeDockReportPage } from "app/routes/dh/dock-report";
 import { routeSignoutsTablesPage } from "./routes/dh/signouts-tables";
 import { routeUsersPage } from "./routes/admin/users";
-import { routeManagePermissions } from "./routes/admin/manage-permissions";
+import { routeManageAccess } from "./routes/admin/manage-permissions";
 
 export type SideBarCategory = {
 	path: string,
@@ -40,7 +40,7 @@ const admin: SideBarCategory = {
 	icon: SlidersIcon,
 	children: [
 		routeUsersPage,
-		routeManagePermissions,
+		routeManageAccess,
 		routeManageClassInstructorsPage,
 		routeManageTagsPage,
 		routeManageClassLocationsPage,

@@ -41,9 +41,10 @@ export default function ReportWithModalForm<K extends keyof U, T extends t.TypeC
 	addRowText?: string
 	validateSubmit?: (rowForEdit: StringifiedProps<U>, currentRow?: U) => validationError[],
 	postSubmit?: (rowForEdit: U) => U,
-	noCard?: boolean
-	initialSortBy?: {id: keyof U, desc?: boolean}[]
-	formatRowForDisplay?: (row: U) => {[key in keyof U]: any}
+	noCard?: boolean,
+	initialSortBy?: {id: keyof U, desc?: boolean}[],
+	formatRowForDisplay?: (row: U) => {[key in keyof U]: any},
+	blockEdit?: {[K: string]: true}
 }) {
 
 	const blankForm = {
@@ -55,18 +56,31 @@ export default function ReportWithModalForm<K extends keyof U, T extends t.TypeC
 	const [modalIsOpen, setModalIsOpen] = React.useState(false);
 	const [validationErrors, setValidationErrors] = React.useState([] as validationError[]);
 	const [formData, setFormData] = React.useState(blankForm);
+
 	var rowData = props.rows;
 	var updateRowData = props.setRowData;
 	if(!updateRowData){
 		[rowData, updateRowData] = React.useState(props.rows);
 	}
-	const data = React.useMemo(() => {return rowData.map(r => ({
-		...(props.formatRowForDisplay === undefined ? r : props.formatRowForDisplay(r)),
-		edit: <a href="" onClick={e => {
-			e.preventDefault();
-			openForEdit(some(String(r[props.primaryKey])));
-		}}><EditIcon color="#777" size="1.4em" /></a>,
-	}))}, [rowData]);
+
+	const makeEditCol = (value: number) => <a href="" onClick={e => {
+		e.preventDefault();
+		openForEdit(some(value));
+	}}><EditIcon color="#777" size="1.4em" /></a>
+
+	const data = React.useMemo(() => rowData.map(r => {
+		const pk = r[props.primaryKey];
+		if (pk["_tag"]) throw "Option PK Found"
+
+		return {
+			...r,
+			edit: (
+				(props.blockEdit && props.blockEdit[String(pk)])
+				? null
+				: makeEditCol(pk as unknown as number)
+			),
+		}
+	}), [rowData]);
 
 	const report = <SimpleReport 
 		keyField={props.primaryKey}
@@ -81,11 +95,11 @@ export default function ReportWithModalForm<K extends keyof U, T extends t.TypeC
 		initialSortBy={props.initialSortBy}
 	/>;
 
-	const openForEdit = (id: Option<string>) => {
+	const openForEdit = (id: Option<number>) => {
 		setModalIsOpen(true);
 		setValidationErrors([]);
 		if (id.isSome()) {
-			const row = rowData.find(i => String(i[props.primaryKey]) == id.getOrElse(null))
+			const row = rowData.find(i => i[props.primaryKey] as unknown as number == id.getOrElse(null))
 			setFormData({
 				rowForEdit: stringify(row),
 				currentRow: row
@@ -162,7 +176,8 @@ export default function ReportWithModalForm<K extends keyof U, T extends t.TypeC
 				// ie either a value or null.
 				const candidateForValidation = destringify(props.rowValidator, nullifyEmptyStrings(formData.rowForEdit), false, props.primaryKey);
 				// On a create, ID will be null which is not ok per the validator.  Shove some crap in there to make it happy
-				const pkValue = candidateForValidation[props.primaryKey] === null ? -1 : candidateForValidation[props.primaryKey];
+				const pkValue = candidateForValidation[props.primaryKey] == null ? -1 : candidateForValidation[props.primaryKey];
+
 				const validateResult = props.rowValidator.decode({
 					...candidateForValidation,
 					[props.primaryKey]: pkValue
@@ -214,7 +229,7 @@ export default function ReportWithModalForm<K extends keyof U, T extends t.TypeC
 										if(props.columnsNonEditable !== undefined){
 											return {...ret.success, ...getOnlyNonEditableFields(formData.currentRow)};
 										}else{
-											return toAdd;
+											return { ...toAdd, [props.primaryKey]:( toAdd[props.primaryKey] as unknown as Option<number>).getOrElse(null)};
 										}
 									} else {
 										return row;
@@ -222,9 +237,15 @@ export default function ReportWithModalForm<K extends keyof U, T extends t.TypeC
 								}))
 							} else {
 								// was a create.  Add the new row after injecting the PK from the server
+								const newPkRaw = ret.success[props.primaryKey];
+								const newPk = (
+									newPkRaw["_tag"]
+									? (newPkRaw as Option<number>).getOrElse(null)
+									: newPkRaw
+								)
 								updateRowData(rowData.concat([{
 									...toAdd,
-									[props.primaryKey]: ret.success[props.primaryKey]
+									[props.primaryKey]: newPk
 								}]))
 							}
 						} else {

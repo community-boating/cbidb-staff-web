@@ -101,7 +101,7 @@ export default function ManageHighSchoolsPage(props: {
 	return (
 		<ReportWithModalForm
 			rowValidator={highSchoolValidator}
-			rows={props.highSchools}
+			rows={props.highSchools.map(s => ({ ...s, SCHOOL_ID: s.SCHOOL_ID.getOrElse(null)}))}
 			primaryKey="SCHOOL_ID"
 			columns={columns}
 			formComponents={formComponents}

@@ -7,16 +7,16 @@ import Loader from "components/Loader";
 
 import { PageName } from "pages/pageNames";
 import { getWrapper, accessStateValidator } from "async/staff/access-state";
-import { pathManagePermissions } from "app/paths";
-import { ManagePermissionsPage } from "pages/admin/ManagePermissionsPage";
+import { pathManageAccess } from "app/paths";
+import { ManageAccessPage } from "pages/admin/manage-access/ManageAccessPage";
 
-export const routeManagePermissions = new RouteWrapper(
+export const routeManageAccess = new RouteWrapper(
 	{
 		requiresAuth: true,
 		exact: true,
-		pathWrapper: pathManagePermissions,
-		sidebarTitle: "Manage Permissions",
-		pageName: PageName.MANAGE_PERMISSIONS,
+		pathWrapper: pathManageAccess,
+		sidebarTitle: "Manage Access",
+		pageName: PageName.MANAGE_ACCESS,
 		requireSudo: true,
 	},
 	(history) => (
@@ -24,7 +24,7 @@ export const routeManagePermissions = new RouteWrapper(
 			key="manage Permissions"
 			history={history}
 			component={(_urlProps: {}, async: t.TypeOf<typeof accessStateValidator>) => (
-				<ManagePermissionsPage accessState={async} />
+				<ManageAccessPage accessState={async} />
 			)}
 			urlProps={{}}
 			getAsyncProps={() => {

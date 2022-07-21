@@ -73,7 +73,7 @@ export default function ManageClassInstructorsPage(props: { instructors: ClassIn
 
 	return <ReportWithModalForm
 		rowValidator={classInstructorValidator}
-		rows={props.instructors}
+		rows={props.instructors.map(i => ({ ...i, INSTRUCTOR_ID: i.INSTRUCTOR_ID.getOrElse(null)}))}
 		primaryKey="INSTRUCTOR_ID"
 		columns={columns}
 		formComponents={formComponents}
