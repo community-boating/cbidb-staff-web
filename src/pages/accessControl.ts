@@ -9,6 +9,7 @@ export function canAccessPage(pageName: PageName): boolean {
 		case PageName.JP_CLASSES:
 		case PageName.STAGGERED_ORDER:
 		case PageName.DOCK_REPORT:
+			return true;
 		case PageName.USERS:
 		case PageName.USERS_EDIT:
 		case PageName.USERS_NEW:
@@ -23,12 +24,10 @@ export function canAccessPage(pageName: PageName): boolean {
 			return !!asc.state.login.permissions[PERMISSIONS.PERM_UPDATE_SCHOOLS]
 		case PageName.MANAGE_DONATION_FUNDS:
 			return !!asc.state.login.permissions[PERMISSIONS.PERM_UPDATE_DONATION_FUNDS]
-		case PageName.SIGNOUTS_TABLES:
-			return true; // !!asc.state.login.permissions[Permissions.PERM_GENERAL_ADMIN]
-		case PageName.MANAGE_PERMISSIONS:
-			return !!asc.state.login.permissions[PERMISSIONS.PERM_UPDATE_DONATION_FUNDS]
 		case PageName.MANAGE_ACCESS:
 			return !!asc.state.login.permissions[PERMISSIONS.PERM_MANAGE_ACCESS]
+		case PageName.SIGNOUTS_TABLES:
+			return true; 
 		default:
 			//assertNever(pageName);
 			return false;
