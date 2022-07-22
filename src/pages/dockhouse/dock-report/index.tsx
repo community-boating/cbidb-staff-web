@@ -37,7 +37,7 @@ export const DockReportPage = (props: {
 	const [refreshTimeout, setRefreshTimeout] = React.useState(null as NodeJS.Timeout)
 
 	function updateStateForever() {
-		return getDockReport.sendJson(null).then(res => {
+		return getDockReport.send().then(res => {
 			if (res.type == "Success") {
 				setDockReportState(res.success)
 			}

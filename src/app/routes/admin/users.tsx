@@ -31,8 +31,8 @@ export const routeUsersPage = new RouteWrapper({
 	urlProps={{}}
 	getAsyncProps={() => {
 		return Promise.all([
-			getUsers.sendJson(null),
-			getAccessState.sendJson(null)
+			getUsers.send(),
+			getAccessState.send()
 		]).catch(err => Promise.resolve(null));
 	}}
 	shadowComponent={<Loader />}

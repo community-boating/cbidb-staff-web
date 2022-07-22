@@ -25,7 +25,7 @@ export const routeJpClassesPage = new RouteWrapper({
 	/>}
 	urlProps={{}}
 	getAsyncProps={() => {
-		return getSignups.sendJson(null)
+		return getSignups.send()
 	}}
 	shadowComponent={<Loader />}
 />);

@@ -28,7 +28,7 @@ export const routeManageClassLocationsPage = new RouteWrapper(
 			)}
 			urlProps={{}}
 			getAsyncProps={() => {
-				return getWrapper.sendJson(null);
+				return getWrapper.send();
 			}}
 			shadowComponent={<Loader />}
 		/>
