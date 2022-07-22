@@ -66,6 +66,7 @@ export default class APIWrapper<T_ResponseValidator extends t.Any, T_PostBodyVal
 	constructor(config: Config<T_ResponseValidator, T_PostBodyValidator, T_FixedParams>) {
 		this.config = config;
 	}
+	send: () => Promise<ApiResult<t.TypeOf<T_ResponseValidator>>> = () => this.sendWithParams(none)(undefined)
 	sendJson: (data: t.TypeOf<T_PostBodyValidator>) => Promise<ApiResult<t.TypeOf<T_ResponseValidator>>> = data => this.sendWithParams(none)(makePostJSON(data))
 	sendFormUrlEncoded: (data: t.TypeOf<T_PostBodyValidator>) => Promise<ApiResult<t.TypeOf<T_ResponseValidator>>> = data => this.sendWithParams(none)(makePostString(data))
 	// send: (data: PostType<t.TypeOf<T_PostBodyValidator>>) => Promise<ApiResult<t.TypeOf<T_ResponseValidator>>> = data => this.sendWithParams(none)(data)
@@ -74,8 +75,9 @@ export default class APIWrapper<T_ResponseValidator extends t.Any, T_PostBodyVal
 		const self = this;
 		type Return = Promise<ApiResult<t.TypeOf<T_ResponseValidator>>>;
 		const postValues: Option<PostValues> = (function() {
-			if (self.config.type === HttpMethod.POST) {
-				if (data.type == "urlEncoded") {
+			if (self.config.type === HttpMethod.POST || self.config.type === HttpMethod.DELETE) {
+				if (data == undefined) return none;
+				else if (data.type == "urlEncoded") {
 					const content = data.urlEncodedData
 					return some({
 						content,

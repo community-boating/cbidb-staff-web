@@ -28,7 +28,7 @@ export const routeManageDonationFundsPage = new RouteWrapper(
 			)}
 			urlProps={{}}
 			getAsyncProps={() => {
-				return getWrapper.sendJson(undefined);
+				return getWrapper.send();
 			}}
 			shadowComponent={<Loader />}
 		/>

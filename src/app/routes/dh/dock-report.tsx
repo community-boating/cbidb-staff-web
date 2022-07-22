@@ -23,7 +23,7 @@ export const routeDockReportPage = new RouteWrapper({
 	/>}
 	urlProps={{}}
 	getAsyncProps={() => {
-		return getDockReport.sendJson(null)
+		return getDockReport.send()
 	}}
 	shadowComponent={<Loader />}
 />);

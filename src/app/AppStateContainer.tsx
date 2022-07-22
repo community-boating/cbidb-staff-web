@@ -69,7 +69,7 @@ export class AppStateContainer {
 		login: {
 			setLoggedIn: (function(userName: string) {
 				const self: AppStateContainer = this
-				getPermissions().sendJson(null).then(res => {
+				getPermissions().send().then(res => {
 					if (res.type == "Success") {
 						self.setState({
 							...self.state,

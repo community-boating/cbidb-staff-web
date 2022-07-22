@@ -23,6 +23,12 @@ export interface ConfigCommon<T_ResponseValidator extends t.Any> {
 	jsconMap?: any
 }
 
+export interface DeleteConfig<T_ResponseValidator extends t.Any, T_PostBodyValidator extends t.Any, T_FixedParams> extends ConfigCommon<T_ResponseValidator> {
+	type: HttpMethod.DELETE,
+	postBodyValidator: T_PostBodyValidator,
+	fixedParams?: T_FixedParams
+}
+
 export interface GetConfig<T_ResponseValidator extends t.Any> extends ConfigCommon<T_ResponseValidator> {
 	type: HttpMethod.GET,
 }
@@ -34,7 +40,7 @@ export interface PostConfig<T_ResponseValidator extends t.Any, T_PostBodyValidat
 }
 
 export type Config<T_ResponseValidator extends t.Any, T_PostBodyValidator extends t.Any, T_FixedParams> =
-	GetConfig<T_ResponseValidator> | PostConfig<T_ResponseValidator, T_PostBodyValidator, T_FixedParams>;
+	GetConfig<T_ResponseValidator> | PostConfig<T_ResponseValidator, T_PostBodyValidator, T_FixedParams> | DeleteConfig<T_ResponseValidator, T_PostBodyValidator, T_FixedParams>;
 
 export interface ServerParams {
 	host: string,
