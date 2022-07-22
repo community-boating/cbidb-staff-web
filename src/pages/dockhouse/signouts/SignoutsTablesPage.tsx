@@ -159,7 +159,7 @@ export const SignoutsTablesPage = (props: {
 		setState(props.initState);
 	}, [JSON.stringify(props.initState)]);
 	React.useEffect(() => {
-		getBoatTypes.send(null).then((a) => {
+		getBoatTypes.send().then((a) => {
 			if (a.type == "Success") {
 				setBoatTypes(a.success);
 			}
@@ -167,7 +167,7 @@ export const SignoutsTablesPage = (props: {
 	}
 		, []);
 	React.useEffect(() => {
-		getRatings.send(null).then((a) => {
+		getRatings.send().then((a) => {
 			if (a.type == "Success") {
 				setRatings(a.success);
 			}
@@ -235,7 +235,7 @@ function handleMultiSignIn(multiSignInSelected: number[], state: SignoutsTablesS
 	if (multiSignInSelected.length === 0) {
 		return Promise.resolve();
 	}
-	return putSignouts.send({ type: "json", jsonData: multiSignInSelected.map((a) => ({ signoutId: a, signinDatetime: signinDatetime })) }).then((a) => {
+	return putSignouts.sendJson(multiSignInSelected.map((a) => ({ signoutId: a, signinDatetime: signinDatetime }))).then((a) => {
 		if (a.type === "Success") {
 			const newState = Object.assign([], state);
 			for (var i = 0; i < newState.length; i++) {
@@ -270,7 +270,7 @@ export function isCrewValid(crew: SignoutCrewState, boatId: number, boatTypes: B
 
 function handleSingleSignIn(signoutId: number, isUndo: boolean, state: SignoutsTablesState, setState: (state: SignoutsTablesState) => void) {
 	const signinDatetime = isUndo ? option.none : option.some(momentNowDefaultDateTime());
-	return putSignout.send(makePostJSON({ signoutId: signoutId, signinDatetime: signinDatetime })).then((a) => {
+	return putSignout.sendJson({ signoutId: signoutId, signinDatetime: signinDatetime }).then((a) => {
 		if (a.type === "Success") {
 			const newState = Object.assign([], state);
 			for (var i = 0; i < newState.length; i++) {
