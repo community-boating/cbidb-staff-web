@@ -1,5 +1,11 @@
+import { ColumnDef, CoreColumnDefAccessorKey, createColumnHelper } from "@tanstack/react-table";
 import { MAGIC_NUMBERS } from "app/magicNumbers";
-import { SimpleReportColumn } from "core/SimpleReport";
+import { TableColumnOptionsCbi } from "react-table-config";
+import { SignoutTablesState } from "./SignoutsTablesPage";
+import { CellOptionTime, CellOption } from "util/tableUtil";
+import { signoutCrewValidator, signoutValidator, skipperValidator } from "async/rest/signouts-tables";
+import * as t from "io-ts";
+import { OptionalBoolean, OptionalDateTime, OptionalNumber, OptionalString } from "util/OptionalTypeValidators";
 
 export const orphanedRatingsShownByDefault = {
 	4: true,
@@ -13,92 +19,108 @@ export const orphanedRatingsShownByDefault = {
 	134: true
 }
 
-const columnsBaseUpper: SimpleReportColumn[] = [
+const columnsBaseUpper: TableColumnOptionsCbi[] = [
 	{
 		accessor: "edit",
-		Header: "Edit",
+		Header: "",
 		disableSortBy: true,
 		width: 50,
-		toggleHidden: true
 	}, {
 		Header: "Program",
 		accessor: "programId",
 		width: 200,
-		toggleHidden: true
+		//toggleHidden: true
 	}, {
 		Header: "Signout Type",
 		accessor: "signoutType",
-		width: 30
+		width: 30,
 	}, {
 		Header: "Card #",
 		accessor: "cardNum",
-		width: 100
+		width: 100,
+		Cell: CellOption
 	}, {
 		Header: "Name First",
-		accessor: "nameFirst",
-		width: 100
+		accessor: "$$skipper.nameFirst",
+		width: 100,
 	}, {
 		Header: "Name Last",
-		accessor: "nameLast",
-		width: 100
+		accessor: "$$skipper.nameLast",
+		width: 100,
+		//Cell: CellCustomRow((a) => a.$$skipper.nameLast)
 	}, {
 		Header: "Sail #",
 		accessor: "sailNumber",
-		width: 50
+		width: 50,
+		Cell: CellOption
 	}, {
 		Header: "Hull #",
 		accessor: "hullNumber",
-		width: 50
+		width: 50,
+		Cell: CellOption
 	}, {
 		Header: "Boat",
 		accessor: "boatId",
-		width: 150
+		width: 150,
 	}, {
 		Header: "Signout Time",
 		accessor: "signoutDatetime",
-		width: 100
+		width: 100,
+		Cell: CellOptionTime
 	}
 ];
 
-const columnsBaseLower: SimpleReportColumn[] = [
+const columnsBaseLower: TableColumnOptionsCbi[] = [
 	{
 		Header: "Crew",
-		accessor: "crew",
-		width: 50
+		accessor: "crew__",
+		width: 50,
+		Cell: () => "Crew"
 	}, {
 		Header: "Links",
 		accessor: "links",
-		width: 90
+		width: 90,
+		Cell: () => "Links"
 	}, {
 		Header: "Ratings",
-		accessor: "ratings",
-		width: 90
+		accessor: "ratings__",
+		width: 90,
+		Cell: () => "Ratings"
 	}, {
 		Header: "Comments",
 		accessor: "comments",
-		width: 150
+		width: 150,
+		Cell: CellOption
 	}
 ];
 
-export const columnsInactive: SimpleReportColumn[] = columnsBaseUpper.concat([
+export const columnsInactive: TableColumnOptionsCbi[] = columnsBaseUpper.concat([
 	{
 		Header: "Signin Time",
 		accessor: "signinDatetime",
-		width: 90
+		width: 90,
+		Cell: CellOptionTime
 	}]).concat(columnsBaseLower);
-export const columnsActive: SimpleReportColumn[] = columnsBaseUpper.concat(columnsBaseLower).concat([
+export const columnsActive: TableColumnOptionsCbi[] = columnsBaseUpper.concat(columnsBaseLower).concat([
 	{
 		Header: "Multi Sign In",
-		accessor: "multisignin",
+		accessor: "multisignin__",
 		disableSortBy: true,
-		width: 90
+		width: 90,
+		Cell: (a) => "Multi Sign In"
 	}, {
 		Header: "Icons",
-		accessor: "icons",
+		accessor: "icons__",
 		disableSortBy: true,
 		width: 150,
+		Cell: (a) => "Icons"
 	}
 ]);
+//columnsWrapped(undefined);
+
+console.log(JSON.stringify(signoutValidator));
+
+//type RowData = SignoutTablesState;
 
 export const SignoutTablesNonEditableObject: SignoutTablesNonEditable[] = ["$$crew", "$$skipper", "personId", "programId", "cardNum"];
 

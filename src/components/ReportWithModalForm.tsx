@@ -4,7 +4,7 @@ import { Card, CardHeader, CardTitle, CardBody, Modal, ModalHeader, ModalBody, M
 import {
 	Edit as EditIcon,
 } from 'react-feather'
-import { FilterFunctionType, PreviousValuesType, SimpleReport, SimpleReportColumn } from "core/SimpleReport";
+import { SimpleReport, SimpleReportColumn } from "core/SimpleReport copy";
 import { ErrorPopup } from "components/ErrorPopup";
 import { none, Option, some } from "fp-ts/lib/Option";
 import APIWrapper from "core/APIWrapper";
@@ -16,6 +16,8 @@ import { option } from "fp-ts";
 import { ReactNode } from "react";
 import { Row } from "react-table";
 import { TableColumnOptionsCbi } from "react-table-config";
+import { ColumnDef } from "@tanstack/react-table";
+import { columnsWrapped } from "util/tableUtil";
 
 export type validationError = {
 	key: string,
@@ -26,24 +28,24 @@ export type UpdateStateType = ((id: string, value: string | boolean) => void) & 
 
 export default function ReportWithModalForm<K extends keyof U, T extends t.TypeC<any>, U extends object = t.TypeOf<T>>(props: {
 	rowValidator: T
-	rows: U[],
-	primaryKey: string & keyof U,
-	columns: TableColumnOptionsCbi[],
+	rows: U[]
+	primaryKey: string & keyof U
+	columns: TableColumnOptionsCbi[]//ColumnDef<U, any>[]
+	columnsNew?: ColumnDef<U, any>[]
 	formComponents: (rowForEdit: StringifiedProps<U>, updateState: UpdateStateType, currentRow?: U, validationResults?: validationError[]) => JSX.Element
 	submitRow: APIWrapper<any, any, any>
-	cardTitle?: string;
-	columnsNonEditable?: K[];
-	globalFilter?: FilterFunctionType;
-	globalFilterValueControlled?: any;
-	setRowData?: (rows: U[]) => void,
-	hidableColumns?: boolean,
-	hideAdd?: boolean,
+	cardTitle?: string
+	columnsNonEditable?: K[]
+	//globalFilter?: FilterFunctionType
+	globalFilterValueControlled?: any
+	setRowData?: (rows: U[]) => void
+	hidableColumns?: boolean
+	hideAdd?: boolean
 	addRowText?: string
-	validateSubmit?: (rowForEdit: StringifiedProps<U>, currentRow?: U) => validationError[],
-	postSubmit?: (rowForEdit: U) => U,
-	noCard?: boolean,
-	initialSortBy?: {id: keyof U, desc?: boolean}[],
-	formatRowForDisplay?: (row: U) => {[key in keyof U]: any},
+	validateSubmit?: (rowForEdit: StringifiedProps<U>, currentRow?: U) => validationError[]
+	postSubmit?: (rowForEdit: U) => U
+	noCard?: boolean
+	initialSortBy?: {id: keyof U, desc?: boolean}[]
 	blockEdit?: {[K: string]: true}
 }) {
 
@@ -52,7 +54,6 @@ export default function ReportWithModalForm<K extends keyof U, T extends t.TypeC
 		currentRow: {} as U
 	}
 
-	const [previousValues, setPreviousValues] = React.useState({} as PreviousValuesType);
 	const [modalIsOpen, setModalIsOpen] = React.useState(false);
 	const [validationErrors, setValidationErrors] = React.useState([] as validationError[]);
 	const [formData, setFormData] = React.useState(blankForm);
@@ -81,14 +82,15 @@ export default function ReportWithModalForm<K extends keyof U, T extends t.TypeC
 			),
 		}
 	}), [rowData]);
+	const columns = props.columnsNew !== undefined ? props.columnsNew : columnsWrapped<U>(props.columns, props.rowValidator);
 
 	const report = <SimpleReport 
 		keyField={props.primaryKey}
 		data={data}
-		columns={props.columns}
+		columns={columns}
 		sizePerPage={12}
 		sizePerPageList={[12, 25, 50, 1000]}
-		globalFilter={props.globalFilter}
+		//globalFilter={props.globalFilter}
 		globalFilterValueControlled={props.globalFilterValueControlled}
 		hidableColumns={props.hidableColumns}
 		reportId={props.cardTitle.replace(" ", "")}

@@ -14,7 +14,7 @@ import ReportWithModalForm from "components/ReportWithModalForm";
 import {  StringifiedProps } from "util/StringifyObjectProps";
 import { none, some } from "fp-ts/lib/Option";
 import optionify from "util/optionify";
-import { CellBooleanIcon, CellOption, SortType, SortTypeBoolean, SortTypeOptionalNumber, SortTypeOptionalStringCI, SortTypeStringCI } from "util/tableUtil";
+import { CellBooleanIcon, CellOption, columnsWrapped, SortType, SortTypeBoolean, SortTypeOptionalNumber, SortTypeOptionalStringCI, SortTypeStringCI } from "util/tableUtil";
 import { Column } from "react-table";
 import { TableColumnOptionsCbi, TableOptionsCbi } from "react-table-config";
 import {accessStateValidator} from 'async/staff/access-state'
