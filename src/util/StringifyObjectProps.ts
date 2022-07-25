@@ -125,6 +125,7 @@ export function destringify<T extends t.Props, U extends t.TypeC<T>>
 		//	ret[key] = stringy[key];
 		// omit a null PK value
 		} else {
+			console.log(key);
 			ret[key] = destringifyValue(stringy[key], validator.props[key].name, useOption);
 		}
 		

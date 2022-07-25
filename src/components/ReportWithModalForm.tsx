@@ -4,7 +4,8 @@ import { Card, CardHeader, CardTitle, CardBody, Modal, ModalHeader, ModalBody, M
 import {
 	Edit as EditIcon,
 } from 'react-feather'
-import { SimpleReport, SimpleReportColumn } from "core/SimpleReport copy";
+import { SimpleReport } from "core/SimpleReport copy";
+import { SimpleReport as SimpleReportOld } from "core/SimpleReport";
 import { ErrorPopup } from "components/ErrorPopup";
 import { none, Option, some } from "fp-ts/lib/Option";
 import APIWrapper from "core/APIWrapper";
@@ -26,13 +27,14 @@ export type validationError = {
 
 export type UpdateStateType = ((id: string, value: string | boolean) => void) & ((id: string[], value: string[] | boolean[]) => void);
 
-export default function ReportWithModalForm<K extends keyof U, T extends t.TypeC<any>, U extends object = t.TypeOf<T>>(props: {
+export default function ReportWithModalForm<K extends keyof U, T extends t.TypeC<any>, T_Extra, U extends object = t.TypeOf<T>>(props: {
 	rowValidator: T
 	rows: U[]
 	primaryKey: string & keyof U
-	columns: TableColumnOptionsCbi[]//ColumnDef<U, any>[]
+	columns: TableColumnOptionsCbi[]/**@deprecated use columnsNew and the v8 column def syntax**/
 	columnsNew?: ColumnDef<U, any>[]
 	formComponents: (rowForEdit: StringifiedProps<U>, updateState: UpdateStateType, currentRow?: U, validationResults?: validationError[]) => JSX.Element
+	extraState?: T_Extra
 	submitRow: APIWrapper<any, any, any>
 	cardTitle?: string
 	columnsNonEditable?: K[]
@@ -72,7 +74,6 @@ export default function ReportWithModalForm<K extends keyof U, T extends t.TypeC
 	const data = React.useMemo(() => rowData.map(r => {
 		const pk = r[props.primaryKey];
 		if (pk["_tag"]) throw "Option PK Found"
-
 		return {
 			...r,
 			edit: (
@@ -80,8 +81,9 @@ export default function ReportWithModalForm<K extends keyof U, T extends t.TypeC
 				? null
 				: makeEditCol(pk as unknown as number)
 			),
+			extraState: props.extraState
 		}
-	}), [rowData]);
+	}), [rowData, props.extraState]);
 	const columns = props.columnsNew !== undefined ? props.columnsNew : columnsWrapped<U>(props.columns, props.rowValidator);
 
 	const report = <SimpleReport 

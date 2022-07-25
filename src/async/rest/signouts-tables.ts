@@ -81,6 +81,10 @@ export const signoutValidator = t.type({
 	signoutType: t.string,
 	didCapsize: OptionalBoolean,
 	comments: OptionalString,
+	createdBy: OptionalString,
+	updatedBy: OptionalString,
+	updatedOn: OptionalString,
+	createdOn: OptionalString,
 	$$crew: t.array(signoutCrewValidator)
 });
 

@@ -190,6 +190,6 @@ const AddCrew = (props: { row: SignoutTablesState, updateCurrentRow: (row: Signo
     </>
 }
 
-export const CrewHover = (props: { row: SignoutTablesState, setUpdateCrewModal: (signoutId: number) => void }) => {
-    return <MultiHover makeChildren={() => { return props.row.$$crew.length > 0 ? <><p>Current</p><CrewTable row={props.row} isFormer={false} /><p>Former</p><CrewTable row={props.row} isFormer={true} /></> : undefined }} handleClick={() => props.setUpdateCrewModal(props.row.signoutId)} openDisplay={props.row.$$crew.length > 0 ? "Crew" : "-"} noMemoChildren={true} />
+export const CrewHover = (props: { row: SignoutTablesState}) => {
+    return <MultiHover makeChildren={() => { return props.row.$$crew.length > 0 ? <><p>Current</p><CrewTable row={props.row} isFormer={false} /><p>Former</p><CrewTable row={props.row} isFormer={true} /></> : undefined }} handleClick={() => props.row.extraState.setUpdateCrewModal(props.row.signoutId)} openDisplay={props.row.$$crew.length > 0 ? "Crew" : "-"} noMemoChildren={true} />
 }

@@ -77,9 +77,11 @@ export function getMakeRatingsTable(row: SignoutTablesState, sortedRatings: Sort
 	return makeTable;
 }
 
-export const RatingsHover = (props: {row: SignoutTablesState, sortedRatings: SortedRatings, orphanedRatingsShownByDefault: {[key: number]: boolean}}) => {
+export const RatingsHover = (props: {row: SignoutTablesState, orphanedRatingsShownByDefault: {[key: number]: boolean}}) => {
 
-	const makeHover = getMakeRatingsTable(props.row, props.sortedRatings, props.orphanedRatingsShownByDefault);
+	const sortedRatings = props.row.extraState.ratingsSorted;
+
+	const makeHover = getMakeRatingsTable(props.row, sortedRatings, props.orphanedRatingsShownByDefault);
 
 	return (
 		<MultiHover makeChildren={makeHover} openDisplay={"Ratings"}/>

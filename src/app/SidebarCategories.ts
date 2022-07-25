@@ -63,7 +63,6 @@ const misc: SideBarCategory = {
 		routeSignoutsTablesPage,
 	]
 };
-console.log(routeSignoutsTablesPage);
 
 // Dashboard specific routes
 export const sideBarRoutes = [

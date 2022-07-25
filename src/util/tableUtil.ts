@@ -1,7 +1,7 @@
 import { Option } from "fp-ts/lib/Option";
 import { IdType, Row, SortByFn } from "react-table";
 import * as moment from "moment";
-import { ColumnDef, createColumnHelper, RowData } from "@tanstack/react-table";
+import { ColumnDef, ColumnDefTemplate, createColumnHelper, RowData } from "@tanstack/react-table";
 import { SignoutTablesState } from "pages/dockhouse/signouts/SignoutsTablesPage";
 import { TableColumnOptionsCbi } from "react-table-config";
 import * as t from "io-ts";
@@ -13,6 +13,7 @@ export const tableColWidth = (w: number) => ({
 
 export const CellBooleanIcon: (icon: JSX.Element) => (props: {value: boolean}) => JSX.Element = icon => ({value}) => value ? icon : null;
 export const CellOption: (props: {value: Option<string>}) => string = ({value}) => value.getOrElse("");
+export const CellOption__: (props: any) => string = (props) => props.getValue().getOrElse("");
 
 export const SortType: <T, D extends object>(mapper: (v: any) => T) => SortByFn<D> = mapper => (rowA, rowB, columnId, desc) => {
 	// return 0;
@@ -26,8 +27,8 @@ export const SortType: <T, D extends object>(mapper: (v: any) => T) => SortByFn<
 
 
 //export const CellCustomRow = (f: (v) => any) => (a) => f(a.data[a.row.id]);
-export const CellOptionMoment = (format: string) => (props: {value: Option<string>}) => moment(props.value.getOrElse("")).format(format)
-export const CellOptionTime = (props: {value: Option<string>}) => CellOptionMoment("HH:mm A")(props);
+export const CellOptionMoment = (format: string) => (a) => {return moment(a.getValue().getOrElse("")).format(format)}
+export const CellOptionTime = (a) => CellOptionMoment("hh:mm A")(a);
 
 export const SortTypeOption: <T, D extends object>(mapper: (v: any) => T) => SortByFn<D> = mapper => SortType(v => mapper((v as Option<any>).getOrElse(null)))
 
@@ -44,12 +45,11 @@ type ColumnType<T_Row> = ColumnDef<T_Row, any>;
 type RowValidatorType<T_Row> = {props: {[key in keyof T_Row]: any}};
 
 export function columnsWrapped<T_Row> (a: TableColumnOptionsCbi[], rowValidator: RowValidatorType<T_Row>): ColumnType<T_Row>[] {
-	console.log(Object.keys(rowValidator.props));
 	return a.map((b) => columnWrapped(b, rowValidator));
 }
 
 function cellWrapped (a){
-	return (info) => {console.log(info.getValue()); return (typeof a.Cell === "function" ? a.Cell.apply(this, [{value: info.getValue()}]) : info.getValue())};
+	return (info) => { return (typeof a.Cell === "function" ? a.Cell.apply(this, [{value: info.getValue()}]) : info.getValue())};
 }
 
 function columnWrapped<T_Row> (a: TableColumnOptionsCbi, rowValidator: RowValidatorType<T_Row>): ColumnType<T_Row> {

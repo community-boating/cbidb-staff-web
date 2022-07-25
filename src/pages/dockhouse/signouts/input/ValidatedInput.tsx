@@ -109,20 +109,16 @@ export const ValidatedMomentInput = (props: ValidatedInputProps<Option<moment.Mo
 	const valval = lower === undefined ? undefined : lower.toJSON();
 	React.useEffect(() => {
 		if(upper == undefined || lower == undefined){
-			console.log("bad");
 			return;
 		}
 		if(format == "mm"){
-			console.log(lastMoment == upper);
 			lastMoment = upper;
 		}
 		if(initValue.isSome()){
 			if(initValue.value > upper){
-				console.log("bonk");
 				updateValue(option.some(upper));
 			}
 			if(initValue.value < lower){
-				console.log("donk");
 				updateValue(option.some(lower));
 			}
 		}

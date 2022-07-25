@@ -60,7 +60,7 @@ export const SimpleReport: <T_Data>(props: SimpleReportRequiredProps<T_Data>) =>
 	//const globalFilter = React.useMemo((rows, cols, filter) => {console.log("sdlfjskdfsdjfksjdfksdfl"); return rows}, [data, globalFilterS]);
 	React.useEffect(() => {
 		setData(dataProp);
-	}, [dataProp])
+	}, [dataProp]);
 
 	const [previousValues, setPreviousValues] = React.useState({} as PreviousValuesType);
 

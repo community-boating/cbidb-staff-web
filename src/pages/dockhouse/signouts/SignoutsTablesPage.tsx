@@ -16,8 +16,8 @@ import reassignedIcon from "assets/img/reassigned.png";
 import stopwatchIcon from "assets/img/stopwatch.jpg";
 
 import { FlagStatusIcons } from './FlagStatusIcons';
-import { sortRatings, RatingsHover, findOrphanedRatings } from './RatingSorter';
-import { Row } from 'react-table';
+import { sortRatings, RatingsHover, findOrphanedRatings, SortedRatings } from './RatingSorter';
+import { Row, TableState } from 'react-table';
 import { MultiHover } from './MultiHover';
 import { X, Info } from 'react-feather';
 import { makePostJSON } from 'core/APIWrapper';
@@ -27,12 +27,33 @@ import { DefaultDateTimeFormat, momentNowDefaultDateTime } from 'util/OptionalTy
 import { CrewHover, EditCrewModal } from './input/EditCrewModal';
 import { ErrorPopup } from 'components/ErrorPopup';
 import { SignoutsTableFilterState, SignoutsTableFilter } from './input/SignoutsTableFilter';
-import { iconWidth, iconHeight, programsHR, signoutTypesHR, testResultsHR, columnsActive, columnsInactive, orphanedRatingsShownByDefault, SignoutTablesNonEditableObject, SignoutTypes } from './Constants';
+import { iconWidth, iconHeight, programsHR, signoutTypesHR, testResultsHR, orphanedRatingsShownByDefault, SignoutTablesNonEditableObject, SignoutTypes } from './Constants';
+import { ColumnDef } from '@tanstack/react-table';
+import { CellOptionTime, CellOption__ } from 'util/tableUtil';
 
+//Extra state is passed to each row so as to maintain a purely array like object to present to the react-table library
+//Even though its value is the same each time, the cost shouldn't be much as its not copying anything
 export type SignoutsTablesState = t.TypeOf<typeof signoutsValidator>;
-export type SignoutTablesState = t.TypeOf<typeof signoutValidator>;
+export type SignoutTablesState = t.TypeOf<typeof signoutValidator> & {extraState?: SignoutsTablesExtraState};
 export type BoatTypesValidatorState = t.TypeOf<typeof boatTypesValidator>;
 export type RatingsValidatorState = t.TypeOf<typeof ratingsValidator>;
+
+type ReassignedMapType = { [key: string]: { [key: number]: number[] } };
+
+export type SignoutsTablesExtraState = {
+	reassignedHullsMap: ReassignedMapType
+	reassignedSailsMap: ReassignedMapType
+	multiSignInSelected: number[]
+	setMultiSignInSelected: (selected: number[]) => void
+	setSelected: (id: number, selected: boolean) => void
+	ratings: RatingsValidatorState
+	ratingsSorted: SortedRatings
+	boatTypes: BoatTypesValidatorState
+	boatTypesHR: SelectOption[]
+	setUpdateCrewModal: (signoutId: number) => void
+	setUpdateCommentsModal: (signoutId: number) => void
+	handleSingleSignIn
+}
 
 function isMax(n: number, a: number[]) {
 	if(a === undefined){
@@ -46,21 +67,24 @@ function isMax(n: number, a: number[]) {
 	return true;
 }
 
-const ReassignedIcon = (props: { row: SignoutTablesState, reassignedHullsMap: { [key: string]: { [key: number]: number[] } }, reassignedSailsMap: { [key: string]: { [key: number]: number[] } } }) => {
-	const reassignedHull = option.isSome(props.row.hullNumber || none) && !isMax(props.row.signoutId, (props.reassignedHullsMap[props.row.hullNumber.getOrElse("")] || [])[props.row.boatId]);
-	const reassignedSail = option.isSome(props.row.sailNumber || none) && !isMax(props.row.signoutId, (props.reassignedSailsMap[props.row.sailNumber.getOrElse("")] || [])[props.row.boatId]);
+const ReassignedIcon = (props: { row: SignoutTablesState}) => {
+	const reassignedHullsMap = props.row.extraState.reassignedHullsMap;
+	const reassignedSailsMap = props.row.extraState.reassignedSailsMap;
+	const reassignedHull = option.isSome(props.row.hullNumber || none) && !isMax(props.row.signoutId, (reassignedHullsMap[props.row.hullNumber.getOrElse("")] || [])[props.row.boatId]);
+	const reassignedSail = option.isSome(props.row.sailNumber || none) && !isMax(props.row.signoutId, (reassignedSailsMap[props.row.sailNumber.getOrElse("")] || [])[props.row.boatId]);
 	if (reassignedHull || reassignedSail) {
 		return <img width={iconWidth} height={iconHeight} src={reassignedIcon} />
 	}
 	return <></>;
 }
 
-const FlagIcon = (props: { row: SignoutTablesState, ratings: RatingsValidatorState }) => {
-	if (props.ratings.length == 0) {
+const FlagIcon = (props: { row: SignoutTablesState }) => {
+	const ratings = props.row.extraState.ratings;
+	if (ratings.length == 0) {
 		return <p>Loading...</p>;
 	}
 	const mapped = {};
-	props.ratings.forEach((a) => {
+	ratings.forEach((a) => {
 		mapped[String(a.ratingId)] = a;
 	});
 	const skipperRatings = props.row.$$skipper.$$personRatings.map((a) => mapped[a.ratingId]);
@@ -68,12 +92,11 @@ const FlagIcon = (props: { row: SignoutTablesState, ratings: RatingsValidatorSta
 	return <img width={iconWidth} height={iconHeight} src={(FlagStatusIcons[flags[0] as string] || FlagStatusIcons.B).src} />;
 }
 
-const MakeLinks = (props: { row: SignoutTablesState, isActive: boolean, state: SignoutsTablesState, setState: (state: SignoutsTablesState) => void }) => {
-	console.log("running make link");
+const MakeLinks = (props: { row: SignoutTablesState, isActive: boolean }) => {
 	if (props.isActive) {
-		return <a onClick={() => handleSingleSignIn(props.row.signoutId, false, props.state, props.setState)}>Sign In</a>
+		return <a onClick={() => props.row.extraState.handleSingleSignIn(props.row.signoutId, false)}>Sign In</a>
 	} else {
-		return <a onClick={() => handleSingleSignIn(props.row.signoutId, true, props.state, props.setState)}>Undo Sign In</a>;
+		return <a onClick={() => props.row.extraState.handleSingleSignIn(props.row.signoutId, true)}>Undo Sign In</a>;
 	}
 }
 
@@ -149,20 +172,161 @@ export function makeInitFilter() {
 
 export type SignoutsTablesStateExtra = {mainState: SignoutsTablesState, extraState: {rating: RatingsValidatorState}};// & {extra: {ratings: RatingsValidatorState}};
 
+export type SignoutTablesColumnDef = ColumnDef<SignoutTablesState, any>;
+
+const CellSelect = (hr) => (a) => (hr.find((b) => b.value === a.getValue()) || {display:"Loading..."}).display; 
+
+const columnsBaseUpper: SignoutTablesColumnDef[] = [
+	{
+		accessorKey: "edit" as any,
+		id: "edit",
+		header: "",
+		enableSorting: false,
+		size: 50,
+		cell: (a) => a.getValue()
+	}, {
+		header: "Program",
+		accessorKey: "programId",
+		size: 200,
+		cell: CellSelect(programsHR),
+	}, {
+		header: "Signout Type",
+		accessorKey: "signoutType",
+		size: 30,
+		cell: CellSelect(signoutTypesHR)
+	}, {
+		header: "Card #",
+		accessorKey: "cardNum",
+		size: 100,
+		cell: CellOption__
+	}, {
+		header: "Name First",
+		accessorKey: "$$skipper.nameFirst",
+		size: 100,
+	}, {
+		header: "Name Last",
+		accessorKey: "$$skipper.nameLast",
+		size: 100,
+	}, {
+		header: "Sail #",
+		accessorKey: "sailNumber",
+		size: 50,
+		cell: CellOption__
+	}, {
+		header: "Hull #",
+		accessorKey: "hullNumber",
+		size: 50,
+		cell: CellOption__
+	}, {
+		header: "Boat",
+		accessorKey: "boatId",
+		size: 150,
+		cell: (a) => CellSelect(a.row.original.extraState.boatTypesHR)(a)
+	}, {
+		header: "Signout Time",
+		accessorKey: "signoutDatetime",
+		size: 100,
+		cell: CellOptionTime
+	}
+];
+
+const columnsBaseLower: (active: boolean) => SignoutTablesColumnDef[] = (active) => [
+	{
+		accessorKey: "$$crew",
+		header: "Crew",
+		size: 50,
+		cell: (a) => <CrewHover row={a.row.original} />
+	}, {
+		accessorFn: () => "Links",
+		header: "Links",
+		id: "links",
+		size: 90,
+		cell: (a) => <MakeLinks row={a.row.original} isActive={active}/>
+	}, {
+		header: "Ratings",
+		id: "ratings__",
+		size: 90,
+		cell: (a) => <RatingsHover row={a.row.original} orphanedRatingsShownByDefault={orphanedRatingsShownByDefault} /> 
+	}, {
+		header: "Comments",
+		accessorKey: "comments",
+		size: 150,
+		cell: (a) => <CommentsHover row={a.row.original} />
+	}
+];
+
+const columnsInactive: SignoutTablesColumnDef[] = columnsBaseUpper.concat([
+	{
+		header: "Signin Time",
+		accessorKey: "signinDatetime",
+		size: 90,
+		cell: () => CellOptionTime
+	}]).concat(columnsBaseLower(false));
+const columnsActive: SignoutTablesColumnDef[] = columnsBaseUpper.concat(columnsBaseLower(true)).concat([
+	{
+		accessorFn: () => "MutliSignIn",
+		header: "Multi Sign In",
+		id: "multisignin__",
+		enableSorting: false,
+		size: 90,
+		cell: (a) => <MultiSigninCheckbox row={a.row.original} />
+	}, {
+		accessorFn: () => "Icons",
+		header: "Icons",
+		id: "icons__",
+		enableSorting: false,
+		size: 150,
+		cell: (a) => {const o = a.row.original; return (<>{<FlagIcon row={o} />}{<StopwatchIcon row={o} />}{<ReassignedIcon row={o}/>}</>)}
+	}
+]);
+/*	
+				icons: props.isActive ? <>{<FlagIcon row={row} ratings={props.ratings} />}{<StopwatchIcon row={row} />}{<ReassignedIcon row={row} reassignedHullsMap={reassignedHullsMap} reassignedSailsMap={reassignedSailsMap} />}</> : <></>,
+				ratings: <RatingsHover row={row} sortedRatings={sortedRatings} orphanedRatingsShownByDefault={orphanedRatingsShownByDefault} />,
+				crew: <CrewHover row={row} setUpdateCrewModal={setUpdateCrewModal} />,
+				comments: <CommentsHover row={row} setUpdateCommentsModal={setUpdateCommentsModal} />,
+				multisignin: <MultiSigninCheckbox row={row} multiSignInSelected={multiSignInSelected} setMultiSignInSelected={setMultiSignInSelected} />,
+				links: <MakeLinks row={row} isActive={props.isActive} state={props.state} setState={props.setState} />,
+				edit: row['edit'],*/
+
 export const SignoutsTablesPage = (props: {
 	initState: SignoutsTablesState,
 }) => {
-	const [boatTypes, setBoatTypes] = React.useState([] as BoatTypesValidatorState);
+	//const [boatTypes, setBoatTypes] = React.useState([] as BoatTypesValidatorState);
 	//const [ratings, setRatings] = React.useState([] as RatingsValidatorState);
-	const [filterValue, setFilterValue] = React.useState(makeInitFilter());
-	const boatTypesHR = React.useMemo(() => makeBoatTypesHR(boatTypes), [boatTypes]);
 	const [state, setState] = React.useState(props.initState);
-	/*const setRatings = (ratings: RatingsValidatorState) => {
-		setState(props.initState)
-	}*/
 	React.useEffect(() => {
 		setState(props.initState);
-	}, [JSON.stringify(props.initState)]);
+	}, [props.initState]);
+	const [updateCommentsModal, setUpdateCommentsModal] = React.useState(undefined as number);
+	const [updateCrewModal, setUpdateCrewModal] = React.useState(undefined as number);
+	const [multiSignInSelected, setMultiSignInSelected] = React.useState([] as number[]);
+	const [extraState, setExtraState] = React.useState({
+		reassignedHullsMap: {},
+		reassignedSailsMap: {},
+		boatTypes: [],
+		boatTypesHR: [],
+		ratings: [],
+		ratingsSorted: {ratingsRows: []},
+		multiSignInSelected: [],
+		setMultiSignInSelected,
+		setUpdateCrewModal,
+		setUpdateCommentsModal
+	} as SignoutsTablesExtraState);
+	React.useEffect(() => {
+		setExtraState((s) => ({...s, multiSignInSelected: multiSignInSelected}));
+	}, [multiSignInSelected]);
+	React.useEffect(() => {
+		setExtraState((s) => ({...s, handleSingleSignIn: (a, b) => {
+			handleSingleSignIn(a, b, state, setState);
+		}}));
+	}, [state]);
+	const [filterValue, setFilterValue] = React.useState(makeInitFilter());
+	const setBoatTypes = (boatTypes: BoatTypesValidatorState) => {
+		setExtraState((s) => ({...s, boatTypes: boatTypes, boatTypesHR: makeBoatTypesHR(boatTypes)}));
+	}
+	const setRatings = (ratings: RatingsValidatorState) => {
+		setExtraState((s) => ({...s, ratings, ratingsSorted: sortRatings(ratings)}));
+	}
 	React.useEffect(() => {
 		getBoatTypes.send().then((a) => {
 			if (a.type == "Success") {
@@ -173,7 +337,7 @@ export const SignoutsTablesPage = (props: {
 	React.useEffect(() => {
 		getRatings.send().then((a) => {
 			if (a.type == "Success") {
-				//setRatings(a.success);
+				setRatings(a.success);
 			}
 		});
 	}, []);
@@ -184,16 +348,34 @@ export const SignoutsTablesPage = (props: {
 		newFilterState[id] = value;
 		setFilterValue(newFilterState);
 	};
+	const updateCommentsSubmit = (comments: Option<string>, signoutId: number, setErrors: (errors: React.SetStateAction<string[]>) => void) => putSignout.sendJson({ signoutId: signoutId, comments: comments }).then((a) => {
+		if (a.type === "Success") {
+			setUpdateCommentsModal(undefined);
+			const newRows = Object.assign([], state);
+			for (var row of newRows) {
+				if (row.signoutId == signoutId) {
+					row.comments = comments;
+				}
+			}
+			setState(newRows);
+		} else {
+			setErrors(["Server error updating comments"]);
+		}
+	});
 	const tdStyle: React.CSSProperties = { verticalAlign: "middle", textAlign: "right" };
 	const labelStyle: React.CSSProperties = { margin: 0 };
 	//Do the memo so updates that dont change the main tables state can avoid rerendering the entire table
 	return React.useMemo(() => {
 	return <>
-		<SignoutsTableFilter tdStyle={tdStyle} labelStyle={labelStyle} filterValue={filterValue} updateState={updateState} boatTypesHR={boatTypesHR} setFilterValue={setFilterValue} usersHR={usersHR} />
-		<SignoutsTable {...props} state={state} setState={setState} boatTypes={boatTypes} isActive={true} filterValue={filterValue} globalFilter={filterRows} />
-		<SignoutsTable {...props} state={state} setState={setState} boatTypes={boatTypes} isActive={false} filterValue={filterValue} globalFilter={filterRows} />
+		<SignoutsTableFilter tdStyle={tdStyle} labelStyle={labelStyle} filterValue={filterValue} updateState={updateState} boatTypesHR={extraState.boatTypesHR} setFilterValue={setFilterValue} usersHR={usersHR} />
+		<SignoutsTable {...props} state={state} setState={setState} extraState={extraState} setExtraState={setExtraState} isActive={true} filterValue={filterValue} globalFilter={filterRows} />
+		<SignoutsTable {...props} state={state} setState={setState} extraState={extraState} setExtraState={setExtraState} isActive={false} filterValue={filterValue} globalFilter={filterRows} />
+		<EditCommentsModal modalIsOpen={updateCommentsModal !== undefined} closeModal={() => { setUpdateCommentsModal(undefined) }} currentRow={state.find((a) => a.signoutId == updateCommentsModal)} updateComments={updateCommentsSubmit} />
+		<EditCrewModal modalIsOpen={updateCrewModal !== undefined} closeModal={() => { setUpdateCrewModal(undefined) }} boatTypes={extraState.boatTypes} currentRow={state.find((a) => a.signoutId == updateCrewModal)} updateCurrentRow={(row) => {
+			
+		}} />
 	</>;
-	}, [state, boatTypes, filterValue]);
+	}, [state, extraState, updateCommentsModal, updateCrewModal, filterValue]);
 
 
 }
@@ -210,13 +392,13 @@ function makeBoatTypesHR(boatTypes: BoatTypesValidatorState) {
 	return boatTypes.sort((a, b) => a.displayOrder - b.displayOrder).map((v) => ({ value: v.boatId, display: v.boatName }));
 }
 
-const CommentsHover = (props: { row: SignoutTablesState, setUpdateCommentsModal: (singoutId: number) => void }) => {
+const CommentsHover = (props: { row: SignoutTablesState}) => {
 	const display = <>Comments{props.row.comments["_tag"] === "Some" ? <Info color="#777" size="1.4em" /> : <></>}</>;
-	return <MultiHover makeChildren={() => props.row.comments["_tag"] === "Some" ? <p>{props.row.comments.getOrElse("")}</p> : undefined} handleClick={() => props.setUpdateCommentsModal(props.row.signoutId)} openDisplay={display} noMemoChildren={true} />;
+	return <MultiHover makeChildren={() => props.row.comments["_tag"] === "Some" ? <p>{props.row.comments.getOrElse("")}</p> : undefined} handleClick={() => props.row.extraState.setUpdateCommentsModal(props.row.signoutId)} openDisplay={display} noMemoChildren={true} />;
 }
 
-const MultiSigninCheckbox = (props: { row: SignoutTablesState, multiSignInSelected: number[], setMultiSignInSelected: (multiSignInSelected: number[]) => void }) => {
-	return <Input type="checkbox" style={{display:"block", margin: "0 auto", position: "relative"}} checked={props.multiSignInSelected.contains(props.row.signoutId)} onChange={(e) => { if (e.target.checked) { props.setMultiSignInSelected(props.multiSignInSelected.concat(props.row.signoutId)) } else { props.setMultiSignInSelected(props.multiSignInSelected.filter((a) => a != props.row.signoutId)) } }} />;
+const MultiSigninCheckbox = (props: { row: SignoutTablesState}) => {
+	return <Input type="checkbox" style={{display:"block", margin: "0 auto", position: "relative"}} checked={props.row.extraState.multiSignInSelected.contains(props.row.signoutId)} onChange={(e) => { if (e.target.checked) { props.row.extraState.setMultiSignInSelected(props.row.extraState.multiSignInSelected.concat(props.row.signoutId)) } else { props.row.extraState.setMultiSignInSelected(props.row.extraState.multiSignInSelected.filter((a) => a != props.row.signoutId)) } }} />;
 }
 
 const ValidatedTimeInput: (props: { rowForEdit: any, updateState: UpdateStateType, validationResults, columnId: string, lower: moment.Moment, upper: moment.Moment }) => JSX.Element = (props) => {
@@ -272,7 +454,7 @@ export function isCrewValid(crew: SignoutCrewState, boatId: number, boatTypes: B
 }
 
 function handleSingleSignIn(signoutId: number, isUndo: boolean, state: SignoutsTablesState, setState: (state: SignoutsTablesState) => void) {
-	const signinDatetime = isUndo ? option.none : option.some(momentNowDefaultDateTime());
+	const signinDatetime = isUndo ? option.none : option.some(JSON.stringify(momentNowDefaultDateTime()));
 	return putSignout.sendJson({ signoutId: signoutId, signinDatetime: signinDatetime }).then((a) => {
 		if (a.type === "Success") {
 			const newState = Object.assign([], state);
@@ -291,16 +473,15 @@ function handleSingleSignIn(signoutId: number, isUndo: boolean, state: SignoutsT
 const SignoutsTable = (props: {
 	state: SignoutsTablesState,
 	setState: (state: SignoutsTablesState) => void,
-	boatTypes: BoatTypesValidatorState,
+	extraState: SignoutsTablesExtraState,
+	setExtraState: (newState: SignoutsTablesExtraState) => void,
 	isActive: boolean,
 	filterValue: SignoutsTableFilterState,
 	globalFilter: (rows: Row<any>[], columnIds: string[], filterValue: SignoutsTableFilterState) => Row<any>[]
 }) => {
-	const [updateCommentsModal, setUpdateCommentsModal] = React.useState(undefined as number);
-	const [updateCrewModal, setUpdateCrewModal] = React.useState(undefined as number);
 	const [multiSignInSelected, setMultiSignInSelected] = React.useState([] as number[]);
-	const boatTypesHR = React.useMemo(() => makeBoatTypesHR(props.boatTypes), [props.boatTypes]);
-	//const ratingsHR = React.useMemo(() => props.state.ratings.sort((a, b) => a.ratingName.localeCompare(b.ratingName)).map((v) => ({ value: v.ratingId, display: v.ratingName, boats: v.$$boats })), [props.state.extra.ratings]);
+
+	const ratingsHR = React.useMemo(() => props.extraState.ratings.sort((a, b) => a.ratingName.localeCompare(b.ratingName)).map((v) => ({ value: v.ratingId, display: v.ratingName, boats: v.$$boats })), [props.extraState.ratings]);
 	// Define edit/add form
 	const formComponents = (
 		rowForEdit: StringifiedProps<SignoutTablesState>,
@@ -319,7 +500,7 @@ const SignoutsTable = (props: {
 					<Col sm={9}>
 						<ValidatedSelectInput {...wrapForFormComponents(rowForEdit, (id, value) => {
 							updateState([id, "testRatingId"], [value, ""]);
-						}, "boatId", validationResults)} selectOptions={boatTypesHR} showNone="None" />
+						}, "boatId", validationResults)} selectOptions={props.extraState.boatTypesHR} showNone="None" />
 					</Col>
 				</FormGroup>
 				<FormGroup row>
@@ -408,12 +589,12 @@ const SignoutsTable = (props: {
 					<Label sm={3} className="text-sm-right">
 						Test Rating
 					</Label>
-					{/*
+					{
 					<Col sm={9}>
 						<ValidatedSelectInput {...wrapForFormComponents(rowForEdit, (id, value) => {
 							updateState([id, "signoutType"], [value, SignoutTypes.TEST]);
 						}, "testRatingId", validationResults)} selectOptions={ratingsHR.filter((a) => a.boats.find((b) => b.boatId == Number(rowForEdit.boatId)) !== undefined)} showNone="None" selectNone={true} />
-					</Col>*/}
+					</Col>}
 				</FormGroup>
 				<FormGroup row>
 					<Label sm={3} className="text-sm-right">
@@ -444,56 +625,34 @@ const SignoutsTable = (props: {
 	if (props.isActive) {
 		columns = Object.assign([], columns);
 		for (var i = 0; i < columns.length; i++) {
-			if (columns[i].accessor === "multisignin") {
+			//if (columns[i].accessor === "multisignin") {
 				//columns[i] = Object.assign({}, columns[i]);
 				//columns[i].Header = <ButtonWrapper spinnerOnClick onClick={() => handleMultiSignIn(multiSignInSelected, props.state, props.setState)}>Multi Sign In</ButtonWrapper>;
 				//columns[i].Cell = CellCustomRow((v) => <MultiSigninCheckbox row={v} multiSignInSelected={multiSignInSelected} setMultiSignInSelected={setMultiSignInSelected}/>)
-			}
+			//}
 		}
 		//columnsActive.find((a) => a.accessor === "multisignin").Header = <p>do it</p>;
 	}
-	const reassignedHullsMap = {};
-	const reassignedSailsMap = {};
 	const filteredSignouts = props.state.filter(f);
 	React.useEffect(() => {
 		if (props.isActive) {
+			const reassignedHullsMap = {};
+			const reassignedSailsMap = {};
 			filteredSignouts.forEach((a) => { mapOptional(a.hullNumber, a.boatId, a.signoutId, reassignedHullsMap) });
 			filteredSignouts.forEach((a) => { mapOptional(a.sailNumber, a.boatId, a.signoutId, reassignedSailsMap) });
+			props.setExtraState({...props.extraState, reassignedHullsMap, reassignedSailsMap});
 		}
-	}, [filteredSignouts]);
+	}, [props.state]);
 
-	//const sortedRatings = sortRatings(props.state.extra.ratings);
-	const updateCommentsSubmit = (comments: Option<string>, signoutId: number, setErrors: (errors: React.SetStateAction<string[]>) => void) => putSignout.sendJson({ signoutId: signoutId, comments: comments }).then((a) => {
-		if (a.type === "Success") {
-			setUpdateCommentsModal(undefined);
-			const newRows = Object.assign([], props.state);
-			for (var row of newRows) {
-				if (row.signoutId == signoutId) {
-					row.comments = comments;
-				}
-			}
-			props.setState(newRows);
-		} else {
-			setErrors(["Server error updating comments"]);
-		}
-	});
-	console.log(filteredSignouts);
 	return <>
-		<ReportWithModalForm
+		<ReportWithModalForm<any, typeof signoutValidator, any, SignoutTablesState>
 			globalFilterValueControlled={props.filterValue}
 			//globalFilter={props.globalFilter}
 			rowValidator={signoutValidator}
 			rows={filteredSignouts}
-			/*	
-				icons: props.isActive ? <>{<FlagIcon row={row} ratings={props.ratings} />}{<StopwatchIcon row={row} />}{<ReassignedIcon row={row} reassignedHullsMap={reassignedHullsMap} reassignedSailsMap={reassignedSailsMap} />}</> : <></>,
-				ratings: <RatingsHover row={row} sortedRatings={sortedRatings} orphanedRatingsShownByDefault={orphanedRatingsShownByDefault} />,
-				crew: <CrewHover row={row} setUpdateCrewModal={setUpdateCrewModal} />,
-				comments: <CommentsHover row={row} setUpdateCommentsModal={setUpdateCommentsModal} />,
-				multisignin: <MultiSigninCheckbox row={row} multiSignInSelected={multiSignInSelected} setMultiSignInSelected={setMultiSignInSelected} />,
-				links: <MakeLinks row={row} isActive={props.isActive} state={props.state} setState={props.setState} />,
-				edit: row['edit'],*/
 			primaryKey="signoutId"
-			columns={columns}
+			columns={undefined}
+			columnsNew={columns}
 			formComponents={formComponents}
 			submitRow={putSignout}
 			cardTitle={cardTitle}
@@ -502,12 +661,9 @@ const SignoutsTable = (props: {
 			hidableColumns={true}
 			hideAdd={true}
 			validateSubmit={(rowForEdit, currentRow) => {
-				return isCrewValid(currentRow.$$crew, Number(rowForEdit.boatId), props.boatTypes) || [];
+				return isCrewValid(currentRow.$$crew, Number(rowForEdit.boatId), props.extraState.boatTypes) || [];
 			}}
+			extraState={props.extraState}
 		/>
-		<EditCommentsModal modalIsOpen={updateCommentsModal !== undefined} closeModal={() => { setUpdateCommentsModal(undefined) }} currentRow={props.state.find((a) => a.signoutId == updateCommentsModal)} updateComments={updateCommentsSubmit} />
-		<EditCrewModal modalIsOpen={updateCrewModal !== undefined} closeModal={() => { setUpdateCrewModal(undefined) }} boatTypes={props.boatTypes} currentRow={props.state.find((a) => a.signoutId == updateCrewModal)} updateCurrentRow={(row) => {
-			
-		}} />
 	</>;
 }
