@@ -15,24 +15,27 @@ export function momentNowDefaultDateTime(){
 	return formatMomentDefaultDateTime(moment());
 }
 
-export const OptionalDateTime = new t.Type<Option<moment.Moment>, string, unknown>(
+export const OptionalDateTime = new t.Type<Option<string>, string, unknown>(
 	'OptionalDateTime',
-	(u) : u is Option<moment.Moment> => {return u["_tag"] !== undefined || u['isMoment']},
-	(u, c) => t.union([t.string, t.null, t.undefined, t.object]).validate(u, c).chain(s => {
-		if (s === null || s === undefined) return t.success(<Option<moment.Moment>>none)
-		else return t.success(some(moment(s, DefaultDateTimeFormat)))
-	}),
-	a => a.fold("None", (s) => `some(${s.format(DefaultDateTimeFormat)})`)
+	(u): u is Option<string> => u instanceof Option, // TODO: this is not the Option you think it is.  Replace with something like (undefined !== u["_tag"])
+	(u, c) =>
+		t.union([t.string, t.null, t.undefined]).validate(u, c).chain(s => {
+			if (s === null || s === undefined) return t.success(<Option<string>>none)
+			else return t.success(some(s))
+		}),
+	a => a.fold("None", (s) => `some(${s})`)
 )
 
-export const OptionalDate = new t.Type<Option<moment.Moment>, string, unknown>(
+
+export const OptionalDate = new t.Type<Option<string>, string, unknown>(
 	'OptionalDate',
-	(u) : u is Option<moment.Moment> => u["_tag"] !== undefined,
-	(u, c) => t.union([t.string, t.null, t.undefined]).validate(u, c).chain(s => {
-		if (s === null || s === undefined) return t.success(<Option<moment.Moment>>none)
-		else return t.success(some(moment(s, DefaultDateFormat)))
-	}),
-	a => a.fold("None", (s) => `some(${s.format()})`)//a.fold("None", (s) => `some(${s.format()})`)
+	(u): u is Option<string> => u instanceof Option, // TODO: this is not the Option you think it is.  Replace with something like (undefined !== u["_tag"])
+	(u, c) =>
+		t.union([t.string, t.null, t.undefined]).validate(u, c).chain(s => {
+			if (s === null || s === undefined) return t.success(<Option<string>>none)
+			else return t.success(some(s))
+		}),
+	a => a.fold("None", (s) => `some(${s})`)
 )
 
 export const OptionalString = new t.Type<Option<string>, string, unknown>(
@@ -86,6 +89,24 @@ export const makeOptionalProps = <T extends t.TypeC<any>>(someValidator: T) => {
 	})
 	return t.type(newProps);
 }
+
+export const allowNullUndefinedProps = <T extends t.TypeC<any>>(someValidator: T) => {
+	const newProps = Object.assign({}, someValidator.props);
+	Object.keys(someValidator.props).forEach((a) => {
+		newProps[a] = allowNullUndefined(someValidator.props[a]);
+	})
+	return t.type(newProps);
+}
+
+export const allowNullUndefined = <T extends t.Any>(someValidator: T) => new t.Type<Option<t.TypeOf<T>>, string, unknown>(
+	someValidator.name,
+	(u): u is Option<t.TypeOf<T>> => u == undefined || u == null || someValidator.is(u),
+	(u, c) =>
+		t.union([someValidator as t.Any, t.null, t.undefined]).validate(u, c).chain(s => {
+			return t.success(s);
+		}),
+		a => a.fold("None", (s) => `some(${s})`)
+)
 
 
 export const makeOptional = <T extends t.Any>(someValidator: T) => new t.Type<Option<t.TypeOf<T>>, string, unknown>(

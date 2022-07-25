@@ -5,20 +5,15 @@ import {
 	Edit as EditIcon,
 } from 'react-feather'
 import { SimpleReport } from "core/SimpleReport copy";
-import { SimpleReport as SimpleReportOld } from "core/SimpleReport";
 import { ErrorPopup } from "components/ErrorPopup";
 import { none, Option, some } from "fp-ts/lib/Option";
 import APIWrapper from "core/APIWrapper";
 import { ButtonWrapper } from "./ButtonWrapper";
-import { destringify, DisplayableProps, nullifyEmptyStrings, StringifiedProps, stringify, stringifyAndMakeBlank } from "util/StringifyObjectProps";
-import { left } from "fp-ts/lib/Either";
-import { Editable } from "util/EditableType";
-import { option } from "fp-ts";
-import { ReactNode } from "react";
-import { Row } from "react-table";
+import { destringify, nullifyEmptyStrings, StringifiedProps, stringify, stringifyAndMakeBlank } from "util/StringifyObjectProps";
 import { TableColumnOptionsCbi } from "react-table-config";
 import { ColumnDef } from "@tanstack/react-table";
 import { columnsWrapped } from "util/tableUtil";
+import { FilterFnOption } from "@tanstack/solid-table";
 
 export type validationError = {
 	key: string,
@@ -27,7 +22,7 @@ export type validationError = {
 
 export type UpdateStateType = ((id: string, value: string | boolean) => void) & ((id: string[], value: string[] | boolean[]) => void);
 
-export default function ReportWithModalForm<K extends keyof U, T extends t.TypeC<any>, T_Extra, U extends object = t.TypeOf<T>>(props: {
+export default function ReportWithModalForm<K extends keyof U, T extends t.TypeC<any>, T_Extra, T_Filter, U extends object = t.TypeOf<T>>(props: {
 	rowValidator: T
 	rows: U[]
 	primaryKey: string & keyof U
@@ -38,8 +33,8 @@ export default function ReportWithModalForm<K extends keyof U, T extends t.TypeC
 	submitRow: APIWrapper<any, any, any>
 	cardTitle?: string
 	columnsNonEditable?: K[]
-	//globalFilter?: FilterFunctionType
-	globalFilterValueControlled?: any
+	globalFilterState?: T_Filter
+	globalFilter?: FilterFnOption<U>
 	setRowData?: (rows: U[]) => void
 	hidableColumns?: boolean
 	hideAdd?: boolean
@@ -73,6 +68,7 @@ export default function ReportWithModalForm<K extends keyof U, T extends t.TypeC
 
 	const data = React.useMemo(() => rowData.map(r => {
 		const pk = r[props.primaryKey];
+		console.log(r);
 		if (pk["_tag"]) throw "Option PK Found"
 		return {
 			...r,
@@ -92,10 +88,9 @@ export default function ReportWithModalForm<K extends keyof U, T extends t.TypeC
 		columns={columns}
 		sizePerPage={12}
 		sizePerPageList={[12, 25, 50, 1000]}
-		//globalFilter={props.globalFilter}
-		globalFilterValueControlled={props.globalFilterValueControlled}
+		globalFilterState={props.globalFilterState}
+		globalFilter={props.globalFilter}
 		hidableColumns={props.hidableColumns}
-		reportId={props.cardTitle.replace(" ", "")}
 		initialSortBy={props.initialSortBy}
 	/>;
 
@@ -209,12 +204,6 @@ export default function ReportWithModalForm<K extends keyof U, T extends t.TypeC
 							toSendEditable[v] = undefined;
 						});
 					}
-					/*if(props.columnsRaw !== undefined){
-						props.columnsRaw.forEach((a) => {
-							const v = a as keyof typeof toSend;
-							toSendEditable[v] = formData.currentRow[v];
-						})
-					}*/
 					props.submitRow.sendJson(toSendEditable).then(ret => {
 						console.log("doing it");
 						console.log(ret);

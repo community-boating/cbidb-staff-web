@@ -6,49 +6,48 @@ import {
 	faSortDown,
 } from "@fortawesome/free-solid-svg-icons";
 
-import { ReactNode } from 'react';
-
 import {
-	Cell,
 	ColumnDef,
-	createColumnHelper,
+	FilterFnOption,
 	flexRender,
 	getCoreRowModel,
 	getFilteredRowModel,
 	getPaginationRowModel,
 	getSortedRowModel,
-	Row,
 	useReactTable,
 } from '@tanstack/react-table'
 import { Button, ButtonGroup } from 'reactstrap';
 
-type SimpleReportRequiredProps<T_Data> = {
-	keyField: keyof T_Data,
-	data: T_Data[],
-	columns: ColumnDef<T_Data, any>[],
-	sizePerPage?: number,
-	sizePerPageList?: number[],
-	globalFilter?: any;//(rows: RowRT<any>[], columnIds: string[], filterValue: any) => RowRT<any>[],
-	globalFilterValueControlled?: any
+type SimpleReportRequiredProps<T_Data, T_Filter = any> = {
+	keyField: keyof T_Data
+	data: T_Data[]
+	columns: ColumnDef<T_Data, any>[]
+	sizePerPage?: number
+	sizePerPageList?: number[]
+	globalFilterState?: T_Filter
+	globalFilter?: FilterFnOption<T_Data>//(rows: RowRT<any>[], columnIds: string[], filterValue: any) => RowRT<any>[],
 	hidableColumns?: boolean
 	showFooter?: boolean
-	reportId?: string
 	initialSortBy?: { id: keyof T_Data, desc?: boolean }[]
 }
 
-export const SimpleReport: <T_Data, T_Extra>(props: SimpleReportRequiredProps<T_Data>) => JSX.Element = ({ columns, data: dataProp, sizePerPage, sizePerPageList, keyField, globalFilter, globalFilterValueControlled, hidableColumns, showFooter, reportId, initialSortBy }) => {
+export const SimpleReport: <T_Data, T_Filter>(props: SimpleReportRequiredProps<T_Data, T_Filter>) => JSX.Element = ({ columns, data: dataProp, sizePerPage, sizePerPageList, keyField, globalFilterState, globalFilter, hidableColumns, showFooter, initialSortBy }) => {
 	const usingPagination = sizePerPage !== undefined && sizePerPageList !== undefined;
 	//const [data, setData] = React.useState(dataProp);
 	const table = useReactTable({
 		data: dataProp,
 		columns,
+		globalFilterFn: globalFilter, 
 		getCoreRowModel: getCoreRowModel(),
 		getFilteredRowModel: getFilteredRowModel(),
 		getSortedRowModel: getSortedRowModel(),
 		getPaginationRowModel: getPaginationRowModel()
 	});
-	const [state, setState] = React.useState(table.initialState);
-	table.setOptions(prev => ({ ...prev, state, onStateChange: setState, meta: {} }));
+	//const [state, setState] = React.useState(table.initialState);
+	React.useEffect(() => {
+		table.setState(e => ({...e, globalFilter: globalFilterState}));
+	}, [globalFilterState]);
+	//table.setOptions(prev => ({ ...prev, state, onStateChange: setState }));
 	const paginationState = table.getState().pagination;
 	const pagination = React.useMemo(() => <table>
 		<tbody>
@@ -74,10 +73,10 @@ export const SimpleReport: <T_Data, T_Extra>(props: SimpleReportRequiredProps<T_
 	const hiddenColumnsControl = hidableColumns ?
 		<div style={{ marginBottom: "15px" }}>
 			<ButtonGroup>
-				{table.getAllColumns().filter((a) => false).map((a, i) =>
+				{table.getAllColumns().filter((a) => a.getCanHide()).map((a, i) =>
 					<Button outline color="primary" size="sm" active={!a.getIsVisible()} key={i} onClick={
 						() => a.toggleVisibility()
-					}>{flexRender(a.columnDef.cell, a)}</Button>)}
+					}>{flexRender(a.columnDef.header, a)}</Button>)}
 				<Button outline color="primary" size="sm" active={true} onClick={
 					() => table.getToggleAllColumnsVisibilityHandler.apply(this)
 				}>Show All</Button>
@@ -91,7 +90,7 @@ export const SimpleReport: <T_Data, T_Extra>(props: SimpleReportRequiredProps<T_
 					<th key={header.id}>
 						{header.isPlaceholder
 							? null
-							: <span onClick={(e) => { console.log("what"); return header.column.toggleSorting(header.column.getIsSorted() === "asc") }}>{flexRender(header.column.columnDef.header, header.getContext())}
+							: <span onClick={(e) => { return header.column.toggleSorting(header.column.getIsSorted() === "asc") }}>{flexRender(header.column.columnDef.header, header.getContext())}
 
 								{header.column.getIsSorted() !== false ? (
 									header.column.getIsSorted() === "desc" ? (
@@ -175,7 +174,7 @@ const paginationControls = ({ pageIndex, pageCount, nextPage, previousPage, goto
 	const pageLink = (n: number) => <li className="pagination-button page-item" title={String(n)}><a href="#" onClick={goTo(n)} className="page-link">{n + 1}</a></li>
 
 	const disablePrev = pageIndex == 0;
-	const disableNext = pageIndex == (pageCount - 1);
+	const disableNext = (pageIndex == (pageCount - 1)) || pageCount <= 1;
 
 	return <ul style={{ justifyContent: "flex-end" }} className="pagination">
 		<li className={"pagination-button page-item " + (disablePrev && "disabled")} title="first page"><a href="#" onClick={goTo(0)} className="page-link">&lt;&lt;</a></li>

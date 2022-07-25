@@ -23,7 +23,7 @@ export const EditCrewModal = (props: EditModalCommonProps & { updateCurrentRow: 
                 <h1>Active Crew</h1>
                 <CrewTable row={props.currentRow} isFormer={false} removeCrew={(crewId: number) => {
                     const foundCrew = Object.assign({}, props.currentRow.$$crew.find((a) => a.crewId.getOrElse(-1) == crewId));
-                    foundCrew.endActive = option.some(momentNowDefaultDateTime());
+                    foundCrew.endActive = option.some(momentNowDefaultDateTime().format());
                     const newCrew = props.currentRow.$$crew.map((a) => {
                         if (a.crewId.getOrElse(-1) == crewId) {
                             return foundCrew;

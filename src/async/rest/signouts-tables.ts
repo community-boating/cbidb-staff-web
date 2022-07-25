@@ -1,10 +1,7 @@
-import { OptionalBoolean, OptionalNumber, OptionalString, makeOptional, makeOptionalProps, OptionalDateTime } from "util/OptionalTypeValidators";
+import { OptionalBoolean, OptionalNumber, OptionalString, makeOptionalProps, OptionalDateTime, allowNullUndefinedProps } from "util/OptionalTypeValidators";
 import * as t from "io-ts";
 import APIWrapper from "../../core/APIWrapper";
 import { HttpMethod } from "../../core/HttpMethod";
-import { optionifyProps } from "util/OptionifyObjectProps";
-import optionify from "util/optionify";
-import { isInteger } from "lodash";
 
 const pathGet = "/rest/signouts-today";
 const pathPost = "/rest/signout";
@@ -14,25 +11,6 @@ const pathGetBoatTypes = "/rest/boat-types";
 const pathGetRatings = "/rest/ratings";
 const pathRunagroundCapsize = "/rest/runaground-capsize";
 const pathPersonByCardNumber = "/rest/person/by-card";
-
-const HRNames = {
-	signoutType: "Signout Type",
-	sailNumber: "Sail Number"
-}
-
-const StringValidate = new t.Type<string, string, unknown>(
-	'OptionalString',
-	(input: unknown): input is string => typeof input === 'string',
-	(input, context) => (typeof input === 'string' && input.trim().length>0 ? t.success(input) : t.failure(input, context, HRNames[context[1].key] + " cannot be blank")),
-	t.identity
-);
-
-const IntValidate = new t.Type<number, string, unknown>(
-	'number',
-	(input: unknown): input is number => typeof input === 'number',
-	(input, context) => {return (isInteger(Number(input)) ? t.success(Number(input)) : t.failure(input, context, HRNames[context[1].key] + " is an invalid number"))},
-	(a) => String(a)
-);
 
 export const personRatingValidator = t.type({
 	personId: t.number,
@@ -74,8 +52,8 @@ export const signoutValidator = t.type({
 	cardNum: OptionalString,
 	sailNumber: OptionalString,
 	hullNumber: OptionalString,
-	signoutDatetime: OptionalString,
-	signinDatetime: OptionalString,
+	signoutDatetime: OptionalDateTime,
+	signinDatetime: OptionalDateTime,
 	testRatingId: OptionalNumber,
 	testResult: OptionalString,
 	signoutType: t.string,
@@ -83,8 +61,8 @@ export const signoutValidator = t.type({
 	comments: OptionalString,
 	createdBy: OptionalString,
 	updatedBy: OptionalString,
-	updatedOn: OptionalString,
-	createdOn: OptionalString,
+	updatedOn: OptionalDateTime,
+	createdOn: OptionalDateTime,
 	$$crew: t.array(signoutCrewValidator)
 });
 
@@ -167,7 +145,7 @@ export const putSignout = new APIWrapper({
 	path:pathPost,
 	type: HttpMethod.POST,
 	postBodyValidator: makeOptionalProps(signoutValidator),
-	resultValidator: makeOptionalProps(signoutValidator),
+	resultValidator: allowNullUndefinedProps(signoutValidator)
 });
 
 export const putSignouts = new APIWrapper({

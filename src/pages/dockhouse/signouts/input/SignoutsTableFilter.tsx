@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Button, Label, Table } from 'reactstrap';
 import { ValidatedSelectInput, ValidatedTextInput, wrapForFormComponents, SelectOption } from './ValidatedInput';
-import { makeInitFilter } from '../SignoutsTablesPage';
+import { makeInitFilter } from "../SignoutsColumnDefs";
 import { signoutTypesHR, programsHR } from '../Constants';
 import { UpdateStateType } from 'components/ReportWithModalForm';
 
@@ -12,9 +12,6 @@ export const SignoutsTableFilter = (props: { tdStyle: React.CSSProperties; label
 	const labelStyle = props.labelStyle;
 	const filterValue = props.filterValue;
 	const updateState = props.updateState;
-	const boatTypes = React.useMemo(() => props.boatTypesHR.map(optionsMap), [props.boatTypesHR]);
-	const signoutTypes = React.useMemo(() => signoutTypesHR.map(optionsMap), []);
-	const programs = React.useMemo(() => programsHR.map(optionsMap), []);
 	return (<><Table>
 		<tbody>
 			<tr>
@@ -32,7 +29,7 @@ export const SignoutsTableFilter = (props: { tdStyle: React.CSSProperties; label
 					</Label>
 				</td>
 				<td>
-					<ValidatedSelectInput {...wrapForFormComponents(filterValue, updateState, "boatType", [])} selectOptions={boatTypes} showNone="None" selectNone={true} />
+					<ValidatedSelectInput {...wrapForFormComponents(filterValue, updateState, "boatType", [])} selectOptions={props.boatTypesHR} showNone="None" selectNone={true} />
 				</td>
 			</tr>
 			<tr>
@@ -50,7 +47,7 @@ export const SignoutsTableFilter = (props: { tdStyle: React.CSSProperties; label
 					</Label>
 				</td>
 				<td style={tdStyle}>
-					<ValidatedSelectInput {...wrapForFormComponents(filterValue, updateState, "signoutType", [])} selectOptions={signoutTypes} showNone="None" selectNone={true} />
+					<ValidatedSelectInput {...wrapForFormComponents(filterValue, updateState, "signoutType", [])} selectOptions={signoutTypesHR} showNone="None" selectNone={true} />
 				</td>
 			</tr>
 			<tr>
@@ -60,7 +57,21 @@ export const SignoutsTableFilter = (props: { tdStyle: React.CSSProperties; label
 					</Label>
 				</td>
 				<td style={tdStyle}>
-					<ValidatedSelectInput {...wrapForFormComponents(filterValue, updateState, "programId", [])} selectOptions={programs} showNone="None" selectNone={true} />
+					<ValidatedSelectInput {...wrapForFormComponents(filterValue, updateState, "programId", [])} selectOptions={programsHR} showNone="None" selectNone={true} />
+				</td>
+				<td style={tdStyle}>
+					<Label style={labelStyle}>
+						Created By
+					</Label>
+				</td>
+				<td style={tdStyle}>
+					<ValidatedSelectInput {...wrapForFormComponents(filterValue, updateState, "createdBy", [])} selectOptions={props.usersHR} showNone="None" selectNone={true} />
+				</td>
+			</tr>
+			<tr>
+				<td style={tdStyle}>
+				</td>
+				<td style={tdStyle}>
 				</td>
 				<td style={tdStyle}>
 				</td>
@@ -73,10 +84,11 @@ export const SignoutsTableFilter = (props: { tdStyle: React.CSSProperties; label
 	</>);
 };
 export type SignoutsTableFilterState = {
-	boatType: string;
+	boatType: number;
 	signoutType: string;
-	programId: string;
+	programId: number;
 	nameOrCard: string;
 	sail: string;
 	personId: string;
+	createdBy: string;
 };
