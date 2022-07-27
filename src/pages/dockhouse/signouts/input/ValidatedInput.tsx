@@ -62,16 +62,15 @@ export type SelectOptionType = string | number;
 
 export type SelectOption = {value: SelectOptionType, display: ReactNode};
 
-export const ValidatedSelectInput = (props: ValidatedInputProps<Option<string>> & InputProps & {selectOptions : SelectOption[], showNone?: SelectOption, selectNone?: boolean}) => {
-	const {selectOptions,showNone,selectNone,...other} = props;
-	const value : SelectOptionType = "" as SelectOptionType;
-	const showNonePadded = showNone === undefined ? {value: "None", display: "None"} : showNone;
+export const ValidatedSelectInput = (props: ValidatedInputProps<Option<SelectOptionType>> & InputProps & {selectOptions : SelectOption[], showNone?: SelectOption, selectNone?: boolean, isNumber?: boolean}) => {
+	const {selectOptions,showNone,selectNone,isNumber,...other} = props;
+	const showNonePadded = showNone === undefined ? {value: "", display: "None"} : showNone;
 	const selectOptionsWithNone = [showNonePadded].concat(selectOptions);
 	return <ValidatedInput {...other}
 	makeInputProps={(v) => {
 		var selectOptionsCurrent = (selectNone === true || v.isNone()) ? selectOptionsWithNone : selectOptions;
 		return ({value:v.getOrElse(""),children:selectOptionsCurrent.map((a, i) => <option value={a.value} key={i}>{a.display}</option>)}); }}
-	convertChange={(e) => e.target.value.trim().length === 0 ? option.none : option.some(e.target.value)}
+	convertChange={(e) => e.target.value.trim().length === 0 ? option.none : option.some(isNumber ? parseInt(e.target.value.trim()) : e.target.value.trim())}
 	type="select"/>;
 }
 
@@ -305,11 +304,11 @@ export function wrapForFormComponentsMoment(rowForEdit: any, updateState: Update
 	};
 }
 
-export function wrapForFormComponents (rowForEdit: any, updateState: UpdateStateType, rowId: string, validationResults: validationError[]){
+export function wrapForFormComponents (rowForEdit: any, updateState: UpdateStateType, rowId: string, validationResults: validationError[], isNumerical: boolean = false){
 	return {
 		initValue:option.some(rowForEdit[rowId]),
 		updateValue:(v) => {
-			updateState(rowId, v.getOrElse(""));
+			updateState(rowId, v.getOrElse(isNumerical? -1: ""));
 		},
 		validationResults: validationResults.filter((a) => a["key"] == rowId),
 		id: rowId

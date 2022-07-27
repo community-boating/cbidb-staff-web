@@ -27,7 +27,7 @@ export const SignoutsTableFilter = (props: { tdStyle: React.CSSProperties; label
 					</Label>
 				</td>
 				<td>
-					<ValidatedSelectInput {...wrapForFormComponents(filterValue, updateState, "boatType", [])} selectOptions={props.boatTypesHR} showNone={{value: "", display: "None"}} selectNone={true} />
+					<ValidatedSelectInput {...wrapForFormComponents(filterValue, updateState, "boatType", [], true)} selectOptions={props.boatTypesHR} showNone={{value: -1, display: "None"}} selectNone={true} isNumber={true} />
 				</td>
 			</tr>
 			<tr>
@@ -55,7 +55,7 @@ export const SignoutsTableFilter = (props: { tdStyle: React.CSSProperties; label
 					</Label>
 				</td>
 				<td style={tdStyle}>
-					<ValidatedSelectInput {...wrapForFormComponents(filterValue, updateState, "programId", [])} selectOptions={programsHR} showNone={{value: -1, display: "None"}} selectNone={true} />
+					<ValidatedSelectInput {...wrapForFormComponents(filterValue, updateState, "programId", [], true)} selectOptions={programsHR} showNone={{value: -1, display: "None"}} selectNone={true} isNumber={true} />
 				</td>
 				<td style={tdStyle}>
 					<Label style={labelStyle}>
