@@ -8,11 +8,11 @@ import stopwatchIcon from "assets/img/stopwatch.jpg";
 import { FlagStatusIcons } from './FlagStatusIcons';
 import { RatingsHover } from './RatingSorter';
 import { CrewHover } from './input/EditCrewModal';
-import { SignoutsTableFilterState } from './input/SignoutsTableFilter';
 import { iconWidth, iconHeight, programsHR, signoutTypesHR, orphanedRatingsShownByDefault } from './Constants';
-import { ColumnDef, Row } from '@tanstack/react-table';
+import { ColumnDef } from '@tanstack/react-table';
 import { CellOptionTime, CellOption__ } from 'util/tableUtil';
-import { SignoutTablesState, SignoutsTablesState, RatingsValidatorState, CommentsHover, MultiSigninCheckbox } from './SignoutsTablesPage';
+import { SignoutTablesState, SignoutsTablesState, RatingsValidatorState, CommentsHover, MultiSigninCheckbox, SignoutsTablesExtraState } from './SignoutsTablesPage';
+import { ButtonWrapper } from 'components/ButtonWrapper';
 
 function isMax(n: number, a: number[]) {
 	if (a === undefined) {
@@ -25,9 +25,9 @@ function isMax(n: number, a: number[]) {
 	}
 	return true;
 }
-const ReassignedIcon = (props: { row: SignoutTablesState; }) => {
-	const reassignedHullsMap = props.row.extraState.reassignedHullsMap;
-	const reassignedSailsMap = props.row.extraState.reassignedSailsMap;
+const ReassignedIcon = (props: { row: SignoutTablesState, extraState: SignoutsTablesExtraState }) => {
+	const reassignedHullsMap = props.extraState.reassignedHullsMap;
+	const reassignedSailsMap = props.extraState.reassignedSailsMap;
 	const reassignedHull = option.isSome(props.row.hullNumber || none) && !isMax(props.row.signoutId, (reassignedHullsMap[props.row.hullNumber.getOrElse("")] || [])[props.row.boatId]);
 	const reassignedSail = option.isSome(props.row.sailNumber || none) && !isMax(props.row.signoutId, (reassignedSailsMap[props.row.sailNumber.getOrElse("")] || [])[props.row.boatId]);
 	if (reassignedHull || reassignedSail) {
@@ -35,8 +35,8 @@ const ReassignedIcon = (props: { row: SignoutTablesState; }) => {
 	}
 	return <></>;
 };
-const FlagIcon = (props: { row: SignoutTablesState; }) => {
-	const ratings = props.row.extraState.ratings;
+const FlagIcon = (props: { row: SignoutTablesState; extraState: SignoutsTablesExtraState }) => {
+	const ratings = props.extraState.ratings;
 	if (ratings.length == 0) {
 		return <p>Loading...</p>;
 	}
@@ -48,11 +48,11 @@ const FlagIcon = (props: { row: SignoutTablesState; }) => {
 	const flags = skipperRatings.map((a) => getHighestFlag(a, props.row.programId, props.row.boatId)).flatten().filter((a) => FlagStatusIcons[a as string] !== undefined).sort((a, b) => FlagStatusIcons[a as string].sortOrder - FlagStatusIcons[b as string].sortOrder);
 	return <img width={iconWidth} height={iconHeight} src={(FlagStatusIcons[flags[0] as string] || FlagStatusIcons.B).src} />;
 };
-const MakeLinks = (props: { row: SignoutTablesState; isActive: boolean; }) => {
+const MakeLinks = (props: { row: SignoutTablesState; isActive: boolean; extraState: SignoutsTablesExtraState }) => {
 	if (props.isActive) {
-		return <a onClick={() => props.row.extraState.handleSingleSignIn(props.row.signoutId, false)}>Sign In</a>;
+		return <a onClick={() => props.extraState.handleSingleSignIn(props.row.signoutId, false)}>Sign In</a>;
 	} else {
-		return <a onClick={() => props.row.extraState.handleSingleSignIn(props.row.signoutId, true)}>Undo Sign In</a>;
+		return <a onClick={() => props.extraState.handleSingleSignIn(props.row.signoutId, true)}>Undo Sign In</a>;
 	}
 };
 const StopwatchIcon = (props: { row: SignoutTablesState; }) => {
@@ -75,14 +75,6 @@ export function formatOptional(v: undefined | null | number | string | moment.Mo
 		return String((v as Option<any>).getOrElse(undefined));
 	} else {
 		return String(v);
-	}
-}
-function formatMoment(m: undefined | null | string | moment.Moment | Option<moment.Moment> | Option<string>, format: string) {
-	const stringM = formatOptional(m);
-	if (stringM === "None") {
-		return stringM;
-	} else {
-		return moment(stringM).format(format);
 	}
 }
 
@@ -112,12 +104,13 @@ export function makeInitFilter() {
 	return { boatType: -1, nameOrCard: "", sail: "", signoutType: "", programId: -1, personId: "", createdBy: "" };
 }
 
-export type SignoutsTablesStateExtra = { mainState: SignoutsTablesState; extraState: { rating: RatingsValidatorState; }; }; // & {extra: {ratings: RatingsValidatorState}};
+export type SignoutsTablesColumnDef = ColumnDef<SignoutTablesState, any>;
 
+export type SignoutsTablesColumnDefProvider= (extraState: SignoutsTablesExtraState) => SignoutsTablesColumnDef[];
 
-export type SignoutTablesColumnDef = ColumnDef<SignoutTablesState, any>;
 const CellSelect = (hr) => (a) => (hr.find((b) => b.value === a.getValue()) || { display: "Loading..." }).display;
-const columnsBaseUpper: SignoutTablesColumnDef[] = [
+
+const columnsBaseUpper: SignoutsTablesColumnDefProvider = (extraState: SignoutsTablesExtraState) => [
 	{
 		accessorKey: "edit" as any,
 		id: "edit",
@@ -163,7 +156,7 @@ const columnsBaseUpper: SignoutTablesColumnDef[] = [
 		header: "Boat",
 		accessorKey: "boatId",
 		size: 150,
-		cell: (a) => CellSelect(a.row.original.extraState.boatTypesHR)(a)
+		cell: (a) => CellSelect(extraState.boatTypesHR)(a)
 	}, {
 		header: "Signout Time",
 		accessorKey: "signoutDatetime",
@@ -171,53 +164,54 @@ const columnsBaseUpper: SignoutTablesColumnDef[] = [
 		cell: CellOptionTime
 	}
 ];
-const columnsBaseLower: (active: boolean) => SignoutTablesColumnDef[] = (active) => [
+const columnsBaseLower: (active: boolean) => SignoutsTablesColumnDefProvider = (active) => (extraState) => [
 	{
 		accessorKey: "$$crew",
 		header: "Crew",
 		size: 50,
-		cell: (a) => <CrewHover row={a.row.original} />
+		cell: (a) => <CrewHover row={a.row.original} extraState={extraState} />
 	}, {
 		accessorFn: () => "Links",
 		header: "Links",
 		id: "links",
 		size: 90,
-		cell: (a) => <MakeLinks row={a.row.original} isActive={active} />
+		cell: (a) => <MakeLinks row={a.row.original} isActive={active} extraState={extraState} />
 	}, {
 		header: "Ratings",
 		id: "ratings__",
 		size: 90,
-		cell: (a) => <RatingsHover row={a.row.original} orphanedRatingsShownByDefault={orphanedRatingsShownByDefault} />
+		cell: (a) => <RatingsHover row={a.row.original} orphanedRatingsShownByDefault={orphanedRatingsShownByDefault} extraState={extraState}/>
 	}, {
 		header: "Comments",
 		accessorKey: "comments",
 		size: 150,
-		cell: (a) => <CommentsHover row={a.row.original} />
+		cell: (a) => <CommentsHover row={a.row.original} extraState={extraState} />
 	}
 ];
 
-export const columnsInactive: SignoutTablesColumnDef[] = columnsBaseUpper.concat([
+export const columnsInactive: SignoutsTablesColumnDefProvider = (extraState) => columnsBaseUpper(extraState).concat([
 	{
 		header: "Signin Time",
 		accessorKey: "signinDatetime",
 		size: 90,
-		cell: () => CellOptionTime
+		cell: CellOptionTime
 	}
-]).concat(columnsBaseLower(false));
-export const columnsActive: SignoutTablesColumnDef[] = columnsBaseUpper.concat(columnsBaseLower(true)).concat([
+]).concat(columnsBaseLower(false)(extraState));
+export const columnsActive: SignoutsTablesColumnDefProvider = (extraState) => columnsBaseUpper(extraState).concat(columnsBaseLower(true)(extraState)).concat([
 	{
 		accessorFn: () => "MutliSignIn",
-		header: "Multi Sign In",
+		header: (a) =>  <ButtonWrapper spinnerOnClick onClick={(e) => {e.preventDefault(); return extraState.handleMultiSignIn(extraState.multiSignInSelected);}}>Multi Sign In</ButtonWrapper>,
 		id: "multisignin__",
 		enableSorting: false,
+		enableHiding: false,
 		size: 90,
-		cell: (a) => <MultiSigninCheckbox row={a.row.original} />
+		cell: (a) => <MultiSigninCheckbox row={a.row.original} extraState={extraState} />
 	}, {
 		accessorFn: () => "Icons",
 		header: "Icons",
 		id: "icons__",
 		enableSorting: false,
 		size: 150,
-		cell: (a) => { const o = a.row.original; return (<>{<FlagIcon row={o} />}{<StopwatchIcon row={o} />}{<ReassignedIcon row={o} />}</>); }
+		cell: (a) => { const o = a.row.original; return (<>{<FlagIcon row={o} extraState={extraState} />}{<StopwatchIcon row={o} />}{<ReassignedIcon row={o} extraState={extraState} />}</>); }
 	}
 ]);

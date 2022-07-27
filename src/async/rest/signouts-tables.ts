@@ -151,6 +151,6 @@ export const putSignout = new APIWrapper({
 export const putSignouts = new APIWrapper({
 	path:pathPostMulti,
 	type: HttpMethod.POST,
-	postBodyValidator: t.array(makeOptionalProps(signoutValidator)),
-	resultValidator: new t.Type("putSignoutValidator", (u): u is string => u instanceof String, (i: any) => (i == "Ok") ? t.success("") : t.failure("", []), (a) => undefined),
+	postBodyValidator: t.array(allowNullUndefinedProps(signoutValidator)),
+	resultValidator: t.array(allowNullUndefinedProps(signoutValidator))
 });

@@ -1,9 +1,8 @@
-import { ButtonWrapper } from "components/ButtonWrapper";
 import { Modal, ModalHeader, ModalBody, ModalFooter, Button } from "reactstrap";
 
 import * as React from "react";
 import { SignoutTablesState } from "../SignoutsTablesPage";
-import { ErrorPopup, ErrorPopupControlled } from "components/ErrorPopup";
+import { ErrorPopupControlled } from "components/ErrorPopup";
 import { SetErrorsType } from "./EditCommentModal";
 
 export type EditModalCommonProps = {modalIsOpen: boolean, closeModal: () => void, currentRow: SignoutTablesState};

@@ -1,11 +1,4 @@
-import { ColumnDef, CoreColumnDefAccessorKey, createColumnHelper, TableState } from "@tanstack/react-table";
 import { MAGIC_NUMBERS } from "app/magicNumbers";
-import { TableColumnOptionsCbi } from "react-table-config";
-import { SignoutTablesState } from "./SignoutsTablesPage";
-import { CellOptionTime, CellOption, CellOption__ } from "util/tableUtil";
-import { signoutCrewValidator, signoutValidator, skipperValidator } from "async/rest/signouts-tables";
-import * as t from "io-ts";
-import { OptionalBoolean, OptionalDateTime, OptionalNumber, OptionalString } from "util/OptionalTypeValidators";
 
 export const orphanedRatingsShownByDefault = {
 	4: true,
@@ -18,10 +11,6 @@ export const orphanedRatingsShownByDefault = {
 	133: true,
 	134: true
 }
-
-//columnsWrapped(undefined);
-
-//type RowData = SignoutTablesState;
 
 export const SignoutTablesNonEditableObject: SignoutTablesNonEditable[] = ["$$crew", "$$skipper", "personId", "programId", "cardNum"];
 

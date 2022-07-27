@@ -1,8 +1,8 @@
 import { ButtonWrapper } from "components/ButtonWrapper";
-import { Modal, ModalHeader, ModalBody, ModalFooter, Button, Table } from "reactstrap";
+import { Table } from "reactstrap";
 
 import * as React from "react";
-import { BoatTypesValidatorState, isCrewValid, SignoutTablesState } from "../SignoutsTablesPage";
+import { BoatTypesValidatorState, isCrewValid, SignoutsTablesExtraState, SignoutTablesState } from "../SignoutsTablesPage";
 import { ValidatedTextInput } from "./ValidatedInput";
 import { option } from "fp-ts";
 import { Option } from "fp-ts/lib/Option";
@@ -11,7 +11,8 @@ import { crewPersonValidator, getPersonByCardNumber, putSignoutCrew, signoutCrew
 import { X } from "react-feather";
 import { MultiHover } from "../MultiHover";
 import { EditModal, EditModalCommonProps } from "./EditModal";
-import { momentNowDefaultDateTime } from "util/OptionalTypeValidators";
+import { DefaultDateTimeFormat } from "util/OptionalTypeValidators";
+import * as moment from "moment";
 
 export const EditCrewModal = (props: EditModalCommonProps & { updateCurrentRow: (row: SignoutTablesState) => void, boatTypes: BoatTypesValidatorState }) => {
     const [errors, setErrors] = React.useState([] as string[]);
@@ -23,7 +24,8 @@ export const EditCrewModal = (props: EditModalCommonProps & { updateCurrentRow: 
                 <h1>Active Crew</h1>
                 <CrewTable row={props.currentRow} isFormer={false} removeCrew={(crewId: number) => {
                     const foundCrew = Object.assign({}, props.currentRow.$$crew.find((a) => a.crewId.getOrElse(-1) == crewId));
-                    foundCrew.endActive = option.some(momentNowDefaultDateTime().format());
+                    foundCrew.startActive = option.some(moment(foundCrew.startActive.getOrElse("")).format(DefaultDateTimeFormat));
+                    foundCrew.endActive = option.some(moment().format(DefaultDateTimeFormat));
                     const newCrew = props.currentRow.$$crew.map((a) => {
                         if (a.crewId.getOrElse(-1) == crewId) {
                             return foundCrew;
@@ -39,6 +41,7 @@ export const EditCrewModal = (props: EditModalCommonProps & { updateCurrentRow: 
                     putSignoutCrew.sendJson(foundCrew).then((a) => {
                         if (a.type === "Success") {
                             //TODO fix this eventually to use response value instead of post value
+                            console.log("doing that thing now");
                             props.updateCurrentRow({
                                 ...props.currentRow, $$crew: newCrew
                             });
@@ -149,7 +152,7 @@ const AddCrew = (props: { row: SignoutTablesState, updateCurrentRow: (row: Signo
             const newSignoutCrew: t.TypeOf<typeof signoutCrewValidator> = Object.assign({}, props.row.$$crew.find((a) => a.personId.getOrElse(-1) == person.personId) || {} as any);
             const isBlank = newSignoutCrew.signoutId === undefined;
             Object.assign(newSignoutCrew, {
-                startActive: option.some(momentNowDefaultDateTime()),
+                startActive: option.some(moment().format(DefaultDateTimeFormat)),
                 $$person: person,
                 endActive: option.none,
                 signoutId: props.row.signoutId,
@@ -162,9 +165,11 @@ const AddCrew = (props: { row: SignoutTablesState, updateCurrentRow: (row: Signo
                     return a;
                 }
             });
+
             if(isBlank){
                 newCrew.push(newSignoutCrew);
             }
+
             const crewBoatErrors = isCrewValid(newCrew, props.row.boatId, props.boatTypes);
             if(crewBoatErrors !== undefined){
                 props.setErrors(crewBoatErrors);
@@ -178,7 +183,6 @@ const AddCrew = (props: { row: SignoutTablesState, updateCurrentRow: (row: Signo
                         delete success["$$person"];
                         Object.assign(newSignoutCrew, a.success);
                         props.setErrors([]);
-                        console.log(newCrew);
                         props.updateCurrentRow({ ...props.row, $$crew: newCrew });
                     } else {
                         console.log("Error", a);
@@ -190,6 +194,6 @@ const AddCrew = (props: { row: SignoutTablesState, updateCurrentRow: (row: Signo
     </>
 }
 
-export const CrewHover = (props: { row: SignoutTablesState}) => {
-    return <MultiHover makeChildren={() => { return props.row.$$crew.length > 0 ? <><p>Current</p><CrewTable row={props.row} isFormer={false} /><p>Former</p><CrewTable row={props.row} isFormer={true} /></> : undefined }} handleClick={() => props.row.extraState.setUpdateCrewModal(props.row.signoutId)} openDisplay={props.row.$$crew.length > 0 ? "Crew" : "-"} noMemoChildren={true} />
+export const CrewHover = (props: { row: SignoutTablesState, extraState: SignoutsTablesExtraState}) => {
+    return <MultiHover makeChildren={() => { return props.row.$$crew.length > 0 ? <><p>Current</p><CrewTable row={props.row} isFormer={false} /><p>Former</p><CrewTable row={props.row} isFormer={true} /></> : undefined }} handleClick={() => props.extraState.setUpdateCrewModal(props.row.signoutId)} openDisplay={props.row.$$crew.length > 0 ? "Crew" : "-"} noMemoChildren={true} />
 }

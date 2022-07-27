@@ -3,7 +3,7 @@ import { option } from "fp-ts";
 import * as React from 'react';
 import { FlagStatusIcons } from "./FlagStatusIcons"
 import * as t from "io-ts";
-import { SignoutTablesState, RatingsValidatorState } from "./SignoutsTablesPage";
+import { SignoutTablesState, RatingsValidatorState, SignoutsTablesExtraState } from "./SignoutsTablesPage";
 import { MultiHover } from "./MultiHover";
 import { ReactNode } from "react";
 import { programsHR } from "./Constants";
@@ -77,9 +77,9 @@ export function getMakeRatingsTable(row: SignoutTablesState, sortedRatings: Sort
 	return makeTable;
 }
 
-export const RatingsHover = (props: {row: SignoutTablesState, orphanedRatingsShownByDefault: {[key: number]: boolean}}) => {
+export const RatingsHover = (props: {row: SignoutTablesState, orphanedRatingsShownByDefault: {[key: number]: boolean}, extraState: SignoutsTablesExtraState}) => {
 
-	const sortedRatings = props.row.extraState.ratingsSorted;
+	const sortedRatings = props.extraState.ratingsSorted;
 
 	const makeHover = getMakeRatingsTable(props.row, sortedRatings, props.orphanedRatingsShownByDefault);
 

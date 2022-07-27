@@ -1,8 +1,6 @@
 import { ButtonWrapper } from "components/ButtonWrapper";
-import { Modal, ModalHeader, ModalBody, ModalFooter, Button } from "reactstrap";
 
 import * as React from "react";
-import { SignoutTablesState } from "../SignoutsTablesPage";
 import { ValidatedTextInput } from "./ValidatedInput";
 import { option } from "fp-ts";
 import { Option } from "fp-ts/lib/Option";

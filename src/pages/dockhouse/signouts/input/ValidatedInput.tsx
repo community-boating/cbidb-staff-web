@@ -1,10 +1,8 @@
 import * as React from 'react';
-import { CustomInput, FormFeedback, FormGroup, FormGroupProps, Input, InputProps, Tooltip } from "reactstrap";
-import { isSome, none, Option} from 'fp-ts/lib/Option';
-import { either, option, validation } from 'fp-ts';
+import { FormFeedback, Input, InputProps } from "reactstrap";
+import { Option} from 'fp-ts/lib/Option';
+import { option} from 'fp-ts';
 import { ReactNode } from 'react';
-import { OptionalString } from 'util/OptionalTypeValidators';
-import { max, some, update } from 'lodash';
 import * as moment from "moment";
 import { UpdateStateType, validationError } from 'components/ReportWithModalForm';
 
@@ -64,11 +62,11 @@ export type SelectOptionType = string | number;
 
 export type SelectOption = {value: SelectOptionType, display: ReactNode};
 
-export const ValidatedSelectInput = (props: ValidatedInputProps<Option<string>> & InputProps & {selectOptions : SelectOption[], showNone?: ReactNode, selectNone?: boolean}) => {
+export const ValidatedSelectInput = (props: ValidatedInputProps<Option<string>> & InputProps & {selectOptions : SelectOption[], showNone?: SelectOption, selectNone?: boolean}) => {
 	const {selectOptions,showNone,selectNone,...other} = props;
 	const value : SelectOptionType = "" as SelectOptionType;
-	const showNonePadded = showNone === undefined ? "None" : showNone;
-	const selectOptionsWithNone = [{value:value,display:showNonePadded}].concat(selectOptions);
+	const showNonePadded = showNone === undefined ? {value: "None", display: "None"} : showNone;
+	const selectOptionsWithNone = [showNonePadded].concat(selectOptions);
 	return <ValidatedInput {...other}
 	makeInputProps={(v) => {
 		var selectOptionsCurrent = (selectNone === true || v.isNone()) ? selectOptionsWithNone : selectOptions;

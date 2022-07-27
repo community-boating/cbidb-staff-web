@@ -9,14 +9,15 @@ import * as moment from "moment";
 import { SignoutsTableFilterState } from './input/SignoutsTableFilter';
 import { programsHR, signoutTypesHR, testResultsHR, SignoutTablesNonEditableObject, SignoutTypes } from './Constants';
 import { FilterFnOption } from '@tanstack/react-table';
-import { SignoutsTablesState, SignoutsTablesExtraState, SignoutTablesState, ValidatedTimeInput, mapOptional, isCrewValid } from './SignoutsTablesPage';
+import { SignoutsTablesState, SignoutsTablesExtraState, SignoutTablesState, ValidatedTimeInput, mapOptional, isCrewValid, SignoutsTablesExtraFunctional } from './SignoutsTablesPage';
 import { formatSelection, formatOptional, columnsActive, columnsInactive } from "./SignoutsColumnDefs";
+
+export const filterActive = (isActive) => isActive ? (a: SignoutTablesState) => option.isNone(a.signinDatetime) : (a: SignoutTablesState) => option.isSome(a.signinDatetime);
 
 export const SignoutsTable = (props: {
 	state: SignoutsTablesState;
-	setState: (state: SignoutsTablesState) => void;
+	setState: React.Dispatch<React.SetStateAction<SignoutsTablesState>>;
 	extraState: SignoutsTablesExtraState;
-	setExtraState: (newState: SignoutsTablesExtraState) => void;
 	isActive: boolean;
 	filterValue: SignoutsTableFilterState;
 	globalFilter: FilterFnOption<SignoutTablesState>;
@@ -41,7 +42,7 @@ export const SignoutsTable = (props: {
 					<Col sm={9}>
 						<ValidatedSelectInput {...wrapForFormComponents(rowForEdit, (id, value) => {
 							updateState([id, "testRatingId"], [value, ""]);
-						}, "boatId", validationResults)} selectOptions={props.extraState.boatTypesHR} showNone="None" />
+						}, "boatId", validationResults)} selectOptions={props.extraState.boatTypesHR} showNone={{value: "", display: "None"}} />
 					</Col>
 				</FormGroup>
 				<FormGroup row>
@@ -115,7 +116,7 @@ export const SignoutsTable = (props: {
 							} else {
 								updateState(id, value);
 							}
-						}, "signoutType", validationResults)} selectOptions={signoutTypesHR} showNone="None" />
+						}, "signoutType", validationResults)} selectOptions={signoutTypesHR} showNone={{value: "", display: "None"}} />
 					</Col>
 				</FormGroup>
 				<FormGroup row>
@@ -133,7 +134,7 @@ export const SignoutsTable = (props: {
 					{<Col sm={9}>
 						<ValidatedSelectInput {...wrapForFormComponents(rowForEdit, (id, value) => {
 							updateState([id, "signoutType"], [value, SignoutTypes.TEST]);
-						}, "testRatingId", validationResults)} selectOptions={ratingsHR.filter((a) => a.boats.find((b) => b.boatId == Number(rowForEdit.boatId)) !== undefined)} showNone="None" selectNone={true} />
+						}, "testRatingId", validationResults)} selectOptions={ratingsHR.filter((a) => a.boats.find((b) => b.boatId == Number(rowForEdit.boatId)) !== undefined)} showNone={{value: "", display: "None"}} selectNone={true} />
 					</Col>}
 				</FormGroup>
 				<FormGroup row>
@@ -141,7 +142,7 @@ export const SignoutsTable = (props: {
 						Test Result
 					</Label>
 					<Col sm={9}>
-						<ValidatedSelectInput {...wrapForFormComponents(rowForEdit, updateState, "testResult", validationResults)} selectOptions={testResultsHR} showNone="None" selectNone={true} disabled={rowForEdit.signoutType != "T"} />
+						<ValidatedSelectInput {...wrapForFormComponents(rowForEdit, updateState, "testResult", validationResults)} selectOptions={testResultsHR} showNone={{value: "", display: "None"}}selectNone={true} disabled={rowForEdit.signoutType != "T"} />
 					</Col>
 				</FormGroup>
 				<FormGroup row>
@@ -160,27 +161,12 @@ export const SignoutsTable = (props: {
 		</>;
 	};
 	const cardTitle = props.isActive ? "Active Signouts" : "Completed Signouts";
-	const f = props.isActive ? (a: SignoutTablesState) => option.isNone(a.signinDatetime) : (a: SignoutTablesState) => option.isSome(a.signinDatetime);
-	var columns = props.isActive ? columnsActive : columnsInactive;
-			//if (columns[i].accessor === "multisignin") {
-			//columns[i] = Object.assign({}, columns[i]);
-			//columns[i].Header = <ButtonWrapper spinnerOnClick onClick={() => handleMultiSignIn(multiSignInSelected, props.state, props.setState)}>Multi Sign In</ButtonWrapper>;
-			//columns[i].Cell = CellCustomRow((v) => <MultiSigninCheckbox row={v} multiSignInSelected={multiSignInSelected} setMultiSignInSelected={setMultiSignInSelected}/>)
-			//}
-		//columnsActive.find((a) => a.accessor === "multisignin").Header = <p>do it</p>;
+	const f = filterActive(props.isActive);
+	var columns = React.useMemo(() => props.isActive ? columnsActive(props.extraState) : columnsInactive(props.extraState), [props.extraState, props.state]);
 	const filteredSignouts = props.state.filter(f);
-	React.useEffect(() => {
-		if (props.isActive) {
-			const reassignedHullsMap = {};
-			const reassignedSailsMap = {};
-			filteredSignouts.forEach((a) => { mapOptional(a.hullNumber, a.boatId, a.signoutId, reassignedHullsMap); });
-			filteredSignouts.forEach((a) => { mapOptional(a.sailNumber, a.boatId, a.signoutId, reassignedSailsMap); });
-			props.setExtraState({ ...props.extraState, reassignedHullsMap, reassignedSailsMap });
-		}
-	}, [props.state]);
 
 	return <>
-		<ReportWithModalForm<any, typeof signoutValidator, any, SignoutsTableFilterState, SignoutTablesState>
+		<ReportWithModalForm<any, typeof signoutValidator, SignoutsTableFilterState, SignoutTablesState>
 			globalFilter={props.globalFilter}
 			globalFilterState={props.filterValue}
 			rowValidator={signoutValidator}
@@ -197,7 +183,6 @@ export const SignoutsTable = (props: {
 			hideAdd={true}
 			validateSubmit={(rowForEdit, currentRow) => {
 				return isCrewValid(currentRow.$$crew, Number(rowForEdit.boatId), props.extraState.boatTypes) || [];
-			}}
-			extraState={props.extraState} />
+			}} />
 	</>;
 };

@@ -22,14 +22,13 @@ export type validationError = {
 
 export type UpdateStateType = ((id: string, value: string | boolean) => void) & ((id: string[], value: string[] | boolean[]) => void);
 
-export default function ReportWithModalForm<K extends keyof U, T extends t.TypeC<any>, T_Extra, T_Filter, U extends object = t.TypeOf<T>>(props: {
+export default function ReportWithModalForm<K extends keyof U, T extends t.TypeC<any>, T_Filter, U extends object = t.TypeOf<T>>(props: {
 	rowValidator: T
 	rows: U[]
 	primaryKey: string & keyof U
 	columns: TableColumnOptionsCbi[]/**@deprecated use columnsNew and the v8 column def syntax**/
 	columnsNew?: ColumnDef<U, any>[]
 	formComponents: (rowForEdit: StringifiedProps<U>, updateState: UpdateStateType, currentRow?: U, validationResults?: validationError[]) => JSX.Element
-	extraState?: T_Extra
 	submitRow: APIWrapper<any, any, any>
 	cardTitle?: string
 	columnsNonEditable?: K[]
@@ -68,7 +67,6 @@ export default function ReportWithModalForm<K extends keyof U, T extends t.TypeC
 
 	const data = React.useMemo(() => rowData.map(r => {
 		const pk = r[props.primaryKey];
-		console.log(r);
 		if (pk["_tag"]) throw "Option PK Found"
 		return {
 			...r,
@@ -77,11 +75,9 @@ export default function ReportWithModalForm<K extends keyof U, T extends t.TypeC
 				? null
 				: makeEditCol(pk as unknown as number)
 			),
-			extraState: props.extraState
 		}
-	}), [rowData, props.extraState]);
+	}), [rowData]);
 	const columns = props.columnsNew !== undefined ? props.columnsNew : columnsWrapped<U>(props.columns, props.rowValidator);
-
 	const report = <SimpleReport 
 		keyField={props.primaryKey}
 		data={data}

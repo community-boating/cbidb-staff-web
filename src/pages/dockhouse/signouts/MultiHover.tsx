@@ -40,11 +40,6 @@ export class MultiHover extends React.Component<{
 		document.addEventListener("click", (e) => clickHandler(e));
 	}
 	setOpen(open: boolean) {
-		if (open) {
-			//this.props.closeOthers.forEach((a) => {
-			//	a(this.props.id);
-			//});
-		}
 		if (this.state.children == undefined) {
 			const newChildren = this.props.makeChildren();
 			this.setState({
