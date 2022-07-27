@@ -14,7 +14,7 @@ import { sortRatings, SortedRatings } from './RatingSorter';
 import { MultiHover } from './MultiHover';
 import { X, Info } from 'react-feather';
 import { EditCommentsModal } from './input/EditCommentModal';
-import { DefaultDateTimeFormat, momentNowDefaultDateTime } from 'util/OptionalTypeValidators';
+import { DefaultDateTimeFormat } from 'util/OptionalTypeValidators';
 import { EditCrewModal } from './input/EditCrewModal';
 import { SignoutsTableFilter, SignoutsTableFilterState } from './input/SignoutsTableFilter';
 import { filterActive, SignoutsTable } from './SignoutsTable';
@@ -28,13 +28,26 @@ export type RatingsValidatorState = t.TypeOf<typeof ratingsValidator>;
 
 type ReassignedMapType = { [key: string]: { [key: number]: number[] } };
 
+function matchNameOrCard(row: SignoutTablesState, nameOrCard: string) {
+	if(nameOrCard.trim().length === 0){
+		return true;
+	}
+	const nameOrCardFromRow = row.$$skipper.nameFirst.concat(row.$$skipper.nameLast).concat(row.cardNum.getOrElse("")).replace(" ", "").toLowerCase();
+	for (const string of nameOrCard.toLowerCase().split(" ")){
+		if(nameOrCardFromRow.includes(string)){
+			return true;
+		}
+	}
+	return false;
+}
+
 export function filterRows(row: Row<SignoutTablesState>, columnId: string, filterValue: SignoutsTableFilterState, addMeta) {
 	//Just run once for the row, otherwise we can just return false for the other columns.
 	if(columnId !== "programId"){
 		return false;
 	}
 	return (filterValue.sail.trim().length === 0 || (row.original.sailNumber.getOrElse("")) == (filterValue.sail.trim())) &&
-		(filterValue.nameOrCard.trim().length === 0 || (row.original.$$skipper.nameFirst).concat(row.original.$$skipper.nameLast).concat(row.original.cardNum.getOrElse("")).toLowerCase().includes(filterValue.nameOrCard.toLowerCase())) &&
+		matchNameOrCard(row.original, filterValue.nameOrCard) &&
 		(filterValue.boatType === -1 || (row.original.boatId == filterValue.boatType)) &&
 		(filterValue.programId === -1 || (row.original.programId == filterValue.programId)) &&
 		(filterValue.signoutType.length === 0 || (row.original.signoutType == filterValue.signoutType)) &&
