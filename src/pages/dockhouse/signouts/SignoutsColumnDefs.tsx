@@ -193,7 +193,7 @@ export const columnsInactive: SignoutsTablesColumnDef[] = columnsBaseUpper.conca
 export const columnsActive: SignoutsTablesColumnDef[] = columnsBaseUpper.concat(columnsBaseLower(true)).concat([
 	{
 		accessorFn: () => "MutliSignIn",
-		headerWithExtra: (a, extraState) =>  <ButtonWrapper spinnerOnClick onClick={(e) => {e.preventDefault(); return extraState.handleMultiSignIn(extraState.multiSignInSelected);}}>Multi Sign In</ButtonWrapper>,
+		headerWithExtra: (a, extraState) =>  <div style={{width: "100%", display: "grid"}} ><ButtonWrapper style={{margin: "0 auto"}}spinnerOnClick onClick={(e) => {e.preventDefault(); return extraState.handleMultiSignIn(extraState.multiSignInSelected);}}>Multi Sign In</ButtonWrapper></div>,
 		id: "multisignin__",
 		enableSorting: false,
 		enableMultiSort: false,

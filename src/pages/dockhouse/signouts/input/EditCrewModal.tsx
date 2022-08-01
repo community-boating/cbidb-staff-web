@@ -145,6 +145,8 @@ class ThrottledUpdater {
 
 }
 
+const crewTableHeaderStyle = {width: "25%"};
+
 export const CrewTable = (props: { row: SignoutTablesState, updateCrew?: UpdateCrewType, isFormer: boolean }) => {
     const filteredCrew = React.useMemo(() => (props.row.$$crew || []).filter((a) => props.isFormer ? option.isSome(a.endActive) : option.isNone(a.endActive)), [props.row.$$crew]);
     if (filteredCrew.length === 0) {
@@ -153,10 +155,10 @@ export const CrewTable = (props: { row: SignoutTablesState, updateCrew?: UpdateC
     return <Table size="sm">
         <thead>
             <tr>
-                {props.updateCrew != undefined ? <td>{props.isFormer ? "Add" : "Remove"}</td> : <></>}
-                <td>Card #</td>
-                <td>First</td>
-                <td>Last</td>
+                {props.updateCrew != undefined ? <th style={crewTableHeaderStyle}>{props.isFormer ? "Add" : "Remove"}</th> : <></>}
+                <th style={crewTableHeaderStyle}>Card #</th>
+                <th style={crewTableHeaderStyle}>First</th>
+                <th style={crewTableHeaderStyle}>Last</th>
             </tr>
         </thead>
         <tbody>
