@@ -11,8 +11,7 @@ import APIWrapper from "core/APIWrapper";
 import { ButtonWrapper } from "./ButtonWrapper";
 import { destringify, nullifyEmptyStrings, StringifiedProps, stringify, stringifyAndMakeBlank } from "util/StringifyObjectProps";
 import { TableColumnOptionsCbi } from "react-table-config";
-import { ColumnDef } from "@tanstack/react-table";
-import { columnsWrapped } from "util/tableUtil";
+import { ColumnDef, SortingState } from "@tanstack/react-table";
 import { FilterFnOption } from "@tanstack/solid-table";
 
 export type validationError = {
@@ -26,8 +25,7 @@ export default function ReportWithModalForm<K extends keyof U, T extends t.TypeC
 	rowValidator: T
 	rows: U[]
 	primaryKey: string & keyof U
-	columns: TableColumnOptionsCbi[]/**@deprecated use columnsNew and the v8 column def syntax**/
-	columnsNew?: ColumnDef<U, any>[]
+	columns: TableColumnOptionsCbi<U>[]
 	formComponents: (rowForEdit: StringifiedProps<U>, updateState: UpdateStateType, currentRow?: U, validationResults?: validationError[]) => JSX.Element
 	submitRow: APIWrapper<any, any, any>
 	cardTitle?: string
@@ -41,7 +39,7 @@ export default function ReportWithModalForm<K extends keyof U, T extends t.TypeC
 	validateSubmit?: (rowForEdit: StringifiedProps<U>, currentRow?: U) => validationError[]
 	postSubmit?: (rowForEdit: U) => U
 	noCard?: boolean
-	initialSortBy?: {id: keyof U, desc?: boolean}[]
+	initialSortBy?: SortingState
 	blockEdit?: {[K: string]: true}
 }) {
 
@@ -77,11 +75,10 @@ export default function ReportWithModalForm<K extends keyof U, T extends t.TypeC
 			),
 		}
 	}), [rowData]);
-	const columns = props.columnsNew !== undefined ? props.columnsNew : columnsWrapped<U>(props.columns, props.rowValidator);
 	const report = <SimpleReport 
 		keyField={props.primaryKey}
 		data={data}
-		columns={columns}
+		columns={props.columns}
 		sizePerPage={12}
 		sizePerPageList={[12, 25, 50, 1000]}
 		globalFilterState={props.globalFilterState}
@@ -218,7 +215,7 @@ export default function ReportWithModalForm<K extends keyof U, T extends t.TypeC
 										if(props.columnsNonEditable !== undefined){
 											return {...ret.success, ...getOnlyNonEditableFields(formData.currentRow)};
 										}else{
-											return { ...toAdd, [props.primaryKey]:( toAdd[props.primaryKey] as unknown as Option<number>).getOrElse(null)};
+											return { ...toAdd, [props.primaryKey]:( toAdd[props.primaryKey])};
 										}
 									} else {
 										return row;

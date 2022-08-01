@@ -1,4 +1,4 @@
-import * as React from 'react';
+/*import * as React from 'react';
 
 import {Button, Col, Row, DropdownItem, DropdownMenu, DropdownToggle, Table, UncontrolledButtonDropdown, Input, Label, Form, Popover, PopoverBody, PopoverHeader, UncontrolledPopover, ButtonGroup, FormGroup, Card} from 'reactstrap'
 import { useTable, useSortBy, usePagination, Row as RowRT, TableOptions, TableInstance, useFilters, Column, DefaultFilterTypes, FilterType, useGlobalFilter, PluginHook } from "react-table";
@@ -275,3 +275,4 @@ const paginationControls = ({pageIndex, pageCount, nextPage, previousPage, gotoP
 		<li className={"pagination-button page-item " + (disableNext&&"disabled")} title="last page"><a href="#" onClick={goTo(pageCount-1)} className="page-link">&gt;&gt;</a></li>
 	</ul>
 }
+*/

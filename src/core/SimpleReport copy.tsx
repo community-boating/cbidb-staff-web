@@ -15,7 +15,9 @@ import {
 	getPaginationRowModel,
 	getSortedRowModel,
 	useReactTable,
-	Table as TableRT
+	Table as TableRT,
+	Header,
+	SortingState
 } from '@tanstack/react-table'
 import { Button, ButtonGroup, Col, DropdownItem, DropdownMenu, DropdownToggle, Row, Table, UncontrolledButtonDropdown } from 'reactstrap';
 
@@ -29,8 +31,18 @@ type SimpleReportRequiredProps<T_Data, T_Filter = any> = {
 	globalFilter?: FilterFnOption<T_Data>
 	hidableColumns?: boolean
 	showFooter?: boolean
-	initialSortBy?: { id: keyof T_Data, desc?: boolean }[]
+	initialSortBy?: SortingState
 }
+
+const handleColumnClick: <T_Data>(header: Header<T_Data, any>) => React.MouseEventHandler<HTMLSpanElement> = (header) => (e) => {
+	if(header.column.getCanSort() || header.column.getCanMultiSort()){
+		if(e.shiftKey){
+			header.column.clearSorting();
+		}else{
+			header.column.toggleSorting(header.column.getIsSorted() === "asc", header.column.getCanMultiSort());
+		}
+	}
+};
 
 export const SimpleReport: <T_Data, T_Filter>(props: SimpleReportRequiredProps<T_Data, T_Filter>) => JSX.Element = ({ columns, data: dataProp, sizePerPage, sizePerPageList, keyField, globalFilterState, globalFilter, hidableColumns, showFooter, initialSortBy }) => {
 	const usingPagination = sizePerPage !== undefined && sizePerPageList !== undefined;
@@ -43,12 +55,17 @@ export const SimpleReport: <T_Data, T_Filter>(props: SimpleReportRequiredProps<T
 		getSortedRowModel: getSortedRowModel(),
 		getPaginationRowModel: getPaginationRowModel(),
 		enableColumnFilters: false,
-		autoResetAll: false
+		autoResetAll: false,
+		enableMultiSort: true,
+		defaultColumn: {
+			enableMultiSort: true
+		},
+		initialState: {sorting: initialSortBy}
 	});
 	const [state, setState] = React.useState(table.initialState);
 	table.setOptions(prev => ({ ...prev, state: {...state, globalFilter: globalFilterState}, onStateChange: setState, }));
 	const paginationState = state.pagination;
-	const pagination = React.useMemo(() => {return <Row>
+	const pagination = React.useMemo(() => {return usingPagination ? <Row>
 		<Col>
 			<UncontrolledButtonDropdown  className="mr-1 mb-1">
 				<DropdownToggle caret >{paginationState.pageSize}</DropdownToggle>
@@ -60,7 +77,7 @@ export const SimpleReport: <T_Data, T_Filter>(props: SimpleReportRequiredProps<T
 		<Col>
 			{paginationControls(table)}
 		</Col>
-	</Row>}, [state, dataProp]);
+	</Row> : undefined}, [state, dataProp]);
 	const hiddenColumnsControl = hidableColumns ?
 		<div style={{ marginBottom: "15px" }}>
 			<ButtonGroup>
@@ -78,11 +95,10 @@ export const SimpleReport: <T_Data, T_Filter>(props: SimpleReportRequiredProps<T
 		{table.getHeaderGroups().map(headerGroup => (
 			<tr key={headerGroup.id}>
 				{headerGroup.headers.map(header => (
-					<th key={header.id} style={{width: header.getSize()}}>
+					<th key={header.id} style={{verticalAlign: "middle", width: header.column.getSize()}}>
 						{header.isPlaceholder
 							? null
-							: <span onClick={(e) => {header.column.getCanSort() ? header.column.toggleSorting() :  undefined}}>{flexRender(header.column.columnDef.header, header.getContext())}
-
+							: <span onClick={handleColumnClick(header)}>{flexRender(header.column.columnDef.header, header.getContext())}
 								{header.column.getIsSorted() !== false ? (
 									header.column.getIsSorted() === "desc" ? (
 										<FontAwesomeIcon icon={faSortUp} className="ms-2" />

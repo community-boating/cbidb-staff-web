@@ -21,8 +21,9 @@ import { filterActive, SignoutsTable } from './SignoutsTable';
 import { makeInitFilter, getUsersHR } from './SignoutsColumnDefs';
 import { Row } from '@tanstack/react-table';
 
-export type SignoutsTablesState = t.TypeOf<typeof signoutsValidator>;
 export type SignoutTablesState = t.TypeOf<typeof signoutValidator>;
+export type SignoutsTablesState = (SignoutTablesState[]);
+export type SignoutsTablesStateRaw = t.TypeOf<typeof signoutsValidator>;
 export type BoatTypesValidatorState = t.TypeOf<typeof boatTypesValidator>;
 export type RatingsValidatorState = t.TypeOf<typeof ratingsValidator>;
 
@@ -78,6 +79,8 @@ type AsyncPageState = {
 
 export type SignoutsTablesExtraFunctional = {
 }
+
+const mapSignouts = (a) => ({...a, multiSignInSelected: false});
 
 export const SignoutsTablesPage = (props: {
 	initState: SignoutsTablesState,
@@ -166,7 +169,7 @@ export const SignoutsTablesPage = (props: {
 		setUpdateCrewModal,
 		setMultiSignInSelected
 	}), [extraStateDepOnMain, extraStateDepOnAsync, multiSignInSelected]);
-	//Do the memo so updates that dont change the main tables state can avoid rerendering the entire table
+	//TODO fix 
 	return React.useMemo(() => {
 		return <>
 			<SignoutsTableFilter tdStyle={tdStyle} labelStyle={labelStyle} filterValue={filterValue} updateState={updateState} boatTypesHR={extraState.boatTypesHR} setFilterValue={setFilterValue} usersHR={usersHR} />

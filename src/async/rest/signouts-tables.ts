@@ -1,4 +1,4 @@
-import { OptionalBoolean, OptionalNumber, OptionalString, makeOptionalProps, OptionalDateTime, allowNullUndefinedProps } from "util/OptionalTypeValidators";
+import { OptionalBoolean, OptionalNumber, OptionalString, makeOptionalProps, OptionalDateTime, allowNullUndefinedProps, makeOptionalPK } from "util/OptionalTypeValidators";
 import * as t from "io-ts";
 import APIWrapper from "../../core/APIWrapper";
 import { HttpMethod } from "../../core/HttpMethod";
@@ -26,8 +26,8 @@ export const crewPersonValidator = t.type({
 
 export const signoutCrewValidator = t.type({
 	$$person: crewPersonValidator,
-	crewId: OptionalNumber,
-	signoutId: OptionalNumber,
+	crewId: t.number,
+	signoutId: t.number,
 	cardNum: OptionalString,
 	personId: OptionalNumber,
 	startActive: OptionalDateTime,
@@ -130,7 +130,7 @@ export const getPersonByCardNumber = new APIWrapper({
 export const putSignoutCrew = new APIWrapper({
 	path: pathSignoutCrew,
 	type: HttpMethod.POST,
-	postBodyValidator: signoutCrewValidator,
+	postBodyValidator: makeOptionalProps(signoutCrewValidator),
 	resultValidator: makeOptionalProps(signoutCrewValidator),
 });
 

@@ -5,28 +5,26 @@ import ReportWithModalForm from "components/ReportWithModalForm";
 import {putWrapper as putInstructor} from "async/rest/class-instructor"
 import { FormGroup, Label, Col, Input } from 'reactstrap';
 import { StringifiedProps } from "util/StringifyObjectProps";
-import { Column } from "react-table";
 import { TableColumnOptionsCbi } from "react-table-config";
+import { ColumnDef } from "@tanstack/react-table";
+import { getEditColumn } from "util/tableUtil";
 
 type ClassInstructor = t.TypeOf<typeof classInstructorValidator>;
 
 export default function ManageClassInstructorsPage(props: { instructors: ClassInstructor[] }) {
-	const columns: TableColumnOptionsCbi[] = [{
-		accessor: "edit",
-		Header: "",
-		disableSortBy: true,
-		width: 50,
+	const columns: ColumnDef<ClassInstructor, any>[] = [
+		getEditColumn(50),
+	{
+		accessorKey: "INSTRUCTOR_ID",
+		header: "ID",
+		size: 80,
 	}, {
-		accessor: "INSTRUCTOR_ID",
-		Header: "ID",
-		width: 80,
+		accessorKey: "NAME_FIRST",
+		header: "First Name",
+		size: 300,
 	}, {
-		accessor: "NAME_FIRST",
-		Header: "First Name",
-		width: 300,
-	}, {
-		accessor: "NAME_LAST",
-		Header: "Last Name",
+		accessorKey: "NAME_LAST",
+		header: "Last Name",
 	}];
 
 	const formComponents = (rowForEdit: StringifiedProps<ClassInstructor>, updateState: (id: string, value: string | boolean) => void) => <React.Fragment>
@@ -73,7 +71,7 @@ export default function ManageClassInstructorsPage(props: { instructors: ClassIn
 
 	return <ReportWithModalForm
 		rowValidator={classInstructorValidator}
-		rows={props.instructors.map(i => ({ ...i, INSTRUCTOR_ID: i.INSTRUCTOR_ID.getOrElse(null)}))}
+		rows={props.instructors}
 		primaryKey="INSTRUCTOR_ID"
 		columns={columns}
 		formComponents={formComponents}

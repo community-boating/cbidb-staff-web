@@ -14,14 +14,14 @@ import ReportWithModalForm from "components/ReportWithModalForm";
 import {  StringifiedProps } from "util/StringifyObjectProps";
 import { none, some } from "fp-ts/lib/Option";
 import optionify from "util/optionify";
-import { CellBooleanIcon, CellOption, columnsWrapped, SortType, SortTypeBoolean, SortTypeOptionalNumber, SortTypeOptionalStringCI, SortTypeStringCI } from "util/tableUtil";
+import { CellBooleanIcon, CellOption, getEditColumn, SortType, SortTypeBoolean, SortTypeOptionalNumber, SortTypeOptionalStringCI, SortTypeStringCI } from "util/tableUtil";
 import { Column } from "react-table";
-import { TableColumnOptionsCbi, TableOptionsCbi } from "react-table-config";
+import { TableColumnOptionsCbi } from "react-table-config";
 import {accessStateValidator} from 'async/staff/access-state'
 import asc from "app/AppStateContainer";
 import { MAGIC_NUMBERS } from "app/magicNumbers";
 
-type User = t.TypeOf<typeof userValidator>
+type User = t.TypeOf<typeof userValidator>;
 type AccessState = t.TypeOf<typeof accessStateValidator>;
 
 export default function UsersPage(props: { users: User[], accessState: AccessState }) {
@@ -41,69 +41,66 @@ export default function UsersPage(props: { users: User[], accessState: AccessSta
 		return props.users
 		.filter(u => !(myUser.accessProfileId == MAGIC_NUMBERS.ACCESS_PROFILE_ID.GLOBAL_ADMIN || canManage[u.accessProfileId]))
 		.reduce((hash, u) => {
-			hash[String(u.userId.getOrElse(null))] = true;
+			hash[String(u.userId)] = true;
 			return hash;
 		}, {} as {[K: string]: true})
 	}, [])
 
-	const columns: TableColumnOptionsCbi[] = [{
-		accessor: "edit",
-		Header: "Edit",
-		width: 50,
-		disableSortBy: true
+	const columns: TableColumnOptionsCbi<User>[] = [
+		getEditColumn(50),
+	{
+		accessorKey: "userId",
+		header: "ID",
+		size: 50,
 	}, {
-		accessor: "userId",
-		Header: "ID",
-		width: 50,
+		accessorKey: "userName",
+		header: "Username",
+		size: 70,
 	}, {
-		accessor: "userName",
-		Header: "Username",
-		width: 70,
+		accessorKey: "nameFirst",
+		header: "First Name",
+		size: 90,
+		cell: CellOption,
+		sortingFn: SortTypeOptionalStringCI
 	}, {
-		accessor: "nameFirst",
-		Header: "First Name",
-		width: 90,
-		Cell: CellOption,
-		sortType: SortTypeOptionalStringCI
+		accessorKey: "nameLast",
+		header: "Last Name",
+		size: 90,
+		cell: CellOption,
+		sortingFn: SortTypeOptionalStringCI
 	}, {
-		accessor: "nameLast",
-		Header: "Last Name",
-		width: 90,
-		Cell: CellOption,
-		sortType: SortTypeOptionalStringCI
+		accessorKey: "accessProfileId",
+		header: "Access",
+		size: 90,
+		cell: (a) => optionify(props.accessState.accessProfiles.find(ap => ap.id == a.getValue())).map(ap => ap.name).getOrElse("(unknown)"),
+		sortingFn: SortType(id => props.accessState.accessProfiles.find(ap => ap.id == id).name)
 	}, {
-		accessor: "accessProfileId",
-		Header: "Access",
-		width: 90,
-		Cell: ({value}) => optionify(props.accessState.accessProfiles.find(ap => ap.id == value)).map(ap => ap.name).getOrElse("(unknown)"),
-		sortType: SortType(id => props.accessState.accessProfiles.find(ap => ap.id == id).name)
+		accessorKey: "email",
+		header: "Email",
 	}, {
-		accessor: "email",
-		Header: "Email",
+		accessorKey: "active",
+		header: "Active",
+		size: 35,
+		cell: CellBooleanIcon(<CheckIcon color="#777" size="1.4em" />),
+		sortingFn: SortTypeBoolean
 	}, {
-		accessor: "active",
-		Header: "Active",
-		width: 35,
-		Cell: CellBooleanIcon(<CheckIcon color="#777" size="1.4em" />),
-		sortType: SortTypeBoolean
+		accessorKey: "hideFromClose",
+		header: "Hide From Close",
+		size: 65,
+		cell: CellBooleanIcon(<CheckIcon color="#777" size="1.4em" />),
+		sortingFn: SortTypeBoolean
 	}, {
-		accessor: "hideFromClose",
-		Header: "Hide From Close",
-		width: 65,
-		Cell: CellBooleanIcon(<CheckIcon color="#777" size="1.4em" />),
-		sortType: SortTypeBoolean
+		accessorKey: "pwChangeRequired",
+		header: "Pw Change Reqd",
+		size: 50,
+		cell: CellBooleanIcon(<CheckIcon color="#777" size="1.4em" />),
+		sortingFn: SortTypeBoolean
 	}, {
-		accessor: "pwChangeRequired",
-		Header: "Pw Change Reqd",
-		width: 50,
-		Cell: CellBooleanIcon(<CheckIcon color="#777" size="1.4em" />),
-		sortType: SortTypeBoolean
-	}, {
-		accessor: "locked",
-		Header: "Locked",
-		width: 35,
-		Cell: CellBooleanIcon(<LockIcon color="#777" size="1.4em" />),
-		sortType: SortTypeBoolean
+		accessorKey: "locked",
+		header: "Locked",
+		size: 35,
+		cell: CellBooleanIcon(<LockIcon color="#777" size="1.4em" />),
+		sortingFn: SortTypeBoolean
 	}];
 
 	const validate = (user: StringifiedProps<User>)  => {
@@ -221,9 +218,9 @@ export default function UsersPage(props: { users: User[], accessState: AccessSta
 						value={rowForEdit.accessProfileId}
 						onChange={(event) => updateState("accessProfileId", event.target.value)}
 					>
-						{[<option value="">- Select -</option>].concat(props.accessState.accessProfiles
+						{[<option key={"none"} value="">- Select -</option>].concat(props.accessState.accessProfiles
 						.filter(ap => myUser.accessProfileId == MAGIC_NUMBERS.ACCESS_PROFILE_ID.GLOBAL_ADMIN || canManage[ap.id])
-						.map(ap => <option key={ap.id} value={ap.id}>{ap.name}</option>)
+						.map(ap =>  <option key={ap.id} value={ap.id}>{ap.name}</option>)
 						)}
 					</Input>
 					</Col>
@@ -329,7 +326,7 @@ export default function UsersPage(props: { users: User[], accessState: AccessSta
 		<CardBody>
 			<ReportWithModalForm
 				rowValidator={userValidator}
-				rows={props.users.map(u => ({ ...u, pw1: none, pw2: none, userId: u.userId.getOrElse(null) }))}
+				rows={props.users.map((a) => ({...a, pw1: none, pw2: none}))}
 				primaryKey="userId"
 				columns={columns}
 				formComponents={formComponents}
@@ -338,7 +335,7 @@ export default function UsersPage(props: { users: User[], accessState: AccessSta
 				noCard={true}
 				validateSubmit={validate}
 				postSubmit={user => ({ ...user, pw1: none, pw2: none})}
-				initialSortBy={[{id: "active"}, {id: "userName"}]}
+				initialSortBy={[{id: "active", desc: false}, {id: "userName", desc: false}]}
 				blockEdit={blockEdit}
 			/>
 		</CardBody>

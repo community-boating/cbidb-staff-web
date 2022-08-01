@@ -1,4 +1,7 @@
-import {
+import { ColumnDef } from "@tanstack/react-table";
+
+export type TableColumnOptionsCbi<D> = ColumnDef<D, any>;
+/*import {
 	UseColumnOrderInstanceProps,
 	UseColumnOrderState,
 	UseExpandedHooks,
@@ -81,7 +84,7 @@ export interface TableColumnOptionsCbi<D extends Record<string, unknown> = Recor
 	UseSortByColumnOptions<D> {
 		accessor?: IdType<D> | Accessor<D>,
 		Cell?: Renderer<CellProps<D, any>> | undefined;
-	}
+	}*/
 
 	// import {
 	// 	UseColumnOrderInstanceProps,

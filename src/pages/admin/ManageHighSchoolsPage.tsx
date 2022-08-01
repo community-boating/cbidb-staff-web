@@ -4,7 +4,7 @@ import { FormGroup, Label, Col, Input, CustomInput } from "reactstrap";
 import { Check as CheckIcon } from "react-feather";
 
 // Table building utilities
-import { CellBooleanIcon, SortTypeBoolean, tableColWidth } from "util/tableUtil";
+import { CellBooleanIcon, getEditColumn, SortTypeBoolean, tableColWidth } from "util/tableUtil";
 import { StringifiedProps } from "util/StringifyObjectProps";
 
 // Validator and putter for the data type of this page
@@ -24,30 +24,25 @@ export default function ManageHighSchoolsPage(props: {
 }) {
 	console.log("doing high schoolmake");
 	// Define table columns
-	const columns: TableColumnOptionsCbi[] = [
+	const columns: TableColumnOptionsCbi<HighSchool>[] = [
+			getEditColumn(50),
 		{
-			accessor: "edit",
-			Header: "",
-			disableSortBy: true,
-			width: 50
+			accessorKey: "SCHOOL_ID",
+			header: "ID",
+			size: 80,
+			sortingFn: SortTypeBoolean
 		},
 		{
-			accessor: "SCHOOL_ID",
-			Header: "ID",
-			width: 80,
-			sortType: SortTypeBoolean
+			accessorKey: "SCHOOL_NAME",
+			header: "School Name",
+			sortingFn: SortTypeBoolean
 		},
 		{
-			accessor: "SCHOOL_NAME",
-			Header: "School Name",
-			sortType: SortTypeBoolean
-		},
-		{
-			accessor: "ACTIVE",
-			Header: "Active",
-			width: 100,
-			Cell: CellBooleanIcon(<CheckIcon color="#777" size="1.4em" />),
-			sortType: SortTypeBoolean
+			accessorKey: "ACTIVE",
+			header: "Active",
+			size: 100,
+			cell: CellBooleanIcon(<CheckIcon color="#777" size="1.4em" />),
+			sortingFn: SortTypeBoolean
 		},
 	];
 
@@ -101,7 +96,7 @@ export default function ManageHighSchoolsPage(props: {
 	return (
 		<ReportWithModalForm
 			rowValidator={highSchoolValidator}
-			rows={props.highSchools.map(s => ({ ...s, SCHOOL_ID: s.SCHOOL_ID.getOrElse(null)}))}
+			rows={props.highSchools}
 			primaryKey="SCHOOL_ID"
 			columns={columns}
 			formComponents={formComponents}

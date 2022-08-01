@@ -4,7 +4,7 @@ import APIWrapper from "../../core/APIWrapper";
 import { HttpMethod } from "../../core/HttpMethod";
 
 export const highSchoolValidator = t.type({
-	SCHOOL_ID: OptionalNumber,
+	SCHOOL_ID: t.number,
 	SCHOOL_NAME: t.string,
 	ACTIVE: t.boolean
 });

@@ -11,6 +11,7 @@ import { programsHR, signoutTypesHR, testResultsHR, SignoutTablesNonEditableObje
 import { FilterFnOption } from '@tanstack/react-table';
 import { SignoutsTablesState, SignoutsTablesExtraState, SignoutTablesState, ValidatedTimeInput, mapOptional, isCrewValid, SignoutsTablesExtraFunctional } from './SignoutsTablesPage';
 import { formatSelection, formatOptional, columnsActive, columnsInactive } from "./SignoutsColumnDefs";
+import { InteractiveColumnProvider } from './InteractiveColumnProvider';
 
 export const filterActive = (isActive) => isActive ? (a: SignoutTablesState) => option.isNone(a.signinDatetime) : (a: SignoutTablesState) => option.isSome(a.signinDatetime);
 
@@ -162,7 +163,9 @@ export const SignoutsTable = (props: {
 	};
 	const cardTitle = props.isActive ? "Active Signouts" : "Completed Signouts";
 	const f = filterActive(props.isActive);
-	var columns = React.useMemo(() => props.isActive ? columnsActive(props.extraState) : columnsInactive(props.extraState), [props.extraState, props.state]);
+	const provider = React.useMemo(() => (new InteractiveColumnProvider(props.isActive ? columnsActive : columnsInactive)), [])
+	var columns = React.useMemo(() => (provider.provideColumns(props.extraState)), [props.extraState]);
+	//var columns = React.useMemo(() => props.isActive ? columnsActive(props.extraState) : columnsInactive(props.extraState), [props.extraState, props.state]);
 	const filteredSignouts = props.state.filter(f);
 
 	return <>
@@ -172,8 +175,7 @@ export const SignoutsTable = (props: {
 			rowValidator={signoutValidator}
 			rows={filteredSignouts}
 			primaryKey="signoutId"
-			columns={undefined}
-			columnsNew={columns}
+			columns={columns}
 			formComponents={formComponents}
 			submitRow={putSignout}
 			cardTitle={cardTitle}

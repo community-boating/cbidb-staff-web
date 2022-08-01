@@ -10,9 +10,10 @@ import { RatingsHover } from './RatingSorter';
 import { CrewHover } from './input/EditCrewModal';
 import { iconWidth, iconHeight, programsHR, signoutTypesHR, orphanedRatingsShownByDefault } from './Constants';
 import { ColumnDef } from '@tanstack/react-table';
-import { CellOptionTime, CellOption__ } from 'util/tableUtil';
-import { SignoutTablesState, SignoutsTablesState, RatingsValidatorState, CommentsHover, MultiSigninCheckbox, SignoutsTablesExtraState } from './SignoutsTablesPage';
+import { CellOption, CellOptionTime, getEditColumn } from 'util/tableUtil';
+import { SignoutTablesState, SignoutsTablesState, CommentsHover, MultiSigninCheckbox, SignoutsTablesExtraState } from './SignoutsTablesPage';
 import { ButtonWrapper } from 'components/ButtonWrapper';
+import { InteractiveColumnDef } from './InteractiveColumnProvider';
 
 function isMax(n: number, a: number[]) {
 	if (a === undefined) {
@@ -104,36 +105,45 @@ export function makeInitFilter() {
 	return { boatType: -1, nameOrCard: "", sail: "", signoutType: "", programId: -1, personId: "", createdBy: "" };
 }
 
-export type SignoutsTablesColumnDef = ColumnDef<SignoutTablesState, any>;
+export type SignoutsTablesColumnDef = InteractiveColumnDef<SignoutTablesState, SignoutsTablesExtraState, any>;
 
-export type SignoutsTablesColumnDefProvider= (extraState: SignoutsTablesExtraState) => SignoutsTablesColumnDef[];
 
 const CellSelect = (hr) => (a) => (hr.find((b) => b.value === a.getValue()) || { display: "Loading..." }).display;
 
-const columnsBaseUpper: SignoutsTablesColumnDefProvider = (extraState: SignoutsTablesExtraState) => [
+class TestInit{
+	constructor(){
+		console.log("init it");
+	}
+}
+
+const dp: SignoutsTablesColumnDef = ({
+	header: "Program",
+	accessorKey: "programId",
+	size: 200,
+	enableMultiSort: true,
+	cellWithExtra: CellSelect(signoutTypesHR)
+});
+
+const columnsBaseUpper: SignoutsTablesColumnDef[] = [
+		getEditColumn(50), 
 	{
-		accessorKey: "edit" as any,
-		id: "edit",
-		header: "",
-		enableSorting: false,
-		enableHiding: false,
-		size: 50,
-		cell: (a) => a.getValue()
-	}, {
 		header: "Program",
 		accessorKey: "programId",
 		size: 200,
-		cell: CellSelect(programsHR),
+		enableMultiSort: true,
+		cellWithExtra: CellSelect(programsHR)
 	}, {
 		header: "Signout Type",
 		accessorKey: "signoutType",
 		size: 30,
-		cell: CellSelect(signoutTypesHR)
+		enableMultiSort: true,
+		cellWithExtra: CellSelect(signoutTypesHR)
 	}, {
 		header: "Card #",
 		accessorKey: "cardNum",
 		size: 100,
-		cell: CellOption__
+		enableMultiSort: true,
+		cell: CellOption
 	}, {
 		header: "Name First",
 		accessorKey: "$$skipper.nameFirst",
@@ -146,17 +156,17 @@ const columnsBaseUpper: SignoutsTablesColumnDefProvider = (extraState: SignoutsT
 		header: "Sail #",
 		accessorKey: "sailNumber",
 		size: 50,
-		cell: CellOption__
+		cell: CellOption
 	}, {
 		header: "Hull #",
 		accessorKey: "hullNumber",
 		size: 50,
-		cell: CellOption__
+		cell: CellOption
 	}, {
 		header: "Boat",
 		accessorKey: "boatId",
 		size: 150,
-		cell: (a) => CellSelect(extraState.boatTypesHR)(a)
+		cellWithExtra: (a, extraState) => CellSelect(extraState.boatTypesHR)(a)
 	}, {
 		header: "Signout Time",
 		accessorKey: "signoutDatetime",
@@ -164,54 +174,54 @@ const columnsBaseUpper: SignoutsTablesColumnDefProvider = (extraState: SignoutsT
 		cell: CellOptionTime
 	}
 ];
-const columnsBaseLower: (active: boolean) => SignoutsTablesColumnDefProvider = (active) => (extraState) => [
+const columnsBaseLower: (active: boolean) => SignoutsTablesColumnDef[] = (active) => [
 	{
 		accessorKey: "$$crew",
 		header: "Crew",
 		size: 50,
-		cell: (a) => <CrewHover row={a.row.original} extraState={extraState} />
+		cellWithExtra: (a, extraState) => <CrewHover row={a.row.original} extraState={extraState} />
 	}, {
 		accessorFn: () => "Links",
 		header: "Links",
 		id: "links",
 		size: 90,
-		cell: (a) => <MakeLinks row={a.row.original} isActive={active} extraState={extraState} />
+		cellWithExtra: (a, extraState) => <MakeLinks row={a.row.original} isActive={active} extraState={extraState} />
 	}, {
 		header: "Ratings",
 		id: "ratings__",
 		size: 90,
-		cell: (a) => <RatingsHover row={a.row.original} orphanedRatingsShownByDefault={orphanedRatingsShownByDefault} extraState={extraState}/>
+		cellWithExtra: (a, extraState) => <RatingsHover row={a.row.original} orphanedRatingsShownByDefault={orphanedRatingsShownByDefault} extraState={extraState}/>
 	}, {
 		header: "Comments",
 		accessorKey: "comments",
 		size: 150,
-		cell: (a) => <CommentsHover row={a.row.original} extraState={extraState} />
+		cellWithExtra: (a, extraState) => <CommentsHover row={a.row.original} extraState={extraState} />
 	}
 ];
 
-export const columnsInactive: SignoutsTablesColumnDefProvider = (extraState) => columnsBaseUpper(extraState).concat([
+export const columnsInactive: SignoutsTablesColumnDef[] = columnsBaseUpper.concat([
 	{
 		header: "Signin Time",
 		accessorKey: "signinDatetime",
 		size: 90,
 		cell: CellOptionTime
 	}
-]).concat(columnsBaseLower(false)(extraState));
-export const columnsActive: SignoutsTablesColumnDefProvider = (extraState) => columnsBaseUpper(extraState).concat(columnsBaseLower(true)(extraState)).concat([
+]).concat(columnsBaseLower(false));
+export const columnsActive: SignoutsTablesColumnDef[] = columnsBaseUpper.concat(columnsBaseLower(true)).concat([
 	{
 		accessorFn: () => "MutliSignIn",
-		header: (a) =>  <ButtonWrapper spinnerOnClick onClick={(e) => {e.preventDefault(); return extraState.handleMultiSignIn(extraState.multiSignInSelected);}}>Multi Sign In</ButtonWrapper>,
+		headerWithExtra: (a, extraState) =>  <ButtonWrapper spinnerOnClick onClick={(e) => {e.preventDefault(); return extraState.handleMultiSignIn(extraState.multiSignInSelected);}}>Multi Sign In</ButtonWrapper>,
 		id: "multisignin__",
 		enableSorting: false,
 		enableHiding: false,
 		size: 90,
-		cell: (a) => <MultiSigninCheckbox row={a.row.original} extraState={extraState} />
+		cellWithExtra: (a, extraState) => <MultiSigninCheckbox row={a.row.original} extraState={extraState} />
 	}, {
 		accessorFn: () => "Icons",
 		header: "Icons",
 		id: "icons__",
 		enableSorting: false,
 		size: 150,
-		cell: (a) => { const o = a.row.original; return (<>{<FlagIcon row={o} extraState={extraState} />}{<StopwatchIcon row={o} />}{<ReassignedIcon row={o} extraState={extraState} />}</>); }
+		cellWithExtra: (a, extraState) => { const o = a.row.original; return (<>{<FlagIcon row={o} extraState={extraState} />}{<StopwatchIcon row={o} />}{<ReassignedIcon row={o} extraState={extraState} />}</>); }
 	}
 ]);

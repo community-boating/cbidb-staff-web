@@ -82,6 +82,15 @@ export const OptionalBoolean = new t.Type<Option<boolean>, string, unknown>(
 		a => a.fold("None", (s) => `some(${s})`)
 )
 
+//Can use this to allow optional types or something like that
+export type Modified<T, R> = Omit<T, keyof R> & R;
+
+export const makeOptionalPK = <T extends t.TypeC<any>>(someValidator: T, PK: keyof t.TypeOf<T>) => {
+	const newProps = Object.assign({}, someValidator.props);
+	newProps[PK] = makeOptional(newProps[PK]);
+	return t.type(newProps);
+}
+
 export const makeOptionalProps = <T extends t.TypeC<any>>(someValidator: T) => {
 	const newProps = Object.assign({}, someValidator.props);
 	Object.keys(someValidator.props).forEach((a) => {
