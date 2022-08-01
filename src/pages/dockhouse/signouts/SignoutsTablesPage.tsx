@@ -76,11 +76,9 @@ type AsyncPageState = {
 	boatTypes: BoatTypesValidatorState
 }
 
-
-export type SignoutsTablesExtraFunctional = {
+function getPropsMemoDep(state: SignoutsTablesState){
+	return state.map((a) => a.updatedOn.getOrElse("")).join();
 }
-
-const mapSignouts = (a) => ({...a, multiSignInSelected: false});
 
 export const SignoutsTablesPage = (props: {
 	initState: SignoutsTablesState,
@@ -88,7 +86,8 @@ export const SignoutsTablesPage = (props: {
 	const [state, setState] = React.useState(props.initState);
 	React.useEffect(() => {
 		setState(props.initState);
-	}, [props.initState]);
+	}, [getPropsMemoDep(props.initState)]);
+	
 	const [updateCommentsModal, setUpdateCommentsModal] = React.useState(undefined as number);
 	const [updateCrewModal, setUpdateCrewModal] = React.useState(undefined as number);
 	const [multiSignInSelected, setMultiSignInSelected] = React.useState([] as number[]);
@@ -169,25 +168,35 @@ export const SignoutsTablesPage = (props: {
 		setUpdateCrewModal,
 		setMultiSignInSelected
 	}), [extraStateDepOnMain, extraStateDepOnAsync, multiSignInSelected]);
-	//TODO fix 
-	return React.useMemo(() => {
+
+	const tableContent = React.useMemo(() => {
 		return <>
 			<SignoutsTableFilter tdStyle={tdStyle} labelStyle={labelStyle} filterValue={filterValue} updateState={updateState} boatTypesHR={extraState.boatTypesHR} setFilterValue={setFilterValue} usersHR={usersHR} />
 			<SignoutsTable {...props} state={state} setState={setState} extraState={extraState} isActive={true} filterValue={filterValue} globalFilter={filterRows} />
 			<SignoutsTable {...props} state={state} setState={setState} extraState={extraState} isActive={false} filterValue={filterValue} globalFilter={filterRows} />
-			<EditCommentsModal modalIsOpen={updateCommentsModal !== undefined} closeModal={() => { setUpdateCommentsModal(undefined) }} currentRow={state.find((a) => a.signoutId == updateCommentsModal)} updateComments={updateCommentsSubmit} />
-			<EditCrewModal modalIsOpen={updateCrewModal !== undefined} closeModal={() => { setUpdateCrewModal(undefined) }} boatTypes={extraState.boatTypes} currentRow={state.find((a) => a.signoutId == updateCrewModal)} updateCurrentRow={(row) => {
-				const newState = state.map((a) => {
-					if(a.signoutId == row.signoutId){
-						return row;
-					}else{
-						return a;
-					}
-				})
-				setState(newState);
-			}} />
 		</>;
-	}, [state, extraState, updateCommentsModal, updateCrewModal, filterValue]);
+	}, [state, extraState, filterValue]);
+
+	const modalContent = React.useMemo(() => {
+		return <>
+		<EditCommentsModal modalIsOpen={updateCommentsModal !== undefined} closeModal={() => { setUpdateCommentsModal(undefined) }} currentRow={state.find((a) => a.signoutId == updateCommentsModal)} updateComments={updateCommentsSubmit} />
+		<EditCrewModal modalIsOpen={updateCrewModal !== undefined} closeModal={() => { setUpdateCrewModal(undefined) }} boatTypes={extraState.boatTypes} boatTypesHR={extraState.boatTypesHR} currentRow={state.find((a) => a.signoutId == updateCrewModal)} updateCurrentRow={(row) => {
+			const newState = state.map((a) => {
+				if(a.signoutId == row.signoutId){
+					return row;
+				}else{
+					return a;
+				}
+			})
+			setState(newState);
+		}} />
+		</>
+	}, [state, updateCommentsModal, updateCrewModal, extraState.boatTypes]);
+
+	return <>
+		{tableContent}
+		{modalContent}
+	</>;
 
 
 }
@@ -254,10 +263,12 @@ type SignoutCrewState = t.TypeOf<typeof crewType>;
 
 export function isCrewValid(crew: SignoutCrewState, boatId: number, boatTypes: BoatTypesValidatorState) {
 	const boat = boatTypes.find((a) => a.boatId == boatId);
+	//TODO figure out how to handle changing boat/crew size
+	return;
 	if (boat === undefined) {
-		return;
+		return [];
 	}
-	const crewLength = crew.filter((a) => a.endActive.isNone()).length;
+	const crewLength = crew.filter((a) => option.isNone(a.endActive)).length;
 	if (boat.maxCrew < crewLength) {
 		return ["Too many crew members (" + boat.maxCrew + ")"];
 	}

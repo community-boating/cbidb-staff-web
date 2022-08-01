@@ -9,7 +9,7 @@ import * as moment from "moment";
 import { SignoutsTableFilterState } from './input/SignoutsTableFilter';
 import { programsHR, signoutTypesHR, testResultsHR, SignoutTablesNonEditableObject, SignoutTypes } from './Constants';
 import { FilterFnOption } from '@tanstack/react-table';
-import { SignoutsTablesState, SignoutsTablesExtraState, SignoutTablesState, ValidatedTimeInput, mapOptional, isCrewValid, SignoutsTablesExtraFunctional } from './SignoutsTablesPage';
+import { SignoutsTablesState, SignoutsTablesExtraState, SignoutTablesState, ValidatedTimeInput, isCrewValid } from './SignoutsTablesPage';
 import { formatSelection, formatOptional, columnsActive, columnsInactive } from "./SignoutsColumnDefs";
 import { InteractiveColumnProvider } from './InteractiveColumnProvider';
 
@@ -135,7 +135,7 @@ export const SignoutsTable = (props: {
 					{<Col sm={9}>
 						<ValidatedSelectInput {...wrapForFormComponents(rowForEdit, (id, value) => {
 							updateState([id, "signoutType"], [value, SignoutTypes.TEST]);
-						}, "testRatingId", validationResults)} selectOptions={ratingsHR.filter((a) => a.boats.find((b) => b.boatId == Number(rowForEdit.boatId)) !== undefined)} showNone={{value: "", display: "None"}} selectNone={true} />
+						}, "testRatingId", validationResults)} selectOptions={ratingsHR/*.filter((a) => a.boats.find((b) => b.boatId == Number(rowForEdit.boatId)) !== undefined)*/} showNone={{value: "", display: "None"}} selectNone={true} />
 					</Col>}
 				</FormGroup>
 				<FormGroup row>
@@ -165,7 +165,6 @@ export const SignoutsTable = (props: {
 	const f = filterActive(props.isActive);
 	const provider = React.useMemo(() => (new InteractiveColumnProvider(props.isActive ? columnsActive : columnsInactive)), [])
 	var columns = React.useMemo(() => (provider.provideColumns(props.extraState)), [props.extraState]);
-	//var columns = React.useMemo(() => props.isActive ? columnsActive(props.extraState) : columnsInactive(props.extraState), [props.extraState, props.state]);
 	const filteredSignouts = props.state.filter(f);
 
 	return <>

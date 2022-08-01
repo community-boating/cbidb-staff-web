@@ -9,8 +9,7 @@ import { FlagStatusIcons } from './FlagStatusIcons';
 import { RatingsHover } from './RatingSorter';
 import { CrewHover } from './input/EditCrewModal';
 import { iconWidth, iconHeight, programsHR, signoutTypesHR, orphanedRatingsShownByDefault } from './Constants';
-import { ColumnDef } from '@tanstack/react-table';
-import { CellOption, CellOptionTime, getEditColumn } from 'util/tableUtil';
+import { CellOptionBase, CellOptionTime, CellSelect, getEditColumn } from 'util/tableUtil';
 import { SignoutTablesState, SignoutsTablesState, CommentsHover, MultiSigninCheckbox, SignoutsTablesExtraState } from './SignoutsTablesPage';
 import { ButtonWrapper } from 'components/ButtonWrapper';
 import { InteractiveColumnDef } from './InteractiveColumnProvider';
@@ -107,23 +106,6 @@ export function makeInitFilter() {
 
 export type SignoutsTablesColumnDef = InteractiveColumnDef<SignoutTablesState, SignoutsTablesExtraState, any>;
 
-
-const CellSelect = (hr) => (a) => (hr.find((b) => b.value === a.getValue()) || { display: "Loading..." }).display;
-
-class TestInit{
-	constructor(){
-		console.log("init it");
-	}
-}
-
-const dp: SignoutsTablesColumnDef = ({
-	header: "Program",
-	accessorKey: "programId",
-	size: 200,
-	enableMultiSort: true,
-	cellWithExtra: CellSelect(signoutTypesHR)
-});
-
 const columnsBaseUpper: SignoutsTablesColumnDef[] = [
 		getEditColumn(50), 
 	{
@@ -143,7 +125,7 @@ const columnsBaseUpper: SignoutsTablesColumnDef[] = [
 		accessorKey: "cardNum",
 		size: 100,
 		enableMultiSort: true,
-		cell: CellOption
+		cell: CellOptionBase("None")
 	}, {
 		header: "Name First",
 		accessorKey: "$$skipper.nameFirst",
@@ -156,12 +138,12 @@ const columnsBaseUpper: SignoutsTablesColumnDef[] = [
 		header: "Sail #",
 		accessorKey: "sailNumber",
 		size: 50,
-		cell: CellOption
+		cell: CellOptionBase("-")
 	}, {
 		header: "Hull #",
 		accessorKey: "hullNumber",
 		size: 50,
-		cell: CellOption
+		cell: CellOptionBase("-")
 	}, {
 		header: "Boat",
 		accessorKey: "boatId",

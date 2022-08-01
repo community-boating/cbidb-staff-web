@@ -13,7 +13,12 @@ export const tableColWidth = (w: number) => ({
 
 export const CellBooleanIcon: (icon: JSX.Element) => (props: {getValue: () => boolean}) => JSX.Element = icon => ({getValue}) => getValue() ? icon : null;
 //export const CellOption: (props: {value: Option<string>}) => string = ({value}) => value.getOrElse("");
-export const CellOption: (props: {getValue: () => Option<any>}) => any = (props) => props.getValue().getOrElse("");
+type OptionBaseType = (props: {getValue: () => Option<any>}) => any;
+export const CellOption: OptionBaseType = (props) => CellOptionBase("")(props);
+export const CellOptionBase: (noneText: string) => OptionBaseType = (noneText) => (props) => props.getValue().getOrElse(noneText);
+
+export const CellSelect = (hr) => (a) => (hr.find((b) => b.value === a.getValue()) || { display: "Loading..." }).display;
+
 export function getEditColumn<U>(size: number): ColumnDef<U, any> {
 	return {
 		accessorFn: (a) => a['edit'],

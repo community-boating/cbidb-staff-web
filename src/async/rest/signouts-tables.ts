@@ -134,12 +134,12 @@ export const putSignoutCrew = new APIWrapper({
 	resultValidator: makeOptionalProps(signoutCrewValidator),
 });
 
-export const deleteSignoutCrew = new APIWrapper({
+/*export const deleteSignoutCrew = new APIWrapper({
 	path: pathSignoutCrew,
 	type: HttpMethod.DELETE,
 	resultValidator: makeOptionalProps(signoutCrewValidator),
 	postBodyValidator: makeOptionalProps(signoutCrewValidator)
-});
+});*/
 
 export const putSignout = new APIWrapper({
 	path:pathPost,

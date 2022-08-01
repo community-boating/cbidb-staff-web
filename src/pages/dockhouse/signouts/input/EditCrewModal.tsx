@@ -1,61 +1,71 @@
 import { ButtonWrapper } from "components/ButtonWrapper";
-import { Row, Table } from "reactstrap";
+import { Table } from "reactstrap";
 
 import * as React from "react";
 import { BoatTypesValidatorState, isCrewValid, SignoutsTablesExtraState, SignoutTablesState } from "../SignoutsTablesPage";
-import { ValidatedTextInput } from "./ValidatedInput";
+import { SelectOption, ValidatedSelectInput, ValidatedTextInput } from "./ValidatedInput";
 import { option } from "fp-ts";
 import { Option } from "fp-ts/lib/Option";
 import * as t from "io-ts";
-import { crewPersonValidator, getPersonByCardNumber, putSignoutCrew, signoutCrewValidator } from "async/rest/signouts-tables";
-import { X } from "react-feather";
+import { getPersonByCardNumber, putSignoutCrew, signoutCrewValidator } from "async/rest/signouts-tables";
+import { Plus, X } from "react-feather";
 import { MultiHover } from "../MultiHover";
 import { EditModal, EditModalCommonProps } from "./EditModal";
 import * as moment from "moment";
-import { DefaultDateTimeFormat, Modified } from "util/OptionalTypeValidators";
+import { DefaultDateTimeFormat } from "util/OptionalTypeValidators";
+import { deoptionifyProps, OptionifiedProps, optionifyProps } from "util/OptionifyObjectProps";
 
 type SignoutCrewState = t.TypeOf<typeof signoutCrewValidator>;
-//type SignoutCrewStateOptionalPK = Optionify<SignoutCrewState, {crewId: Option<number> | number}>;
+type SignoutCrewStateOptional = OptionifiedProps<SignoutCrewState>;
 
-type UpdateCrewType = (crew: SignoutCrewState, active: boolean) => Promise<any>;
+type UpdateCrewType = (crew: SignoutCrewStateOptional, active: boolean) => Promise<any>;
 
-export const EditCrewModal = (props: EditModalCommonProps & { updateCurrentRow: (row: SignoutTablesState) => void, boatTypes: BoatTypesValidatorState }) => {
+const optionToMoment = (value: Option<string>) => option.isSome(value) ? moment(value.value) : moment();
+
+const updateCrewDates = (crew: SignoutCrewState | SignoutCrewStateOptional, active: boolean) => {
+    crew.endActive = active ? option.none : option.some(moment().format(DefaultDateTimeFormat));
+    crew.startActive = option.some(optionToMoment(!active ? crew.startActive : option.none).format(DefaultDateTimeFormat));
+}
+
+export const EditCrewModal = (props: EditModalCommonProps & { updateCurrentRow: (row: SignoutTablesState) => void, boatTypes: BoatTypesValidatorState, boatTypesHR: SelectOption[] }) => {
     const [errors, setErrors] = React.useState([] as string[]);
     const updateCrew: UpdateCrewType = (crewMember, active) => {
-        console.log("update crew called" + active);
 
         var foundCrew: SignoutCrewState = null;
-        
+
         const newCrew = props.currentRow.$$crew.map((a) => {
-            if(a.crewId == crewMember.crewId || a.cardNum == crewMember.cardNum){
-                foundCrew = a;
-                return {...a};
+            if(foundCrew === null && (a.crewId == crewMember.crewId.getOrElse(-1) || (option.isNone(crewMember.crewId) && a.cardNum.getOrElse("") == crewMember.cardNum.getOrElse("") && a.personId.getOrElse(-1) == crewMember.personId.getOrElse(-1)))){
+                const A = {...a}
+                updateCrewDates(A, active);
+                foundCrew = A;
+                return A;
             }else{
                 return a;
             }
         });
 
-        if(foundCrew === null){
-            newCrew.push(crewMember);
-            foundCrew = crewMember;
-        }
-        foundCrew.endActive = option.none;
-        foundCrew.startActive = foundCrew.startActive = option.some(moment(foundCrew.startActive.getOrElse("")).format(DefaultDateTimeFormat));
-        //const foundCrew: SignoutCrewState = Object.assign({startActive: option.none}, props.currentRow.$$crew.find((a) => a.crewId == crew.crewId ||));
-        //foundCrew.startActive = option.some(moment(foundCrew.startActive.getOrElse("")).format(DefaultDateTimeFormat));
-        //foundCrew.endActive = !active ? option.some(moment().format(DefaultDateTimeFormat)) : option.none;
-        //foundCrew.signoutId = props.currentRow.signoutId;
         const crewBoatErrors = isCrewValid(newCrew, props.currentRow.boatId, props.boatTypes);
         if (crewBoatErrors !== undefined) {
             setErrors(crewBoatErrors);
             console.log("boatError");
             return Promise.resolve();
         }
-        console.log("almost done");
-        console.log(foundCrew);
+
+        if(foundCrew === null){
+            console.log("was null");
+            updateCrewDates(crewMember, active);
+            foundCrew = deoptionifyProps(crewMember, signoutCrewValidator);
+            delete foundCrew.crewId;
+            newCrew.push(foundCrew);
+        }
+
         return putSignoutCrew.sendJson(foundCrew).then((a) => {
             if (a.type === "Success") {
-                //TODO fix this eventually to use response value instead of post value
+                //TODO fix this eventually to not use old person, probably fine for now
+                const old = foundCrew.$$person;
+                Object.assign(foundCrew, deoptionifyProps(a.success, signoutCrewValidator));
+                console.log(foundCrew);
+                foundCrew.$$person = old;
                 props.updateCurrentRow({
                     ...props.currentRow, $$crew: newCrew
                 });
@@ -74,7 +84,7 @@ export const EditCrewModal = (props: EditModalCommonProps & { updateCurrentRow: 
                 <h1>Active Crew</h1>
                 <CrewTable row={props.currentRow} isFormer={false} updateCrew={updateCrew} />
                 <h1>Past Crew</h1>
-                <CrewTable row={props.currentRow} isFormer={true} />
+                <CrewTable row={props.currentRow} isFormer={true} updateCrew={updateCrew}/>
                 <h1>Add Crew</h1>
                 <AddCrew row={props.currentRow} updateCrew={updateCrew} setErrors={setErrors} boatTypes={props.boatTypes} />
             </> : <></>}
@@ -82,11 +92,13 @@ export const EditCrewModal = (props: EditModalCommonProps & { updateCurrentRow: 
     </>
 };
 
+
+
 class ThrottledUpdater {
     timerID: NodeJS.Timeout;
     timeout: number;
     handleUpdate: () => void;
-    constructor(timeout: number, handleUpdate: () => void) {
+    constructor(timeout: number, handleUpdate: () => any) {
         this.timerID = undefined;
         this.timeout = timeout;
         this.handleUpdate = handleUpdate;
@@ -96,14 +108,17 @@ class ThrottledUpdater {
     startUpdate() {
         this.cancel();
         this.timerID = setTimeout(function () {
-            this.handleUpdate();
             this.timerID = undefined;
+            this.handleUpdate();
         }.bind(this), this.timeout);
     }
     cancel() {
         if (this.timerID != undefined) {
             clearTimeout(this.timerID);
         }
+    }
+    isWaiting(){
+        return this.timerID != undefined;
     }
 
 }
@@ -116,42 +131,47 @@ export const CrewTable = (props: { row: SignoutTablesState, updateCrew?: UpdateC
     return <Table size="sm">
         <thead>
             <tr>
-                {props.updateCrew != undefined ? <td>Remove</td> : <></>}
+                {props.updateCrew != undefined ? <td>{props.isFormer ? "Add" : "Remove"}</td> : <></>}
                 <td>Card #</td>
                 <td>First</td>
                 <td>Last</td>
             </tr>
         </thead>
         <tbody>
-            {(filteredCrew).map((a) => <CrewRow crew={a} updateCrew={props.updateCrew} />)}
+            {(filteredCrew).map((a) => <CrewRow key={a.crewId} crew={a} updateCrew={props.updateCrew} isFormer={props.isFormer}/>)}
         </tbody>
     </Table>
 };
 
-export const CrewRow = (props: {crew: SignoutCrewState, updateCrew: UpdateCrewType}) => {
-    return <tr key={props.crew.crewId}>
-        {props.updateCrew !== undefined ? <td><a onClick={(e) => props.updateCrew(props.crew, false)}><X color="#777" size="1.4em" /></a></td> : <></>}
+export const CrewRow = (props: {crew: SignoutCrewState, updateCrew: UpdateCrewType, isFormer?: boolean}) => {
+    return <tr>
+        {props.updateCrew !== undefined ? <td><a onClick={(e) => props.updateCrew(optionifyProps(props.crew), props.isFormer)}>{props.isFormer ? <Plus color="#777" size="1.4em" /> : <X color="#777" size="1.4em" />}</a></td> : <></>}
         <td>{props.crew.cardNum.getOrElse("None")}</td>
         <td>{props.crew.$$person.nameFirst}</td>
         <td>{props.crew.$$person.nameLast}</td>
     </tr>
 }
 
+const PERSON_GET_STATE_INITIAL = 0;
+const PERSON_GET_STATE_NOT_FOUND = 1;
+const PERSON_GET_STATE_WAITING = 2;
+const PERSON_GET_STATE_SUCCESSFUL = 4;
+
 const AddCrew = (props: { row: SignoutTablesState, updateCrew: UpdateCrewType, setErrors: (value: React.SetStateAction<string[]>) => void, boatTypes: BoatTypesValidatorState }) => {
     const [cardNum, setCardNum] = React.useState(option.none as Option<string>);
-    const [person, setPerson] = React.useState(undefined as t.TypeOf<typeof crewPersonValidator>);
+    const [personGetState, setPersonGetState] = React.useState({state: PERSON_GET_STATE_INITIAL, person: undefined});
     const throttler: ThrottledUpdater = React.useMemo(() => new ThrottledUpdater(200, () => { }), []);
     React.useEffect(() => {
         throttler.handleUpdate = () => {
             if (cardNum.isNone()) {
+                setPersonGetState({state: PERSON_GET_STATE_NOT_FOUND, person: undefined});
                 return;
             }
             getPersonByCardNumber.sendWithParams(option.none, { cardNumber: Number(cardNum.getOrElse("")) })(null).then((a) => {
                 if (a.type === "Success") {
-                    setPerson(a.success);
-                    console.log(a.success);
+                    setPersonGetState({state: PERSON_GET_STATE_SUCCESSFUL, person: a.success});
                 } else {
-                    setPerson(undefined);
+                    setPersonGetState({state: PERSON_GET_STATE_NOT_FOUND, person: undefined});
                 }
             });
         };
@@ -160,10 +180,15 @@ const AddCrew = (props: { row: SignoutTablesState, updateCrew: UpdateCrewType, s
     if (props.row.signoutId === undefined) {
         return <></>;
     }
+
+    const person = personGetState.person;
+
+    const state = personGetState.state;
+
     return <>
-        <ValidatedTextInput type={"text"} initValue={cardNum} updateValue={(val) => setCardNum(val)} validationResults={[]} placeholder={"Card #"} />
-        {person !== undefined ? <Table><tbody><CrewRow crew={{ $$person: person, cardNum: cardNum, crewId: -1, personId: option.some(person.personId), signoutId: undefined, startActive: undefined, endActive: undefined }} updateCrew={props.updateCrew} /></tbody></Table> : "Not found"}
-        {person !== undefined ? <ButtonWrapper spinnerOnClick onClick={(e) => {
+        <ValidatedTextInput type={"text"} initValue={cardNum} updateValue={(val) => {setCardNum(val); setPersonGetState((s) => ({...s, state: PERSON_GET_STATE_WAITING}))}} validationResults={[]} placeholder={"Card #"} />
+        {state === PERSON_GET_STATE_SUCCESSFUL ? <><Table><tbody><CrewRow crew={{ $$person: person, cardNum: cardNum, crewId: -1, personId: option.some(person.personId), signoutId: undefined, startActive: undefined, endActive: undefined }} updateCrew={undefined} /></tbody></Table>
+        <ButtonWrapper spinnerOnClick onClick={(e) => {
             e.preventDefault();
             console.log("doing");
             if (props.row.$$skipper.personId == person.personId) {
@@ -174,8 +199,8 @@ const AddCrew = (props: { row: SignoutTablesState, updateCrew: UpdateCrewType, s
                 props.setErrors(["Person is already a crew member"]);
                 return Promise.resolve();
             }
-            return undefined;//props.updateCrew({cardNum: cardNum, $$person: person, startActive: null, endActive: null, crewId: -1, signoutId: props.row.signoutId, }, true);
-        }}>Add</ButtonWrapper> : ""}
+            return props.updateCrew({cardNum: cardNum, $$person: option.some(person), startActive: option.none, endActive: option.none, crewId: option.none, signoutId: option.some(props.row.signoutId), personId: option.some(person.personId) }, true);
+        }}>Add</ButtonWrapper></> : <h1>{state === PERSON_GET_STATE_WAITING ? "Loading" : "Not Found"}</h1>}
     </>
 }
 
