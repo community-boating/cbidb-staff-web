@@ -13,6 +13,7 @@ import { CellOptionBase, CellOptionTime, CellSelect, getEditColumn } from 'util/
 import { SignoutTablesState, SignoutsTablesState, CommentsHover, MultiSigninCheckbox, SignoutsTablesExtraState } from './SignoutsTablesPage';
 import { ButtonWrapper } from 'components/ButtonWrapper';
 import { InteractiveColumnDef } from './InteractiveColumnProvider';
+import { random } from 'lodash';
 
 function isMax(n: number, a: number[]) {
 	if (a === undefined) {
@@ -195,6 +196,7 @@ export const columnsActive: SignoutsTablesColumnDef[] = columnsBaseUpper.concat(
 		headerWithExtra: (a, extraState) =>  <ButtonWrapper spinnerOnClick onClick={(e) => {e.preventDefault(); return extraState.handleMultiSignIn(extraState.multiSignInSelected);}}>Multi Sign In</ButtonWrapper>,
 		id: "multisignin__",
 		enableSorting: false,
+		enableMultiSort: false,
 		enableHiding: false,
 		size: 90,
 		cellWithExtra: (a, extraState) => <MultiSigninCheckbox row={a.row.original} extraState={extraState} />

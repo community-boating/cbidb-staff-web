@@ -12,7 +12,7 @@ import * as moment from "moment";
 
 import { sortRatings, SortedRatings } from './RatingSorter';
 import { MultiHover } from './MultiHover';
-import { X, Info } from 'react-feather';
+import { Info } from 'react-feather';
 import { EditCommentsModal } from './input/EditCommentModal';
 import { DefaultDateTimeFormat } from 'util/OptionalTypeValidators';
 import { EditCrewModal } from './input/EditCrewModal';
