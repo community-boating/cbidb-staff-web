@@ -2,7 +2,7 @@ import { ButtonWrapper } from "components/ButtonWrapper";
 import { Table } from "reactstrap";
 
 import * as React from "react";
-import { BoatTypesValidatorState, isCrewValid, SignoutsTablesExtraState, SignoutTablesState } from "../SignoutsTablesPage";
+import { BoatTypesValidatorState, SignoutsTablesExtraState, SignoutTablesState } from "../SignoutsTablesPage";
 import { SelectOption, ValidatedSelectInput, ValidatedTextInput } from "./ValidatedInput";
 import { option } from "fp-ts";
 import { Option } from "fp-ts/lib/Option";
@@ -27,6 +27,28 @@ const updateCrewDates = (crew: SignoutCrewState | SignoutCrewStateOptional, acti
     crew.startActive = option.some(optionToMoment(!active ? crew.startActive : option.none).format(DefaultDateTimeFormat));
 }
 
+export function isCrewValid(crew: SignoutCrewState[], boatId: number, boatTypes: BoatTypesValidatorState, active: boolean) {
+	const boat = boatTypes.find((a) => a.boatId == boatId);
+	if (boat === undefined) {
+		return [];
+	}
+	const crewLength = crew.filter((a) => option.isNone(a.endActive)).length;
+	if (boat.maxCrew < crewLength) {
+		if(active){
+			return ["Too many crew members (" + boat.maxCrew + ")"];
+		}else{
+			return;
+		}
+	}
+	if (boat.minCrew > crewLength) {
+		if(!active){
+			return ["Not enough crew members (" + boat.minCrew + ")"];
+		}else{
+			return;
+		}
+	}
+}
+
 export const EditCrewModal = (props: EditModalCommonProps & { updateCurrentRow: (row: SignoutTablesState) => void, boatTypes: BoatTypesValidatorState, boatTypesHR: SelectOption[] }) => {
     const [errors, setErrors] = React.useState([] as string[]);
     const updateCrew: UpdateCrewType = (crewMember, active) => {
@@ -44,7 +66,7 @@ export const EditCrewModal = (props: EditModalCommonProps & { updateCurrentRow: 
             }
         });
 
-        const crewBoatErrors = isCrewValid(newCrew, props.currentRow.boatId, props.boatTypes);
+        const crewBoatErrors = isCrewValid(newCrew, props.currentRow.boatId, props.boatTypes, active);
         if (crewBoatErrors !== undefined) {
             setErrors(crewBoatErrors);
             console.log("boatError");

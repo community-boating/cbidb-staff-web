@@ -257,25 +257,6 @@ function handleMultiSignIn(multiSignInSelected: number[], setMultiSignInSelected
 		}
 	});
 }
-const crewType = t.array(signoutCrewValidator);
-
-type SignoutCrewState = t.TypeOf<typeof crewType>;
-
-export function isCrewValid(crew: SignoutCrewState, boatId: number, boatTypes: BoatTypesValidatorState) {
-	const boat = boatTypes.find((a) => a.boatId == boatId);
-	//TODO figure out how to handle changing boat/crew size
-	return;
-	if (boat === undefined) {
-		return [];
-	}
-	const crewLength = crew.filter((a) => option.isNone(a.endActive)).length;
-	if (boat.maxCrew < crewLength) {
-		return ["Too many crew members (" + boat.maxCrew + ")"];
-	}
-	if (boat.minCrew > crewLength) {
-		return ["Not enough crew members (" + boat.minCrew + ")"];
-	}
-}
 
 function handleSingleSignIn(signoutId: number, isUndo: boolean, state: SignoutsTablesState, setState: (state: SignoutsTablesState) => void) {
 	const signinDatetime = isUndo ? option.none : option.some(moment().format(DefaultDateTimeFormat));

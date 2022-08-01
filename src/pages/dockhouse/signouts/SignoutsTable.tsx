@@ -9,7 +9,7 @@ import * as moment from "moment";
 import { SignoutsTableFilterState } from './input/SignoutsTableFilter';
 import { programsHR, signoutTypesHR, testResultsHR, SignoutTablesNonEditableObject, SignoutTypes } from './Constants';
 import { FilterFnOption } from '@tanstack/react-table';
-import { SignoutsTablesState, SignoutsTablesExtraState, SignoutTablesState, ValidatedTimeInput, isCrewValid } from './SignoutsTablesPage';
+import { SignoutsTablesState, SignoutsTablesExtraState, SignoutTablesState, ValidatedTimeInput } from './SignoutsTablesPage';
 import { formatSelection, formatOptional, columnsActive, columnsInactive } from "./SignoutsColumnDefs";
 import { InteractiveColumnProvider } from './InteractiveColumnProvider';
 
@@ -182,8 +182,8 @@ export const SignoutsTable = (props: {
 			setRowData={props.setState}
 			hidableColumns={true}
 			hideAdd={true}
-			validateSubmit={(rowForEdit, currentRow) => {
+			/*validateSubmit={(rowForEdit, currentRow) => {
 				return isCrewValid(currentRow.$$crew, Number(rowForEdit.boatId), props.extraState.boatTypes) || [];
-			}} />
+			}}*/ />
 	</>;
 };
