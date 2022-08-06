@@ -5,6 +5,7 @@ on:
       - master
       - release/*
       - dev/*
+      - qa/*
       - cluster/*
     tags:
       - '*'
@@ -13,6 +14,7 @@ on:
       - master
       - release/*
       - dev/*
+      - qa/*
       - cluster/*
   workflow_dispatch:
 jobs:
