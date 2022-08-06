@@ -12,7 +12,6 @@ import { putWrapper as putClassLocation } from "async/rest/class-locations";
 
 // The common display structure which is a table editable via modal
 import ReportWithModalForm from "components/ReportWithModalForm";
-import { Column } from "react-table";
 import { TableColumnOptionsCbi } from "react-table-config";
 import { CellBooleanIcon, getEditColumn, SortTypeBoolean } from "util/tableUtil";
 

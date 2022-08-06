@@ -13,7 +13,6 @@ import { putWrapper as putHighSchool } from "async/rest/high-schools";
 
 // The common display structure which is a table editable via modal
 import ReportWithModalForm from "components/ReportWithModalForm";
-import { Column } from "react-table";
 import { TableColumnOptionsCbi } from "react-table-config";
 
 type HighSchool = t.TypeOf<typeof highSchoolValidator>;

@@ -1,10 +1,6 @@
 import { Option } from "fp-ts/lib/Option";
 import * as moment from "moment";
-import { Cell, ColumnDef, ColumnDefTemplate, createColumnHelper, RowData, SortingFn } from "@tanstack/react-table";
-import { SignoutTablesState } from "pages/dockhouse/signouts/SignoutsTablesPage";
-import { TableColumnOptionsCbi } from "react-table-config";
-import * as t from "io-ts";
-import { CellValue } from "react-table";
+import { ColumnDef, SortingFn } from "@tanstack/react-table";
 
 export const tableColWidth = (w: number) => ({
 	style: { width: w+"px" },
@@ -53,9 +49,3 @@ export const SortTypeOptionalNumber = SortTypeOption<number, any>(Number)
 export const SortTypeOptionalStringCI = SortTypeOption<string, any>(v => String(v).toLowerCase())
 export const SortTypeStringCI = SortType(v => String(v).toLowerCase())
 export const SortTypeBoolean = SortType<boolean, any> (v => !Boolean(v))
-
-type ColumnType<T_Row> = ColumnDef<T_Row, any>;
-
-//const columnHelper = createColumnHelper<RowData>();
-
-type RowValidatorType<T_Row> = {props: {[key in keyof T_Row]: any}};

@@ -1,6 +1,6 @@
 import { none, some } from 'fp-ts/lib/Option';
 import * as t from 'io-ts';
-import { Editable, NonEditable } from './EditableType';
+import { Editable } from './EditableType';
 import * as moment from "moment";
 import { DefaultDateFormat, DefaultDateTimeFormat } from './OptionalTypeValidators';
 

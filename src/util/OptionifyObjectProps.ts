@@ -1,5 +1,5 @@
 import { option } from "fp-ts";
-import { none, Option, some } from "fp-ts/lib/Option";
+import { none, Option } from "fp-ts/lib/Option";
 import * as t from 'io-ts'
 import * as _ from 'lodash';
 

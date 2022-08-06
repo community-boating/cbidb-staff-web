@@ -6,12 +6,12 @@ import * as _ from 'lodash';
 import { decoratedInstanceValidator, signupValidator, weekValidator, staggerValidator } from "async/staff/all-jp-signups"
 import { sortOnMoment, toMomentFromLocalDateTime } from 'util/dateUtil';
 import * as moment from 'moment';
-import { none, Option, some } from 'fp-ts/lib/Option';
+import { none, Option } from 'fp-ts/lib/Option';
 import FormElementSelect from 'components/form/FormElementSelect';
 import {formUpdateStateHooks} from 'util/form-update-state';
 import { tableColWidth } from 'util/tableUtil';
 import JpClassSignupsRegion from './JpClassSignupsRegion';
-import {faAngleRight, faAngleDown, faUsers} from '@fortawesome/free-solid-svg-icons'
+import {faUsers} from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {Printer} from 'react-feather'
 
@@ -37,7 +37,7 @@ class FormSelect extends FormElementSelect<FormType> { }
 
 export default function JpClassesPage(props: Props) {
 	const [formData, setFormData] = React.useState(formDefault);
-	const [selectedInstance, selectInstance] = React.useState(none as Option<number>);
+	const [selectedInstance] = React.useState(none as Option<number>);
 	const [editMode] = React.useState(false);
 	const signupsRegionRef = React.useRef(null);
 
@@ -105,7 +105,7 @@ export default function JpClassesPage(props: Props) {
 		disabled
 		type="switch"
 	/>;
-
+/*
 	const data = filteredInstances
 		.map(i => {
 			const firstSessionMoment = toMomentFromLocalDateTime(i.firstSession);
@@ -141,7 +141,7 @@ export default function JpClassesPage(props: Props) {
 			}
 		});
 
-	const columns/*: ColumnDescription<typeof data[0]>[] */= [{
+	const columns = [{
 		dataField: "instanceId",
 		text: "ID",
 		...tableColWidth(70),
@@ -184,7 +184,7 @@ export default function JpClassesPage(props: Props) {
 		dataField: "sectionData",
 		text: "Sections"
 	}];
-
+*/
 	const signupsRegion = selectedInstance.map(id => <Card innerRef={signupsRegionRef}>
 		<CardHeader>
 			<CardTitle tag="h5" className="mb-0">Selected Class</CardTitle>

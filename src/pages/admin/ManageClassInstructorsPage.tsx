@@ -5,7 +5,6 @@ import ReportWithModalForm from "components/ReportWithModalForm";
 import {putWrapper as putInstructor} from "async/rest/class-instructor"
 import { FormGroup, Label, Col, Input } from 'reactstrap';
 import { StringifiedProps } from "util/StringifyObjectProps";
-import { TableColumnOptionsCbi } from "react-table-config";
 import { ColumnDef } from "@tanstack/react-table";
 import { getEditColumn } from "util/tableUtil";
 

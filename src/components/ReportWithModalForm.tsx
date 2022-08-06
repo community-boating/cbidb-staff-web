@@ -4,15 +4,14 @@ import { Card, CardHeader, CardTitle, CardBody, Modal, ModalHeader, ModalBody, M
 import {
 	Edit as EditIcon,
 } from 'react-feather'
-import { SimpleReport } from "core/SimpleReport copy";
+import { SimpleReport } from "core/SimpleReport";
 import { ErrorPopup } from "components/ErrorPopup";
 import { none, Option, some } from "fp-ts/lib/Option";
 import APIWrapper from "core/APIWrapper";
 import { ButtonWrapper } from "./ButtonWrapper";
 import { destringify, nullifyEmptyStrings, StringifiedProps, stringify, stringifyAndMakeBlank } from "util/StringifyObjectProps";
 import { TableColumnOptionsCbi } from "react-table-config";
-import { ColumnDef, SortingState } from "@tanstack/react-table";
-import { FilterFnOption } from "@tanstack/solid-table";
+import { SortingState, FilterFnOption } from "@tanstack/react-table";
 
 export type validationError = {
 	key: string,
@@ -198,8 +197,6 @@ export default function ReportWithModalForm<K extends keyof U, T extends t.TypeC
 						});
 					}
 					props.submitRow.sendJson(toSendEditable).then(ret => {
-						console.log("doing it");
-						console.log(ret);
 						if (ret.type == "Success") {
 							closeModal();
 							const isUpdate = rowData.find(rowMatches) != null;

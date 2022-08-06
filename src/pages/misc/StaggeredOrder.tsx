@@ -8,7 +8,7 @@ import {toMomentFromLocalDate} from 'util/dateUtil'
 import { ButtonWrapper } from 'components/ButtonWrapper';
 import {postWrapper as finishOrder} from "async/staff/finish-open-order"
 import { ErrorPopup } from 'components/ErrorPopup';
-import { SimpleReport } from 'core/SimpleReport copy';
+import { SimpleReport } from 'core/SimpleReport';
 
 type PaymentList = t.TypeOf<typeof validator>
 
@@ -26,7 +26,7 @@ export default function StaggeredOrder(props: { history: History<any>, personId:
 		header: "Date",
 	},
 	{
-		accessorKy: "amount",
+		accessorKey: "amount",
 		header: "Amount",
 		size: 80,
 	},

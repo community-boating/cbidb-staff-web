@@ -13,7 +13,6 @@ import { putWrapper as putDonationFund } from "async/rest/donation-funds";
 // The common display structure which is a table editable via modal
 import ReportWithModalForm from "components/ReportWithModalForm";
 import { StringifiedProps } from "util/StringifyObjectProps";
-import { Column } from "react-table";
 import { TableColumnOptionsCbi } from "react-table-config";
 
 type DonationFund = t.TypeOf<typeof donationFundValidator>;

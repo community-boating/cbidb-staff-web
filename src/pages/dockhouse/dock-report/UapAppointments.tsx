@@ -11,7 +11,6 @@ import { DATE_FORMAT_LOCAL_DATETIME } from 'util/dateUtil';
 import optionify from 'util/optionify';
 import { combineValidations, validateMilitaryTime, validateNotBlank } from 'util/validate';
 import { ERROR_DELIMITER } from 'core/APIWrapper';
-import { Column } from 'react-table';
 import { DropDownCell } from 'components/table/DropDownCell';
 import { MAGIC_NUMBERS } from 'app/magicNumbers';
 import { charToNullableBool, nullableBoolToChar } from 'util/boolean-to-char';

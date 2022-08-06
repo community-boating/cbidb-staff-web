@@ -1,5 +1,4 @@
 import * as React from 'react';
-import { Column } from "react-table"
 import { Input } from "reactstrap"
 
 export const DropDownCell = (values: {key: any, display: string}[]) => ( {

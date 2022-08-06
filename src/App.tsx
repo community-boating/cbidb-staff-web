@@ -8,7 +8,6 @@ import asc from "./app/AppStateContainer";
 import {apiw as isLoggedInAsStaff} from './async/is-logged-in-as-staff';
 import {AppStateContainer} from "./app/AppStateContainer"
 import SudoModal from "components/SudoModal";
-import { Button } from "reactstrap";
 
 interface Props {
 	history: any

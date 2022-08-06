@@ -1,5 +1,4 @@
 import * as React from 'react';
-import { useTable, Column } from 'react-table'
 import { faPlusCircle } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Input, Table } from 'reactstrap';
@@ -43,7 +42,7 @@ const EditableCell = ({
 
 // Be sure to pass our updateMyData and the skipPageReset option
 export function TabularForm<T>(props: {
-	columns: Column[],
+	columns: any[],
 	data: T[],
 	setData: React.Dispatch<React.SetStateAction<T[]>>,
 	blankRow?: T
@@ -74,21 +73,9 @@ export function TabularForm<T>(props: {
 		)
 	}
 
-	const {
-		getTableProps,
-		getTableBodyProps,
-		headerGroups,
-		prepareRow,
-		rows
-	} = useTable({
-		columns,
-		data,
-		defaultColumn: { Cell: EditableCell },
-		autoResetPage: !skipPageReset,
-		updateMyData,
-	} as any)
 
-	return (
+
+	return null; /*(
 		<>
 			<Table {...getTableProps()}>
 				<thead>
@@ -136,5 +123,5 @@ export function TabularForm<T>(props: {
 				</tbody>
 			</Table>
 		</>
-	)
+	)*/
 }

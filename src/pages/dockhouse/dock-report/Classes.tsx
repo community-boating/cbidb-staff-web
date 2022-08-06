@@ -12,7 +12,6 @@ import * as moment from 'moment';
 import { combineValidations, validateMilitaryTime, validateNotBlank, validateNumber } from 'util/validate';
 import { ERROR_DELIMITER } from 'core/APIWrapper';
 import { sortOnCol } from 'util/sort';
-import { Column } from 'react-table';
 
 type Class = t.TypeOf<typeof dockReportApClassValidator>
 
