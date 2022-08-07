@@ -38,8 +38,9 @@ const handleColumnClick: <T_Data>(header: Header<T_Data, any>) => React.MouseEve
 	if(header.column.getCanSort() || header.column.getCanMultiSort()){
 		if(e.shiftKey){
 			header.column.clearSorting();
-		}else{
-			header.column.toggleSorting(header.column.getIsSorted() === "asc", header.column.getCanMultiSort());
+		} else {
+			if (header.column.getNextSortingOrder() === false) header.column.toggleSorting(header.column.getFirstSortDir() == 'desc');
+			else header.column.toggleSorting();
 		}
 	}
 };
@@ -60,7 +61,8 @@ export const SimpleReport: <T_Data, T_Filter>(props: SimpleReportRequiredProps<T
 		defaultColumn: {
 			enableMultiSort: true
 		},
-		initialState: {sorting: initialSortBy}
+		initialState: {sorting: initialSortBy},
+		sortDescFirst: false,
 	});
 	const [state, setState] = React.useState(table.initialState);
 	table.setOptions(prev => ({ ...prev, state: {...state, globalFilter: globalFilterState}, onStateChange: setState, }));
@@ -81,10 +83,13 @@ export const SimpleReport: <T_Data, T_Filter>(props: SimpleReportRequiredProps<T
 	const hiddenColumnsControl = hidableColumns ?
 		<div style={{ marginBottom: "15px" }}>
 			<ButtonGroup>
-				{table.getAllColumns().filter((a) => a.getCanHide()).map((a, i) =>
-					<Button outline color="primary" size="sm" active={!a.getIsVisible()} key={i} onClick={
+				{table.getAllColumns().filter((a) => (typeof a.columnDef.header != 'function') && a.getCanHide()).map((a, i) => {
+					const text = flexRender(a.columnDef.header, a)
+					return <Button outline color="primary" size="sm" active={!a.getIsVisible()} key={i} onClick={
 						() => a.toggleVisibility(!a.getIsVisible())
-					}>{flexRender(a.columnDef.header, a)}</Button>)}
+					}>{text}</Button>
+				})}
+
 				<Button outline color="primary" size="sm" active={true} onClick={
 					() => table.toggleAllColumnsVisible(true)
 				}>Show All</Button>
@@ -194,3 +199,4 @@ function paginationControls<T_Data> (table: TableRT<T_Data>) {
 		<li className={"pagination-button page-item " + (disableNext && "disabled")} title="last page"><a href="#" onClick={goTo(pageCount - 1)} className="page-link">&gt;&gt;</a></li>
 	</ul>
 }
+

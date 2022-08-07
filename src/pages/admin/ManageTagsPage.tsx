@@ -2,9 +2,6 @@ import * as React from "react";
 import * as t from "io-ts";
 import { FormGroup, Label, Col, Input } from "reactstrap";
 
-// Table building utilities
-import { getEditColumn, tableColWidth } from "util/tableUtil";
-
 // Validator and putter for the data type of this page
 import { tagValidator } from "async/rest/tags";
 import { putWrapper as putTag } from "async/rest/tags";
@@ -19,7 +16,6 @@ type Tag = t.TypeOf<typeof tagValidator>;
 export default function ManageTagsPage(props: { tags: Tag[] }) {
 	// Define table columns
 	const columns: TableColumnOptionsCbi<Tag>[] = [
-		getEditColumn(50),
 		{
 			accessorKey: "TAG_ID",
 			header: "ID",

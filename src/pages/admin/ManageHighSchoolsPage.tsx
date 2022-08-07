@@ -4,7 +4,7 @@ import { FormGroup, Label, Col, Input, CustomInput } from "reactstrap";
 import { Check as CheckIcon } from "react-feather";
 
 // Table building utilities
-import { CellBooleanIcon, getEditColumn, SortTypeBoolean, tableColWidth } from "util/tableUtil";
+import { CellBooleanIcon, SortTypeBoolean, tableColWidth } from "util/tableUtil";
 import { StringifiedProps } from "util/StringifyObjectProps";
 
 // Validator and putter for the data type of this page
@@ -24,7 +24,6 @@ export default function ManageHighSchoolsPage(props: {
 	console.log("doing high schoolmake");
 	// Define table columns
 	const columns: TableColumnOptionsCbi<HighSchool>[] = [
-			getEditColumn(50),
 		{
 			accessorKey: "SCHOOL_ID",
 			header: "ID",

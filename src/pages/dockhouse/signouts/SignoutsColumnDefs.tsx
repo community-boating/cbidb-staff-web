@@ -9,7 +9,7 @@ import { FlagStatusIcons } from './FlagStatusIcons';
 import { RatingsHover } from './RatingSorter';
 import { CrewHover } from './input/EditCrewModal';
 import { iconWidth, iconHeight, programsHR, signoutTypesHR, orphanedRatingsShownByDefault } from './Constants';
-import { CellOptionBase, CellOptionTime, CellSelect, getEditColumn } from 'util/tableUtil';
+import { CellOptionBase, CellOptionTime, CellSelect } from 'util/tableUtil';
 import { SignoutTablesState, SignoutsTablesState, CommentsHover, MultiSigninCheckbox, SignoutsTablesExtraState } from './SignoutsTablesPage';
 import { ButtonWrapper } from 'components/ButtonWrapper';
 import { InteractiveColumnDef } from './InteractiveColumnProvider';
@@ -108,7 +108,6 @@ export function makeInitFilter() {
 export type SignoutsTablesColumnDef = InteractiveColumnDef<SignoutTablesState, SignoutsTablesExtraState, any>;
 
 const columnsBaseUpper: SignoutsTablesColumnDef[] = [
-		getEditColumn(50), 
 	{
 		header: "Program",
 		accessorKey: "programId",

@@ -13,7 +13,8 @@ import { putWrapper as putClassLocation } from "async/rest/class-locations";
 // The common display structure which is a table editable via modal
 import ReportWithModalForm from "components/ReportWithModalForm";
 import { TableColumnOptionsCbi } from "react-table-config";
-import { CellBooleanIcon, getEditColumn, SortTypeBoolean } from "util/tableUtil";
+import { CellBooleanIcon, SortTypeBoolean } from "util/tableUtil";
+import { ColumnDef } from "@tanstack/react-table";
 
 type ClassLocation = t.TypeOf<typeof classLocationValidator>;
 
@@ -21,8 +22,7 @@ export default function ManageClassLocationsPage(props: {
 	locations: ClassLocation[];
 }) {
 	// Define table columns
-	const columns: TableColumnOptionsCbi<ClassLocation>[] = [
-		getEditColumn(50),
+	const columns: ColumnDef<ClassLocation>[] = [
 	{
 		accessorKey: "LOCATION_ID",
 		header: "ID",

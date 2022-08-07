@@ -6,13 +6,11 @@ import {putWrapper as putInstructor} from "async/rest/class-instructor"
 import { FormGroup, Label, Col, Input } from 'reactstrap';
 import { StringifiedProps } from "util/StringifyObjectProps";
 import { ColumnDef } from "@tanstack/react-table";
-import { getEditColumn } from "util/tableUtil";
 
 type ClassInstructor = t.TypeOf<typeof classInstructorValidator>;
 
 export default function ManageClassInstructorsPage(props: { instructors: ClassInstructor[] }) {
 	const columns: ColumnDef<ClassInstructor, any>[] = [
-		getEditColumn(50),
 	{
 		accessorKey: "INSTRUCTOR_ID",
 		header: "ID",

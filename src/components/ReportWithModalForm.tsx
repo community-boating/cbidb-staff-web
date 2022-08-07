@@ -10,8 +10,7 @@ import { none, Option, some } from "fp-ts/lib/Option";
 import APIWrapper from "core/APIWrapper";
 import { ButtonWrapper } from "./ButtonWrapper";
 import { destringify, nullifyEmptyStrings, StringifiedProps, stringify, stringifyAndMakeBlank } from "util/StringifyObjectProps";
-import { TableColumnOptionsCbi } from "react-table-config";
-import { SortingState, FilterFnOption } from "@tanstack/react-table";
+import { SortingState, FilterFnOption, ColumnDef } from "@tanstack/react-table";
 
 export type validationError = {
 	key: string,
@@ -24,7 +23,7 @@ export default function ReportWithModalForm<K extends keyof U, T extends t.TypeC
 	rowValidator: T
 	rows: U[]
 	primaryKey: string & keyof U
-	columns: TableColumnOptionsCbi<U>[]
+	columns: ColumnDef<U>[]
 	formComponents: (rowForEdit: StringifiedProps<U>, updateState: UpdateStateType, currentRow?: U, validationResults?: validationError[]) => JSX.Element
 	submitRow: APIWrapper<any, any, any>
 	cardTitle?: string
@@ -57,27 +56,24 @@ export default function ReportWithModalForm<K extends keyof U, T extends t.TypeC
 		[rowData, updateRowData] = React.useState(props.rows);
 	}
 
-	const makeEditCol = (value: number) => <a href="" onClick={e => {
-		e.preventDefault();
-		openForEdit(some(value));
-	}}><EditIcon color="#777" size="1.4em" /></a>
+	const editColumn: ColumnDef<U, any> = {
+		id: "edit",
+		size: 45,
+		cell: ({row}) => <a href="" onClick={e => {
+			e.preventDefault();
+			openForEdit(some(row.original[props.primaryKey] as unknown as number));
+		}}><EditIcon color="#777" size="1.4em" /></a>
+	}
 
 	const data = React.useMemo(() => rowData.map(r => {
 		const pk = r[props.primaryKey];
 		if (pk["_tag"]) throw "Option PK Found"
-		return {
-			...r,
-			edit: (
-				(props.blockEdit && props.blockEdit[String(pk)])
-				? null
-				: makeEditCol(pk as unknown as number)
-			),
-		}
+		return r
 	}), [rowData]);
 	const report = <SimpleReport 
 		keyField={props.primaryKey}
 		data={data}
-		columns={props.columns}
+		columns={[editColumn, ...props.columns]}
 		sizePerPage={12}
 		sizePerPageList={[12, 25, 50, 1000]}
 		globalFilterState={props.globalFilterState}

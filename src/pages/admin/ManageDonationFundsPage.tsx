@@ -4,7 +4,7 @@ import { FormGroup, Label, Col, Input, CustomInput } from "reactstrap";
 import { Check as CheckIcon } from "react-feather";
 
 // Table building utilities
-import { CellBooleanIcon, CellOption, getEditColumn, SortTypeBoolean, SortTypeOptionalNumber, tableColWidth } from "util/tableUtil";
+import { CellBooleanIcon, CellOption, SortTypeBoolean, SortTypeOptionalNumber, tableColWidth } from "util/tableUtil";
 
 // Validator and putter for the data type of this page
 import { donationFundValidator } from "async/rest/donation-funds";
@@ -22,7 +22,6 @@ export default function ManageDonationFundsPage(props: {
 }) {
 	// Define table columns
 	const columns: TableColumnOptionsCbi<DonationFund>[] = [
-			getEditColumn(50),
 		{
 			accessorKey: "FUND_ID",
 			header: "ID",
