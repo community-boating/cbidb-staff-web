@@ -9,6 +9,7 @@ import { Editable } from 'util/EditableType';
 import optionify from 'util/optionify';
 import { ERROR_DELIMITER } from 'core/APIWrapper';
 import { combineValidations, validateNumber } from 'util/validate';
+import { ColumnDef } from '@tanstack/react-table';
 
 type HullCount = t.TypeOf<typeof dockReportHullCountValidator>
 
@@ -61,18 +62,20 @@ const EditHullCounts = (props: {
 		});
 	}, [counts]);
 
-	const columns = [{
-		Header: "Hull Type",
-		accessor: "HULL_TYPE",
-		readonly: true
+	const columns: ColumnDef<HullCount>[] = [{
+		header: "Hull Type",
+		accessorKey: "HULL_TYPE",
+		meta: {
+			readonly: true
+		}
 	}, {
-		Header: "In Svc",
-		accessor: "IN_SERVICE",
-		cellWidth: 90
+		header: "In Svc",
+		accessorKey: "IN_SERVICE",
+		size: 90
 	}, {
-		Header: "Nightly Ct",
-		accessor: "STAFF_TALLY",
-		cellWidth: 90
+		header: "Nightly Ct",
+		accessorKey: "STAFF_TALLY",
+		size: 90
 	}];
 
 	return <div className="form-group row">
