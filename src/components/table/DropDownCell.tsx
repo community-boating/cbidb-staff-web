@@ -3,16 +3,16 @@ import { Input } from "reactstrap"
 
 export const DropDownCell = (values: {key: any, display: string}[]) => ( {
 	value: initialValue,
-	row: { index },
+	index,
 	column,
-	updateMyData,
+	updateMyData
 }) => {
 	// We need to keep and update the state of the cell normally
 	const [value, setValue] = React.useState(initialValue)
 
 	const onChange = e => {
 		setValue(e.target.value)
-		updateMyData(index, column.id, e.target.value)
+		updateMyData(index, (column as any).accessorKey, e.target.value)
 	}
 
 	// If the initialValue is changed external, sync it up with our state

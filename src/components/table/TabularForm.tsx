@@ -4,22 +4,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Input, Table } from 'reactstrap';
 import { ColumnDef, flexRender, getCoreRowModel, getFilteredRowModel, getPaginationRowModel, getSortedRowModel, useReactTable } from '@tanstack/react-table';
 
-function useSkipper() {
-	const shouldSkipRef = React.useRef(true)
-	const shouldSkip = shouldSkipRef.current
-  
-	// Wrap a function with this to skip a pagination reset temporarily
-	const skip = React.useCallback(() => {
-	  shouldSkipRef.current = false
-	}, [])
-  
-	React.useEffect(() => {
-	  shouldSkipRef.current = true
-	})
-  
-	return [shouldSkip, skip] as const
-  }
-
 const EditableCell: (props: {
 	value: any,
 	index: number,
@@ -104,7 +88,14 @@ export function TabularForm<T>(props: {
 	const columnsToUse = React.useMemo(() => {
 		const columnsWithEditCell = columns.map(c => ({
 			...c,
-			cell: (props) => <EditableCell value={props.cell.getValue()} index={props.row.index} column={c} updateMyData={updateMyData} />
+			cell: (props) => {
+				if (c.meta && c.meta.updateableCell) {
+					const UpdateableCell = c.meta.updateableCell;
+					return <UpdateableCell value={props.cell.getValue()} index={props.row.index} column={c} updateMyData={updateMyData} />
+				} else {
+					return <EditableCell value={props.cell.getValue()} index={props.row.index} column={c} updateMyData={updateMyData} />
+				}
+			}
 		}))
 	
 		const delColumn: ColumnDef<T, any> = {

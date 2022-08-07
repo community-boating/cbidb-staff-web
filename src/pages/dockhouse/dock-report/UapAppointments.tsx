@@ -102,10 +102,12 @@ const EditUapAppts = (props: {
 		header: () => <>Appt Type <img src="/images/required.png" /></>,
 		accessorKey: "APPT_TYPE",
 		size: 250,
-		cell: DropDownCell(apptTypes.map(t => ({
-			key: t,
-			display: t
-		})))
+		meta: {
+			updateableCell: DropDownCell(apptTypes.map(t => ({
+				key: t,
+				display: t
+			})))
+		}
 	}, {
 		header: () => <>Person <img src="/images/required.png" /></>,
 		accessorKey: "PARTICIPANT_NAME"
@@ -113,18 +115,22 @@ const EditUapAppts = (props: {
 		header: () => <>Boat <img src="/images/required.png" /></>,
 		accessorKey: "BOAT_TYPE_ID",
 		size: 140,
-		cell: DropDownCell(boatTypes)
+		meta: {
+			updateableCell: DropDownCell(boatTypes)
+		}
 	}, {
 		header: "Hoyer",
 		accessorKey: "HOYER",
 		size: 90,
-		cell: DropDownCell([{
-			key: "N",
-			display: "No"
-		}, {
-			key: "Y",
-			display: "Yes"
-		}])
+		meta: {
+			updateableCell: DropDownCell([{
+				key: "N",
+				display: "No"
+			}, {
+				key: "Y",
+				display: "Yes"
+			}])
+		}
 	}, {
 		header: "Instructor",
 		accessorKey: "INSTRUCTOR_NAME",
