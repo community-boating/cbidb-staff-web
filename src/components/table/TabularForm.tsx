@@ -2,6 +2,7 @@ import * as React from 'react';
 import { faPlusCircle } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Input, Table } from 'reactstrap';
+import { ColumnDef, flexRender, getCoreRowModel, getFilteredRowModel, getPaginationRowModel, getSortedRowModel, useReactTable } from '@tanstack/react-table';
 
 const EditableCell = ({
 	value: initialValue,
@@ -42,13 +43,14 @@ const EditableCell = ({
 
 // Be sure to pass our updateMyData and the skipPageReset option
 export function TabularForm<T>(props: {
-	columns: any[],
+	columns: any[], // ColumnDef<T>[],
 	data: T[],
 	setData: React.Dispatch<React.SetStateAction<T[]>>,
 	blankRow?: T
 }) {
 	const { columns, data, setData, blankRow } = props;
 	const [skipPageReset, setSkipPageReset] = React.useState(false)
+
 	React.useEffect(() => {
 		setSkipPageReset(false)
 	}, [data])
@@ -73,12 +75,60 @@ export function TabularForm<T>(props: {
 		)
 	}
 
+	const columnsWithEditCell = columns.map(c => ({
+		...c,
+		cell: (props) => <EditableCell value={props.cell.getValue()} row={{index: props.row.index}} column={{}} updateMyData={updateMyData} />
+	}))
 
+	const delColumn: ColumnDef<T, any> = {
+		id: "delete",
+		size: 45,
+		cell: (props) => <a href="" onClick={e => {
+			e.preventDefault();
+			deleteRow(props.row.index);
+		}}><img src="/images/delete.png" /></a>
+	}
 
-	return null; /*(
+	const table = useReactTable({
+		data: data,
+		columns: blankRow == null ? columnsWithEditCell : [delColumn, ...columnsWithEditCell],
+		getCoreRowModel: getCoreRowModel(),
+		getFilteredRowModel: getFilteredRowModel(),
+		getSortedRowModel: getSortedRowModel(),
+		getPaginationRowModel: getPaginationRowModel(),
+		enableColumnFilters: false,
+		autoResetAll: false,
+	});
+
+	const firstRow = table.getRowModel().rows[0]
+
+	const addRowElement = (
+		blankRow == null
+		? null
+		: <tr><td>
+			<a href="#" onClick={addRow}><FontAwesomeIcon icon={faPlusCircle} color="green" style={{height: "17px", width: "17px"}}/></a>
+			</td>
+			{firstRow && firstRow.getAllCells().filter((e, i) => i > 0).map((c, i) => <td key={`editcell_${i}`}></td>)}
+		</tr>
+	);
+
+	return (
 		<>
-			<Table {...getTableProps()}>
+			<Table >
 				<thead>
+					{table.getHeaderGroups().map(headerGroup => (
+						<tr key={headerGroup.id}>
+							{headerGroup.headers.map(header => (
+								<th key={header.id} style={{verticalAlign: "middle", width: header.column.getSize()}}>
+									{header.isPlaceholder
+										? null
+										: <span>{flexRender(header.column.columnDef.header, header.getContext())}</span>}
+								</th>
+							))}
+						</tr>
+					))}
+				</thead>
+				{/* <thead>
 					{headerGroups.map(headerGroup => (
 						<tr {...headerGroup.getHeaderGroupProps()}>
 							{(
@@ -92,8 +142,20 @@ export function TabularForm<T>(props: {
 							})}
 						</tr>
 					))}
-				</thead>
-				<tbody {...getTableBodyProps()}>
+				</thead> */}
+				<tbody>
+					{table.getRowModel().rows.map(row => (
+						<tr key={row.id}>
+							{row.getVisibleCells().map(cell => (
+								<td key={cell.id}>
+										{flexRender(cell.column.columnDef.cell, cell.getContext())}
+								</td>
+							))}
+						</tr>
+					))}
+					{addRowElement}
+				</tbody>
+				{/* <tbody {...getTableBodyProps()}>
 					{rows.map((row, i) => {
 						prepareRow(row)
 						return (
@@ -120,8 +182,8 @@ export function TabularForm<T>(props: {
 							{rows[0] && rows[0].cells.map((c, i) => <td key={`editcell_${i}`}></td>)}
 						</tr>
 					)}
-				</tbody>
+				</tbody> */}
 			</Table>
 		</>
-	)*/
+	)
 }
