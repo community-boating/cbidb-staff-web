@@ -11,10 +11,10 @@ import { DATE_FORMAT_LOCAL_DATETIME } from 'util/dateUtil';
 import optionify from 'util/optionify';
 import { combineValidations, validateMilitaryTime, validateNotBlank } from 'util/validate';
 import { ERROR_DELIMITER } from 'core/APIWrapper';
-import { Column } from 'react-table';
 import { DropDownCell } from 'components/table/DropDownCell';
 import { MAGIC_NUMBERS } from 'app/magicNumbers';
 import { charToNullableBool, nullableBoolToChar } from 'util/boolean-to-char';
+import { ColumnDef } from '@tanstack/react-table';
 
 type UapAppointment = t.TypeOf<typeof dockReportUapApptValidator>
 
@@ -94,41 +94,47 @@ const EditUapAppts = (props: {
 		});
 	}, [appts]);
 
-	const columns = [{
-		Header: <>Time <img src="/images/required.png" /></>,
-		accessor: "APPT_DATETIME",
-		cellWidth: 75
+	const columns: ColumnDef<UapAppointment>[] = [{
+		header: () => <>Time <img src="/images/required.png" /></>,
+		accessorKey: "APPT_DATETIME",
+		size: 75
 	}, {
-		Header: <>Appt Type <img src="/images/required.png" /></>,
-		accessor: "APPT_TYPE",
-		cellWidth: 250,
-		Cell: DropDownCell(apptTypes.map(t => ({
-			key: t,
-			display: t
-		})))
+		header: () => <>Appt Type <img src="/images/required.png" /></>,
+		accessorKey: "APPT_TYPE",
+		size: 250,
+		meta: {
+			updateableCell: DropDownCell(apptTypes.map(t => ({
+				key: t,
+				display: t
+			})))
+		}
 	}, {
-		Header: <>Person <img src="/images/required.png" /></>,
-		accessor: "PARTICIPANT_NAME"
+		header: () => <>Person <img src="/images/required.png" /></>,
+		accessorKey: "PARTICIPANT_NAME"
 	}, {
-		Header: <>Boat <img src="/images/required.png" /></>,
-		accessor: "BOAT_TYPE_ID",
-		cellWidth: 140,
-		Cell: DropDownCell(boatTypes)
+		header: () => <>Boat <img src="/images/required.png" /></>,
+		accessorKey: "BOAT_TYPE_ID",
+		size: 140,
+		meta: {
+			updateableCell: DropDownCell(boatTypes)
+		}
 	}, {
-		Header: "Hoyer",
-		accessor: "HOYER",
-		cellWidth: 90,
-		Cell: DropDownCell([{
-			key: "N",
-			display: "No"
-		}, {
-			key: "Y",
-			display: "Yes"
-		}])
+		header: "Hoyer",
+		accessorKey: "HOYER",
+		size: 90,
+		meta: {
+			updateableCell: DropDownCell([{
+				key: "N",
+				display: "No"
+			}, {
+				key: "Y",
+				display: "Yes"
+			}])
+		}
 	}, {
-		Header: "Instructor",
-		accessor: "INSTRUCTOR_NAME",
-		cellWidth: 200
+		header: "Instructor",
+		accessorKey: "INSTRUCTOR_NAME",
+		size: 200
 	}];
 
 	const blankRow: UapAppointmentEditable = {

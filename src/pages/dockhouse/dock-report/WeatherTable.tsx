@@ -10,6 +10,7 @@ import * as React from 'react';
 import { Edit } from 'react-feather';
 import { Card, CardBody, CardHeader, CardTitle, Table } from 'reactstrap';
 import { SubmitAction, WeatherRecord } from '.';
+import { ColumnDef } from '@tanstack/react-table';
 
 const WEATHER_TIMES = [
 	"09:00AM",
@@ -83,35 +84,39 @@ const EditWeather = (props: {
 		});
 	}, [weatherRecords]);
 
-	const columns = [{
-		Header: "Time",
-		accessor: "WEATHER_DATETIME",
-		cellWidth: 75,
-		readonly: true
+	const columns: ColumnDef<WeatherRecord>[] = [{
+		header: "Time",
+		accessorKey: "WEATHER_DATETIME",
+		size: 75,
+		meta: {
+			readonly: true
+		}
 	}, {
-		Header: "Temp (F)",
-		accessor: "TEMP",
-		cellWidth: 75
+		header: "Temp (F)",
+		accessorKey: "TEMP",
+		size: 75
 	}, {
-		Header: "Weather",
-		accessor: "WEATHER_SUMMARY"
+		header: "Weather",
+		accessorKey: "WEATHER_SUMMARY"
 	}, {
-		Header: "Wind Dir",
-		accessor: "WIND_DIR",
-		cellWidth: 70
+		header: "Wind Dir",
+		accessorKey: "WIND_DIR",
+		size: 70
 	}, {
-		Header: "Wind Stdy (kts)",
-		accessor: "WIND_SPEED_KTS_STEADY",
-		cellWidth: 90
+		header: "Wind Stdy (kts)",
+		accessorKey: "WIND_SPEED_KTS_STEADY",
+		size: 90
 	}, {
-		Header: "Wind Gust (kts)",
-		accessor: "WIND_SPEED_KTS_GUST",
-		cellWidth: 90
+		header: "Wind Gust (kts)",
+		accessorKey: "WIND_SPEED_KTS_GUST",
+		size: 90
 	}, {
-		Header: "Restrictions",
-		accessor: "RESTRICTIONS",
-		cellWidth: 420,
-		textAreaHeight: 4
+		header: "Restrictions",
+		accessorKey: "RESTRICTIONS",
+		size: 420,
+		meta: {
+			textAreaHeight: 4
+		}
 	}];
 
 	return <div className="form-group row">

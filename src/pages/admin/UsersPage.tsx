@@ -12,19 +12,24 @@ import {
 import { pathUsersEdit } from "app/paths";
 import ReportWithModalForm from "components/ReportWithModalForm";
 import {  StringifiedProps } from "util/StringifyObjectProps";
-import { none, some } from "fp-ts/lib/Option";
+import { none, Option, some } from "fp-ts/lib/Option";
 import optionify from "util/optionify";
-import { CellBooleanIcon, CellOption, SortType, SortTypeBoolean, SortTypeOptionalNumber, SortTypeOptionalStringCI, SortTypeStringCI } from "util/tableUtil";
-import { Column } from "react-table";
-import { TableColumnOptionsCbi, TableOptionsCbi } from "react-table-config";
 import {accessStateValidator} from 'async/staff/access-state'
 import asc from "app/AppStateContainer";
 import { MAGIC_NUMBERS } from "app/magicNumbers";
+import { ColumnDef, sortingFns } from "@tanstack/react-table";
+import { CellBooleanIcon, CellOption, SortType, SortTypeOption, SortTypeOptionalString, SortTypeOptionalStringCI } from "util/tableUtil";
 
 type User = t.TypeOf<typeof userValidator>
 type AccessState = t.TypeOf<typeof accessStateValidator>;
 
 export default function UsersPage(props: { users: User[], accessState: AccessState }) {
+	const decorateRow = (u: User) => ({
+		...u, pw1: none as Option<string>, pw2: none as Option<string>, userId: u.userId
+	});
+
+	type UserDecorated = ReturnType<typeof decorateRow>;
+
 	const myUser = React.useMemo(() => {
 		return props.users.find(u => u.userName.toLowerCase() == asc.state.login.authenticatedUserName.getOrElse("").toLowerCase());
 	}, []);
@@ -41,69 +46,62 @@ export default function UsersPage(props: { users: User[], accessState: AccessSta
 		return props.users
 		.filter(u => !(myUser.accessProfileId == MAGIC_NUMBERS.ACCESS_PROFILE_ID.GLOBAL_ADMIN || canManage[u.accessProfileId]))
 		.reduce((hash, u) => {
-			hash[String(u.userId.getOrElse(null))] = true;
+			hash[String(u.userId)] = true;
 			return hash;
 		}, {} as {[K: string]: true})
 	}, [])
 
-	const columns: TableColumnOptionsCbi[] = [{
-		accessor: "edit",
-		Header: "Edit",
-		width: 50,
-		disableSortBy: true
+	const mapAccessProfileIdToName = id => optionify(props.accessState.accessProfiles.find(ap => ap.id == id)).map(ap => ap.name).getOrElse("(unknown)")
+
+	const columns: ColumnDef<UserDecorated>[] = [{
+		accessorKey: "userId",
+		header: "ID",
+		size: 50,
 	}, {
-		accessor: "userId",
-		Header: "ID",
-		width: 50,
+		accessorKey: "userName",
+		header: "Username",
+		size: 70,
 	}, {
-		accessor: "userName",
-		Header: "Username",
-		width: 70,
+		accessorKey: "nameFirst",
+		header: "First Name",
+		size: 90,
+		cell: CellOption,
+		sortingFn: SortTypeOptionalStringCI,
 	}, {
-		accessor: "nameFirst",
-		Header: "First Name",
-		width: 90,
-		Cell: CellOption,
-		sortType: SortTypeOptionalStringCI
+		accessorKey: "nameLast",
+		header: "Last Name",
+		size: 90,
+		cell: CellOption,
+		sortingFn: SortTypeOptionalStringCI
 	}, {
-		accessor: "nameLast",
-		Header: "Last Name",
-		width: 90,
-		Cell: CellOption,
-		sortType: SortTypeOptionalStringCI
+		accessorKey: "accessProfileId",
+		header: "Access",
+		size: 90,
+		cell: ({getValue}) => mapAccessProfileIdToName(getValue()),
+		sortingFn: SortType(mapAccessProfileIdToName)
 	}, {
-		accessor: "accessProfileId",
-		Header: "Access",
-		width: 90,
-		Cell: ({value}) => optionify(props.accessState.accessProfiles.find(ap => ap.id == value)).map(ap => ap.name).getOrElse("(unknown)"),
-		sortType: SortType(id => props.accessState.accessProfiles.find(ap => ap.id == id).name)
+		accessorKey: "email",
+		header: "Email",
 	}, {
-		accessor: "email",
-		Header: "Email",
+		accessorKey: "active",
+		header: "Active",
+		size: 35,
+		cell: CellBooleanIcon(<CheckIcon color="#777" size="1.4em" />)
 	}, {
-		accessor: "active",
-		Header: "Active",
-		width: 35,
-		Cell: CellBooleanIcon(<CheckIcon color="#777" size="1.4em" />),
-		sortType: SortTypeBoolean
+		accessorKey: "hideFromClose",
+		header: "Hide From Close",
+		size: 65,
+		cell: CellBooleanIcon(<CheckIcon color="#777" size="1.4em" />)
 	}, {
-		accessor: "hideFromClose",
-		Header: "Hide From Close",
-		width: 65,
-		Cell: CellBooleanIcon(<CheckIcon color="#777" size="1.4em" />),
-		sortType: SortTypeBoolean
+		accessorKey: "pwChangeRequired",
+		header: "Pw Change Reqd",
+		size: 50,
+		cell: CellBooleanIcon(<CheckIcon color="#777" size="1.4em" />)
 	}, {
-		accessor: "pwChangeRequired",
-		Header: "Pw Change Reqd",
-		width: 50,
-		Cell: CellBooleanIcon(<CheckIcon color="#777" size="1.4em" />),
-		sortType: SortTypeBoolean
-	}, {
-		accessor: "locked",
-		Header: "Locked",
-		width: 35,
-		Cell: CellBooleanIcon(<LockIcon color="#777" size="1.4em" />),
-		sortType: SortTypeBoolean
+		accessorKey: "locked",
+		header: "Locked",
+		size: 35,
+		cell: CellBooleanIcon(<LockIcon color="#777" size="1.4em" />)
 	}];
 
 	const validate = (user: StringifiedProps<User>)  => {
@@ -221,7 +219,7 @@ export default function UsersPage(props: { users: User[], accessState: AccessSta
 						value={rowForEdit.accessProfileId}
 						onChange={(event) => updateState("accessProfileId", event.target.value)}
 					>
-						{[<option value="">- Select -</option>].concat(props.accessState.accessProfiles
+						{[<option key="-1" value="">- Select -</option>].concat(props.accessState.accessProfiles
 						.filter(ap => myUser.accessProfileId == MAGIC_NUMBERS.ACCESS_PROFILE_ID.GLOBAL_ADMIN || canManage[ap.id])
 						.map(ap => <option key={ap.id} value={ap.id}>{ap.name}</option>)
 						)}
@@ -318,10 +316,13 @@ export default function UsersPage(props: { users: User[], accessState: AccessSta
 						/>
 					</Col>
 				</FormGroup>
-	
+
 			</React.Fragment>
 		);
 	}
+
+
+
 	return <Card>
 		<CardHeader>
 			<CardTitle tag="h5" className="mb-0">Add/Edit Staff</CardTitle>
@@ -329,7 +330,7 @@ export default function UsersPage(props: { users: User[], accessState: AccessSta
 		<CardBody>
 			<ReportWithModalForm
 				rowValidator={userValidator}
-				rows={props.users.map(u => ({ ...u, pw1: none, pw2: none, userId: u.userId.getOrElse(null) }))}
+				rows={props.users.map(decorateRow)}
 				primaryKey="userId"
 				columns={columns}
 				formComponents={formComponents}
@@ -338,7 +339,7 @@ export default function UsersPage(props: { users: User[], accessState: AccessSta
 				noCard={true}
 				validateSubmit={validate}
 				postSubmit={user => ({ ...user, pw1: none, pw2: none})}
-				initialSortBy={[{id: "active"}, {id: "userName"}]}
+				initialSortBy={[{id: "active", desc: true}, {id: "userName", desc: false}]}
 				blockEdit={blockEdit}
 			/>
 		</CardBody>

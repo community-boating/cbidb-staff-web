@@ -1,10 +1,10 @@
 import * as t from 'io-ts';
 import APIWrapper from '../../core/APIWrapper';
 import { HttpMethod } from "../../core/HttpMethod";
-import { OptionalString, OptionalNumber } from '../../util/OptionalTypeValidators';
+import { makeOptionalPK, OptionalString } from '../../util/OptionalTypeValidators';
 
 export const userValidator = t.type({
-	userId: OptionalNumber,
+	userId: t.number,
 	userName: t.string,
 	nameFirst: OptionalString,
 	nameLast: OptionalString,
@@ -32,6 +32,6 @@ const postPath = "/staff/put-user"
 export const postWrapper = new APIWrapper({
 	path: postPath,
 	type: HttpMethod.POST,
-	postBodyValidator: userValidator,
+	postBodyValidator: makeOptionalPK(userValidator, "userId"),
 	resultValidator: userValidator,
 })

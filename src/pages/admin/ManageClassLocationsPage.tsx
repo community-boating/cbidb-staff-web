@@ -12,9 +12,8 @@ import { putWrapper as putClassLocation } from "async/rest/class-locations";
 
 // The common display structure which is a table editable via modal
 import ReportWithModalForm from "components/ReportWithModalForm";
-import { Column } from "react-table";
-import { TableColumnOptionsCbi } from "react-table-config";
 import { CellBooleanIcon, SortTypeBoolean } from "util/tableUtil";
+import { ColumnDef } from "@tanstack/react-table";
 
 type ClassLocation = t.TypeOf<typeof classLocationValidator>;
 
@@ -22,24 +21,20 @@ export default function ManageClassLocationsPage(props: {
 	locations: ClassLocation[];
 }) {
 	// Define table columns
-	const columns: TableColumnOptionsCbi[] = [{
-		accessor: "edit",
-		Header: "",
-		disableSortBy: true,
-		width: 50,
+	const columns: ColumnDef<ClassLocation>[] = [
+	{
+		accessorKey: "LOCATION_ID",
+		header: "ID",
+		size: 80,
 	}, {
-		accessor: "LOCATION_ID",
-		Header: "ID",
-		width: 80,
+		accessorKey: "LOCATION_NAME",
+		header: "Name",
 	}, {
-		accessor: "LOCATION_NAME",
-		Header: "Name",
-	}, {
-		accessor: "ACTIVE",
-		Header: "Active",
-		width: 100,
-		Cell: CellBooleanIcon(<CheckIcon color="#777" size="1.4em" />),
-		sortType: SortTypeBoolean
+		accessorKey: "ACTIVE",
+		header: "Active",
+		size: 100,
+		cell: CellBooleanIcon(<CheckIcon color="#777" size="1.4em" />),
+		sortingFn: SortTypeBoolean
 	}];
 
 	// Define edit/add form
@@ -95,7 +90,7 @@ export default function ManageClassLocationsPage(props: {
 	return (
 		<ReportWithModalForm
 			rowValidator={classLocationValidator}
-			rows={props.locations.map(l => ({ ...l, LOCATION_ID: l.LOCATION_ID.getOrElse(null)}))}
+			rows={props.locations}
 			primaryKey="LOCATION_ID"
 			columns={columns}
 			formComponents={formComponents}

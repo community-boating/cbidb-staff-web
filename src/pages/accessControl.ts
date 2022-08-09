@@ -25,7 +25,10 @@ export function canAccessPage(pageName: PageName): boolean {
 		case PageName.MANAGE_DONATION_FUNDS:
 			return !!asc.state.login.permissions[PERMISSIONS.PERM_UPDATE_DONATION_FUNDS]
 		case PageName.MANAGE_ACCESS:
+		case PageName.MANAGE_PERMISSIONS:
 			return !!asc.state.login.permissions[PERMISSIONS.PERM_MANAGE_ACCESS]
+		case PageName.SIGNOUTS_TABLES:
+			return true; 
 		default:
 			assertNever(pageName);
 			return false;

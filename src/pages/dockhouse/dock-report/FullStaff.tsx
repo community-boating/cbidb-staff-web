@@ -11,6 +11,7 @@ import { DATE_FORMAT_LOCAL_DATETIME } from 'util/dateUtil';
 import optionify from 'util/optionify';
 import { ERROR_DELIMITER } from 'core/APIWrapper';
 import { combineValidations, validateMilitaryTime, validateNotBlank } from 'util/validate';
+import { ColumnDef } from '@tanstack/react-table';
 
 type Staff = t.TypeOf<typeof dockReportStaffValidator>
 
@@ -112,17 +113,17 @@ const EditStaffTable = (props: {
 		});
 	}, [staff]);
 
-	const columns = [{
-		Header: <>Name <img src="/images/required.png" /></>,
-		accessor: "STAFF_NAME"
+	const columns: ColumnDef<StaffEditable>[] = [{
+		header: () => <>Name <img src="/images/required.png" /></>,
+		accessorKey: "STAFF_NAME"
 	}, {
-		Header: "In",
-		accessor: "TIME_IN",
-		cellWidth: 75
+		header: "In",
+		accessorKey: "TIME_IN",
+		size: 75
 	}, {
-		Header: "Out",
-		accessor: "TIME_OUT",
-		cellWidth: 75
+		header: "Out",
+		accessorKey: "TIME_OUT",
+		size: 75
 	}];
 
 	const blankRow: StaffEditable = {

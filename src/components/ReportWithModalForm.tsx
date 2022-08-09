@@ -9,60 +9,78 @@ import { ErrorPopup } from "components/ErrorPopup";
 import { none, Option, some } from "fp-ts/lib/Option";
 import APIWrapper from "core/APIWrapper";
 import { ButtonWrapper } from "./ButtonWrapper";
-import { destringify, DisplayableProps, nullifyEmptyStrings, StringifiedProps, stringify, stringifyAndMakeBlank } from "util/StringifyObjectProps";
-import { TableColumnOptionsCbi } from "react-table-config";
+import { destringify, nullifyEmptyStrings, StringifiedProps, stringify, stringifyAndMakeBlank } from "util/StringifyObjectProps";
+import { SortingState, FilterFnOption, ColumnDef } from "@tanstack/react-table";
 
-export default function ReportWithModalForm<T extends t.TypeC<any>, U extends object = t.TypeOf<T>>(props: {
+export type validationError = {
+	key: string,
+	display: string
+} | string
+
+export type UpdateStateType = ((id: string, value: string | boolean) => void) & ((id: string[], value: string[] | boolean[]) => void);
+
+export default function ReportWithModalForm<K extends keyof U, T extends t.TypeC<any>, T_Filter, U extends object = t.TypeOf<T>>(props: {
 	rowValidator: T
-	rows: U[],
-	primaryKey: string & keyof U,
-	columns: TableColumnOptionsCbi[],
-	formComponents: (rowForEdit: StringifiedProps<U>, updateState: (id: string, value: string | boolean) => void) => JSX.Element
-	submitRow: APIWrapper<any, T, any>
+	rows: U[]
+	primaryKey: string & keyof U
+	columns: ColumnDef<U>[]
+	formComponents: (rowForEdit: StringifiedProps<U>, updateState: UpdateStateType, currentRow?: U, validationResults?: validationError[]) => JSX.Element
+	submitRow: APIWrapper<any, any, any>
 	cardTitle?: string
+	columnsNonEditable?: K[]
+	globalFilterState?: T_Filter
+	globalFilter?: FilterFnOption<U>
+	setRowData?: (rows: U[]) => void
+	hidableColumns?: boolean
+	hideAdd?: boolean
 	addRowText?: string
-	validateSubmit?: (rowForEdit: StringifiedProps<U>) => string[],
-	postSubmit?: (rowForEdit: U) => U,
+	validateSubmit?: (rowForEdit: StringifiedProps<U>, currentRow?: U) => validationError[]
+	postSubmit?: (rowForEdit: U) => U
 	noCard?: boolean
-	initialSortBy?: {id: keyof U, desc?: boolean}[],
+	initialSortBy?: SortingState
 	blockEdit?: {[K: string]: true}
 }) {
+
 	const blankForm = {
 		rowForEdit: stringifyAndMakeBlank(props.rowValidator),
+		currentRow: {} as U
 	}
 
 	const [modalIsOpen, setModalIsOpen] = React.useState(false);
-	const [validationErrors, setValidationErrors] = React.useState([] as string[]);
+	const [validationErrors, setValidationErrors] = React.useState([] as validationError[]);
 	const [formData, setFormData] = React.useState(blankForm);
-	const [rowData, updateRowData] = React.useState(props.rows);
 
-	const makeEditCol = (value: number) => <a href="" onClick={e => {
-		e.preventDefault();
-		openForEdit(some(value));
-	}}><EditIcon color="#777" size="1.4em" /></a>
+	var rowData = props.rows;
+	var updateRowData = props.setRowData;
+	if(!updateRowData){
+		[rowData, updateRowData] = React.useState(props.rows);
+	}
+
+	const editColumn: ColumnDef<U, any> = {
+		id: "edit",
+		size: 45,
+		cell: ({row}) => <a href="" onClick={e => {
+			e.preventDefault();
+			openForEdit(some(row.original[props.primaryKey] as unknown as number));
+		}}><EditIcon color="#777" size="1.4em" /></a>
+	}
 
 	const data = React.useMemo(() => rowData.map(r => {
 		const pk = r[props.primaryKey];
 		if (pk["_tag"]) throw "Option PK Found"
-
-		return {
-			...r,
-			edit: (
-				(props.blockEdit && props.blockEdit[String(pk)])
-				? null
-				: makeEditCol(pk as unknown as number)
-			),
-		}
+		return r
 	}), [rowData]);
-
-	const report = React.useMemo(() => <SimpleReport 
+	const report = <SimpleReport 
 		keyField={props.primaryKey}
 		data={data}
-		columns={props.columns}
+		columns={[editColumn, ...props.columns]}
 		sizePerPage={12}
 		sizePerPageList={[12, 25, 50, 1000]}
+		globalFilterState={props.globalFilterState}
+		globalFilter={props.globalFilter}
+		hidableColumns={props.hidableColumns}
 		initialSortBy={props.initialSortBy}
-	/>, [rowData])
+	/>;
 
 	const openForEdit = (id: Option<number>) => {
 		setModalIsOpen(true);
@@ -71,6 +89,7 @@ export default function ReportWithModalForm<T extends t.TypeC<any>, U extends ob
 			const row = rowData.find(i => i[props.primaryKey] as unknown as number == id.getOrElse(null))
 			setFormData({
 				rowForEdit: stringify(row),
+				currentRow: row
 			})
 		} else {
 			setFormData(blankForm)
@@ -92,9 +111,36 @@ export default function ReportWithModalForm<T extends t.TypeC<any>, U extends ob
 		})
 	}
 
+	const updateStates = (id: string[], value: string[] | boolean[]) => {
+		const newRowForEdit = Object.assign({}, formData.rowForEdit);
+		id.forEach((a, i) => {
+			(newRowForEdit as any)[a] = String(value[i]);
+		});
+		setFormData({...formData,rowForEdit: newRowForEdit});
+	}
+
+	const updateStatesCombined = (id, value) => {
+		if(id instanceof Array<string>){
+			updateStates(id, value);
+		}else{
+			updateState(id, value);
+		}
+	}
+
 	function closeModal() {
 		setModalIsOpen(false);
 		setTimeout(() => setFormData(blankForm), 100); // wait for the animation to hide the modal
+	}
+
+	function getOnlyNonEditableFields (currentRow: U){
+		const onlyNonEditableRow: U = {} as U;
+		if(props.columnsNonEditable === undefined){
+			return onlyNonEditableRow;
+		}
+		props.columnsNonEditable.forEach((a) => {
+			onlyNonEditableRow[a] = currentRow[a];
+		})
+		return onlyNonEditableRow;
 	}
 
 	const submit = () => {
@@ -104,7 +150,7 @@ export default function ReportWithModalForm<T extends t.TypeC<any>, U extends ob
 			// Let the event queue drain so the validation errors actually flicker off, before we push new ones
 			setTimeout(() => {
 				if (props.validateSubmit) {
-					const errors = props.validateSubmit(formData.rowForEdit)
+					const errors = props.validateSubmit(formData.rowForEdit, formData.currentRow);
 					if (errors.length > 0) {
 						setValidationErrors(errors);
 						resolve(null);
@@ -116,7 +162,6 @@ export default function ReportWithModalForm<T extends t.TypeC<any>, U extends ob
 				// HOWEVER, do not turn optional values back into options.  The validator is expecting the same shape as what would have come from the server,
 				// ie either a value or null.
 				const candidateForValidation = destringify(props.rowValidator, nullifyEmptyStrings(formData.rowForEdit), false, props.primaryKey);
-
 				// On a create, ID will be null which is not ok per the validator.  Shove some crap in there to make it happy
 				const pkValue = candidateForValidation[props.primaryKey] == null ? -1 : candidateForValidation[props.primaryKey];
 
@@ -124,7 +169,8 @@ export default function ReportWithModalForm<T extends t.TypeC<any>, U extends ob
 					...candidateForValidation,
 					[props.primaryKey]: pkValue
 				});
-
+				const validationResults = validateResult.isLeft() ? validateResult.value.filter((a) => {return !props.columnsNonEditable.includes(a.context[1].key as K)}) : [];
+				const isValid = validateResult.isRight() || validationResults.length == 0;
 				const rowMatches: (r: U) => boolean = r => {
 					const pk = r[props.primaryKey];
 					if (pk["_tag"]) {
@@ -133,13 +179,20 @@ export default function ReportWithModalForm<T extends t.TypeC<any>, U extends ob
 						return String(pk) == formData.rowForEdit[props.primaryKey]
 					}
 				}
-				
-				if (validateResult.isRight()) {
+				if (isValid) {
 					// Destringify again, this time turning optional values back into options. It's a bit pointless since
 					// they will be stripped out again before sending to the server, but ApiWrapper expects actual option values
 					// Besides, we need to give that value back to the table anyway.
 					const toSend = destringify(props.rowValidator, nullifyEmptyStrings(formData.rowForEdit), true, props.primaryKey);
-					props.submitRow.sendJson(toSend).then(ret => {
+					var toSendEditable = toSend;
+					if(props.columnsNonEditable !== undefined){
+						toSendEditable = Object.assign({}, toSend);
+						props.columnsNonEditable.forEach((a) => {
+							const v = a as keyof typeof toSend;
+							toSendEditable[v] = undefined;
+						});
+					}
+					props.submitRow.sendJson(toSendEditable).then(ret => {
 						if (ret.type == "Success") {
 							closeModal();
 							const isUpdate = rowData.find(rowMatches) != null;
@@ -152,7 +205,11 @@ export default function ReportWithModalForm<T extends t.TypeC<any>, U extends ob
 								// was an update.  Find the row and update it
 								updateRowData(rowData.map(row => {
 									if (rowMatches(row)) {
-										return { ...toAdd, [props.primaryKey]:( toAdd[props.primaryKey] as unknown as Option<number>).getOrElse(null)};
+										if(props.columnsNonEditable !== undefined){
+											return {...ret.success, ...getOnlyNonEditableFields(formData.currentRow)};
+										}else{
+											return { ...toAdd, [props.primaryKey]:( toAdd[props.primaryKey])};
+										}
 									} else {
 										return row;
 									}
@@ -171,15 +228,13 @@ export default function ReportWithModalForm<T extends t.TypeC<any>, U extends ob
 								}]))
 							}
 						} else {
-							setValidationErrors([ret.message])
+							setValidationErrors([{key: undefined, display: ret.message}]);
 						}
 						resolve(null);
 					})
 				} else {
-					//TODO: I'm sure we can do better than this
-					setValidationErrors(["At least one field is not valid."]);
+					setValidationErrors(validationResults.map((b) => ({key:(((b || {}).context || [])[1] || {}).key, display: b.message})).filter((b) => b != undefined));
 					console.log(validateResult.swap().getOrElse(null));
-					resolve(null);
 				}
 			}, 0);
 		})
@@ -188,7 +243,7 @@ export default function ReportWithModalForm<T extends t.TypeC<any>, U extends ob
 
 	const toRender = <div>
 		{report}
-		<Button className="mr-1 mb-1" outline onClick={() => openForEdit(none) }>{props.addRowText || "Add Row"}</Button>
+		{props.hideAdd !== true ? <Button className="mr-1 mb-1" outline onClick={() => openForEdit(none) }>{props.addRowText || "Add Row"}</Button> : <></>}
 	</div>;
 
 	return <React.Fragment>
@@ -201,12 +256,12 @@ export default function ReportWithModalForm<T extends t.TypeC<any>, U extends ob
 				Add/Edit
 			</ModalHeader>
 			<ModalBody className="text-center m-3">
-				<ErrorPopup errors={validationErrors}/>
+				<ErrorPopup errors={validationErrors.map((a) => (a["display"] || a))}/>
 				<Form onSubmit={e => {
 					e.preventDefault();
 					submit();
 				} }>
-					{props.formComponents(formData.rowForEdit, updateState)}
+					{props.formComponents(formData.rowForEdit, updateStatesCombined ,formData.currentRow, validationErrors)}
 				</Form>
 			</ModalBody>
 			<ModalFooter>

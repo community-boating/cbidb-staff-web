@@ -9,6 +9,8 @@ import asc from "app/AppStateContainer";
 import { removeOptions } from 'util/deserializeOption';
 import { HttpMethod } from "./HttpMethod";
 import { PostType, Config, ApiResult, ServerParams } from './APIWrapperTypes';
+import * as moment from 'moment';
+
 export const ERROR_DELIMITER = "\\n"
 
 interface PostValues {content: string, isJson: boolean, headers: {}}
@@ -70,7 +72,8 @@ export default class APIWrapper<T_ResponseValidator extends t.Any, T_PostBodyVal
 	sendJson: (data: t.TypeOf<T_PostBodyValidator>) => Promise<ApiResult<t.TypeOf<T_ResponseValidator>>> = data => this.sendWithParams(none)(makePostJSON(data))
 	sendFormUrlEncoded: (data: t.TypeOf<T_PostBodyValidator>) => Promise<ApiResult<t.TypeOf<T_ResponseValidator>>> = data => this.sendWithParams(none)(makePostString(data))
 	// send: (data: PostType<t.TypeOf<T_PostBodyValidator>>) => Promise<ApiResult<t.TypeOf<T_ResponseValidator>>> = data => this.sendWithParams(none)(data)
-	sendWithParams: (serverParamsOption: Option<ServerParams>) => (data: PostType<t.TypeOf<T_PostBodyValidator>>) => Promise<ApiResult<t.TypeOf<T_ResponseValidator>>> = serverParamsOption => data => {
+	sendWithParams: (serverParamsOption: Option<ServerParams>, params?: any) => (data: PostType<t.TypeOf<T_PostBodyValidator>>) => Promise<ApiResult<t.TypeOf<T_ResponseValidator>>> = (serverParamsOption, params) => data => {
+		moment.fn.toJSON = function() { return this.format(this["_f"]); }
 		const serverParams = serverParamsOption.getOrElse((process.env as any).serverToUseForAPI);
 		const self = this;
 		type Return = Promise<ApiResult<t.TypeOf<T_ResponseValidator>>>;
@@ -85,10 +88,12 @@ export default class APIWrapper<T_ResponseValidator extends t.Any, T_PostBodyVal
 						headers: {}
 					})
 				} else {
-					const content = removeOptions({convertEmptyStringToNull: true})({
+					const content = !(data.jsonData as any instanceof Array ) ? removeOptions({convertEmptyStringToNull: true})({
 						...data.jsonData,
 						...(self.config.fixedParams || {})
-					});
+					}) : removeOptions({convertEmptyStringToNull: true})(
+							Object.assign(data.jsonData, self.config.fixedParams)
+					);
 					if (content == undefined) return none;
 					else return some({
 						content,
@@ -98,19 +103,16 @@ export default class APIWrapper<T_ResponseValidator extends t.Any, T_PostBodyVal
 				}
 			} else return none;
 		}());
-
 		const postBodyValidationError = postValues.chain(({isJson, content}) => {
 			if (!isJson || self.config.type != "POST") return none;
-			console.log(content)
-			console.log(self.config.postBodyValidator)
 			const validationResult = self.config.postBodyValidator.decode(content);
 			if (validationResult.isLeft()) return some(PathReporter.report(validationResult).join(", "))
 			else return none;
 		});
 
-		console.log(postBodyValidationError)
-
 		if (postBodyValidationError.isSome()) {
+			console.log("postBodyError");
+			console.log(postBodyValidationError);
 			return Promise.resolve({
 				type: "Failure", code: "post_body_parse_fail", message: "Invalid submit. Are you missing required fields?", extra: postBodyValidationError.getOrElse(null)
 			})
@@ -121,23 +123,28 @@ export default class APIWrapper<T_ResponseValidator extends t.Any, T_PostBodyVal
 				...postValues.map(pv => pv.headers).getOrElse(null)
 			}
 
-			return getOrCreateAxios(serverParams)({
+			return (params != undefined ? getOrCreateAxios(serverParams)({
 				method: self.config.type,
 				url: (serverParams.pathPrefix || "") + self.config.path,
-				// params,
+				params: params,
 				data: postValues.map(pv => pv.content).getOrElse(null),
 				headers
-			}).then((res: AxiosResponse) => {
+			}) : getOrCreateAxios(serverParams)({
+				method: self.config.type,
+				url: (serverParams.pathPrefix || "") + self.config.path,
+				data: postValues.map(pv => pv.content).getOrElse(null),
+				headers
+			})).then((res: AxiosResponse) => {
 				return this.parseResponse(res.data);
 			}, err => {
-				console.log("Error: ", err)
+				console.log("Send Error: ", err);
 				const ret: Return = Promise.resolve({type: "Failure", code: "fail_during_send", message: "An internal error has occurred.", extra: {err}});
 				console.log(ret);
 				return ret;
 			})
 			.catch(err => {
 				const ret: Return = Promise.resolve({type: "Failure", code: "fail_during_parse", message: "An internal error has occurred.", extra: {err}});
-				console.log(ret)
+				console.log("Parse Error: ", err);
 				return ret;
 			})
 		}
@@ -145,7 +152,6 @@ export default class APIWrapper<T_ResponseValidator extends t.Any, T_PostBodyVal
 	private parseResponse: (response: any) => ApiResult<t.TypeOf<T_ResponseValidator>> = response => {
 		type Result = t.TypeOf<T_ResponseValidator>;
 		type Return = ApiResult<t.TypeOf<T_ResponseValidator>>;
-
 		const self = this;
 
 		let parsed;
@@ -204,7 +210,6 @@ export default class APIWrapper<T_ResponseValidator extends t.Any, T_PostBodyVal
 				}
 			}
 		}());
-
 		const decoded: Either<t.Errors, Result> = this.config.resultValidator.decode(candidate)
 		return (function() {
 			let ret: Return
@@ -212,7 +217,6 @@ export default class APIWrapper<T_ResponseValidator extends t.Any, T_PostBodyVal
 				ret = {type: "Success", success: decoded.getOrElse(null)};
 			} else {
 				ret = {type: "Failure", code: "parse_failure", message: "An internal error has occurred.", extra: {parseError: PathReporter.report(decoded).join(", ")}};
-				// console.log(ret)
 			} 
 			return ret;
 		}());

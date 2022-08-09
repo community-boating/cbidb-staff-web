@@ -1,5 +1,8 @@
 import { none, some } from 'fp-ts/lib/Option';
 import * as t from 'io-ts';
+import { Editable } from './EditableType';
+import * as moment from "moment";
+import { DefaultDateFormat, DefaultDateTimeFormat } from './OptionalTypeValidators';
 
 export declare type StringifiedProps<T extends object> = {
 	[Property in keyof T]: string;
@@ -34,6 +37,8 @@ function stringifyValue(v: any): string {
 	} else if (v["_tag"]) {
 		// it's an option; recurse
 		return stringifyValue(v.getOrElse(""));
+	}else if(moment.isMoment(v)){
+		return v.format(v["_f"]);
 	} else {
 		switch (typeof(v)) {
 		case "boolean":
@@ -60,6 +65,10 @@ function destringifyValue(v: string, typeName: string, useOption: boolean): any 
 	const isNone = v == null || v == "";
 	if (useOption) {
 		switch (typeName) {
+		case "OptionalDateTime":
+			return isNone ? none : some(moment(v).format(DefaultDateTimeFormat))
+		case "OptionalDate":
+			return isNone ? none : some(moment(v).format(DefaultDateFormat))
 		case "OptionalNumber":
 			return isNone ? none : some(destringifyPrimitive(v, "number"))
 		case "OptionalBoolean":
@@ -71,6 +80,10 @@ function destringifyValue(v: string, typeName: string, useOption: boolean): any 
 		}
 	} else {
 		switch (typeName) {
+		case "OptionalDateTime":
+			return isNone ? null : moment(v).format(DefaultDateTimeFormat)
+		case "OptionalDate":
+			return isNone ? null : moment(v).format(DefaultDateFormat)
 		case "OptionalNumber":
 			return isNone ? null : destringifyPrimitive(v, "number")
 		case "OptionalBoolean":
@@ -82,6 +95,18 @@ function destringifyValue(v: string, typeName: string, useOption: boolean): any 
 		}
 	}
 
+}
+
+export function stringifyEditable<T extends object, U extends keyof T>(obj: T, non: U[]): Editable<T, U> {
+	let ret: any = {}
+	Object.keys(obj).forEach(key => {
+		if(non.contains(key as U)){
+			ret[key] = ret[key];
+		}else{
+			ret[key] = stringifyValue(obj[key]);
+		}
+	})
+	return <Editable<T, U>>ret;
 }
 
 export function stringify<T extends object>(obj: T): StringifiedProps<T> {

@@ -1,10 +1,10 @@
 import * as t from "io-ts";
-import { OptionalNumber } from "util/OptionalTypeValidators";
+import { makeOptionalPK, OptionalNumber } from "util/OptionalTypeValidators";
 import APIWrapper from "../../core/APIWrapper";
 import { HttpMethod } from "../../core/HttpMethod";
 
 export const classLocationValidator = t.type({
-	LOCATION_ID: OptionalNumber,
+	LOCATION_ID: t.number,
 	LOCATION_NAME: t.string,
 	ACTIVE: t.boolean,
 });
@@ -26,6 +26,6 @@ const resultValidator = t.type({
 export const putWrapper = new APIWrapper({
 	path,
 	type: HttpMethod.POST,
-	postBodyValidator: classLocationValidator,
+	postBodyValidator: makeOptionalPK(classLocationValidator, "LOCATION_ID"),
 	resultValidator,
 });

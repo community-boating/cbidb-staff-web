@@ -2,9 +2,6 @@ import * as React from "react";
 import * as t from "io-ts";
 import { FormGroup, Label, Col, Input } from "reactstrap";
 
-// Table building utilities
-import { tableColWidth } from "util/tableUtil";
-
 // Validator and putter for the data type of this page
 import { tagValidator } from "async/rest/tags";
 import { putWrapper as putTag } from "async/rest/tags";
@@ -12,29 +9,22 @@ import { putWrapper as putTag } from "async/rest/tags";
 // The common display structure which is a table editable via modal
 import ReportWithModalForm from "components/ReportWithModalForm";
 import { StringifiedProps } from "util/StringifyObjectProps";
-import { Column } from "react-table";
-import { TableColumnOptionsCbi } from "react-table-config";
+import { ColumnDef } from "@tanstack/react-table";
 
 type Tag = t.TypeOf<typeof tagValidator>;
 
 export default function ManageTagsPage(props: { tags: Tag[] }) {
 	// Define table columns
-	const columns: TableColumnOptionsCbi[] = [
+	const columns: ColumnDef<Tag>[] = [
 		{
-			accessor: "edit",
-			Header: "",
-			disableSortBy: true,
-			width: 50,
+			accessorKey: "TAG_ID",
+			header: "ID",
+			size: 75,
 		},
 		{
-			accessor: "TAG_ID",
-			Header: "ID",
-			width: 75,
-		},
-		{
-			accessor: "TAG_NAME",
-			Header: "Tag Name",
-			width: null
+			accessorKey: "TAG_NAME",
+			header: "Tag Name",
+			size: null
 		},
 	];
 
@@ -74,7 +64,7 @@ export default function ManageTagsPage(props: { tags: Tag[] }) {
 	return (
 		<ReportWithModalForm
 			rowValidator={tagValidator}
-			rows={props.tags.map(t => ({ ...t, TAG_ID: t.TAG_ID.getOrElse(null)}))}
+			rows={props.tags}
 			primaryKey="TAG_ID"
 			columns={columns}
 			formComponents={formComponents}

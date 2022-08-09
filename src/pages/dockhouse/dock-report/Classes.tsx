@@ -12,7 +12,7 @@ import * as moment from 'moment';
 import { combineValidations, validateMilitaryTime, validateNotBlank, validateNumber } from 'util/validate';
 import { ERROR_DELIMITER } from 'core/APIWrapper';
 import { sortOnCol } from 'util/sort';
-import { Column } from 'react-table';
+import { ColumnDef } from '@tanstack/react-table';
 
 type Class = t.TypeOf<typeof dockReportApClassValidator>
 
@@ -101,39 +101,32 @@ const EditClassTable = (props: {
 		});
 	}, [classes]);
 
-	const columns = [{
-		Header: <>Time <img src="/images/required.png" /></>,
-		accessor: "CLASS_DATETIME",
-		cellWidth: 75,
-		readonly: true
+	const columns: ColumnDef<ClassEditable>[] = [{
+		header: () => <>Time <img src="/images/required.png" /></>,
+		accessorKey: "CLASS_DATETIME",
+		size: 75,
+		meta: {
+			readonly: true
+		}
 	}, {
-		Header: <>Class <img src="/images/required.png" /></>,
-		accessor: "CLASS_NAME",
-		cellWidth: 150,
-		readonly: true
+		header: () => <>Class <img src="/images/required.png" /></>,
+		accessorKey: "CLASS_NAME",
+		size: 150,
+		meta: {
+			readonly: true
+		}
 	}, {
-		Header: "Location",
-		accessor: "LOCATION",
-		cellWidth: 250
+		header: "Location",
+		accessorKey: "LOCATION",
+		size: 250
 	}, {
-		Header: "Attend",
-		accessor: "ATTEND",
-		cellWidth: 75
+		header: "Attend",
+		accessorKey: "ATTEND",
+		size: 75
 	}, {
-		Header: "Instructor",
-		accessor: "INSTRUCTOR"
+		header: "Instructor",
+		accessorKey: "INSTRUCTOR"
 	}];
-
-	// const blankRow = {
-	// 	DOCK_REPORT_AP_CLASS_ID: null,
-	// 	DOCK_REPORT_ID: null,
-	// 	AP_INSTANCE_ID: null,
-	// 	CLASS_DATETIME: "",
-	// 	CLASS_NAME: "",
-	// 	LOCATION: "",
-	// 	ATTEND: "",
-	// 	INSTRUCTOR: ""
-	// }
 
 	return <div className="form-group row">
 		<TabularForm columns={columns} data={classes} setData={setClasses}/>

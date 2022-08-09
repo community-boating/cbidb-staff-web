@@ -13,8 +13,7 @@ import { putWrapper as putHighSchool } from "async/rest/high-schools";
 
 // The common display structure which is a table editable via modal
 import ReportWithModalForm from "components/ReportWithModalForm";
-import { Column } from "react-table";
-import { TableColumnOptionsCbi } from "react-table-config";
+import { ColumnDef } from "@tanstack/react-table";
 
 type HighSchool = t.TypeOf<typeof highSchoolValidator>;
 // class FormCheckbox extends FormElementCheckbox<FormData> {}
@@ -23,30 +22,24 @@ export default function ManageHighSchoolsPage(props: {
 	highSchools: HighSchool[];
 }) {
 	// Define table columns
-	const columns: TableColumnOptionsCbi[] = [
+	const columns: ColumnDef<HighSchool>[] = [
 		{
-			accessor: "edit",
-			Header: "",
-			disableSortBy: true,
-			width: 50
+			accessorKey: "SCHOOL_ID",
+			header: "ID",
+			size: 80,
+			sortingFn: SortTypeBoolean
 		},
 		{
-			accessor: "SCHOOL_ID",
-			Header: "ID",
-			width: 80,
-			sortType: SortTypeBoolean
+			accessorKey: "SCHOOL_NAME",
+			header: "School Name",
+			sortingFn: SortTypeBoolean
 		},
 		{
-			accessor: "SCHOOL_NAME",
-			Header: "School Name",
-			sortType: SortTypeBoolean
-		},
-		{
-			accessor: "ACTIVE",
-			Header: "Active",
-			width: 100,
-			Cell: CellBooleanIcon(<CheckIcon color="#777" size="1.4em" />),
-			sortType: SortTypeBoolean
+			accessorKey: "ACTIVE",
+			header: "Active",
+			size: 100,
+			cell: CellBooleanIcon(<CheckIcon color="#777" size="1.4em" />),
+			sortingFn: SortTypeBoolean
 		},
 	];
 
@@ -100,7 +93,7 @@ export default function ManageHighSchoolsPage(props: {
 	return (
 		<ReportWithModalForm
 			rowValidator={highSchoolValidator}
-			rows={props.highSchools.map(s => ({ ...s, SCHOOL_ID: s.SCHOOL_ID.getOrElse(null)}))}
+			rows={props.highSchools}
 			primaryKey="SCHOOL_ID"
 			columns={columns}
 			formComponents={formComponents}

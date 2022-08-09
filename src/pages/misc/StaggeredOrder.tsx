@@ -9,11 +9,9 @@ import { ButtonWrapper } from 'components/ButtonWrapper';
 import {postWrapper as finishOrder} from "async/staff/finish-open-order"
 import { ErrorPopup } from 'components/ErrorPopup';
 import { SimpleReport } from 'core/SimpleReport';
+import { ColumnDef } from '@tanstack/react-table';
 
 type PaymentList = t.TypeOf<typeof validator>
-
-const paid = <span style={{color:"#22772d"}}>Paid</span>
-const failed = <span style={{color:"#ff0000"}}>Failed</span>
 
 export default function StaggeredOrder(props: { history: History<any>, personId: number, payments: PaymentList }) {
 	const [isOpen, doOpen] = React.useState(false);
@@ -21,25 +19,35 @@ export default function StaggeredOrder(props: { history: History<any>, personId:
 
 	const abort = () => doOpen(false);
 
-	const columns = [{
-		accessor: "expectedDateToShow",
-		Header: "Date",
+	const columns: ColumnDef<any>[] = [{
+		accessorKey: "expectedDateToShow",
+		header: "Date",
 	},
 	{
-		accessor: "amount",
-		Header: "Amount",
-		width: 80,
+		accessorKey: "amount",
+		header: "Amount",
+		size: 80,
 	},
 	{
-		accessor: "status",
-		Header: "Status",
+		accessorKey: "status",
+		header: "Status",
+		cell: (props) => {
+			switch (props.getValue()) {
+				case "Paid":
+					return <span style={{color:"#22772d"}}>Paid</span>;
+				case "Failed":
+					return <span style={{color:"#ff0000"}}>Failed</span>;
+				default:
+					return props.getValue();
+			}
+		}
 	}];
 
 	const data = props.payments.map(p => ({
 		...p,
 		amount: Currency.cents(p.amountCents).format(),
 		expectedDateToShow: toMomentFromLocalDate(p.expectedDate).format("MM/DD/YYYY"),
-		status: p.paid ? paid : (p.failedCron ? failed : "Unpaid")
+		status: p.paid ? "Paid" : (p.failedCron ? "Failed" : "Unpaid")
 	}));
 
 	const confirmModal = <Modal

@@ -1,10 +1,10 @@
-import { OptionalNumber, OptionalString } from "util/OptionalTypeValidators";
+import { makeOptionalPK, OptionalNumber, OptionalString } from "util/OptionalTypeValidators";
 import * as t from "io-ts";
 import APIWrapper from "../../core/APIWrapper";
 import { HttpMethod } from "../../core/HttpMethod";
 
 export const donationFundValidator = t.type({
-	FUND_ID: OptionalNumber,
+	FUND_ID: t.number,
 	FUND_NAME: t.string,
 	LETTER_TEXT: OptionalString,
 	ACTIVE: t.boolean,
@@ -31,6 +31,6 @@ const resultValidator = t.type({
 export const putWrapper = new APIWrapper({
 	path,
 	type: HttpMethod.POST,
-	postBodyValidator: donationFundValidator,
+	postBodyValidator: makeOptionalPK(donationFundValidator, "FUND_ID"),
 	resultValidator,
 });
