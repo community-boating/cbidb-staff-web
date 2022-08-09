@@ -13,7 +13,7 @@ import { putWrapper as putHighSchool } from "async/rest/high-schools";
 
 // The common display structure which is a table editable via modal
 import ReportWithModalForm from "components/ReportWithModalForm";
-import { TableColumnOptionsCbi } from "react-table-config";
+import { ColumnDef } from "@tanstack/react-table";
 
 type HighSchool = t.TypeOf<typeof highSchoolValidator>;
 // class FormCheckbox extends FormElementCheckbox<FormData> {}
@@ -22,7 +22,7 @@ export default function ManageHighSchoolsPage(props: {
 	highSchools: HighSchool[];
 }) {
 	// Define table columns
-	const columns: TableColumnOptionsCbi<HighSchool>[] = [
+	const columns: ColumnDef<HighSchool>[] = [
 		{
 			accessorKey: "SCHOOL_ID",
 			header: "ID",

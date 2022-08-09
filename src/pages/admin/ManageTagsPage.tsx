@@ -9,13 +9,13 @@ import { putWrapper as putTag } from "async/rest/tags";
 // The common display structure which is a table editable via modal
 import ReportWithModalForm from "components/ReportWithModalForm";
 import { StringifiedProps } from "util/StringifyObjectProps";
-import { TableColumnOptionsCbi } from "react-table-config";
+import { ColumnDef } from "@tanstack/react-table";
 
 type Tag = t.TypeOf<typeof tagValidator>;
 
 export default function ManageTagsPage(props: { tags: Tag[] }) {
 	// Define table columns
-	const columns: TableColumnOptionsCbi<Tag>[] = [
+	const columns: ColumnDef<Tag>[] = [
 		{
 			accessorKey: "TAG_ID",
 			header: "ID",

@@ -13,7 +13,7 @@ import { putWrapper as putDonationFund } from "async/rest/donation-funds";
 // The common display structure which is a table editable via modal
 import ReportWithModalForm from "components/ReportWithModalForm";
 import { StringifiedProps } from "util/StringifyObjectProps";
-import { TableColumnOptionsCbi } from "react-table-config";
+import { ColumnDef } from "@tanstack/react-table";
 
 type DonationFund = t.TypeOf<typeof donationFundValidator>;
 
@@ -21,7 +21,7 @@ export default function ManageDonationFundsPage(props: {
 	donationFunds: DonationFund[];
 }) {
 	// Define table columns
-	const columns: TableColumnOptionsCbi<DonationFund>[] = [
+	const columns: ColumnDef<DonationFund>[] = [
 		{
 			accessorKey: "FUND_ID",
 			header: "ID",
