@@ -28,9 +28,9 @@ export default class RouteWrapper<T extends StringObject>{
 
 	asRoute(history: History<any>) {
 		if (!canAccessPage(this.config.pageName)) {
-			return <Redirect key={"redirect-" + this.config.pageName} path={this.config.pageName} to={'/'}  />
+			return <Redirect key={"redirect-" + this.config.pageName} to={'/'}  />
 		} else {
-			return <Route key={this.pathWrapper.path} path={this.pathWrapper.path} exact={false} render={() => this.render(history)} />;
+			return <Route key={this.pathWrapper.path} path={this.pathWrapper.path} exact={this.config.exact} render={() => this.render(history)} />;
 		}
 		
 	}

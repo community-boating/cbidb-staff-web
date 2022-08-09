@@ -59,7 +59,7 @@ const makePostString: <T_PostJSON extends {[K: string]: string}>(forString: T_Po
 	type: "urlEncoded",
 	urlEncodedData: PostURLEncoded(forString)
 })
-export const makePostJSON: <T_PostJSON extends object>(jsonData: T_PostJSON) => PostJSON<T_PostJSON> = jsonData => ({type: "json", jsonData})
+const makePostJSON: <T_PostJSON extends object>(jsonData: T_PostJSON) => PostJSON<T_PostJSON> = jsonData => ({type: "json", jsonData})
 
 
 // TODO: do we still need do() vs send() vs sendWithHeaders(), can probably tidy this all up into one function that does the thing

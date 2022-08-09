@@ -21,7 +21,6 @@ type HighSchool = t.TypeOf<typeof highSchoolValidator>;
 export default function ManageHighSchoolsPage(props: {
 	highSchools: HighSchool[];
 }) {
-	console.log("doing high schoolmake");
 	// Define table columns
 	const columns: TableColumnOptionsCbi<HighSchool>[] = [
 		{
