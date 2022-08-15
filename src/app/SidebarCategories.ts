@@ -1,9 +1,9 @@
 import {
 	Compass,
 	Sliders as SlidersIcon,
+	Users as UsersIcon,
 	HelpCircle
 } from "react-feather";
-// import { routeUsersEditPage, routeUsersNewPage, routeUsersPage } from "./routes/users";
 import RouteWrapper from "../core/RouteWrapper";
 import { routeJpClassesPage } from "app/routes/jp-classes";
 import { routeStaggeredOrder } from "app/routes/staggered-order";
@@ -16,6 +16,8 @@ import { routeDockReportPage } from "app/routes/dh/dock-report";
 import { routeSignoutsTablesPage } from "./routes/dh/signouts-tables";
 import { routeUsersPage } from "./routes/admin/users";
 import { routeManageAccess } from "./routes/admin/manage-permissions";
+import { routePersonSearch } from "app/routes/person/search";
+import { routePersonSummary } from "app/routes/person/summary";
 
 export type SideBarCategory = {
 	path: string,
@@ -33,6 +35,18 @@ const jp: SideBarCategory = {
 		routeJpClassesPage
 	]
 }
+
+const person_summary: SideBarCategory = {
+	path: "/person",
+	name: "Members",
+	icon: UsersIcon,
+	children: [
+		routePersonSearch
+	],
+	unrenderedChildren: [
+		routePersonSummary
+	]
+};
 
 const admin: SideBarCategory = {
 	path: "/tables",
@@ -67,6 +81,7 @@ const misc: SideBarCategory = {
 // Dashboard specific routes
 export const sideBarRoutes = [
 	// jp,
+	person_summary,
 	admin,
 	misc,
 ];

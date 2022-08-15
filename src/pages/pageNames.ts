@@ -13,5 +13,7 @@ export enum PageName {
 	DOCK_REPORT = "dock_report",
 	SIGNOUTS_TABLES = "signouts_tables",
 	MANAGE_PERMISSIONS = "manage-permissions",
-	MANAGE_ACCESS = "manage-access"
+	MANAGE_ACCESS = "manage-access",
+	PERSON_SEARCH = "person_search",
+	PERSON_SUMMARY = "person_summary",
 }

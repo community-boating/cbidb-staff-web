@@ -59,11 +59,13 @@ export default class PageWrapper<T_URL, T_Async> extends React.Component<Props<T
 	}
 	componentDidMount() {
 		window.scrollTo(0, 0);
-		this.loadAsyncProps();
-		if(this.props.autoRefresh !== undefined && this.timerID === undefined){
-			this.timerID = setInterval(() => {
-				this.loadAsyncProps();
-			}, this.props.autoRefresh);
+		if (this.props.getAsyncProps != undefined) {
+			this.loadAsyncProps();
+			if(this.props.autoRefresh !== undefined && this.timerID === undefined){
+				this.timerID = setInterval(() => {
+					this.loadAsyncProps();
+				}, this.props.autoRefresh);
+			}
 		}
 	}
 	componentWillUnmount() {

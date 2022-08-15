@@ -9,6 +9,8 @@ export function canAccessPage(pageName: PageName): boolean {
 		case PageName.JP_CLASSES:
 		case PageName.STAGGERED_ORDER:
 		case PageName.DOCK_REPORT:
+		case PageName.PERSON_SEARCH:
+		case PageName.PERSON_SUMMARY:
 			return true;
 		case PageName.USERS:
 		case PageName.USERS_EDIT:
