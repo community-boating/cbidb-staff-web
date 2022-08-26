@@ -4,12 +4,13 @@ import * as _ from "lodash";
 import { Col, Row } from "reactstrap";
 
 import { validator } from "async/rest/person/get-person";
-import PersonSummaryCard from "./summaryCards/PersonSummaryCard";
-import MembershipSummaryCard from "./summaryCards/MembershipSummaryCard";
-import DamageWaiverSummaryCard from "./summaryCards/DamageWaiverSummaryCard";
-import GeneralSummaryCard from "./summaryCards/GeneralSummaryCard";
-import RatingsSummaryCard from "./summaryCards/RatingsSummaryCard";
-import CardsSummaryCard from "./summaryCards/CardsSummaryCard";
+import PersonSummaryCard from "../summaryCards/PersonSummaryCard";
+import MembershipSummaryCard from "../summaryCards/MembershipSummaryCard";
+import DamageWaiverSummaryCard from "../summaryCards/DamageWaiverSummaryCard";
+import GeneralSummaryCard from "../summaryCards/GeneralSummaryCard";
+import RatingsSummaryCard from "../summaryCards/RatingsSummaryCard";
+import CardsSummaryCard from "../summaryCards/CardsSummaryCard";
+import "./person-summary.scss";
 
 type Person = t.TypeOf<typeof validator>;
 
