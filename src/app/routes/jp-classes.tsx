@@ -4,9 +4,9 @@ import RouteWrapper from '../../core/RouteWrapper';
 import PageWrapper from '../../core/PageWrapper';
 import Loader from '../../components/Loader';
 import JpClassesPage from 'pages/juniorProgram/JpClasses/JpClassesPage';
-import {apiw as getSignups, validator} from "@async/staff/all-jp-signups"
+import {apiw as getSignups, validator} from "async/staff/all-jp-signups"
 import { PageName } from 'pages/pageNames';
-import { pathJpClasses } from '@app/paths';
+import { pathJpClasses } from 'app/paths';
 
 export const routeJpClassesPage = new RouteWrapper({
 	requiresAuth: true,
@@ -25,7 +25,7 @@ export const routeJpClassesPage = new RouteWrapper({
 	/>}
 	urlProps={{}}
 	getAsyncProps={() => {
-		return getSignups.send(null)
+		return getSignups.send()
 	}}
 	shadowComponent={<Loader />}
 />);

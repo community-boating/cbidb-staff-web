@@ -13,7 +13,7 @@ import detectEnter from "../util/detectEnterPress";
 import { ButtonWrapper } from "../components/ButtonWrapper";
 
 import cbiLogo from "../assets/img/CBI_boat.jpg"
-import { ErrorPopup } from "@components/ErrorPopup";
+import { ErrorPopup } from "components/ErrorPopup";
 
 export const formDefault = {
 	username: none as Option<string>,

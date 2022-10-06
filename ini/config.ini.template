@@ -10,4 +10,4 @@ port=8081
 #devAPI=http://localhost:3000
 
 # Connect to remote backend
-devAPI=https://api-dev.community-boating.org/api
+devAPI=https://api-staff-qa.community-boating.org/api

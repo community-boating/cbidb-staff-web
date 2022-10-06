@@ -1,14 +1,14 @@
 import * as React from "react";
 import * as t from "io-ts";
 
-import RouteWrapper from "@core/RouteWrapper";
-import PageWrapper from "@core/PageWrapper";
-import Loader from "@components/Loader";
+import RouteWrapper from "core/RouteWrapper";
+import PageWrapper from "core/PageWrapper";
+import Loader from "components/Loader";
 
 import { PageName } from "pages/pageNames";
 import ManageHighSchoolsPage from "pages/admin/ManageHighSchoolsPage";
-import { validator, getWrapper } from "@async/rest/high-schools";
-import { pathManageHighSchools } from "@app/paths";
+import { validator, getWrapper } from "async/rest/high-schools";
+import { pathManageHighSchools } from "app/paths";
 
 export const routeManageHighSchools = new RouteWrapper(
 	{
@@ -28,7 +28,7 @@ export const routeManageHighSchools = new RouteWrapper(
 			)}
 			urlProps={{}}
 			getAsyncProps={() => {
-				return getWrapper.send(null);
+				return getWrapper.send();
 			}}
 			shadowComponent={<Loader />}
 		/>

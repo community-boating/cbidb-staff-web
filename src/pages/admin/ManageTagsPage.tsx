@@ -1,39 +1,30 @@
 import * as React from "react";
 import * as t from "io-ts";
 import { FormGroup, Label, Col, Input } from "reactstrap";
-import { ColumnDescription } from "react-bootstrap-table-next";
-
-// Table building utilities
-import { tableColWidth } from "@util/tableUtil";
 
 // Validator and putter for the data type of this page
-import { tagValidator } from "@async/rest/tags";
-import { putWrapper as putTag } from "@async/rest/tags";
+import { tagValidator } from "async/rest/tags";
+import { putWrapper as putTag } from "async/rest/tags";
 
 // The common display structure which is a table editable via modal
-import ReportWithModalForm from "@components/ReportWithModalForm";
-import { StringifiedProps } from "@util/StringifyObjectProps";
+import ReportWithModalForm from "components/ReportWithModalForm";
+import { StringifiedProps } from "util/StringifyObjectProps";
+import { ColumnDef } from "@tanstack/react-table";
 
 type Tag = t.TypeOf<typeof tagValidator>;
 
 export default function ManageTagsPage(props: { tags: Tag[] }) {
 	// Define table columns
-	const columns: ColumnDescription[] = [
+	const columns: ColumnDef<Tag>[] = [
 		{
-			dataField: "edit",
-			text: "",
-			...tableColWidth(50),
+			accessorKey: "TAG_ID",
+			header: "ID",
+			size: 75,
 		},
 		{
-			dataField: "TAG_ID",
-			text: "ID",
-			sort: true,
-			...tableColWidth(80),
-		},
-		{
-			dataField: "TAG_NAME",
-			text: "Tag Name",
-			sort: true,
+			accessorKey: "TAG_NAME",
+			header: "Tag Name",
+			size: null
 		},
 	];
 
@@ -74,12 +65,11 @@ export default function ManageTagsPage(props: { tags: Tag[] }) {
 		<ReportWithModalForm
 			rowValidator={tagValidator}
 			rows={props.tags}
-			formatRowForDisplay={x => x}
 			primaryKey="TAG_ID"
 			columns={columns}
 			formComponents={formComponents}
 			submitRow={putTag}
-			cardTitle="Tags"
+			cardTitle="Manage Tags"
 		/>
 	);
 }

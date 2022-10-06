@@ -1,4 +1,4 @@
-import { OptionalNumber, OptionalString } from "@util/OptionalTypeValidators";
+import { makeOptionalPK, OptionalNumber, OptionalString } from "util/OptionalTypeValidators";
 import * as t from "io-ts";
 import APIWrapper from "../../core/APIWrapper";
 import { HttpMethod } from "../../core/HttpMethod";
@@ -28,12 +28,9 @@ const resultValidator = t.type({
 	FUND_ID: t.number,
 });
 
-export const putWrapper = new APIWrapper<
-	typeof resultValidator,
-	t.TypeOf<typeof donationFundValidator>,
-	null
->({
+export const putWrapper = new APIWrapper({
 	path,
 	type: HttpMethod.POST,
+	postBodyValidator: makeOptionalPK(donationFundValidator, "FUND_ID"),
 	resultValidator,
 });

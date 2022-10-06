@@ -27,26 +27,29 @@ export function replaceWithOption(x: any): any {
 	}
 }
 
-export function removeOptions(x: any): any {
+export const removeOptions: (config: {convertEmptyStringToNull: boolean}) => (x: any) => any = config => x => {
 	switch (typeof(x)) {
 		case "number":
-		case "string":
 		case "boolean":
 		case "undefined":
 		case "function":
 			return x;
+		case "string":
+			if (config.convertEmptyStringToNull && typeof x == 'string' && x === '') return null;
+			else return x;
 		case "object":
 			if (x === null) return x;
 			else if (x instanceof Array) {
-				return x.map(e => removeOptions(e))
-			} else if (x instanceof Some) {
-				return x.value
-			} else if (x instanceof None) {
+				return x.map(e => removeOptions(config)(e))
+			} else if (x instanceof Some || x["_tag"] === 'Some') {
+				if (config.convertEmptyStringToNull && typeof x.value == 'string' && x.value === '') return null;
+				else return x.value;
+			} else if (x instanceof None || x["_tag"] === 'None') {
 				return null
 			} else {
 				var ret: any = {};
 				for (var p in x) {
-					ret[p] = removeOptions(x[p]);
+					ret[p] = removeOptions(config)(x[p]);
 				}
 				return ret;
 			}

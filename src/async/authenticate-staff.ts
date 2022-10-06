@@ -4,10 +4,14 @@ import { HttpMethod } from "../core/HttpMethod";
 
 const path = "/authenticate-staff"
 
-export const apiw = () => new APIWrapper<typeof t.boolean, string, {}>({
+export const apiw = () => new APIWrapper({
 	path,
 	type: HttpMethod.POST,
 	resultValidator: t.boolean,
+	postBodyValidator: t.type({
+		username: t.string,
+		password: t.string
+	}),
 	extraHeaders: {
 		"dont-redirect": "true"
 	}

@@ -50,14 +50,14 @@
 @import "4-utilities/overflow";
 
 // 3rd party plugins
-@import 'react-bootstrap-table-next/dist/react-bootstrap-table2.min';
 @import 'react-redux-toastr/src/styles/index';
 
 // 3rd party plugin styles
 @import "5-vendor/fullcalendar";
 @import "5-vendor/perfect-scrollbar";
 @import "5-vendor/quill";
-@import "5-vendor/react-bootstrap-table";
 @import "5-vendor/react-datetime";
 @import "5-vendor/react-select";
 @import "5-vendor/toastr";
+
+@import "6-pages/manage-access.scss";

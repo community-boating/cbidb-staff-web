@@ -5,22 +5,26 @@ on:
       - master
       - release/*
       - dev/*
+      - qa/*
       - cluster/*
+    tags:
+      - '*'
   pull_request:
     branches: 
       - master
       - release/*
       - dev/*
+      - qa/*
       - cluster/*
   workflow_dispatch:
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2
         with:
-          node-version: '14'
+          node-version: '16'
       - name: config
         run: cp ini/config.ini.ci ini/config.ini
       - name: install
@@ -38,8 +42,9 @@ jobs:
           name: build.tar.gz
           path: build.tar.gz
   image:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     needs: build
+    if: github.event_name != 'pull_request'
     steps:
       - uses: actions/checkout@v2
       - name: Fetch artifact
@@ -49,43 +54,40 @@ jobs:
       - name: unpack
         run: tar -zxvf build.tar.gz && ls -l
 
-      - name: Get branch name (merge)
-        if: github.event_name != 'pull_request'
+      - name: set docker env (branch non PR)
+        if: github.ref_type == 'branch' && github.event_name != 'pull_request'
         shell: bash
-        run: echo "BRANCH_NAME=$(echo ${GITHUB_REF#refs/heads/} | tr / _)" >> $GITHUB_ENV
-
-      - name: Get branch name (pull request)
-        if: github.event_name == 'pull_request'
+        run: |
+          echo "REF_NAME=$(echo ${GITHUB_REF#refs/heads/} | tr / _)" >> $GITHUB_ENV
+          echo "ECR_REPO=cbidb-staff-web-snapshot" >> $GITHUB_ENV
+      - name: set docker env (branch PR)
+        if: github.ref_type == 'branch' && github.event_name == 'pull_request'
         shell: bash
-        run: echo "BRANCH_NAME=$(echo ${GITHUB_HEAD_REF} | tr / _)" >> $GITHUB_ENV
-
-      - name: echo branch name
-        run: echo ${{ env.BRANCH_NAME }}
-
+        run: |
+          echo "REF_NAME=$(echo ${GITHUB_HEAD_REF} | tr / _)" >> $GITHUB_ENV
+          echo "ECR_REPO=cbidb-staff-web-snapshot" >> $GITHUB_ENV
+      - name: set docker env (tag)
+        if: github.ref_type == 'tag'
+        shell: bash
+        run: |
+          echo "REF_NAME=$(echo ${GITHUB_REF#refs/tags/} | tr / _ | sed 's/^v//g')" >> $GITHUB_ENV
+          echo "ECR_REPO=cbidb-staff-web-release" >> $GITHUB_ENV
+      - name: echo vars
+        run: |
+          echo ${{ env.REF_NAME }}
+          echo ${{ env.ECR_REPO }}
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_ID }}
           aws-secret-access-key: ${{ secrets.AWS_ACCESS_TOKEN }}
           aws-region: ${{ secrets.AWS_REGION }}
-
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
-
       - name: build image
-        run: docker build -t docker-snapshots.community-boating.org/cbidb-staff-web:${{ env.BRANCH_NAME }} .
-      - name: Log in to nexus Registry
-        run: docker login -u ci -p ${{ secrets.NEXUS_PASSWORD }} docker-snapshots.community-boating.org
-      - name: push image nexus
-        run: docker push docker-snapshots.community-boating.org/cbidb-staff-web:${{ env.BRANCH_NAME }}
-
+        run: docker build -t ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPO }}:${{ env.REF_NAME }} .
       - name: tag & push aws
-        env:
-          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-        run: |
-          docker tag docker-snapshots.community-boating.org/cbidb-staff-web:${{ env.BRANCH_NAME }} $ECR_REGISTRY/cbidb-staff-web-snapshot:${{ env.BRANCH_NAME }}
-          docker push $ECR_REGISTRY/cbidb-staff-web-snapshot:${{ env.BRANCH_NAME }}
-
+        run: docker push ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPO }}:${{ env.REF_NAME }}
       - name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}

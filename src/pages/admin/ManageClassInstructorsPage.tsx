@@ -1,34 +1,27 @@
 import * as React from "react";
 import * as t from 'io-ts';
-import { tableColWidth } from '@util/tableUtil';
-import {classInstructorValidator} from '@async/rest/class-instructor'
-import { ColumnDescription } from "react-bootstrap-table-next";
-import ReportWithModalForm from "@components/ReportWithModalForm";
-import {putWrapper as putInstructor} from "@async/rest/class-instructor"
+import {classInstructorValidator} from 'async/rest/class-instructor'
+import ReportWithModalForm from "components/ReportWithModalForm";
+import {putWrapper as putInstructor} from "async/rest/class-instructor"
 import { FormGroup, Label, Col, Input } from 'reactstrap';
-import { StringifiedProps } from "@util/StringifyObjectProps";
+import { StringifiedProps } from "util/StringifyObjectProps";
+import { ColumnDef } from "@tanstack/react-table";
 
 type ClassInstructor = t.TypeOf<typeof classInstructorValidator>;
 
 export default function ManageClassInstructorsPage(props: { instructors: ClassInstructor[] }) {
-	const columns: ColumnDescription[] = [{
-		dataField: "edit",
-		text: "",
-		...tableColWidth(50),
+	const columns: ColumnDef<ClassInstructor, any>[] = [
+	{
+		accessorKey: "INSTRUCTOR_ID",
+		header: "ID",
+		size: 80,
 	}, {
-		dataField: "INSTRUCTOR_ID",
-		text: "ID",
-		sort: true,
-		...tableColWidth(80),
+		accessorKey: "NAME_FIRST",
+		header: "First Name",
+		size: 300,
 	}, {
-		dataField: "NAME_FIRST",
-		text: "First Name",
-		sort: true,
-		...tableColWidth(300),
-	}, {
-		dataField: "NAME_LAST",
-		text: "Last Name",
-		sort: true,
+		accessorKey: "NAME_LAST",
+		header: "Last Name",
 	}];
 
 	const formComponents = (rowForEdit: StringifiedProps<ClassInstructor>, updateState: (id: string, value: string | boolean) => void) => <React.Fragment>
@@ -76,10 +69,10 @@ export default function ManageClassInstructorsPage(props: { instructors: ClassIn
 	return <ReportWithModalForm
 		rowValidator={classInstructorValidator}
 		rows={props.instructors}
-		formatRowForDisplay={x => x}
 		primaryKey="INSTRUCTOR_ID"
 		columns={columns}
 		formComponents={formComponents}
 		submitRow={putInstructor}
+		cardTitle="Manage Instructors"
 	/>;
 }

@@ -1,19 +1,19 @@
 import * as React from "react";
 import * as t from "io-ts";
 import { FormGroup, Label, Col, Input, CustomInput } from "reactstrap";
-import { ColumnDescription } from "react-bootstrap-table-next";
 import { Check as CheckIcon } from "react-feather";
 
 // Table building utilities
-import { tableColWidth } from "@util/tableUtil";
-import { StringifiedProps } from "@util/StringifyObjectProps";
+import { StringifiedProps } from "util/StringifyObjectProps";
 
 // Validator and putter for the data type of this page
-import { classLocationValidator } from "@async/rest/class-locations";
-import { putWrapper as putClassLocation } from "@async/rest/class-locations";
+import { classLocationValidator } from "async/rest/class-locations";
+import { putWrapper as putClassLocation } from "async/rest/class-locations";
 
 // The common display structure which is a table editable via modal
-import ReportWithModalForm from "@components/ReportWithModalForm";
+import ReportWithModalForm from "components/ReportWithModalForm";
+import { CellBooleanIcon, SortTypeBoolean } from "util/tableUtil";
+import { ColumnDef } from "@tanstack/react-table";
 
 type ClassLocation = t.TypeOf<typeof classLocationValidator>;
 
@@ -21,30 +21,21 @@ export default function ManageClassLocationsPage(props: {
 	locations: ClassLocation[];
 }) {
 	// Define table columns
-	const columns: ColumnDescription[] = [
-		{
-			dataField: "edit",
-			text: "",
-			...tableColWidth(50),
-		},
-		{
-			dataField: "LOCATION_ID",
-			text: "ID",
-			sort: true,
-			...tableColWidth(80),
-		},
-		{
-			dataField: "LOCATION_NAME",
-			text: "Name",
-			sort: true,
-		},
-		{
-			dataField: "ACTIVE",
-			text: "Active",
-			sort: true,
-			...tableColWidth(100),
-		},
-	];
+	const columns: ColumnDef<ClassLocation>[] = [
+	{
+		accessorKey: "LOCATION_ID",
+		header: "ID",
+		size: 80,
+	}, {
+		accessorKey: "LOCATION_NAME",
+		header: "Name",
+	}, {
+		accessorKey: "ACTIVE",
+		header: "Active",
+		size: 100,
+		cell: CellBooleanIcon(<CheckIcon color="#777" size="1.4em" />),
+		sortingFn: SortTypeBoolean
+	}];
 
 	// Define edit/add form
 	const formComponents = (
@@ -100,17 +91,11 @@ export default function ManageClassLocationsPage(props: {
 		<ReportWithModalForm
 			rowValidator={classLocationValidator}
 			rows={props.locations}
-			formatRowForDisplay={(location) => ({
-				...location,
-				ACTIVE: location.ACTIVE ? (
-					<CheckIcon color="#777" size="1.4em" />
-				) : null,
-			})}
 			primaryKey="LOCATION_ID"
 			columns={columns}
 			formComponents={formComponents}
 			submitRow={putClassLocation}
-			cardTitle="Class Locations"
+			cardTitle="Manage Class Locations"
 		/>
 	);
 }

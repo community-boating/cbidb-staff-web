@@ -1,19 +1,19 @@
 import * as React from "react";
 import * as t from "io-ts";
 import { FormGroup, Label, Col, Input, CustomInput } from "reactstrap";
-import { ColumnDescription } from "react-bootstrap-table-next";
 import { Check as CheckIcon } from "react-feather";
 
 // Table building utilities
-import { tableColWidth } from "@util/tableUtil";
+import { CellBooleanIcon, CellOption, SortTypeBoolean, SortTypeOptionalNumber, tableColWidth } from "util/tableUtil";
 
 // Validator and putter for the data type of this page
-import { donationFundValidator } from "@async/rest/donation-funds";
-import { putWrapper as putDonationFund } from "@async/rest/donation-funds";
+import { donationFundValidator } from "async/rest/donation-funds";
+import { putWrapper as putDonationFund } from "async/rest/donation-funds";
 
 // The common display structure which is a table editable via modal
-import ReportWithModalForm from "@components/ReportWithModalForm";
-import { StringifiedProps } from "@util/StringifyObjectProps";
+import ReportWithModalForm from "components/ReportWithModalForm";
+import { StringifiedProps } from "util/StringifyObjectProps";
+import { ColumnDef } from "@tanstack/react-table";
 
 type DonationFund = t.TypeOf<typeof donationFundValidator>;
 
@@ -21,56 +21,53 @@ export default function ManageDonationFundsPage(props: {
 	donationFunds: DonationFund[];
 }) {
 	// Define table columns
-	const columns: ColumnDescription[] = [
+	const columns: ColumnDef<DonationFund>[] = [
 		{
-			dataField: "edit",
-			text: "",
-			...tableColWidth(50),
+			accessorKey: "FUND_ID",
+			header: "ID",
+			size: 80,
 		},
 		{
-			dataField: "FUND_ID",
-			text: "ID",
-			sort: true,
-			...tableColWidth(80),
+			accessorKey: "FUND_NAME",
+			header: "Fund Name",
 		},
 		{
-			dataField: "FUND_NAME",
-			text: "Fund Name",
-			sort: true,
+			accessorKey: "LETTER_TEXT",
+			header: "Letter Text",
+			cell: CellOption,
 		},
 		{
-			dataField: "LETTER_TEXT",
-			text: "Letter Text",
-			sort: true,
+			accessorKey: "ACTIVE",
+			header: "Active",
+			size: 100,
+			cell: CellBooleanIcon(<CheckIcon color="#777" size="1.4em" />),
+			sortingFn: SortTypeBoolean
 		},
 		{
-			dataField: "ACTIVE",
-			text: "Active",
-			sort: true,
-			...tableColWidth(100),
+			accessorKey: "DISPLAY_ORDER",
+			header: "Display Order",
+			size: 130,
+			cell: CellOption,
+			sortingFn: SortTypeOptionalNumber
 		},
 		{
-			dataField: "DISPLAY_ORDER",
-			text: "Display Order",
-			sort: true,
-			...tableColWidth(130),
+			accessorKey: "SHOW_IN_CHECKOUT",
+			header: "Show in Checkout",
+			size: 125,
+			cell: CellBooleanIcon(<CheckIcon color="#777" size="1.4em" />),
+			sortingFn: SortTypeBoolean
 		},
 		{
-			dataField: "SHOW_IN_CHECKOUT",
-			text: "Show in Checkout",
-			sort: true,
-			...tableColWidth(125),
+			accessorKey: "PORTAL_DESCRIPTION",
+			header: "Portal Description",
+			cell: CellOption,
 		},
 		{
-			dataField: "PORTAL_DESCRIPTION",
-			text: "Portal Description",
-			sort: true,
-		},
-		{
-			dataField: "IS_ENDOWMENT",
-			text: "Is Endowment",
-			sort: true,
-			...tableColWidth(125),
+			accessorKey: "IS_ENDOWMENT",
+			header: "Is Endowment",
+			size: 125,
+			cell: CellBooleanIcon(<CheckIcon color="#777" size="1.4em" />),
+			sortingFn: SortTypeBoolean
 		},
 	];
 
@@ -207,20 +204,12 @@ export default function ManageDonationFundsPage(props: {
 		<ReportWithModalForm
 			rowValidator={donationFundValidator}
 			rows={props.donationFunds}
-			formatRowForDisplay={fund => ({
-				...fund,
-				LETTER_TEXT: fund.LETTER_TEXT.getOrElse(""),
-				DISPLAY_ORDER: fund.DISPLAY_ORDER.map(String).getOrElse(""),
-				PORTAL_DESCRIPTION: fund.PORTAL_DESCRIPTION.getOrElse(""),
-				ACTIVE: fund.ACTIVE ? <CheckIcon color="#777" size="1.4em" /> : null,
-				SHOW_IN_CHECKOUT: fund.SHOW_IN_CHECKOUT ? <CheckIcon color="#777" size="1.4em" /> : null,
-				IS_ENDOWMENT: fund.IS_ENDOWMENT ? <CheckIcon color="#777" size="1.4em" /> : null,
-			})}
 			primaryKey="FUND_ID"
 			columns={columns}
 			formComponents={formComponents}
 			submitRow={putDonationFund}
-			cardTitle="Donation Funds"
+			cardTitle="Manage Donation Funds"
+			initialSortBy={[{id: "DISPLAY_ORDER", desc: false}]}
 		/>
 	);
 }

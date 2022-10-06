@@ -1,8 +1,9 @@
 import * as React from 'react';
 import { History } from 'history';
 import PathWrapper, { StringObject } from './PathWrapper';
-import { Route } from 'react-router';
+import { Redirect, Route } from 'react-router';
 import { PageName } from 'pages/pageNames';
+import { canAccessPage } from 'pages/accessControl';
 
 export type RouteWrapperConfig<T extends StringObject> = {
 	sidebarTitle?: string,
@@ -26,7 +27,12 @@ export default class RouteWrapper<T extends StringObject>{
 	public requireSudo = this.config.requireSudo;
 
 	asRoute(history: History<any>) {
-		return <Route key={this.pathWrapper.path} path={this.pathWrapper.path} exact={this.config.exact} render={() => this.render(history)} />;
+		if (!canAccessPage(this.config.pageName)) {
+			return <Redirect key={"redirect-" + this.config.pageName} to={'/'}  />
+		} else {
+			return <Route key={this.pathWrapper.path} path={this.pathWrapper.path} exact={this.config.exact} render={() => this.render(history)} />;
+		}
+		
 	}
 
 	getPathFromArgs(args: T): string {

@@ -1,12 +1,12 @@
-import RouteWrapper from '@core/RouteWrapper';
+import RouteWrapper from 'core/RouteWrapper';
 import * as t from 'io-ts';
-import PageWrapper from '@core/PageWrapper';
+import PageWrapper from 'core/PageWrapper';
 import * as React from 'react';
 import { PageName } from 'pages/pageNames';
-import {validator, getWrapper} from "@async/rest/class-instructor"
-import Loader from '@components/Loader';
+import {validator, getWrapper} from "async/rest/class-instructor"
+import Loader from 'components/Loader';
 import ManageClassInstructorsPage from 'pages/admin/ManageClassInstructorsPage';
-import { pathManageClassInstructors } from '@app/paths';
+import { pathManageClassInstructors } from 'app/paths';
 
 export const routeManageClassInstructorsPage = new RouteWrapper({
 	requiresAuth: true,
@@ -23,7 +23,7 @@ export const routeManageClassInstructorsPage = new RouteWrapper({
 	/>}
 	urlProps={{}}
 	getAsyncProps={() => {
-		return getWrapper.send(null)
+		return getWrapper.send()
 	}}
 	shadowComponent={<Loader />}
 />);

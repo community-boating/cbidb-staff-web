@@ -1,22 +1,19 @@
 import * as React from "react";
 import * as t from 'io-ts';
-import { Card, CardHeader, CardTitle, CardBody, FormGroup, Label, Col, Row, Form, CustomInput, UncontrolledDropdown, DropdownToggle, DropdownMenu, DropdownItem } from 'reactstrap';
+import { Card, CardHeader, CardTitle, CardBody, FormGroup, Label, Col, Row, Form, CustomInput } from 'reactstrap';
 import * as _ from 'lodash';
 
-import { decoratedInstanceValidator, signupValidator, weekValidator, staggerValidator } from "@async/staff/all-jp-signups"
-import BootstrapTable, { ColumnDescription } from 'react-bootstrap-table-next';
-import paginationFactory from 'react-bootstrap-table2-paginator';
-import { sortOnMoment, toMomentFromLocalDateTime } from '@util/dateUtil';
+import { decoratedInstanceValidator, signupValidator, weekValidator, staggerValidator } from "async/staff/all-jp-signups"
+import { sortOnMoment, toMomentFromLocalDateTime } from 'util/dateUtil';
 import * as moment from 'moment';
-import { none, Option, some } from 'fp-ts/lib/Option';
-import FormElementSelect from '@components/form/FormElementSelect';
-import {formUpdateStateHooks} from '@util/form-update-state';
-import { tableColWidth } from '@util/tableUtil';
+import { none, Option } from 'fp-ts/lib/Option';
+import FormElementSelect from 'components/form/FormElementSelect';
+import {formUpdateStateHooks} from 'util/form-update-state';
+import { tableColWidth } from 'util/tableUtil';
 import JpClassSignupsRegion from './JpClassSignupsRegion';
-import {faAngleRight, faAngleDown, faUsers} from '@fortawesome/free-solid-svg-icons'
+import {faUsers} from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import {MoreHorizontal, Printer} from 'react-feather'
-import asc from '@app/AppStateContainer';
+import {Printer} from 'react-feather'
 
 type DecoratedInstance = t.TypeOf<typeof decoratedInstanceValidator>
 type Stagger = t.TypeOf<typeof staggerValidator>;
@@ -40,8 +37,8 @@ class FormSelect extends FormElementSelect<FormType> { }
 
 export default function JpClassesPage(props: Props) {
 	const [formData, setFormData] = React.useState(formDefault);
-	const [selectedInstance, selectInstance] = React.useState(none as Option<number>);
-	const [editMode, setEditMode] = React.useState(false);
+	const [selectedInstance] = React.useState(none as Option<number>);
+	const [editMode] = React.useState(false);
 	const signupsRegionRef = React.useRef(null);
 
 	const updateState = formUpdateStateHooks(formData, setFormData);
@@ -108,7 +105,7 @@ export default function JpClassesPage(props: Props) {
 		disabled
 		type="switch"
 	/>;
-
+/*
 	const data = filteredInstances
 		.map(i => {
 			const firstSessionMoment = toMomentFromLocalDateTime(i.firstSession);
@@ -144,7 +141,7 @@ export default function JpClassesPage(props: Props) {
 			}
 		});
 
-	const columns: ColumnDescription<typeof data[0]>[] = [{
+	const columns = [{
 		dataField: "instanceId",
 		text: "ID",
 		...tableColWidth(70),
@@ -187,7 +184,7 @@ export default function JpClassesPage(props: Props) {
 		dataField: "sectionData",
 		text: "Sections"
 	}];
-
+*/
 	const signupsRegion = selectedInstance.map(id => <Card innerRef={signupsRegionRef}>
 		<CardHeader>
 			<CardTitle tag="h5" className="mb-0">Selected Class</CardTitle>
@@ -219,7 +216,7 @@ export default function JpClassesPage(props: Props) {
 	return <React.Fragment>
 		<Card style={{minWidth: "1220px"}}>
 			<CardHeader>
-				<div className="card-actions float-right">
+				{/* <div className="card-actions float-right">
 					<UncontrolledDropdown>
 						<DropdownToggle tag="a">
 							<MoreHorizontal />
@@ -228,7 +225,7 @@ export default function JpClassesPage(props: Props) {
 							<DropdownItem onClick={() => asc.confirmSudo(() => setEditMode(true))}>Switch to Edit View</DropdownItem>
 						</DropdownMenu>
 					</UncontrolledDropdown>
-				</div>
+				</div> */}
 				<CardTitle tag="h5" className="mb-0">JP Classes {editMode ? "EDIT MODE" : ""}</CardTitle>
 			</CardHeader>
 			<CardBody>
@@ -267,7 +264,7 @@ export default function JpClassesPage(props: Props) {
 						</Col>
 					</Row>
 				</Form>
-				<BootstrapTable
+				{/* <BootstrapTable
 					keyField="instanceId"
 					data={data}
 					columns={columns}
@@ -294,7 +291,7 @@ export default function JpClassesPage(props: Props) {
 						sizePerPage: 10,
 						sizePerPageList: [5, 10, 25, 50]
 					})}
-				/>
+				/> */}
 			</CardBody>
 		</Card>
 		{signupsRegion}

@@ -3,10 +3,10 @@ import * as t from 'io-ts';
 import RouteWrapper from '../../core/RouteWrapper';
 import PageWrapper from '../../core/PageWrapper';
 import Loader from '../../components/Loader';
-import {apiw, validator} from "@async/staff/open-order-details"
+import {apiw, validator} from "async/staff/open-order-details"
 import { PageName } from 'pages/pageNames';
 import StaggeredOrder from 'pages/misc/StaggeredOrder';
-import { pathStaggeredOrder } from '@app/paths';
+import { pathStaggeredOrder } from 'app/paths';
 
 export const routeStaggeredOrder = new RouteWrapper({
 	requiresAuth: true,
@@ -24,7 +24,7 @@ export const routeStaggeredOrder = new RouteWrapper({
 	/>}
 	urlProps={{personId: Number(pathStaggeredOrder.extractURLParams(history.location.pathname).personId)}}
 	getAsyncProps={(urlProps: {personId: number}) => {
-		return apiw(urlProps.personId).send(null)
+		return apiw(urlProps.personId).send()
 	}}
 	shadowComponent={<Loader />}
 />);

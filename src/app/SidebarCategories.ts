@@ -4,16 +4,20 @@ import {
 	HelpCircle,
 	TrendingUp,
 } from "react-feather";
-import { routeUsersEditPage, routeUsersNewPage, routeUsersPage } from "./routes/users";
+// import { routeUsersEditPage, routeUsersNewPage, routeUsersPage } from "./routes/users";
 import RouteWrapper from "../core/RouteWrapper";
-import { routeJpClassesPage } from "@routes/jp-classes";
-import { routeStaggeredOrder } from "@routes/staggered-order";
-import { routeManageClassInstructorsPage } from "@routes/admin/class-instructors";
-import { routeManageTagsPage } from "@routes/admin/tags";
-import { routeManageClassLocationsPage } from "@routes/admin/class-locations";
-import { routeManageHighSchools } from "@routes/admin/high-schools";
-import { routeManageDonationFundsPage } from "@routes/admin/donation-funds";
-import { salesDashboardPageRoute } from "@routes/reporting.tsx/salesDashboard";
+import { routeJpClassesPage } from "app/routes/jp-classes";
+import { routeStaggeredOrder } from "app/routes/staggered-order";
+import { routeManageClassInstructorsPage } from "app/routes/admin/class-instructors";
+import { routeManageTagsPage } from "app/routes/admin/tags";
+import { routeManageClassLocationsPage } from "app/routes/admin/class-locations";
+import { routeManageHighSchools } from "app/routes/admin/high-schools";
+import { routeManageDonationFundsPage } from "app/routes/admin/donation-funds";
+import { routeDockReportPage } from "app/routes/dh/dock-report";
+import { routeSignoutsTablesPage } from "./routes/dh/signouts-tables";
+import { routeUsersPage } from "./routes/admin/users";
+import { routeManageAccess } from "./routes/admin/manage-permissions";
+import { salesDashboardPageRoute } from "app/routes/reporting.tsx/salesDashboard";
 
 export type SideBarCategory = {
 	path: string,
@@ -47,6 +51,7 @@ const admin: SideBarCategory = {
 	icon: SlidersIcon,
 	children: [
 		routeUsersPage,
+		routeManageAccess,
 		routeManageClassInstructorsPage,
 		routeManageTagsPage,
 		routeManageClassLocationsPage,
@@ -54,8 +59,6 @@ const admin: SideBarCategory = {
 		routeManageDonationFundsPage,
 	],
 	unrenderedChildren: [
-		routeUsersNewPage,
-		routeUsersEditPage,
 	]
 };
 
@@ -66,13 +69,15 @@ const misc: SideBarCategory = {
 	children: [
 	],
 	unrenderedChildren: [
-		routeStaggeredOrder
+		routeStaggeredOrder,
+		routeDockReportPage,
+		routeSignoutsTablesPage,
 	]
 };
 
 // Dashboard specific routes
 export const sideBarRoutes = [
-	jp,
+	// jp,
 	reporting,
 	admin,
 	misc,
