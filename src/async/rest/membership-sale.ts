@@ -1,5 +1,5 @@
-import { toMomentFromLocalDate, toMomentFromLocalDateTime } from "@util/dateUtil";
-import { OptionalNumber, OptionalString } from "@util/OptionalTypeValidators";
+import { toMomentFromLocalDate, toMomentFromLocalDateTime } from "util/dateUtil";
+import { OptionalNumber, OptionalString } from "util/OptionalTypeValidators";
 import * as t from "io-ts";
 import APIWrapper from "../../core/APIWrapper";
 import { HttpMethod } from "../../core/HttpMethod";

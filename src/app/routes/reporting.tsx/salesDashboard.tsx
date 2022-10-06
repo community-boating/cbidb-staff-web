@@ -1,10 +1,10 @@
-import RouteWrapper from '@core/RouteWrapper';
-import PageWrapper from '@core/PageWrapper';
+import RouteWrapper from 'core/RouteWrapper';
+import PageWrapper from 'core/PageWrapper';
 import * as React from 'react';
 import { reportingBasePath } from './_base';
 import { PageName } from 'pages/pageNames';
-import Loader from '@components/Loader';
-import {getWrapper, mapSalesRecord, SalesRecord} from "@async/rest/membership-sale"
+import Loader from 'components/Loader';
+import {getWrapper, mapSalesRecord, SalesRecord} from "async/rest/membership-sale"
 import { SalesDashboardPage } from 'pages/reporting/SalesDashboardPage';
 
 export const salesDashboardPath = reportingBasePath.appendPathSegment("dashboard");
@@ -25,11 +25,11 @@ export const salesDashboardPageRoute = new RouteWrapper({
 	urlProps={{}}
 	getAsyncProps={() => {
 		return Promise.all([
-			getWrapper(2021).send(null),
-			getWrapper(2020).send(null),
-			getWrapper(2019).send(null),
-			getWrapper(2018).send(null),
-			getWrapper(2017).send(null),
+			getWrapper(2021).send(),
+			getWrapper(2020).send(),
+			getWrapper(2019).send(),
+			getWrapper(2018).send(),
+			getWrapper(2017).send(),
 		]).then(([a, b, c, d, e]) => {
 			if (a.type == "Success" && b.type == "Success" && c.type == "Success" && d.type == "Success" && e.type == "Success") {
 				return Promise.resolve({

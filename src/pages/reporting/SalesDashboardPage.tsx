@@ -4,8 +4,8 @@ import * as _ from 'lodash';
 import * as moment from 'moment';
 import HighchartsReact from 'highcharts-react-official';
 
-import {SalesRecord} from "@async/rest/membership-sale"
-import { padWithZero } from '@util/dateUtil';
+import {SalesRecord} from "async/rest/membership-sale"
+import { padWithZero } from 'util/dateUtil';
 
 export const SalesDashboardPage = (props: {sales: {
 	"2021": SalesRecord[], "2020": SalesRecord[], "2019": SalesRecord[], "2018": SalesRecord[], "2017": SalesRecord[]
