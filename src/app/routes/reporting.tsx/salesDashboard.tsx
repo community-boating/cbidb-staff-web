@@ -19,31 +19,7 @@ export const salesDashboardPageRoute = new RouteWrapper({
 }, history => <PageWrapper
 	key="sales dashboard"
 	history={history}
-	component={(urlProps: {}, async: {
-		"2021": SalesRecord[], "2020": SalesRecord[], "2019": SalesRecord[], "2018": SalesRecord[], "2017": SalesRecord[]
-	}) => <SalesDashboardPage sales={async} />}
+	component={(urlProps: {}) => <SalesDashboardPage />}
 	urlProps={{}}
-	getAsyncProps={() => {
-		return Promise.all([
-			getWrapper(2021).send(),
-			getWrapper(2020).send(),
-			getWrapper(2019).send(),
-			getWrapper(2018).send(),
-			getWrapper(2017).send(),
-		]).then(([a, b, c, d, e]) => {
-			if (a.type == "Success" && b.type == "Success" && c.type == "Success" && d.type == "Success" && e.type == "Success") {
-				return Promise.resolve({
-					type: "Success",
-					success: {
-						"2021": a.success.map(mapSalesRecord),
-						"2020": b.success.map(mapSalesRecord),
-						"2019": c.success.map(mapSalesRecord),
-						"2018": d.success.map(mapSalesRecord),
-						"2017": e.success.map(mapSalesRecord),
-					}
-				})
-			} else return null;
-		})
-	}}
 	shadowComponent={<Loader />}
 />);
