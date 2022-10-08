@@ -36,7 +36,8 @@ export function initSalesCache(): SalesCache {
 }
 
 
-export function addSales(cache: GenericSalesCache, ss: SalesRecord[]): GenericSalesCache {
+export function addSales(year: number, cache: GenericSalesCache, ss: SalesRecord[]): GenericSalesCache {
+	if (cache[year]) return cache;
 	return ss.reduce((newCache, s) => {
 		return addSale(newCache, s)
 	}, cache);

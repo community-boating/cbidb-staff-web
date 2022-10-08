@@ -18,11 +18,6 @@ export const SalesDashboardPage = () => {
 	const [activeMembershipTypes, setActiveMembershipTypes] = React.useState(["1", "10"])
 	const [ready, setReady] = React.useState(false)
 
-	const setFinished = () => {
-		setReady(true)
-		console.log("WRAPPER RECEIVED READY")
-	}
-
 	const overlay = <div className="overlay-wrapper">
 		<div className="overlay-column">
 			<div className='overlay-cell'>
@@ -37,7 +32,14 @@ export const SalesDashboardPage = () => {
 		month={Number(month)}
 		activeYears={activeYears.map(Number)}
 		activeMembershipTypes={hashifyArray(activeMembershipTypes.map(Number))}
-		setFinished={setFinished}
+		setNotReady={() => {
+			setReady(false)
+			console.log("WRAPPER RECEIVED READY")
+		}}
+		setReady={() => {
+			setReady(true)
+			console.log("WRAPPER RECEIVED READY")
+		}}
 	/>, [month, activeYears, activeMembershipTypes])
 
 	const ret = <Container fluid className="p-0">
@@ -85,10 +87,7 @@ export const SalesDashboardPage = () => {
 												setActiveYears(selectedOptions)
 											}}
 										>
-											<option>2022</option>
-											<option>2021</option>
-											<option>2020</option>
-											<option>2019</option>
+											{_.range(2013, thisYear+1).reverse().map(y =><option key={y}>{y}</option> )}
 										</CustomInput>
 									</Col>
 								</FormGroup>

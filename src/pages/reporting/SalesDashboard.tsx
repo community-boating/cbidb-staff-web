@@ -17,14 +17,16 @@ export const SalesDasboard = (props: {
 	activeYears: number[],
 	month: number,
 	activeMembershipTypes: ActiveMembershipTypes,
-	setFinished: () => void
+	setReady: () => void
+	setNotReady: () => void
 }) => {
-	const {activeYears, month, activeMembershipTypes, setFinished} = props
+	const {activeYears, month, activeMembershipTypes, setReady, setNotReady} = props
+	const nowYear = Number(moment().format("YYYY"))
 	const p = new Profiler();
 	const [sales, setSales] = React.useState(initSalesCache())
-	const [ready, setReady] = React.useState(false)
 	const daysOfMonth = _.range(1,31);
 	const months = _.range(1,12);
+	const [counter, setCounter] = React.useState(0)
 
 	React.useEffect(() => {
 		console.log("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&NEW DASHBOARD")
@@ -33,8 +35,10 @@ export const SalesDasboard = (props: {
 	React.useEffect(() => {
 		console.log(p.lap("startign async call"));
 		console.log(activeYears)
-		activeYears.map(y => getWrapper(y).send())
-		Promise.all(activeYears.map(y => getWrapper(y).send())).then((yearsResults) => {
+		const neededYears = activeYears.filter(y => sales[y] == undefined);
+		if (neededYears.length == 0) return;
+		setNotReady();
+		Promise.all(neededYears.map(y => getWrapper(y).send())).then((yearsResults) => {
 			console.log(p.lap("finished async call"));
 			const data = yearsResults.map(result => {
 				if (result.type == "Success") return result.success;
@@ -42,16 +46,15 @@ export const SalesDasboard = (props: {
 			}).filter(Boolean);
 
 			if (data.length == yearsResults.length) {
-				setSales(data.reduce((newSales, year) => {
-					return addSales(newSales, year.map(mapSalesRecord));
+				setSales(data.reduce((newSales, year, i) => {
+					return addSales(neededYears[i], newSales, year.map(mapSalesRecord));
 				}, sales));
 				console.log(p.lap("processed sales data"));
-				setReady(true)
-				setFinished();
+				setReady()
 				console.log("READY")
+				setCounter((counter+1)%5)
 			} else {
-				setReady(true)
-				setFinished();
+				setReady()
 				console.log("READY ERROR")
 			}
 		})
@@ -174,7 +177,7 @@ export const SalesDasboard = (props: {
 		series: series.map((s, i) => ({
 			name: s[0],
 			data: s[1],
-			// visible: i <= 1
+			colorIndex: (nowYear-Number(s[0])) % 10
 		})) as Highcharts.SeriesOptionsType[],
 		responsive: {
 			rules: [{
@@ -195,7 +198,7 @@ export const SalesDasboard = (props: {
 		},
 	});
 
-	if (ready) {
+	const charts = React.useMemo(() => {
 		return <div style={{width: "100%"}}>
 			<HighchartsReact highcharts={Highcharts} options={getOptions("Daily Sales #", incrementalSeries.counts)} />
 			<br /><br />
@@ -204,8 +207,8 @@ export const SalesDasboard = (props: {
 			<HighchartsReact highcharts={Highcharts} options={getOptions("Daily Sales $", incrementalSeries.values)} />
 			<br /><br />
 			<HighchartsReact highcharts={Highcharts} options={getOptions("Cumulative Sales $", cumulativeSeries.values)} />
-		</div>;
-	} else {
-		return <span>Loading....</span>
-	}
+		</div>
+	}, [activeYears, month, activeMembershipTypes, counter])
+
+	return <>{charts}</>;
 }
