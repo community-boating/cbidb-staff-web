@@ -17,7 +17,7 @@ import { routeDockReportPage } from "app/routes/dh/dock-report";
 import { routeSignoutsTablesPage } from "./routes/dh/signouts-tables";
 import { routeUsersPage } from "./routes/admin/users";
 import { routeManageAccess } from "./routes/admin/manage-permissions";
-import { salesDashboardPageRoute } from "app/routes/reporting.tsx/salesDashboard";
+import { salesDashboardPageRoute } from "app/routes/reporting/salesDashboard";
 
 export type SideBarCategory = {
 	path: string,

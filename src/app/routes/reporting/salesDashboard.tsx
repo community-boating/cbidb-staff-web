@@ -4,8 +4,8 @@ import * as React from 'react';
 import { reportingBasePath } from './_base';
 import { PageName } from 'pages/pageNames';
 import Loader from 'components/Loader';
-import {getWrapper, mapSalesRecord, SalesRecord} from "async/rest/membership-sale"
 import { SalesDashboardPage } from 'pages/reporting/SalesDashboardPage';
+import {getWrapper, MembershipType} from "async/rest/membership-types"
 
 export const salesDashboardPath = reportingBasePath.appendPathSegment("dashboard");
 
@@ -19,7 +19,10 @@ export const salesDashboardPageRoute = new RouteWrapper({
 }, history => <PageWrapper
 	key="sales dashboard"
 	history={history}
-	component={(urlProps: {}) => <SalesDashboardPage />}
+	component={(urlProps: {}, types: MembershipType[]) => <SalesDashboardPage membershipTypes={types} />}
 	urlProps={{}}
+	getAsyncProps={() => {
+		return getWrapper.send()
+	}}
 	shadowComponent={<Loader />}
 />);

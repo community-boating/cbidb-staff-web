@@ -10,7 +10,16 @@ type GenericSalesCache = {
 	total: AggregateUnit
 }
 
-type SalesCache = GenericSalesCache & {
+// type CacheKey = {
+// 	year: number,
+// 	month: number,
+// 	day: number,
+// 	membershipTypeId: number,
+// 	discountInstanceId: number,
+// 	unitPrice: number
+// }
+
+export type SalesCache = GenericSalesCache & {
 	[K_Year: number]: {
 		[K_Month: number]: {
 			[K_Date: number]: {
@@ -48,6 +57,8 @@ export function addSale(cache: GenericSalesCache, s: SalesRecord): GenericSalesC
 	if (keys == null) return cache;
 	return addToTreeRecursively(cache, keys, s.price);
 }
+
+
 
 function addToTreeRecursively(tree: GenericSalesCache, ks: number[], value: number): GenericSalesCache {
 	tree.total.count += 1;

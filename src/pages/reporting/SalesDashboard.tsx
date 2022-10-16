@@ -7,7 +7,8 @@ import * as _ from 'lodash';
 import {SalesRecord, getWrapper, mapSalesRecord} from "async/rest/membership-sale"
 import { padWithZero } from 'util/dateUtil';
 import { Profiler } from 'util/profiler';
-import { addSales, initSalesCache } from './SalesDataCache';
+import { addSales, initSalesCache, SalesCache } from './SalesDataCache';
+import { Card, CardBody } from 'reactstrap';
 
 export type ActiveMembershipTypes = {
 	[K: number]: true
@@ -29,12 +30,6 @@ export const SalesDasboard = (props: {
 	const [counter, setCounter] = React.useState(0)
 
 	React.useEffect(() => {
-		console.log("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&NEW DASHBOARD")
-	}, [])
-
-	React.useEffect(() => {
-		console.log(p.lap("startign async call"));
-		console.log(activeYears)
 		const neededYears = activeYears.filter(y => sales[y] == undefined);
 		if (neededYears.length == 0) return;
 		setNotReady();
@@ -61,23 +56,53 @@ export const SalesDasboard = (props: {
 	}, [activeYears.join("$")]);
 
 	function getSeries(isCumulative: boolean) {
-		console.log(sales)
+		const types = Object.keys(activeMembershipTypes)
 		const series = activeYears.map(year => {
 			const yearCache = sales[year] || initSalesCache();
-			const totals = daysOfMonth.map(day => {
+			const dayTotals = daysOfMonth.map(day => {
 				const monthCache = yearCache[month] || initSalesCache();
 				const dayCache = monthCache[day] || initSalesCache();
-				return dayCache.total;
+				if (types.length > 0) {
+					return types.reduce((agg, id) => {
+						const idCache = dayCache[id] || initSalesCache();
+						return {
+							count: agg.count + idCache.total.count,
+							value: agg.value + idCache.total.value
+						}
+					}, initSalesCache().total)
+				} else {
+					return dayCache.total;
+				}
 			});
 			if (isCumulative) {
 				const priorMonthsCumulative = months.filter(m => m < month).reduce((agg, m) => {
 					const monthCache = yearCache[m] || initSalesCache();
-					return {
-						count: agg.count + monthCache.total.count,
-						value: agg.value + monthCache.total.value
-					};
+					if (types.length > 0) {
+						const monthIncludedTotal = Object.keys(monthCache).filter(k => k != "total").reduce((agg, day) => {
+							const dayTotal = types.reduce((agg, id) => {
+								const idCache = monthCache[day][id] || initSalesCache();
+								return {
+									count: agg.count + idCache.total.count,
+									value: agg.value + idCache.total.value
+								}
+							}, initSalesCache().total)
+							return {
+								count: agg.count + dayTotal.count,
+								value: agg.value + dayTotal.value,
+							}
+						}, initSalesCache().total);
+						return {
+							count: agg.count + monthIncludedTotal.count,
+							value: agg.value + monthIncludedTotal.value
+						};
+					} else {
+						return {
+							count: agg.count + monthCache.total.count,
+							value: agg.value + monthCache.total.value
+						};
+					}
 				}, initSalesCache().total);
-				const totalsCumulative = totals.map((e, i, arr) => {
+				const totalsCumulative = dayTotals.map((e, i, arr) => {
 					return arr.filter((ee, ii) => ii <= i).reduce((total, ee) => {
 						return {
 							count: total.count + ee.count,
@@ -91,8 +116,8 @@ export const SalesDasboard = (props: {
 				};
 			} else {
 				return {
-					counts: [String(year), totals.map(t => t.count)] as [string, number[]],
-					values: [String(year), totals.map(t => t.value)] as [string, number[]]
+					counts: [String(year), dayTotals.map(t => t.count)] as [string, number[]],
+					values: [String(year), dayTotals.map(t => t.value)] as [string, number[]]
 				};
 			}
 		});
@@ -105,43 +130,6 @@ export const SalesDasboard = (props: {
 	const incrementalSeries =  React.useMemo(() => getSeries(false), [activeYears, sales])
 
 	const cumulativeSeries = React.useMemo(() => getSeries(true), [activeYears, sales])
-
-	// const getIncrementalSeries: (showPrice: boolean) => [string, number[]][] = 
-	// (showPrice) => sales.map(salesRecords => {
-	// 	console.log(p.lap("starting incremental chart calc"));
-	// 	const yearNumeral = salesRecords[0].purchaseDate.getOrElse(null).format("YYYY");
-	// 	const series = daysOfMonth.map(dayNumeral => {
-	// 		const dayMoment = moment(`${month}/${padWithZero(String(dayNumeral))}/${yearNumeral}`, "MM/DD/YYYY",true);
-	// 		return (
-	// 			dayMoment.isValid()
-	// 			? salesRecords
-	// 				.filter(rec => rec.voidCloseId.isNone() && rec.purchaseDate.map(d => d.isSame(dayMoment, 'day')).getOrElse(false))
-	// 				.filter(rec => activeMembershipTypes == null || activeMembershipTypes[rec.membershipTypeId])
-	// 				.reduce((sum, rec) => sum + (showPrice ? rec.price : 1), 0)
-	// 			: null
-	// 		);
-	// 	});
-	// 	console.log(p.lap("finished incremental chart calc"));
-	// 	return [yearNumeral, series] as [string, number[]];
-	// });
-
-	// const getCumulativeSeries: (showPrice: boolean) => [string, number[]][] = 
-	// (showPrice) => sales.map(salesRecords => {
-	// 	console.log(p.lap("starting cumulative chart calc"));
-	// 	const yearNumeral = salesRecords[0].purchaseDate.getOrElse(null).format("YYYY");
-	// 	const series = daysOfMonth.map(dayNumeral => {
-	// 		const dayMoment = moment(`${month}/${padWithZero(String(dayNumeral))}/${yearNumeral}`, "MM/DD/YYYY",true);
-	// 		return (
-	// 			dayMoment.isValid()
-	// 			? salesRecords
-	// 				.filter(rec => rec.voidCloseId.isNone() && rec.purchaseDate.map(d => d.isSameOrBefore(dayMoment, 'day')).getOrElse(false))
-	// 				.reduce((sum, rec) => sum + (showPrice ? rec.price : 1), 0)
-	// 			: null
-	// 		);
-	// 	});
-	// 	console.log(p.lap("finished cumulative chart calc"));
-	// 	return [yearNumeral, series] as [string, number[]];
-	// });
 
 	const getOptions: (title: string, series: [string, number[]][]) => Highcharts.Options = (title, series) => ({
 		title: {
@@ -198,15 +186,13 @@ export const SalesDasboard = (props: {
 		},
 	});
 
+
 	const charts = React.useMemo(() => {
-		return <div style={{width: "100%"}}>
-			<HighchartsReact highcharts={Highcharts} options={getOptions("Daily Sales #", incrementalSeries.counts)} />
-			<br /><br />
-			<HighchartsReact highcharts={Highcharts} options={getOptions("Cumulative Sales #", cumulativeSeries.counts)} />
-			<br /><br />
-			<HighchartsReact highcharts={Highcharts} options={getOptions("Daily Sales $", incrementalSeries.values)} />
-			<br /><br />
-			<HighchartsReact highcharts={Highcharts} options={getOptions("Cumulative Sales $", cumulativeSeries.values)} />
+		return <div id="dashboard-container" style={{width: "100%"}}>
+			<Card><CardBody><HighchartsReact highcharts={Highcharts} options={getOptions("Daily Sales #", incrementalSeries.counts)} /></CardBody></Card>
+			<Card><CardBody><HighchartsReact highcharts={Highcharts} options={getOptions("Cumulative Sales #", cumulativeSeries.counts)} /></CardBody></Card>
+			<Card><CardBody><HighchartsReact highcharts={Highcharts} options={getOptions("Daily Sales $", incrementalSeries.values)} /></CardBody></Card>
+			<Card><CardBody><HighchartsReact highcharts={Highcharts} options={getOptions("Cumulative Sales $", cumulativeSeries.values)} /></CardBody></Card>
 		</div>
 	}, [activeYears, month, activeMembershipTypes, counter])
 
