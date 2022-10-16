@@ -15,13 +15,14 @@ export const SalesDashboardPage = (props: {membershipTypes: MembershipType[]}) =
 	const now = moment();
 	const thisYear = Number(now.format("YYYY"));
 
-	const [month, setMonth] = React.useState(now.format("MM"));
+	const [month, setMonth] = React.useState("-1");
 	const [activeYears, setActiveYears] = React.useState([thisYear, thisYear-1, thisYear-2].map(String));
 	const [activeMembershipTypes, setActiveMembershipTypes] = React.useState([])
 	const [ready, setReady] = React.useState(false)
 	const [submitDashboardProps, setSubmitDashboardProps] = React.useState({ activeYears, activeMembershipTypes });
 	const [submitPropsDirty, setSubmitPropsDirty] = React.useState(false);
 	const [expandMemTypes, setExpandMemTypes] = React.useState(false);
+	const [useClosedDate, setUseClosedDate] = React.useState(false);
 
 	// mark dirty when props change...
 	React.useEffect(() => {
@@ -79,7 +80,7 @@ export const SalesDashboardPage = (props: {membershipTypes: MembershipType[]}) =
 				</CardHeader>
 				<CardBody>
 					<Row>
-						<Col className="col-md-2">
+						<Col className="col-md-3">
 							<Form>
 								<FormGroup row>
 									<Label sm={4} className="text-sm-right">
@@ -101,9 +102,29 @@ export const SalesDashboardPage = (props: {membershipTypes: MembershipType[]}) =
 										</Input>
 									</Col>
 								</FormGroup>
+								{/* <FormGroup row>
+									<Label sm={4} className="text-sm-right">
+										Date
+									</Label>
+									<Col sm={8}>
+										<Input
+											type="select"
+											id="month"
+											name="month"
+											className="mb-3"
+											value={month}
+											onChange={(event) => {
+												setMonth(event.target.value)
+											}}
+										>
+											<option value={0}>Purchase Date</option>
+											<option value={1}>Closed Date</option>
+										</Input>
+									</Col>
+								</FormGroup> */}
 							</Form>
 						</Col>
-						<Col className="col-md-2">
+						<Col className="col-md-3">
 							<Form>
 								<FormGroup row>
 									<Label sm={4} className="text-sm-right">
@@ -157,7 +178,7 @@ export const SalesDashboardPage = (props: {membershipTypes: MembershipType[]}) =
 								</FormGroup>
 							</Form>
 						</Col>
-						<Col className="col-md-2">
+						<Col className="col-md-1">
 							<Button color={submitPropsDirty?"danger":"secondary"} onClick={submit}>Submit</Button>
 						</Col>
 					</Row>

@@ -109,17 +109,17 @@ export function initSalesCache(): DashboardSalesCache {
 	return Object.assign({}, {total: { count: 0, value: 0 }, values: {}})
 }
 
-export function addSales(year: number, cache: GenericSalesCache, ss: SalesRecord[]): GenericSalesCache {
+export function addSales(year: number, cache: GenericSalesCache, ss: SalesRecord[], getValue: (s: SalesRecord) => number): GenericSalesCache {
 	if (cache.values[year]) return cache;
 	return ss.reduce((newCache, s) => {
-		return addSale(newCache, s)
+		return addSale(newCache, s, getValue)
 	}, cache);
 }
 
-export function addSale(cache: GenericSalesCache, s: SalesRecord): GenericSalesCache {
+export function addSale(cache: GenericSalesCache, s: SalesRecord, getValue: (s: SalesRecord) => number): GenericSalesCache {
 	const keys = saleToCacheKeyList(s);
 	if (keys == null) return cache;
-	return addToTreeRecursively(cache, keys, s.price);
+	return addToTreeRecursively(cache, keys, getValue(s));
 }
 
 function addToTreeRecursively(tree: GenericSalesCache, ks: string[], value: number): GenericSalesCache {

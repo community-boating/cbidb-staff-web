@@ -26,7 +26,7 @@ export const SalesDasboard = (props: {
 	const p = new Profiler();
 	const [sales, setSales] = React.useState(initSalesCache())
 	const daysOfMonth = _.range(1,32);
-	const [counter, setCounter] = React.useState(0)
+	const [counter, setCounter] = React.useState(0);  // just a value to poke to make the dashboard reload
 
 	React.useEffect(() => {
 		const neededYears = activeYears.filter(y => sales.values[y] == undefined);
@@ -41,7 +41,7 @@ export const SalesDasboard = (props: {
 
 			if (data.length == yearsResults.length) {
 				setSales(data.reduce((newSales, year, i) => {
-					return addSales(neededYears[i], newSales, year.map(mapSalesRecord));
+					return addSales(neededYears[i], newSales, year.map(mapSalesRecord), s => s.price);
 				}, sales));
 				console.log(p.lap("processed sales data"));
 				setReady()
