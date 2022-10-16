@@ -72,7 +72,7 @@ export const SalesDashboardPage = (props: {membershipTypes: MembershipType[]}) =
 		<div className="overlay-column">
 			<div className='overlay-cell'>
 				<div style={{textAlign: "center"}}>
-					Loading...
+					<img style={{width: "90px"}} src="/images/spinner-white.gif" />
 				</div>
 			</div>
 		</div>
