@@ -7,7 +7,7 @@ import * as _ from 'lodash';
 import {SalesRecord, getWrapper, mapSalesRecord} from "async/rest/membership-sale"
 import { padWithZero } from 'util/dateUtil';
 import { Profiler } from 'util/profiler';
-import { addSales, initSalesCache, SalesCache } from './SalesDataCache';
+import { addSales, initSalesCache, DashboardSalesCache, evaluateTree, searchKeyToSearchArray } from './SalesDataCache';
 import { Card, CardBody } from 'reactstrap';
 
 export type ActiveMembershipTypes = {
@@ -25,8 +25,8 @@ export const SalesDasboard = (props: {
 	const nowYear = Number(moment().format("YYYY"))
 	const p = new Profiler();
 	const [sales, setSales] = React.useState(initSalesCache())
-	const daysOfMonth = _.range(1,31);
-	const months = _.range(1,12);
+	const daysOfMonth = _.range(1,32);
+	const months = _.range(1,13);
 	const [counter, setCounter] = React.useState(0)
 
 	React.useEffect(() => {
@@ -58,51 +58,30 @@ export const SalesDasboard = (props: {
 	function getSeries(isCumulative: boolean) {
 		const types = Object.keys(activeMembershipTypes)
 		const series = activeYears.map(year => {
-			const yearCache = sales[year] || initSalesCache();
-			const dayTotals = daysOfMonth.map(day => {
-				const monthCache = yearCache[month] || initSalesCache();
-				const dayCache = monthCache[day] || initSalesCache();
-				if (types.length > 0) {
-					return types.reduce((agg, id) => {
-						const idCache = dayCache[id] || initSalesCache();
-						return {
-							count: agg.count + idCache.total.count,
-							value: agg.value + idCache.total.value
-						}
-					}, initSalesCache().total)
-				} else {
-					return dayCache.total;
-				}
+			const pointTotals = daysOfMonth.map(day => {
+				return evaluateTree(sales, searchKeyToSearchArray({
+					year: [String(year)],
+					month: [String(month)],
+					day: [String(day)],
+					membershipTypeId: types
+				}))
 			});
+
 			if (isCumulative) {
-				const priorMonthsCumulative = months.filter(m => m < month).reduce((agg, m) => {
-					const monthCache = yearCache[m] || initSalesCache();
-					if (types.length > 0) {
-						const monthIncludedTotal = Object.keys(monthCache).filter(k => k != "total").reduce((agg, day) => {
-							const dayTotal = types.reduce((agg, id) => {
-								const idCache = monthCache[day][id] || initSalesCache();
-								return {
-									count: agg.count + idCache.total.count,
-									value: agg.value + idCache.total.value
-								}
-							}, initSalesCache().total)
-							return {
-								count: agg.count + dayTotal.count,
-								value: agg.value + dayTotal.value,
-							}
-						}, initSalesCache().total);
-						return {
-							count: agg.count + monthIncludedTotal.count,
-							value: agg.value + monthIncludedTotal.value
-						};
+				const priorMonthsCumulative = (function() {
+					const priorMonths = months.filter(m => m < month).map(String);
+					if (priorMonths.length > 0) {
+						return evaluateTree(sales, searchKeyToSearchArray({
+							year: [String(year)],
+							month: priorMonths,
+							membershipTypeId: types
+						}), true);
 					} else {
-						return {
-							count: agg.count + monthCache.total.count,
-							value: agg.value + monthCache.total.value
-						};
+						return initSalesCache().total;
 					}
-				}, initSalesCache().total);
-				const totalsCumulative = dayTotals.map((e, i, arr) => {
+				}());
+
+				const totalsCumulative = pointTotals.map((e, i, arr) => {
 					return arr.filter((ee, ii) => ii <= i).reduce((total, ee) => {
 						return {
 							count: total.count + ee.count,
@@ -116,8 +95,8 @@ export const SalesDasboard = (props: {
 				};
 			} else {
 				return {
-					counts: [String(year), dayTotals.map(t => t.count)] as [string, number[]],
-					values: [String(year), dayTotals.map(t => t.value)] as [string, number[]]
+					counts: [String(year), pointTotals.map(t => t.count)] as [string, number[]],
+					values: [String(year), pointTotals.map(t => t.value)] as [string, number[]]
 				};
 			}
 		});
