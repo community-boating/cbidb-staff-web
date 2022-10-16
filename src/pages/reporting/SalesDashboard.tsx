@@ -4,11 +4,11 @@ import HighchartsReact from 'highcharts-react-official';
 import * as moment from 'moment';
 import * as _ from 'lodash';
 
-import {SalesRecord, getWrapper, mapSalesRecord} from "async/rest/membership-sale"
-import { padWithZero } from 'util/dateUtil';
+import {getWrapper, mapSalesRecord} from "async/rest/membership-sale"
 import { Profiler } from 'util/profiler';
-import { addSales, initSalesCache, DashboardSalesCache, evaluateTree, searchKeyToSearchArray } from './SalesDataCache';
-import { Card, CardBody } from 'reactstrap';
+import { addSales, initSalesCache, evaluateTree, searchKeyToSearchArray } from './SalesDataCache';
+import { Card, CardBody, Col, Row } from 'reactstrap';
+import months from 'models/months';
 
 export type ActiveMembershipTypes = {
 	[K: number]: true
@@ -26,11 +26,10 @@ export const SalesDasboard = (props: {
 	const p = new Profiler();
 	const [sales, setSales] = React.useState(initSalesCache())
 	const daysOfMonth = _.range(1,32);
-	const months = _.range(1,13);
 	const [counter, setCounter] = React.useState(0)
 
 	React.useEffect(() => {
-		const neededYears = activeYears.filter(y => sales[y] == undefined);
+		const neededYears = activeYears.filter(y => sales.values[y] == undefined);
 		if (neededYears.length == 0) return;
 		setNotReady();
 		Promise.all(neededYears.map(y => getWrapper(y).send())).then((yearsResults) => {
@@ -58,24 +57,34 @@ export const SalesDasboard = (props: {
 	function getSeries(isCumulative: boolean) {
 		const types = Object.keys(activeMembershipTypes)
 		const series = activeYears.map(year => {
-			const pointTotals = daysOfMonth.map(day => {
-				return evaluateTree(sales, searchKeyToSearchArray({
-					year: [String(year)],
-					month: [String(month)],
-					day: [String(day)],
-					membershipTypeId: types
-				}))
-			});
+			const pointTotals = (
+				month == -1
+				? months.map(m => {
+					return evaluateTree(sales, searchKeyToSearchArray({
+						year: [String(year)],
+						month: [String(m.key)],
+						membershipTypeId: types
+					}))
+				})
+				: daysOfMonth.map(day => {
+					return evaluateTree(sales, searchKeyToSearchArray({
+						year: [String(year)],
+						month: [String(month)],
+						day: [String(day)],
+						membershipTypeId: types
+					}))
+				})
+			) ;
 
 			if (isCumulative) {
 				const priorMonthsCumulative = (function() {
-					const priorMonths = months.filter(m => m < month).map(String);
+					const priorMonths = months.filter(m => m.key < month).map(String);
 					if (priorMonths.length > 0) {
 						return evaluateTree(sales, searchKeyToSearchArray({
 							year: [String(year)],
 							month: priorMonths,
 							membershipTypeId: types
-						}), true);
+						}));
 					} else {
 						return initSalesCache().total;
 					}
@@ -126,7 +135,7 @@ export const SalesDasboard = (props: {
 			title: {
 				text: "Mem purchase Date"
 			},
-			categories: daysOfMonth.map(d => Number(month) + "/" + d)
+			categories: (month == -1) ? months.map(m => m.name): daysOfMonth.map(d => Number(month) + "/" + d)
 		},
 		legend: {
 			layout: 'vertical',
@@ -165,14 +174,32 @@ export const SalesDasboard = (props: {
 		},
 	});
 
+	const descriptor = (month == -1) ? "Monthly" : "Daily"
 
 	const charts = React.useMemo(() => {
-		return <div id="dashboard-container" style={{width: "100%"}}>
-			<Card><CardBody><HighchartsReact highcharts={Highcharts} options={getOptions("Daily Sales #", incrementalSeries.counts)} /></CardBody></Card>
-			<Card><CardBody><HighchartsReact highcharts={Highcharts} options={getOptions("Cumulative Sales #", cumulativeSeries.counts)} /></CardBody></Card>
-			<Card><CardBody><HighchartsReact highcharts={Highcharts} options={getOptions("Daily Sales $", incrementalSeries.values)} /></CardBody></Card>
-			<Card><CardBody><HighchartsReact highcharts={Highcharts} options={getOptions("Cumulative Sales $", cumulativeSeries.values)} /></CardBody></Card>
-		</div>
+		if (month == -1) {
+			return <div id="dashboard-container" style={{width: "100%"}}>
+				<Row>
+					<Col><Card><CardBody><HighchartsReact highcharts={Highcharts} options={getOptions(descriptor + " Sales #", incrementalSeries.counts)} /></CardBody></Card>
+					</Col>
+					<Col><Card><CardBody><HighchartsReact highcharts={Highcharts} options={getOptions(descriptor + " Sales $", incrementalSeries.values)} /></CardBody></Card>
+					</Col>
+				</Row>
+				<Row>
+					<Col><Card><CardBody><HighchartsReact highcharts={Highcharts} options={getOptions("Cumulative Sales #", cumulativeSeries.counts)} /></CardBody></Card>
+					</Col>
+					<Col><Card><CardBody><HighchartsReact highcharts={Highcharts} options={getOptions("Cumulative Sales $", cumulativeSeries.values)} /></CardBody></Card>
+					</Col>
+				</Row>
+			</div>;
+		} else {
+			return <div id="dashboard-container" style={{width: "100%"}}>
+				<Card><CardBody><HighchartsReact highcharts={Highcharts} options={getOptions(descriptor + " Sales #", incrementalSeries.counts)} /></CardBody></Card>
+				<Card><CardBody><HighchartsReact highcharts={Highcharts} options={getOptions("Cumulative Sales #", cumulativeSeries.counts)} /></CardBody></Card>
+				<Card><CardBody><HighchartsReact highcharts={Highcharts} options={getOptions(descriptor + " Sales $", incrementalSeries.values)} /></CardBody></Card>
+				<Card><CardBody><HighchartsReact highcharts={Highcharts} options={getOptions("Cumulative Sales $", cumulativeSeries.values)} /></CardBody></Card>
+			</div>;
+		}
 	}, [activeYears, month, activeMembershipTypes, counter])
 
 	return <>{charts}</>;

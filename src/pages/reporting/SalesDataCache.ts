@@ -78,13 +78,10 @@ export type DashboardSalesCache = GenericSalesCache & {
 }
 
 export function evaluateTreePerValue(tree: GenericSalesCache, searchKeys: string[][]): AggregateUnit[] {
-	return Object.keys(tree.values).map(v => evaluateTree(tree.values[v], searchKeys, false));
+	return Object.keys(tree.values).map(v => evaluateTree(tree.values[v], searchKeys));
 }
 
-export function evaluateTree(tree: GenericSalesCache, searchKeys: string[][], debug?: boolean): AggregateUnit {
-	if (debug) console.log(tree)
-	if (debug) console.log(searchKeys)
-
+export function evaluateTree(tree: GenericSalesCache, searchKeys: string[][]): AggregateUnit {
 	const subValues = Object.keys(tree.values);
 
 	if (subValues.length == 0) return tree.total;
@@ -99,12 +96,11 @@ export function evaluateTree(tree: GenericSalesCache, searchKeys: string[][], de
 	)
 
 	return valuesToAggregate.reduce((agg, v) => {
-		const recurseValues = evaluateTree(tree.values[v] || initSalesCache(), searchKeys.slice(1), debug);
+		const recurseValues = evaluateTree(tree.values[v] || initSalesCache(), searchKeys.slice(1));
 		const ret = {
 			count: agg.count + recurseValues.count,
 			value: agg.value + recurseValues.value
 		};
-		if (debug) console.log(ret)
 		return ret;
 	}, initSalesCache().total);
 }

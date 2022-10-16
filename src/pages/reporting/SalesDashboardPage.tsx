@@ -96,7 +96,7 @@ export const SalesDashboardPage = (props: {membershipTypes: MembershipType[]}) =
 												setMonth(event.target.value)
 											}}
 										>
-											{/* <option key={-1} value={-1}>(All Months)</option> */}
+											<option key={-1} value={-1}>(All Months)</option>
 											{months.map(m => <option key={m.key} value={padWithZero(String(m.key))}>{`${padWithZero(String(m.key))} - ${m.name}`}</option>)}
 										</Input>
 									</Col>
@@ -150,7 +150,7 @@ export const SalesDashboardPage = (props: {membershipTypes: MembershipType[]}) =
 											}}
 										>
 											{props.membershipTypes.map(t => 
-												<option value={String(t.membershipTypeId)}>{t.membershipTypeName}</option>
+												<option key={t.membershipTypeId} value={String(t.membershipTypeId)}>{t.membershipTypeName}</option>
 											)}
 										</CustomInput>
 									</Col>
