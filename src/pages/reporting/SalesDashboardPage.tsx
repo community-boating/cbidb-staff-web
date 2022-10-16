@@ -12,6 +12,8 @@ import months from 'models/months';
 import { MembershipType } from 'async/rest/membership-types';
 
 export const SalesDashboardPage = (props: {membershipTypes: MembershipType[]}) => {
+	const MULTI_SELECT_HEIGHT = 11;
+
 	const now = moment();
 	const nowYear = Number(now.format("YYYY"));
 
@@ -183,7 +185,7 @@ export const SalesDashboardPage = (props: {membershipTypes: MembershipType[]}) =
 											name="years"
 											multiple
 											value={activeYears}
-											size={6}
+											size={MULTI_SELECT_HEIGHT}
 											onChange={e => {
 												const options = (e.target as unknown as HTMLSelectElement).options
 												const selectedOptions = arrayifyCollection(options).filter(o => o.selected).map(o => o.value)
@@ -209,7 +211,7 @@ export const SalesDashboardPage = (props: {membershipTypes: MembershipType[]}) =
 											name="years"
 											multiple
 											value={activeMembershipTypes}
-											size={expandMemTypes ? props.membershipTypes.length : 6}
+											size={expandMemTypes ? props.membershipTypes.length : MULTI_SELECT_HEIGHT}
 											onChange={e => {
 												const options = (e.target as unknown as HTMLSelectElement).options
 												const selectedOptions = arrayifyCollection(options).filter(o => o.selected).map(o => o.value)

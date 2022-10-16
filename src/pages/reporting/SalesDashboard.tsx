@@ -45,12 +45,13 @@ function searchKeyToSearchArray(c: SalesSearchKey): string[][] {
 	return (_.dropWhile(ret, e => e === undefined)).map(e => e || []);
 }
 
-const saleToCacheKeyList: (doVoid: boolean, closedDate: boolean) => (s: SalesRecord) => string[] = (doVoid, closedDate) => s => {
-	const dateToUse = (
-		doVoid
-		? ( closedDate ? s.voidClosedDatetime : s.voidClosedDatetime.chain(() => s.purchaseDate))
-		: ( closedDate ? s.saleClosedDatetime : s.purchaseDate )
-	);
+const saleToCacheKeyList: (doVoid: boolean, useClosedDate: boolean, voidByErase: boolean) => (s: SalesRecord) => string[] = (doVoid, useClosedDate, voidByErase) => s => {
+	const dateToUse = (function() {
+		if (doVoid && !voidByErase) return s.voidClosedDatetime
+		const ret = useClosedDate ? s.saleClosedDatetime : s.purchaseDate;
+		if (doVoid) return s.voidClosedDatetime.chain(() => ret);
+		else return ret;
+	}());
 
 	return dateToUse.map(d => ({
 		year: d.format("YYYY"),
@@ -97,7 +98,8 @@ export const SalesDasboard = (props: {
 		salesByPurchaseDate: initSalesCache(),
 		salesByClosedDate: initSalesCache(),
 		voidsByPurchaseDate: initSalesCache(),
-		voidsByClosedDate: initSalesCache()
+		voidsBySaleClosedDate: initSalesCache(),
+		voidsByVoidClosedDate: initSalesCache()
 	})
 	const daysOfMonth = _.range(1,32);
 	const [counter, setCounter] = React.useState(0);  // just a value to poke to make the dashboard reload
@@ -134,19 +136,20 @@ export const SalesDasboard = (props: {
 
 			if (data.length == yearsResults.length) {
 				const mappedData = data.map(year => year.map(mapSalesRecord));
-				const addMappedData = (start: GenericSalesCache, doVoid: boolean, closedDate: boolean) => mappedData.reduce((newSales, year) => {
+				const addMappedData = (start: GenericSalesCache, doVoid: boolean, useClosedDate: boolean, voidByErase: boolean) => mappedData.reduce((newSales, year) => {
 					return year
-					.map(s => saleToCacheKeyList(doVoid, closedDate)(s))
+					.map(s => saleToCacheKeyList(doVoid, useClosedDate, voidByErase)(s))
 					.filter(Boolean)
 					.reduce((newCache, s) => {
 						return addSale(newCache, s, (doVoid ? -1 : 1), Number(s[PRICE_INDEX]))
 					}, newSales);
 				}, start);
 				const newSales = {
-					salesByPurchaseDate: addMappedData(sales.salesByPurchaseDate, false, false),
-					salesByClosedDate: addMappedData(sales.salesByClosedDate, false, true),
-					voidsByPurchaseDate: addMappedData(sales.voidsByPurchaseDate, true, false),
-					voidsByClosedDate: addMappedData(sales.voidsByClosedDate, true, true),
+					salesByPurchaseDate: addMappedData(sales.salesByPurchaseDate, false, false, false),
+					salesByClosedDate: addMappedData(sales.salesByClosedDate, false, true, false),
+					voidsByPurchaseDate: addMappedData(sales.voidsByPurchaseDate, true, false, true),
+					voidsBySaleClosedDate: addMappedData(sales.voidsBySaleClosedDate, true, true, true),
+					voidsByVoidClosedDate: addMappedData(sales.voidsByVoidClosedDate, true, true, false),
 				};
 				setSales(newSales);
 				console.log(p.lap("processed sales data"));
@@ -163,7 +166,7 @@ export const SalesDasboard = (props: {
 	function getSeries(isCumulative: boolean) {
 		const types = Object.keys(activeMembershipTypes)
 		const salesTree = ( useClosedDate ? sales.salesByClosedDate : sales.salesByPurchaseDate);
-		const voidTree = ( voidByErase ? sales.voidsByPurchaseDate : sales.voidsByClosedDate);
+		const voidTree = ( voidByErase ? (useClosedDate ? sales.voidsBySaleClosedDate : sales.voidsByPurchaseDate) : sales.voidsByVoidClosedDate);
 
 		const seriesSuffix = bySeason ? " SEASON" : "";
 
@@ -190,9 +193,11 @@ export const SalesDasboard = (props: {
 			if (isCumulative) {
 				const priorMonthsCumulative = (function() {
 					const priorMonths = (
-						bySeason
-						? monthsToUse.map(m => m.key).filter(m => ((m + 2) % 13) < ((month+2) % 13)).map(String)
-						: months.map(m => m.key).filter(m => m < month).map(String)
+						month == -1 ? [] : (
+							bySeason
+							? monthsToUse.map(m => m.key).filter(m => ((m + 2) % 13) < ((month+2) % 13)).map(String)
+							: months.map(m => m.key).filter(m => m < month).map(String)
+						)
 					);
 
 					if (bySeason && priorMonths.length < 3 && priorMonths.length > 0) {
