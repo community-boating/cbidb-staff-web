@@ -13,10 +13,10 @@ import { MembershipType } from 'async/rest/membership-types';
 
 export const SalesDashboardPage = (props: {membershipTypes: MembershipType[]}) => {
 	const now = moment();
-	const thisYear = Number(now.format("YYYY"));
+	const nowYear = Number(now.format("YYYY"));
 
 	const [month, setMonth] = React.useState("-1");
-	const [activeYears, setActiveYears] = React.useState([thisYear, thisYear-1, thisYear-2].map(String));
+	const [activeYears, setActiveYears] = React.useState([nowYear, nowYear-1, nowYear-2].map(String));
 	const [activeMembershipTypes, setActiveMembershipTypes] = React.useState([])
 	const [ready, setReady] = React.useState(false)
 	const [submitDashboardProps, setSubmitDashboardProps] = React.useState({ activeYears, activeMembershipTypes });
@@ -24,6 +24,7 @@ export const SalesDashboardPage = (props: {membershipTypes: MembershipType[]}) =
 	const [expandMemTypes, setExpandMemTypes] = React.useState(false);
 	const [useClosedDate, setUseClosedDate] = React.useState(false);
 	const [voidByErase, setVoidByErase] = React.useState(false);
+	const [bySeason, setbySeason] = React.useState(false)
 
 	// mark dirty when props change...
 	React.useEffect(() => {
@@ -43,6 +44,7 @@ export const SalesDashboardPage = (props: {membershipTypes: MembershipType[]}) =
 			activeMembershipTypes={hashifyArray(submitDashboardProps.activeMembershipTypes.map(Number))}
 			useClosedDate={useClosedDate}
 			voidByErase={voidByErase}
+			bySeason={bySeason}
 			setNotReady={() => {
 				setReady(false)
 				console.log("WRAPPER RECEIVED READY")
@@ -52,7 +54,7 @@ export const SalesDashboardPage = (props: {membershipTypes: MembershipType[]}) =
 				console.log("WRAPPER RECEIVED READY")
 			}}
 		/>
-	}, [month, submitDashboardProps, useClosedDate, voidByErase]);
+	}, [month, submitDashboardProps, useClosedDate, voidByErase, bySeason]);
 
 	function submit() {
 		setSubmitPropsDirty(false)
@@ -145,6 +147,27 @@ export const SalesDashboardPage = (props: {membershipTypes: MembershipType[]}) =
 										</Input>
 									</Col>
 								</FormGroup>
+								<FormGroup row>
+									<Label sm={4} className="text-sm-right">
+										Cumul. Start on
+									</Label>
+									<Col sm={8}>
+										<Input
+											type="select"
+											id="startOn"
+											name="startOn"
+											className="mb-3"
+											value={bySeason ? "1" : "0"}
+											onChange={(event) => {
+												setbySeason(event.target.value == "1")
+											}}
+										>
+											<option value={"0"}>January (Calendar Year)</option>
+											<option value={"1"}>November (Season)</option>
+										</Input>
+									</Col>
+								</FormGroup>
+								{bySeason ? <span style={{color:"#888"}}>{`("Nov/Dec ${nowYear} SEASON" means Nov/Dec ${nowYear-1})`}</span> : ""}
 							</Form>
 						</Col>
 						<Col className="col-md-3">
@@ -167,7 +190,7 @@ export const SalesDashboardPage = (props: {membershipTypes: MembershipType[]}) =
 												setActiveYears(selectedOptions)
 											}}
 										>
-											{_.range(2013, thisYear+1).reverse().map(y =><option key={y} value={y}>{y}{y==2020?"🦠":""}</option> )}
+											{_.range(2013, nowYear+1).reverse().map(y =><option key={y} value={y}>{y}{y==2020?"🦠":""}</option> )}
 										</CustomInput>
 									</Col>
 								</FormGroup>
