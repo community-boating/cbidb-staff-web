@@ -167,8 +167,6 @@ export const SalesDasboard = (props: {
 
 		const seriesSuffix = bySeason ? " SEASON" : "";
 
-		console.log("%%%", sales.salesByClosedDate.values["2021"].values["11"])
-
 		const series = activeYears.map(year => {
 			const pointTotals = (
 				month == -1
@@ -196,8 +194,6 @@ export const SalesDasboard = (props: {
 						? monthsToUse.map(m => m.key).filter(m => ((m + 2) % 13) < ((month+2) % 13)).map(String)
 						: months.map(m => m.key).filter(m => m < month).map(String)
 					);
-					console.log(monthsToUse)
-					console.log(priorMonths)
 
 					if (bySeason && priorMonths.length < 3 && priorMonths.length > 0) {
 						return combineTrees(salesTree, voidTree, searchKeyToSearchArray({
