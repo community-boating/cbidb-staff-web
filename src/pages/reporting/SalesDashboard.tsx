@@ -92,7 +92,10 @@ export const SalesDasboard = (props: {
 	setNotReady: () => void
 }) => {
 	const {activeYears, month, activeMembershipTypes, setReady, setNotReady, useClosedDate, voidByErase, bySeason} = props
-	const nowYear = Number(moment().format("YYYY"))
+	const now = moment();
+	const nowYear = Number(now.format("YYYY"))
+	const nowMonth = Number(now.format("MM"))
+	const nowDay = Number(now.format("DD"))
 	const p = new Profiler();
 	const [sales, setSales] = React.useState({
 		salesByPurchaseDate: initSalesCache(),
@@ -103,6 +106,25 @@ export const SalesDasboard = (props: {
 	})
 	const daysOfMonth = _.range(1,32);
 	const [counter, setCounter] = React.useState(0);  // just a value to poke to make the dashboard reload
+
+	function filterDaysOfMonth(e: any, i: number) {
+		switch (month){
+			case 9:
+			case 4:
+			case 6:
+			case 11:
+				return i < 30;
+			case 2:
+				return i < 29;
+			default:
+				return true;
+		}
+	}
+
+	const clearFutureDays: <T>(year: number) => (e: T, i: number) => T = year => (e, i) => {
+		if (year == nowYear && month == nowMonth && i >= nowDay-1) return null;
+		else return e;
+	}
 
 	function getNeededYearsPreCacheCheck() {
 		if (bySeason) {
@@ -188,7 +210,7 @@ export const SalesDasboard = (props: {
 						membershipTypeId: types
 					}));
 				})
-			);
+			).filter(filterDaysOfMonth);
 
 			if (isCumulative) {
 				const priorMonthsCumulative = (function() {
@@ -241,13 +263,13 @@ export const SalesDasboard = (props: {
 					}, priorMonthsCumulative)
 				});
 				return {
-					counts: [String(year)+seriesSuffix, totalsCumulative.map(t => t.count)] as [string, number[]],
-					values: [String(year)+seriesSuffix, totalsCumulative.map(t => t.value)] as [string, number[]]
+					counts: [String(year)+seriesSuffix, totalsCumulative.map(t => t.count).map(clearFutureDays(year))] as [string, number[]],
+					values: [String(year)+seriesSuffix, totalsCumulative.map(t => t.value).map(clearFutureDays(year))] as [string, number[]]
 				};
 			} else {
 				return {
-					counts: [String(year)+seriesSuffix, pointTotals.map(t => t.count)] as [string, number[]],
-					values: [String(year)+seriesSuffix, pointTotals.map(t => t.value)] as [string, number[]]
+					counts: [String(year)+seriesSuffix, pointTotals.map(t => t.count).map(clearFutureDays(year))] as [string, number[]],
+					values: [String(year)+seriesSuffix, pointTotals.map(t => t.value).map(clearFutureDays(year))] as [string, number[]]
 				};
 			}
 		});
