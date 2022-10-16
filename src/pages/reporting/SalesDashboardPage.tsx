@@ -23,6 +23,7 @@ export const SalesDashboardPage = (props: {membershipTypes: MembershipType[]}) =
 	const [submitPropsDirty, setSubmitPropsDirty] = React.useState(false);
 	const [expandMemTypes, setExpandMemTypes] = React.useState(false);
 	const [useClosedDate, setUseClosedDate] = React.useState(false);
+	const [voidByErase, setVoidByErase] = React.useState(false);
 
 	// mark dirty when props change...
 	React.useEffect(() => {
@@ -40,6 +41,8 @@ export const SalesDashboardPage = (props: {membershipTypes: MembershipType[]}) =
 			month={Number(month)}
 			activeYears={submitDashboardProps.activeYears.map(Number)}
 			activeMembershipTypes={hashifyArray(submitDashboardProps.activeMembershipTypes.map(Number))}
+			useClosedDate={useClosedDate}
+			voidByErase={voidByErase}
 			setNotReady={() => {
 				setReady(false)
 				console.log("WRAPPER RECEIVED READY")
@@ -49,7 +52,7 @@ export const SalesDashboardPage = (props: {membershipTypes: MembershipType[]}) =
 				console.log("WRAPPER RECEIVED READY")
 			}}
 		/>
-	}, [month, submitDashboardProps]);
+	}, [month, submitDashboardProps, useClosedDate, voidByErase]);
 
 	function submit() {
 		setSubmitPropsDirty(false)
@@ -102,26 +105,46 @@ export const SalesDashboardPage = (props: {membershipTypes: MembershipType[]}) =
 										</Input>
 									</Col>
 								</FormGroup>
-								{/* <FormGroup row>
+								<FormGroup row>
 									<Label sm={4} className="text-sm-right">
-										Date
+										Purchase/Close
 									</Label>
 									<Col sm={8}>
 										<Input
 											type="select"
-											id="month"
-											name="month"
+											id="dateSelect"
+											name="dateSelect"
 											className="mb-3"
-											value={month}
+											value={useClosedDate ? "1" : "0"}
 											onChange={(event) => {
-												setMonth(event.target.value)
+												setUseClosedDate(event.target.value == "1")
 											}}
 										>
-											<option value={0}>Purchase Date</option>
-											<option value={1}>Closed Date</option>
+											<option value={"0"}>Purchase Date</option>
+											<option value={"1"}>Closed Date</option>
 										</Input>
 									</Col>
-								</FormGroup> */}
+								</FormGroup>
+								<FormGroup row>
+									<Label sm={4} className="text-sm-right">
+										Void Handling
+									</Label>
+									<Col sm={8}>
+										<Input
+											type="select"
+											id="voidSelect"
+											name="voidSelect"
+											className="mb-3"
+											value={voidByErase ? "1" : "0"}
+											onChange={(event) => {
+												setVoidByErase(event.target.value == "1")
+											}}
+										>
+											<option value={"0"}>-1 on void date</option>
+											<option value={"1"}>Like it never happened</option>
+										</Input>
+									</Col>
+								</FormGroup>
 							</Form>
 						</Col>
 						<Col className="col-md-3">
