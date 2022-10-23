@@ -3,7 +3,7 @@ import * as t from 'io-ts';
 import RouteWrapper from 'core/RouteWrapper';
 import PageWrapper from 'core/PageWrapper';
 import Loader from 'components/Loader';
-import {apiw as getSignups, validator} from "async/staff/all-jp-signups"
+import {getWrapper, apClassInstanceValidator, ApClassInstance} from "async/rest/ap-class-instances"
 import { PageName } from 'pages/pageNames';
 import { pathJpClasses } from 'app/paths';
 import { ApClassCalendarPage } from 'pages/adultProgram/ApClassCalendarPage';
@@ -17,12 +17,12 @@ export const routeApClassesPage = new RouteWrapper({
 }, history => <PageWrapper
 	key="apclasses"
 	history={history}
-	component={(urlProps: {}, {}: t.TypeOf<typeof validator>) => <ApClassCalendarPage
-
+	component={(urlProps: {}, instances: ApClassInstance[]) => <ApClassCalendarPage
+		instances={instances}
 	/>}
 	urlProps={{}}
-	// getAsyncProps={() => {
-	// 	return getSignups.send()
-	// }}
+	getAsyncProps={() => {
+		return getWrapper.send()
+	}}
 	shadowComponent={<Loader />}
 />);
