@@ -7,6 +7,7 @@ export function canAccessPage(pageName: PageName): boolean {
 	switch (pageName) {
 		case PageName.HOME:
 		case PageName.JP_CLASSES:
+		case PageName.AP_CLASSES:
 		case PageName.STAGGERED_ORDER:
 		case PageName.DOCK_REPORT:
 		case PageName.SALES_DASHBOARD:

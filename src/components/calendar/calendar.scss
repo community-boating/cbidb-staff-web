@@ -1,0 +1,1568 @@
+/* -------------------- Small Calendar -------------------- */
+
+/* Format Calendar when Entries are not Links */
+table.CalendarHolder table tr td div,
+table.CalendarAlternative1Holder table tr td div,
+table.CalendarAlternativeHolder table tr td div {
+    font-size: 11px;
+    padding: 5px;
+    }
+table.CalendarHolder table tr td div div,
+table.CalendarAlternative1Holder table tr td div div,
+table.CalendarAlternativeHolder table tr td div div {
+        padding: 0 !important;
+        }
+
+
+.Day a, .NonDay a, .Today a, .WeekendDay a {
+    font: bold 11px/16px Arial, sans-serif;
+    display: block;
+    text-decoration: none;
+    text-shadow: none;
+    padding: 0;
+    color: #444;
+    padding: 2px 0;
+    }
+    .Day a:hover, .NonDay a:hover, .Today a:hover, .WeekendDay a:hover {
+        text-decoration: underline;
+        }
+
+.small-calendar-holder {
+    border: 4px solid #DDD;
+    -moz-border-radius: 6px;
+    -webkit-border-radius: 6px;
+    
+}
+
+.small-calendar-holder .month-title {
+    text-align: center;
+    color: #444;
+    background-color: #F2F2F2;
+    font: bold 14px/16px Arial, sans-serif;
+    padding: 8px 0;
+    text-shadow: 0 1px 0 rgba(255,255,255,1);
+    border: 1px solid #BBB;
+    border-bottom: none;
+}
+
+.small-calendar {
+    width: 250px;
+    border-right: 1px solid #BBB;
+}
+
+.small-calendar .day-of-week {
+    font: bold 10px/11px Arial, sans-serif;
+    color: #444;
+    text-shadow: 0 1px 0 rgba(255,255,255,1);
+    background-color: #F2F2F2;
+    text-transform: capitalize;
+    padding-bottom: 5px;
+    border-bottom: 1px solid #BBB;
+}
+.small-calendar .day-of-week:first-child {
+    border-left: 1px solid #BBB;
+    }
+
+.small-calendar td {
+    height: 14%;
+    width: 14%;
+    padding: 0;
+    border-left: 1px solid #BBB;
+    border-bottom: 1px solid #BBB;
+    font: bold 13px/13px Arial, sans-serif;
+    background-color: #F2F2F2;
+    text-align: center;
+    vertical-align: middle;
+}
+
+/* Format Day Numbers */
+.non-day-title,
+.day-title,
+.weekend-day-title {
+    color: #444;
+    padding: 8px 0;
+    border-top: 1px solid #f6f8f9;
+    border-left: 1px solid #f6f8f9;
+    text-shadow: 0 1px 0 rgba(255,255,255,1);
+    }
+    .non-day-title {
+        color: #AAA;
+        }
+.small-calendar td.today div.day-title,
+.small-calendar td.today div.weekend-day-title {
+    background-color: #0060d6;
+    color: #FFF;
+    text-shadow: 0 -1px 0 rgba(0,0,0,.35);
+    border-top: 1px solid #0049a3;
+    border-left: 1px solid #0049a3;
+    }
+
+.CalendarHolder {
+    width: 100%;
+    border: 4px solid #DDD;
+    -moz-border-radius: 6px;
+    -webkit-border-radius: 6px;
+	border-collapse: inherit;
+}
+
+.CalendarHolder .MonthTitle {
+    text-align: center;
+    color: #444;
+    background-color: #F2F2F2;
+    font: bold 14px/16px Arial, sans-serif;
+    padding: 8px 0;
+    text-shadow: 0 1px 0 rgba(255,255,255,1);
+    border: 1px solid #BBB;
+    border-bottom: none;
+}
+
+.Calendar {
+    border: 0;
+    width: 100%;
+    border-right: 1px solid #BBB;
+}
+
+.Calendar .DayOfWeek {
+    font: bold 11px/11px Arial, sans-serif;
+    color: #444;
+    text-shadow: 0 1px 0 rgba(255,255,255,1);
+    background-color: #F2F2F2;
+    text-transform: capitalize;
+    padding-bottom: 5px;
+    border-bottom: 1px solid #BBB;
+	text-align: center;
+}
+.Calendar .DayOfWeek:first-child {
+    border-left: 1px solid #BBB;
+    }
+
+.Calendar td {
+    width: 75px;
+    height: 75px;
+    width: 14%;
+    padding: 0;
+    border-left: 1px solid #BBB;
+    border-bottom: 1px solid #BBB;
+    font: bold 13px/13px Arial, sans-serif;
+    background-color: #FFF;
+}
+
+.Calendar .DayTitle {
+    padding: 5px 5px;
+    font: normal 12px/12px Arial, sans-serif;
+    text-align: right;
+    float: right;
+    color: #000;
+    text-shadow: 0 1px 0 rgba(255,255,255,1);
+}
+
+.Calendar .Day {
+    background-color: #FFF;
+    vertical-align: top;
+}
+
+
+.Calendar .NonDayTitle {
+    padding: 5px 5px;
+    font: normal 12px/12px Arial, sans-serif;
+    text-align: right;
+    float: right;
+    color: #AAA;
+    text-shadow: 0 1px 0 rgba(255,255,255,1);
+}
+
+.Calendar .NonDay {
+
+}
+
+.Calendar .WeekendDayTitle {
+    padding: 5px 5px;
+    font: normal 12px/12px Arial, sans-serif;
+    text-align: right;
+    float: right;
+    color: #000;
+    text-shadow: 0 1px 0 rgba(255,255,255,1);
+}
+
+.Calendar .WeekendDay {
+    background-color: #FFF;
+}
+
+.Calendar .Today {
+    vertical-align: top;
+    background-color: #F2F2F2;
+}
+
+.Calendar .Today .DayTitle {
+/*  background-color: #FFFFFF*/
+}
+
+/* custom calendar */
+
+.cstCalendarHolder {
+    width: 600px;
+}
+
+.cstCalendarHolder .MonthTitle {
+    font-weight: bold;
+    text-align: center;
+    font-size: 15px;
+    color: #FF0000;
+}
+
+.cstCalendar {
+    border: 1px solid #86888a;
+    width: 100%;
+}
+
+.cstCalendar .DayOfWeek {
+    color: #000000;
+    padding: 3px;
+    background-color: #DDDDDD;
+    border-right: 1px solid #86888a;
+}
+
+.cstCalendar td {
+    width: 75px;
+    height: 75px;
+    width: 14%;
+    border: 1px solid #86888a;
+}
+
+.cstCalendar .DayTitle {
+    padding: 2px;
+    font-weight: bold;
+    text-align: right;
+    float: right;
+    border: 2px solid #86888a;
+    border-right: none;
+    border-top: none;
+}
+
+.cstCalendar .Day {
+    vertical-align: top;
+}
+
+.cstCalendar .NonDayTitle {
+    text-align: right;
+    color: #CCCCCC;
+}
+
+.cstCalendar .NonDay {
+    background-color: #EEEEEE;
+}
+
+.cstCalendar .WeekendDayTitle {
+    padding: 2px;
+    font-weight: bold;
+    text-align: right;
+    float: right;
+    border: 2px solid #86888a;
+    border-right: none;
+    border-top: none;
+    text-align: right;
+    color: #CCCCCC;
+}
+
+.cstCalendar .WeekendDay {
+    
+}
+
+.cstCalendar .Today {
+    vertical-align: top;
+    border: #FF0000 2px solid;
+}
+
+.cstCalendar .Today .DayTitle {
+    background-color: #FFFFFF
+}
+
+/* Week Calendar */
+
+.WeekCalendarHolder {
+    width: 100%;
+    border: 4px solid #DDD;
+    -moz-border-radius: 6px;
+    -webkit-border-radius: 6px;
+}
+
+.WeekCalendarHolder .MonthTitle {
+    text-align: center;
+    color: #444;
+    background-color: #F2F2F2;
+    font: bold 14px/16px Arial, sans-serif;
+    padding: 8px 0;
+    text-shadow: 0 1px 0 rgba(255,255,255,1);
+    border: 1px solid #BBB;
+    border-bottom: none;
+}
+
+.WeekCalendar {
+    border: 0;
+    width: 100%;
+    border-right: 1px solid #BBB;
+}
+
+.WeekCalendar .DayOfWeek {
+    font: bold 11px/11px Arial, sans-serif;
+    color: #444;
+    text-shadow: 0 1px 0 rgba(255,255,255,1);
+    background-color: #F2F2F2;
+    padding-bottom: 5px;
+    border-bottom: 1px solid #BBB;
+}
+
+.WeekCalendar td {
+    height: 40px;
+    width: 14%;
+    padding: 0;
+    border-left: 1px solid #BBB;
+    border-bottom: 1px solid #BBB;
+    font: bold 13px/13px Arial, sans-serif;
+    background-color: #FFF;
+}
+
+.WeekCalendar th {
+    
+    }
+
+.WeekCalendar .DayTitle {
+
+}
+
+.WeekCalendar .Day {
+    vertical-align: top;
+}
+
+.WeekCalendar .NonDayTitle {
+
+}
+
+.WeekCalendar .NonDay {
+    background-color: #FFF;
+}
+
+.WeekCalendar .WeekendDayTitle {
+
+}
+
+.WeekCalendar .Today {
+    vertical-align: top;
+    background-color: #F2F2F2;
+}
+
+.WeekCalendar .Today .DayTitle {
+}
+
+.WeekCalendar th.Hour {
+    width: 40px;
+    font: bold 10px/14px Arial, sans-serif;
+    color: #444;
+    text-shadow: 0 1px 0 rgba(255,255,255,1);
+    background-color: #F2F2F2;
+    text-align: right;
+    padding: 5px 5px 5px 10px;
+    white-space: nowrap;
+    border-left: 1px solid #BBB;
+}
+
+.WeekCalendar .HourTitle {
+
+}
+
+/* custom calendar */
+
+.cstWeekCalendarHolder {
+    width: 600px;
+}
+
+.cstWeekCalendarHolder .MonthTitle {
+    font-weight: bold;
+    text-align: center;
+    font-size: 15px;
+    color: #FF0000;
+}
+
+.cstWeekCalendar {
+    border-left: 1px solid #86888a;
+    border-bottom: 1px solid #86888a;
+    width: 100%;
+    empty-cells: show;
+}
+
+.cstWeekCalendar .DayOfWeek {
+    color: #000000;
+    background-color: #DDDDDD;
+}
+
+.cstWeekCalendar td,.cstWeekCalendar th {
+    padding: 3px;
+    height: 40px;
+    width: 14%;
+    border-right: 1px solid #86888a;
+    border-top: 1px solid #86888a;
+}
+
+.cstWeekCalendar .DayTitle {
+    padding: 0px;
+    font-weight: bold;
+    text-align: right;
+    float: right;
+    border: 0px solid #86888a;
+    border-right: none;
+    border-top: none;
+}
+
+.cstWeekCalendar .Day {
+    vertical-align: top;
+}
+
+.cstWeekCalendar .NonDayTitle {
+    text-align: right;
+    color: #CCCCCC;
+}
+
+.cstWeekCalendar .NonDay {
+    background-color: #EEEEEE;
+}
+
+.cstWeekCalendar .WeekendDayTitle {
+    padding: 2px;
+    font-weight: bold;
+    text-align: right;
+    float: right;
+    border: 2px solid #86888a;
+    border-right: none;
+    border-top: none;
+    text-align: right;
+    color: #CCCCCC;
+}
+
+.cstWeekCalendar .Today {
+    vertical-align: top;
+    border: #FF0000 1px solid;
+}
+
+.cstWeekCalendar .Today .DayTitle {
+    background-color: #FFFFFF
+}
+
+.cstWeekCalendar .Hour {
+    width: 40px;
+    height: 40px;
+    background-color: #DDDDDD;
+    white-space: nowrap;
+    text-align: right;
+}
+
+.cstWeekCalendar .HourTitle {
+    width: 40px;
+    height: 40px;
+    border: 1px solid #86888a;
+    background-color: #DDDDDD;
+}
+
+/* Day Calendar */
+
+.DayCalendarHolder {
+    width: 100%;
+    border: 4px solid #DDD;
+    -moz-border-radius: 6px;
+    -webkit-border-radius: 6px;
+}
+
+.DayCalendarHolder .MonthTitlem, .DayCalendarHolder .t1MonthTitle {
+    text-align: center;
+    color: #444;
+    background-color: #F2F2F2;
+    font: bold 14px/16px Arial, sans-serif;
+    padding: 8px 0;
+    text-shadow: 0 1px 0 rgba(255,255,255,1);
+    border: 1px solid #BBB;
+    border-bottom: none;
+}
+
+.DayCalendar {
+    border: 0;
+    width: 100%;
+    border-right: 1px solid #BBB;
+}
+
+.DayCalendar .DayOfWeek {
+    font: bold 11px/11px Arial, sans-serif;
+    color: #444;
+    text-shadow: 0 1px 0 rgba(255,255,255,1);
+    background-color: #F2F2F2;
+    padding-bottom: 5px;
+    border-bottom: 1px solid #BBB;
+}
+
+.DayCalendar td {
+    height: 40px;
+    width: 98%;
+    padding: 0;
+    border-left: 1px solid #BBB;
+    border-bottom: 1px solid #BBB;
+    font: bold 13px/13px Arial, sans-serif;
+    background-color: #FFF;
+}
+
+.DayCalendar .DayTitle {
+}
+
+.DayCalendar .Day {
+    vertical-align: top;
+}
+
+.DayCalendar .Today {
+    vertical-align: top;
+    background-color: #F2F2F2;
+}
+
+.DayCalendar .Today .DayTitle {
+}
+
+.DayCalendar .Hour {
+    width: 40px;
+    font: bold 10px/14px Arial, sans-serif;
+    color: #444;
+    text-shadow: 0 1px 0 rgba(255,255,255,1);
+    background-color: #F2F2F2;
+    text-align: right;
+    padding: 5px 5px 5px 10px;
+    white-space: nowrap;
+    border-left: 1px solid #BBB;
+}
+
+.DayCalendar .HourTitle {
+
+}
+
+/**/
+.CalendarAlternative1Holder {
+    width: 100%;
+}
+
+.CalendarAlternative1Holder .MonthTitle {
+    text-align: left;
+    color: #444;
+/*  background-color: #D2D2D2;*/
+    font: bold 16px/16px Arial, sans-serif;
+    padding: 10px 0 5px 0;
+    text-shadow: 0 1px 0 rgba(255,255,255,1);
+/*  border: 1px solid #BBB;*/
+    border-bottom: none;
+}
+
+.CalendarAlternative1 {
+    border: 0;
+    width: 100%;
+/*  border-right: 1px solid #BBB;*/
+}
+
+.CalendarAlternative1 .DayOfWeek {
+    font: normal 11px/11px Arial, sans-serif;
+    color: #444;
+    text-shadow: 0 1px 0 rgba(255,255,255,1);
+/*  background-color: #D2D2D2;*/
+    text-transform: capitalize;
+    padding: 0 0 5px 0;
+    border-bottom: 1px solid #999;
+    text-align: left;
+}
+.CalendarAlternative1 .DayOfWeek:first-child {
+/*  border-left: 1px solid #BBB;*/
+    }
+
+.CalendarAlternative1 td:first-child {
+    border-left: 1px solid #EEE;
+    }
+
+.CalendarAlternative1 td {
+    width: 75px;
+    height: 75px;
+    width: 14%;
+    padding: 0;
+    border-right: 1px solid #EEE;
+    border-bottom: 1px solid #BBB;
+    font: bold 13px/13px Arial, sans-serif;
+    background-color: #FFF;
+}
+
+.CalendarAlternative1 .DayTitle {
+    padding: 5px 5px;
+    font: normal 12px/12px Arial, sans-serif;
+    color: #000;
+    text-shadow: 0 1px 0 rgba(255,255,255,1);
+}
+
+.CalendarAlternative1 .Day {
+    background-color: #FFF;
+    vertical-align: top;
+}
+
+.CalendarAlternative1 .NonDayTitle {
+    padding: 5px 5px;
+    font: normal 12px/12px Arial, sans-serif;
+    color: #AAA;
+    text-shadow: 0 1px 0 rgba(255,255,255,1);
+}
+
+.CalendarAlternative1 .NonDay {
+
+}
+
+.CalendarAlternative1 .WeekendDayTitle {
+    padding: 5px 5px;
+    font: normal 12px/12px Arial, sans-serif;
+    color: #000;
+    text-shadow: 0 1px 0 rgba(255,255,255,1);
+}
+
+.CalendarAlternative1 .WeekendDay {
+    background-color: #FFF;
+}
+
+.CalendarAlternative1 .Today {
+    vertical-align: top;
+    background-color: #F2F2F2;
+}
+
+.CalendarAlternative1 .Today .DayTitle {
+/*  background-color: #FFFFFF*/
+}
+
+
+/* Alternate Week Calendar */
+
+/* Week Calendar */
+
+.WeekCalendarAlternative1Holder {
+    width: 100%;
+}
+
+.WeekCalendarAlternative1Holder .MonthTitle {
+    text-align: left;
+    color: #444;
+    font: bold 16px/16px Arial, sans-serif;
+    padding: 10px 0 5px 0;
+    text-shadow: 0 1px 0 rgba(255,255,255,1);
+    border-bottom: none;
+}
+
+.WeekCalendarAlternative1 {
+    border: 0;
+    width: 100%;
+}
+
+.WeekCalendarAlternative1 .DayOfWeek {
+    font: normal 11px/11px Arial, sans-serif;
+    text-align: left;
+    color: #444;
+    text-shadow: 0 1px 0 rgba(255,255,255,1);
+    padding-bottom: 5px;
+    border-bottom: 1px solid #BBB;
+}
+
+.WeekCalendarAlternative1 td {
+    height: 40px;
+    width: 14%;
+    padding: 0;
+    border-right: 1px solid #EEE;
+    border-bottom: 1px solid #BBB;
+    font: bold 13px/13px Arial, sans-serif;
+    background-color: #FFF;
+}
+
+.WeekCalendarAlternative1 tr:first-child th {
+    border-right: none
+    }
+
+.WeekCalendarAlternative1 th {
+    border-right: 1px solid #EEE;
+    }
+
+.WeekCalendarAlternative1 .DayTitle {
+
+}
+
+.WeekCalendarAlternative1 .Day {
+    vertical-align: top;
+}
+
+.WeekCalendarAlternative1 .NonDayTitle {
+
+}
+
+.WeekCalendarAlternative1 .NonDay {
+    background-color: #FFF;
+}
+
+.WeekCalendarAlternative1 .WeekendDayTitle {
+
+}
+
+.WeekCalendarAlternative1 .Today {
+    vertical-align: top;
+    background-color: #F2F2F2;
+}
+
+.WeekCalendarAlternative1 .Today .DayTitle {
+}
+
+.WeekCalendarAlternative1 th.Hour {
+    width: 40px;
+    font: normal 10px/14px Arial, sans-serif;
+    color: #444;
+    text-align: right;
+    padding: 0 5px 0 0;
+    white-space: nowrap;
+    vertical-align: top;
+}
+
+.WeekCalendarAlternative1 .HourTitle {
+
+}
+/* alternate Day Calendar */
+.DayCalendarAlternative1Holder {
+    width: 100%;
+}
+
+.DayCalendarAlternative1Holder .MonthTitle {
+    text-align: left;
+    color: #444;
+    font: bold 16px/16px Arial, sans-serif;
+    padding: 10px 0 5px 0;
+    text-shadow: 0 1px 0 rgba(255,255,255,1);
+    border-bottom: none;
+}
+
+.DayCalendarAlternative1 {
+    border: 0;
+    width: 100%;
+}
+
+.DayCalendarAlternative1 .DayOfWeek {
+    font: normal 11px/11px Arial, sans-serif;
+    text-align: left;
+    color: #444;
+    text-shadow: 0 1px 0 rgba(255,255,255,1);
+    padding-bottom: 5px;
+    border-bottom: 1px solid #BBB;
+}
+
+.DayCalendarAlternative1 td {
+    height: 40px;
+    width: 98%;
+    padding: 0;
+    border-left: 1px solid #EEE;
+    border-bottom: 1px solid #BBB;
+    font: bold 13px/13px Arial, sans-serif;
+    background-color: #FFF;
+}
+
+.DayCalendarAlternative1 tr:first-child th {
+    border-right: none
+    }
+
+.DayCalendarAlternative1 .DayTitle {
+}
+
+.DayCalendarAlternative1 .Day {
+    vertical-align: top;
+}
+
+.DayCalendarAlternative1 .Today {
+    vertical-align: top;
+    background-color: #F2F2F2;
+}
+
+.DayCalendarAlternative1 .Today .DayTitle {
+}
+
+.DayCalendarAlternative1 .Hour {
+    width: 40px;
+    font: normal 10px/14px Arial, sans-serif;
+    color: #444;
+    text-align: right;
+    padding: 0 5px 0 0;
+    white-space: nowrap;
+    vertical-align: top;
+}
+
+
+.DayCalendarAlternative1 .HourTitle {
+
+}
+
+/**/
+
+.SmallCalendarHolder {
+    
+}
+
+.SmallCalendarHolder .MonthTitle {
+    text-align: center;
+    font-size: 13px;
+    color: #FF0000;
+    font-weight: bold;
+}
+
+.SmallCalendar {
+    width: 250px;
+    border: 1px solid #CCCCCC;
+}
+
+.SmallCalendar .DayOfWeek {
+    height: 14px;
+}
+
+.SmallCalendar td {
+    height: 14%;
+    width: 14%;
+    padding: 2px;
+    border: 1px solid #CCCCCC;
+}
+
+.SmallCalendar .DayTitle {
+    font-weight: bold;
+    text-align: right;
+    text-decoration: underline;
+}
+
+.SmallCalendar .Day {
+    vertical-align: top;
+}
+
+.SmallCalendar .NonDayTitle {
+    text-align: right;
+    color: #CCCCCC;
+    text-align: right;
+    text-decoration: underline;
+}
+
+.SmallCalendar .NonDay {
+    border: 1px dotted #CCCCCC;
+}
+
+.SmallCalendar .WeekendDayTitle {
+    text-align: right;
+    color: #CCCCCC;
+    text-align: right;
+    text-decoration: underline;
+}
+
+.SmallCalendar .WeekendDay {
+    
+}
+
+.SmallCalendar .Today {
+    vertical-align: top;
+    vertical-align: top;
+    border: 1px solid #FF0000;
+}
+
+/* Small Week Calendar */
+
+.SmallWeekCalendarHolder {
+    border: 4px solid #DDD;
+    -moz-border-radius: 6px;
+    -webkit-border-radius: 6px;
+}
+
+.SmallWeekCalendarHolder .MonthTitle {
+    text-align: center;
+    color: #444;
+    background-color: #F2F2F2;
+    font: bold 14px/16px Arial, sans-serif;
+    padding: 8px 0;
+    text-shadow: 0 1px 0 rgba(255,255,255,1);
+    border: 1px solid #BBB;
+    border-bottom: none;
+}
+
+.SmallWeekCalendar {
+    width: 300px;
+    empty-cells: show;
+}
+
+.SmallWeekCalendar .DayOfWeek {
+    font: bold 10px/14px Arial, sans-serif;
+    color: #444;
+    text-shadow: 0 1px 0 rgba(255,255,255,1);
+    background-color: #F2F2F2;
+    text-transform: capitalize;
+    border-bottom: 1px solid #BBB;
+    padding: 5px 0;
+}
+
+.SmallWeekCalendar td {
+    height: 14%;
+    width: 14%;
+    padding: 0;
+    border-left: 1px solid #BBB;
+    border-bottom: 1px solid #BBB;
+    font: bold 13px/13px Arial, sans-serif;
+    background-color: #F2F2F2;
+    text-align: center;
+    vertical-align: top;
+}
+
+.SmallWeekCalendar td.t1Today {
+    background-color: #d2d2d4;
+    }
+
+.SmallWeekCalendar td .inner {
+    border-top: 1px solid #f6f8f9;
+    border-left: 1px solid #f6f8f9;
+    display: block;
+    }
+
+.SmallWeekCalendar .DayTitle {
+
+}
+
+.SmallWeekCalendar .Day {
+
+}
+
+.SmallWeekCalendar .WeekendDayTitle {
+
+}
+
+.SmallWeekCalendar .WeekendDay {
+    
+}
+
+.SmallWeekCalendar .Today {
+
+}
+
+.SmallWeekCalendar .Hour {
+    font: bold 10px/14px Arial, sans-serif;
+    color: #444;
+    text-shadow: 0 1px 0 rgba(255,255,255,1);
+    background-color: #F2F2F2;
+    text-transform: capitalize;
+    padding: 5px 2px 5px 10px;
+}
+
+.SmallWeekCalendar .HourTitle {
+
+}
+
+/* Small Day Calendar */
+
+.SmallDayCalendarHolder {
+    border: 4px solid #DDD;
+    -moz-border-radius: 6px;
+    -webkit-border-radius: 6px;
+}
+
+.SmallDayCalendarHolder .MonthTitle {
+    text-align: center;
+    color: #444;
+    background-color: #F2F2F2;
+    font: bold 14px/16px Arial, sans-serif;
+    padding: 8px 0;
+    text-shadow: 0 1px 0 rgba(255,255,255,1);
+    border: 1px solid #BBB;
+    border-bottom: none;
+    }
+
+.SmallDayCalendar {
+    width: 300px;
+    empty-cells: show;
+}
+
+.SmallDayCalendar .DayOfWeek {
+    font: bold 10px/14px Arial, sans-serif;
+    color: #444;
+    text-shadow: 0 1px 0 rgba(255,255,255,1);
+    background-color: #F2F2F2;
+    text-transform: capitalize;
+    border-bottom: 1px solid #BBB;
+    padding: 5px 0;
+}
+
+.SmallDayCalendar td {
+    height: 14%;
+    width: 98%;
+    padding: 0;
+    border-left: 1px solid #BBB;
+    border-bottom: 1px solid #BBB;
+    font: bold 13px/13px Arial, sans-serif;
+    background-color: #F2F2F2;
+    text-align: center;
+    vertical-align: top;
+}
+
+.SmallDayCalendar .DayTitle {
+
+}
+
+.SmallDayCalendar .Day {
+    vertical-align: top;
+}
+
+.SmallDayCalendar .Today {
+    background-color: #d2d2d4;
+    }
+
+.SmallDayCalendar .Hour {
+    font: bold 10px/14px Arial, sans-serif;
+    color: #444;
+    text-shadow: 0 1px 0 rgba(255,255,255,1);
+    background-color: #F2F2F2;
+    text-transform: capitalize;
+    padding: 5px 2px 5px 10px;
+}
+
+.SmallDayCalendar .HourTitle {
+}
+
+
+.ListCalendarHolder {
+    width: 100%;
+    border: 4px solid #DDD;
+    -moz-border-radius: 6px;
+    -webkit-border-radius: 6px;
+ }
+ 
+ .ListCalendarHolder .ListCalendar {
+     border: 0;
+     width: 100%;
+     border-spacing:0;
+     border-collapse:collapse; 
+ }   
+    
+.ListCalendarHolder .MonthTitle{
+    width:100%;
+    text-align: center;
+    color: #444;
+    background-color: #F2F2F2;
+    font: bold 14px/16px Arial, sans-serif;
+ }
+
+.ListCalendarHolder .PastDayTitle {
+    text-align:center; font-weight:bold; 
+    color:#435366;  
+    background-color: #F2F2F2; 
+    border-width: 0px 0px 0px 0 ;
+    border-style: solid ;
+    border-color: #AAAAAA; 
+    margin: 0;
+    width:100%;
+ }
+.ListCalendarHolder .PastDay {
+    font: bold 11px/11px Arial, sans-serif;
+    color: #444;
+    text-shadow: 0 1px 0 rgba(255,255,255,1);
+    background-color:  #FFF;
+    padding-bottom: 5px;
+    border-bottom: 1px solid #BBB;
+    width:96%;
+    height: 40px;
+    v-align:top;
+ }
+.ListCalendarHolder .PastHourTitle {
+    font: bold 11px/11px Arial, sans-serif;
+    color: #444;
+    text-shadow: 0 1px 0 rgba(255,255,255,1);
+    background-color: #F2F2F2;
+    padding-bottom: 5px;
+    border-bottom: 1px solid #BBB;
+ }
+ 
+ .ListCalendarHolder .PastHour { 
+    font: bold 11px/11px Arial, sans-serif;
+    color: #444;
+    text-shadow: 0 1px 0 rgba(255,255,255,1);
+    background-color:  #FFF;
+    padding-bottom: 5px;
+    border-bottom: 1px solid #BBB;
+    width:4%;
+    height: 40px;
+    v-align:top;
+}
+
+.ListCalendarHolder .ToDayTitle {
+    text-align:center; font-weight:bold; 
+    color:#435366;  
+    background-color: #F2F2F2; 
+    border-width: 0px 0px 0px 0 ;
+    border-style: solid ;
+    border-color: #AAAAAA; 
+    margin: 0;
+    width:100%;
+ }
+.ListCalendarHolder .ToDay { 
+    font: bold 11px/11px Arial, sans-serif;
+    color: #444;
+    text-shadow: 0 1px 0 rgba(255,255,255,1);
+    background-color:  #F2F2F2; 
+    padding-bottom: 5px;
+    border-bottom: 1px solid #BBB;
+    width:96%;
+    height: 40px;
+    v-align:top;
+ }
+.ListCalendarHolder .TodayHourTitle {
+    text-align:center; 
+    color:#435366; 
+    font-weight:bold; 
+    background-color: #97B8E2;
+    border-width: 0px 0px 0px 0 ; 
+    border-style: solid ;
+    border-color: #AAAAAA; 
+    margin: 0;
+ }
+.ListCalendarHolder .TodayHour { 
+    font: bold 11px/11px Arial, sans-serif;
+    color: #444;
+    text-shadow: 0 1px 0 rgba(255,255,255,1);
+    background-color:  #F2F2F2;
+    padding-bottom: 5px;
+    border-bottom: 1px solid #BBB;
+    width:4%;
+    height: 40px;
+    v-align:top;
+ }
+
+.ListCalendarHolder .FutureDayTitle {
+    text-align:center; font-weight:bold; 
+    color:#435366;  
+    background-color: #D0D0D0; 
+    border-width: 0px 0px 0px 0 ;
+    border-style: solid ;
+    border-color: #AAAAAA; 
+    margin: 0;
+    width:100%;
+ }
+.ListCalendarHolder .FutureDay {
+    font: bold 11px/11px Arial, sans-serif;
+    color: #444;
+    text-shadow: 0 1px 0 rgba(255,255,255,1);
+    background-color:  #FFF;
+    padding-bottom: 5px;
+    border-bottom: 1px solid #BBB;
+    width:96%;
+    height: 40px;
+    v-align:top;
+ }
+.ListCalendarHolder .FutureHour { 
+    font: bold 11px/11px Arial, sans-serif;
+    color: #444;
+    text-shadow: 0 1px 0 rgba(255,255,255,1);
+    background-color:  #FFF;
+    padding-bottom: 5px;
+    border-bottom: 1px solid #BBB;
+    width:4%;
+    height: 40px;
+    v-align:top;
+ }
+.ListCalendarHolder .FutureHourTitle {
+    font: bold 11px/11px Arial, sans-serif;
+    color: #444;
+    text-shadow: 0 1px 0 rgba(255,255,255,1);
+    background-color: #D0D0D0;
+    padding-bottom: 5px;
+    border-bottom: 1px solid #BBB;
+ }
+
+.ListCalendarAlternateHolder {
+  width: 100%;
+  border-width: 1px;
+  border-color: #AAAAAA;
+  border-style: solid;
+}
+
+.ListCalendarAlternateHolder .td {
+    width:100%;
+}
+
+.ListCalendarAlternateHolder .ListCalendarAlternate{
+  width: 100%;
+  padding: 0 0 0 0;
+  border: 1px;
+  border-collapse: collapse;
+  border-spacing: 0px;
+  padding: 0;
+  border-color: #AAAAAA;
+}
+
+.ListCalendarAlternateHolder .MonthTitle {
+  width:100%;
+  text-align: center;
+  color: #444;
+  font: bold 14px/16px Arial, sans-serif;
+  padding: 8px 0;
+  text-shadow: 0 1px 0 white;
+  border-bottom: none;
+}
+
+.ListCalendarAlternateHolder .PastDayTitle {
+  width:100%;
+  text-align: center;
+  font-weight: bold;
+  color: #435366;
+  background-color: #E5E5E5;
+  border-width: 0px 0px 0px 0;
+  border-style: solid;
+  border-color: #AAAAAA;
+  margin: 0;
+}
+
+.ListCalendarAlternateHolder .PastDay {
+  width:96%;
+  text-align: left;
+  v-align: top;
+  height: 50px;
+  padding: 0;
+  color: #465769;
+  font-weight: bold;
+  border-width: 1px 0px 0 0;
+  border-style: solid;
+  border-color: #AAAAAA;
+  margin: 0;
+  padding: 4px;
+  background-color: #F2F2F2;
+}
+
+.ListCalendarAlternateHolder .PastHourTitle {
+  text-align: center;
+  font-weight: bold;
+  color: #435366;
+  background-color: #E5E5E5;
+  border-width: 1px 0px 0px 0;
+  border-style: solid;
+  border-color: #AAAAAA;
+  margin: 0;
+}
+
+.ListCalendarAlternateHolder .PastHour {
+  width: 4%;
+  padding: 0px 5px 35px 10px;
+  white-space: nowrap;
+  v-align: center;
+  height: 50px;
+  padding: 0;
+  color: #465769;
+  font-weight: bold;
+  border-width: 1px 0px 0 0;
+  border-style: solid;
+  border-color: #AAAAAA;
+  margin: 0;
+  padding: 4px;
+  background-color: #F2F2F2;
+}
+
+.ListCalendarAlternateHolder .FutureDayTitle {
+  text-align: center;
+  color: #435366;
+  font-weight: bold;
+  background-color: #F2F2F2;
+  border-width: 0px 0px 0px 0;
+  border-style: solid;
+  border-color: #AAAAAA;
+  margin: 0;
+}
+
+.ListCalendarAlternateHolder .FutureDay {
+  text-align: left;
+  v-align: top;
+  height: 50px;
+  padding: 0;
+  color: #465769;
+  font-weight: bold;
+  border-width: 1px 0px 0 0;
+  border-style: solid;
+  border-color: #AAAAAA;
+  margin: 0;
+  padding: 4px;
+  background-color: #FFFFFF;
+}
+
+.ListCalendarAlternateHolder .FutureHour {
+  width: 30px;
+  padding: 0px 5px 35px 10px;
+  white-space: nowrap;
+  v-align: center;
+  height: 50px;
+  padding: 0;
+  color: #435366;
+  font-weight: bold;
+  border-width: 1px 0px 0 0;
+  border-style: solid;
+  border-color: #AAAAAA;
+  margin: 0;
+  padding: 4px;
+  background-color: #FFFFF;
+}
+
+.ListCalendarAlternateHolder .FutureHourTitle {
+  text-align: center;
+  font-weight: bold;
+  color: #435366;
+  background-color: #F2F2F2;
+  border-width: 0px 0px 0px 0;
+  border-style: solid;
+  border-color: #AAAAAA;
+  margin: 0;
+}
+
+.ListCalendarAlternateHolder .ToDayTitle {
+  text-align: center;
+  color: #435366;
+  font-weight: bold;
+  border-width: 0px 0px 0 0;
+  background-color: #97B8E2;
+  border-width: 0px 0px 0px 0;
+  border-style: solid;
+  border-color: #AAAAAA;
+  margin: 0;
+}
+
+.ListCalendarAlternateHolder .ToDay {
+  text-align: left;
+  v-align: top;
+  height: 50px;
+  padding: 0;
+  color: #435366;
+  background-color: #F2F2F2;
+  font-weight: bold;
+  border-width: 1px 0px 0 0;
+  border-style: solid;
+  border-color: #AAAAAA;
+  margin: 0;
+  padding: 4px;
+}
+
+.ListCalendarAlternateHolder .TodayHourTitle {
+  text-align: center;
+  color: #435366;
+  font-weight: bold;
+  background-color: #97B8E2;
+  border-width: 0px 0px 0px 0;
+  border-style: solid;
+  border-color: #AAAAAA;
+  margin: 0;
+}
+
+.ListCalendarAlternateHolder .TodayHour {
+  width: 30px;
+  padding: 0px 5px 35px 10px;
+  white-space: nowrap;
+  v-align: center;
+  height: 50px;
+  padding: 0;
+  color: #435366;
+  font-weight: bold;
+  border-width: 1px 0px 0 0;
+  border-style: solid;
+  border-color: #AAAAAA;
+  margin: 0;
+  padding: 4px;
+  background-color: #F2F2F2;
+}
+
+.ListCalendarSmallHolder {
+    border: 4px solid #DDD;
+    -moz-border-radius: 6px;
+    -webkit-border-radius: 6px;
+}
+
+.ListCalendarSmallHolder .td {
+     width:100%;
+}
+
+.ListCalendarSmallHolder .ListCalendarSmall {
+    width: 300px;
+    padding:0;
+    empty-cells: show;
+    border-spacing:0;
+    border-collapse:collapse;    
+}
+
+.ListCalendarSmallHolder .MonthTitle {
+    text-align: center;
+    color: #444;
+    background-color: #F2F2F2;
+    font: bold 14px/16px Arial, sans-serif;
+    padding: 0;
+    text-shadow: 0 1px 0 rgba(255,255,255,1);
+    border: 1px solid #BBB;
+    border-bottom: none;
+}
+
+.ListCalendarSmallHolder .PastDayTitle {
+  width:100%;
+  font: bold 10px/14px Arial, sans-serif;
+  color: #444;
+  text-shadow: 0 1px 0 white;
+  text-align: center;
+  color: #435366;
+  background-color: #E5E5E5;
+  border-width: 0px 0px 0px 0;
+  border-style: solid;
+  border-color: #AAAAAA;
+  margin: 0;
+}
+
+.ListCalendarSmallHolder .PastDay {
+  width:96%;
+  font: bold 10px/14px Arial, sans-serif;
+  color: #444;
+  text-shadow: 0 1px 0 white;
+  v-align: top;
+  height: 25px;
+  padding: 0;
+  color: #465769;
+  border-width: 1px 0px 0 0;
+  border-style: solid;
+  border-color: #AAAAAA;
+  margin: 0;
+  background-color: #F2F2F2;
+}
+
+.ListCalendarSmallHolder .PastHourTitle {
+    text-align: center;
+    font-weight: bold;
+    color: #435366;
+    background-color: #E5E5E5;
+    border-width: 1px 0px 0px 0;
+    border-style: solid;
+    border-color: #AAAAAA;
+    margin: 0;
+}
+
+.ListCalendarSmallHolder .PastHour {
+    width:4%;
+    font: bold 10px/14px Arial, sans-serif;
+    color: #444;
+    text-shadow: 0 1px 0 rgba(255,255,255,1);
+    background-color: #F2F2F2;
+    text-transform: capitalize;
+    padding: 5px 2px 5px 10px;
+    background-color: #F2F2F2;
+    border-width: 1px 0px 0 0;
+    border-style: solid;
+    border-color: #AAAAAA;
+}
+
+.ListCalendarSmallHolder .FutureDayTitle {
+    width:100%;
+    font: bold 10px/14px Arial, sans-serif;
+    color: #444;
+    text-shadow: 0 1px 0 white;
+    color: #435366;
+    background-color: #F2F2F2;
+    border-width: 0px 0px 0px 0;
+    border-style: solid;
+    border-color: #AAAAAA;
+    margin: 0;
+}
+
+.ListCalendarSmallHolder .FutureDay {
+    width:96%;
+    font: bold 10px/14px Arial, sans-serif;
+    color: #444;
+    text-shadow: 0 1px 0 white;
+    text-align: left;
+    v-align: top;
+    height: 25px;
+    padding: 0;
+    color: #465769;
+    border-width: 1px 0px 0 0;
+    border-style: solid;
+    border-color: #AAAAAA;
+    margin: 0;
+    background-color: #FFFFFF;
+}
+
+.ListCalendarSmallHolder .FutureHour {
+    width:4%;
+    font: bold 10px/14px Arial, sans-serif;
+    color: #444;
+    text-shadow: 0 1px 0 rgba(255,255,255,1);
+    text-transform: capitalize;
+    padding: 5px 2px 5px 10px;
+    background-color: #FFFFF;
+    border-width: 1px 0px 0 0;
+    border-style: solid;
+    border-color: #AAAAAA;
+}
+
+.ListCalendarSmallHolder .FutureHourTitle {
+    font: bold 10px/14px Arial, sans-serif;
+    color: #444;
+    text-shadow: 0 1px 0 white;
+    text-align: center;
+    color: #435366;
+    background-color: #F2F2F2;
+    border-width: 0px 0px 0px 0;
+    border-style: solid;
+    border-color: #AAAAAA;
+    margin: 0;
+}
+
+.ListCalendarSmallHolder .ToDayTitle {
+    font: bold 10px/14px Arial, sans-serif;
+    color: #444;
+    text-shadow: 0 1px 0 white;
+    text-align: center;
+    color: #435366;
+    border-width: 0px 0px 0 0;
+    background-color: #F2F2F2;
+    border-width: 0px 0px 0px 0;
+    border-style: solid;
+    border-color: #F2F2F2;
+    margin: 0;
+}
+
+.ListCalendarSmallHolder .ToDay {
+    font: bold 10px/14px Arial, sans-serif;
+    color: #444;
+    text-shadow: 0 1px 0 white;
+    text-align: left;
+    v-align: top;
+    height: 25px;
+    padding: 0;
+    background-color: #D2D2D4;
+    border-width: 1px 0px 0 0;
+    border-style: solid;
+    border-color: #AAAAAA;
+    margin: 0;
+}
+
+.ListCalendarSmallHolder .TodayHourTitle {
+    font: bold 10px/14px Arial, sans-serif;
+    color: #444;
+    text-shadow: 0 1px 0 white;
+    text-align: center;
+    color: #435366;
+    font-weight: bold;
+    background-color: #97B8E2;
+    border-width: 0px 0px 0px 0;
+    border-style: solid;
+    border-color: #F2F2F2;
+    margin: 0;
+}
+
+.ListCalendarSmallHolder .TodayHour {
+    font: bold 10px/14px Arial, sans-serif;
+    color: #444;
+    text-shadow: 0 1px 0 rgba(255,255,255,1);
+    background-color: #F2F2F2;
+    text-transform: capitalize;
+    padding: 5px 2px 5px 10px;
+    background-color: #D2D2D4;
+    border-width: 1px 0px 0 0;
+    border-style: solid;
+    border-color: #AAAAAA;
+}
+
+.apex_cal_data_grid_src {
+    width:100%;
+    margin-top:2px;
+}

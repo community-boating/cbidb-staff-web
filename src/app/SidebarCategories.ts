@@ -18,6 +18,7 @@ import { routeSignoutsTablesPage } from "./routes/dh/signouts-tables";
 import { routeUsersPage } from "./routes/admin/users";
 import { routeManageAccess } from "./routes/admin/manage-permissions";
 import { salesDashboardPageRoute } from "app/routes/reporting/salesDashboard";
+import { routeApClassesPage } from "./routes/ap/classes";
 
 export type SideBarCategory = {
 	path: string,
@@ -33,6 +34,15 @@ const jp: SideBarCategory = {
 	icon: Compass,
 	children: [
 		routeJpClassesPage
+	]
+}
+
+const ap: SideBarCategory = {
+	path: "/ap",
+	name: "Adult Program",
+	icon: Compass,
+	children: [
+		routeApClassesPage
 	]
 }
 
@@ -78,6 +88,7 @@ const misc: SideBarCategory = {
 // Dashboard specific routes
 export const sideBarRoutes = [
 	// jp,
+	ap,
 	reporting,
 	admin,
 	misc,

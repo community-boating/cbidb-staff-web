@@ -1,6 +1,7 @@
 export enum PageName {
 	HOME="home",
 	JP_CLASSES="jpClasses",
+	AP_CLASSES="apClasses",
 	USERS="users",
 	USERS_EDIT="users_edit",
 	USERS_NEW="users_new",
