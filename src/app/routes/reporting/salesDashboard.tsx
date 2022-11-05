@@ -15,7 +15,7 @@ export const salesDashboardPageRoute = new RouteWrapper({
 	pathWrapper: salesDashboardPath,
 	sidebarTitle: "Sales Dashboard",
 	pageName: PageName.SALES_DASHBOARD,
-	requireSudo: true,
+	requireSudo: false,
 }, history => <PageWrapper
 	key="sales dashboard"
 	history={history}
