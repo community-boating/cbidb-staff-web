@@ -23,3 +23,8 @@ export function validMilitaryTime(time: string): boolean {
 	const regex = /^([01][0-9]|20|21|22|23):[012345][0-9]$/
 	return !!regex.exec(time)
 }
+
+export function padWithZero(s: string) {
+	if (s.length == 1) return "0" + s;
+	else return s;
+}

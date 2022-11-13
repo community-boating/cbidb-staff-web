@@ -14,6 +14,7 @@ export enum PageName {
 	SIGNOUTS_TABLES = "signouts_tables",
 	MANAGE_PERMISSIONS = "manage-permissions",
 	MANAGE_ACCESS = "manage-access",
+	SALES_DASHBOARD = "sales_dashboard",
 	PERSON_SEARCH = "person_search",
 	PERSON_SUMMARY = "person_summary",
 }

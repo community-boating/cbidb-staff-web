@@ -34,6 +34,8 @@ export default class PageWrapper<T_URL, T_Async> extends React.Component<Props<T
 		}
 	}
 	loadAsyncProps(): void {
+		if (this.props.getAsyncProps == undefined) return;
+		
 		const self = this;
 		// When API comes back, manually trigger `serverSideResolveOnAsyncComplete`
 		// (if this is clientside, that fn will not do anything and that's fine)

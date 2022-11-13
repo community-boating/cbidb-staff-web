@@ -2,7 +2,8 @@ import {
 	Compass,
 	Sliders as SlidersIcon,
 	Users as UsersIcon,
-	HelpCircle
+	HelpCircle,
+	TrendingUp,
 } from "react-feather";
 import RouteWrapper from "../core/RouteWrapper";
 import { routeJpClassesPage } from "app/routes/jp-classes";
@@ -16,6 +17,7 @@ import { routeDockReportPage } from "app/routes/dh/dock-report";
 import { routeSignoutsTablesPage } from "./routes/dh/signouts-tables";
 import { routeUsersPage } from "./routes/admin/users";
 import { routeManageAccess } from "./routes/admin/manage-permissions";
+import { salesDashboardPageRoute } from "app/routes/reporting/salesDashboard";
 import { routePersonSearch } from "app/routes/person/search";
 import { routePersonSummary } from "app/routes/person/summary";
 
@@ -33,6 +35,15 @@ const jp: SideBarCategory = {
 	icon: Compass,
 	children: [
 		routeJpClassesPage
+	]
+}
+
+const reporting: SideBarCategory = {
+	path: "/reporting",
+	name: "Reporting",
+	icon: TrendingUp,
+	children: [
+		salesDashboardPageRoute,
 	]
 }
 
@@ -81,6 +92,7 @@ const misc: SideBarCategory = {
 // Dashboard specific routes
 export const sideBarRoutes = [
 	// jp,
+	reporting,
 	person_summary,
 	admin,
 	misc,

@@ -3,4 +3,4 @@ sentryDSN=$$CBI_SENTRY_DSN$$
 hostName=$$CBI_HOST_NAME$$
 hostNameDev=$$CBI_HOST_NAME$$
 port=$$CBI_PORT$$
-
+instantSudo=$$INSTANT_SUDO$$

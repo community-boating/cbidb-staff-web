@@ -6,6 +6,9 @@ const initialState = {
 };
 
 export default function reducer(state = initialState, actions) {
+	setTimeout(() => {
+		window.requestAnimationFrame(() => window.dispatchEvent(new Event('resize')))		
+	}, 400);
 	switch (actions.type) {
 		case types.SIDEBAR_VISIBILITY_TOGGLE:
 			return {
