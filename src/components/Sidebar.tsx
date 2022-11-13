@@ -64,8 +64,8 @@ const SidebarItem: (props: {
 ({ history, name, icon: Icon, to, pathString }) => {
 	const location = useLocation();
 
-	const getSidebarItemClass = path => {
-		return location.pathname === path ? "active" : "";
+	const getSidebarItemClass = (path: RouteWrapper<any>) => {
+		return location.pathname === path.pathWrapper.path ? "active" : "";
 	};
 
 	return (

@@ -63,7 +63,7 @@ const admin: SideBarCategory = {
 };
 
 const misc: SideBarCategory = {
-	path: "",
+	path: "/misc",
 	name: "Misc",
 	icon: HelpCircle,
 	children: [
