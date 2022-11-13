@@ -8,6 +8,7 @@ import { PageName } from "pages/pageNames";
 import PersonSummaryPage from "pages/summary/PersonSummaryPage/PersonSummaryPage";
 import { validator, getWrapper } from "async/rest/person/get-person";
 import { pathPersonSearch, pathPersonSummary } from "app/paths";
+import {getWrapper as getRatings} from 'async/staff/rating-html'
 
 export const routePersonSummary = new RouteWrapper(
 	{
@@ -28,6 +29,7 @@ export const routePersonSummary = new RouteWrapper(
 				return Number(pathPersonSummary.extractURLParams(history.location.pathname).personId)
 			}())}}
 			getAsyncProps={(urlProps: { personId: number }) => {
+				getRatings(urlProps.personId).send();
 				return getWrapper(urlProps.personId)
 					.send()
 					.catch((err) => {
