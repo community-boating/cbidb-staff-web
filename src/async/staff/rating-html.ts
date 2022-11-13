@@ -13,5 +13,5 @@ const path = "/staff/rating-html"
 export const getWrapper = (personId: number) => new APIWrapper({
 	path: path + "?personId=" + personId,
 	type: HttpMethod.GET,
-	resultValidator: validator,
+	resultValidator: t.array(validator),
 })
