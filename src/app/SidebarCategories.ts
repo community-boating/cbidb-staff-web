@@ -92,8 +92,8 @@ const misc: SideBarCategory = {
 // Dashboard specific routes
 export const sideBarRoutes = [
 	// jp,
-	reporting,
 	person_summary,
+	reporting,
 	admin,
 	misc,
 ];
