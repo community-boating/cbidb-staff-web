@@ -2,7 +2,7 @@ import * as types from "../constants";
 
 const initialState = {
 	isOpen: true,
-	isSticky: false
+	isAuto: true
 };
 
 export default function reducer(state = initialState, actions) {
@@ -10,38 +10,36 @@ export default function reducer(state = initialState, actions) {
 		window.requestAnimationFrame(() => window.dispatchEvent(new Event('resize')))		
 	}, 400);
 	switch (actions.type) {
-		case types.SIDEBAR_VISIBILITY_TOGGLE:
+		case types.LAYOUT_DOCK_NAV_TOGGLE:
 			return {
 				...state,
 				isOpen: !state.isOpen
 			};
-		case types.SIDEBAR_VISIBILITY_SHOW:
+		case types.LAYOUT_DOCK_NAV_OPEN:
 			return {
 				...state,
 				isOpen: true
 			};
-		case types.SIDEBAR_VISIBILITY_HIDE:
+		case types.LAYOUT_DOCK_NAV_CLOSE:
 			return {
 				...state,
 				isOpen: false
 			};
 
-		case types.SIDEBAR_STICKY_TOGGLE:
+		case types.LAYOUT_DOCK_NAV_AUTO_TOGGLE:
 			return {
 				...state,
-				isSticky: !state.isSticky
+				isAuto: !state.isAuto
 			};
-		case types.SIDEBAR_STICKY_ENABLE:
+		case types.LAYOUT_DOCK_NAV_AUTO_ENABLE:
 			return {
 				...state,
-				isSticky: true
+				isAuto: true
 			};
-		case types.LAYOUT_BOXED_ENABLE:
-		case types.LAYOUT_BOXED_TOGGLE:
-		case types.SIDEBAR_STICKY_DISABLE:
+		case types.LAYOUT_DOCK_NAV_AUTO_DISABLE:
 			return {
 				...state,
-				isSticky: false
+				isAuto: false
 			};
 
 		default:

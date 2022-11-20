@@ -29,7 +29,8 @@ export function canAccessPage(pageName: PageName): boolean {
 		case PageName.MANAGE_PERMISSIONS:
 			return !!asc.state.login.permissions[PERMISSIONS.PERM_MANAGE_ACCESS]
 		case PageName.SIGNOUTS_TABLES:
-			return true; 
+		case PageName.DOCK_HOUSE_PAGE:
+			return true;
 		default:
 			assertNever(pageName);
 			return false;

@@ -11,7 +11,7 @@ export const routeSignoutsTablesPage = new RouteWrapper({
 	requiresAuth: true,
 	exact: true,
 	pathWrapper: pathSignoutsTables,
-	sidebarTitle: "Signouts Tables",
+	navTitle: "Signouts Tables",
 	pageName: PageName.SIGNOUTS_TABLES,
 }, history => <PageWrapper
 	autoRefresh={10000}

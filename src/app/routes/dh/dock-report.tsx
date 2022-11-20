@@ -13,7 +13,7 @@ export const routeDockReportPage = new RouteWrapper({
 	requiresAuth: true,
 	exact: true,
 	pathWrapper: pathDockReport,
-	sidebarTitle: "Dock Report",
+	navTitle: "Dock Report",
 	pageName: PageName.DOCK_REPORT,
 }, history => <PageWrapper
 	key="dockrpt"

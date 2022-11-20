@@ -12,7 +12,8 @@ export const routeStaggeredOrder = new RouteWrapper({
 	requiresAuth: true,
 	exact: true,
 	pathWrapper: pathStaggeredOrder,
-	sidebarTitle: "Staggered Order",
+	navTitle: "Staggered Order",
+	navOrder: -1,
 	pageName: PageName.STAGGERED_ORDER,
 }, history => <PageWrapper
 	key="staggered-order"

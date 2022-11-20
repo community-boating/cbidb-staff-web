@@ -12,7 +12,8 @@ export const routeJpClassesPage = new RouteWrapper({
 	requiresAuth: true,
 	exact: true,
 	pathWrapper: pathJpClasses,
-	sidebarTitle: "JP Classes",
+	navTitle: "JP Classes",
+	navOrder: -1,
 	pageName: PageName.JP_CLASSES,
 }, history => <PageWrapper
 	key="jpclasses"

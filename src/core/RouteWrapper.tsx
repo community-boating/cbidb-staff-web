@@ -6,7 +6,8 @@ import { PageName } from 'pages/pageNames';
 import { canAccessPage } from 'pages/accessControl';
 
 export type RouteWrapperConfig<T extends StringObject> = {
-	sidebarTitle?: string,
+	navTitle?: string,
+	navOrder?: number,
 	requiresAuth: boolean,
 	exact: boolean,
 	pathWrapper: PathWrapper<T>,
@@ -21,7 +22,8 @@ export default class RouteWrapper<T extends StringObject>{
 	) {}
 
 	pathWrapper = this.config.pathWrapper;
-	sidebarTitle = this.config.sidebarTitle;
+	navTitle = this.config.navTitle;
+	navOrder = this.config.navOrder;
 
 	public pageName = this.config.pageName;
 	public requireSudo = this.config.requireSudo;

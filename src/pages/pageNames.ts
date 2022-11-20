@@ -11,6 +11,7 @@ export enum PageName {
 	MANAGE_CLASS_LOCATIONS = "manage_class_locations",
 	MANAGE_DONATION_FUNDS = "manage_donation_funds",
 	DOCK_REPORT = "dock_report",
+	DOCK_HOUSE_PAGE = "dock_house_page",
 	SIGNOUTS_TABLES = "signouts_tables",
 	MANAGE_PERMISSIONS = "manage-permissions",
 	MANAGE_ACCESS = "manage-access",

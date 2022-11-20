@@ -1,13 +1,13 @@
 import { combineReducers } from "redux";
 
-import sidebar from "./sidebarReducers";
+import nav from "./navReducers";
 import layout from "./layoutReducer";
 import theme from "./themeReducer";
 
 import { reducer as toastr } from "react-redux-toastr";
 
 export default combineReducers({
-	sidebar,
+	nav,
 	layout,
 	theme,
 	toastr

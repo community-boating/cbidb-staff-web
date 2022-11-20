@@ -12,3 +12,5 @@ export const FlagStatusIcons = {
     "B":{src:black, sortOrder:2, hr:"Black"},
     "W":{src:white, sortOrder:1, hr:"White"},
 }
+
+export type Flag = keyof typeof FlagStatusIcons;

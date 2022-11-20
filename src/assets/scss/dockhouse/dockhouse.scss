@@ -1,0 +1,102 @@
+$padding: 10px;
+@mixin dockhouse_themable($theme_name, $theme_map){
+
+    .#{$theme_name} {
+        $main_color: map-get($theme_map, main_color);
+        $font_family: map-get($theme_map, font_family);
+        .docknav{
+            background-color: $main_color;
+            border: none;
+            padding-top: $padding;
+            padding-bottom: $padding;
+            a{
+                padding-left: $padding;
+                padding-right: $padding;
+                border-left: 2px solid black;
+                font-family: $font_family;
+                font-weight: 500;
+                font-size: 20px;
+                color: black !important;
+            }
+            a:first-child{
+                border-left: none;
+            }
+            .active{
+                font-weight: 900;
+            }
+        }
+        $card_padding: 5px;
+        .dockhousecardinner{
+            position: absolute;
+            bottom: $card_padding;
+            right: $card_padding;
+            label{
+                margin-bottom: 0px;
+            }
+        }
+        .padding{
+            width: 100%;
+            height: 100%;
+        }
+        $card_spacing: 10px;
+        .dockhousecard{
+            position: relative;
+            background-color: $main_color;
+            height: 100%;
+            width: 100%;
+            font-family: $font_family;
+            display: inline-block;
+            padding: $card_padding;
+        }
+        .dockhousecardlayouthorizontal{
+            height: 100%;
+            width: 100%;
+            & > div {
+                @include horizontal;
+            }
+            & > .padding{
+                padding-left: $card_spacing;
+            }
+            & > .padding:first-child{
+                padding-left: 0px;
+            }
+        }
+        .dockhousecardlayoutvertical{
+            height: 100%;
+            width: 100%;
+            & > .padding{
+                padding-top: $card_spacing;
+            }
+            & > .padding:first-child{
+                padding-top: 0px;
+            }
+        }
+        .dockhouseinput{
+            border: none;
+            border-radius: 10px;
+        }
+        .dockhousegobutton{
+            border: none;
+            padding: 0;
+            margin-left: 5px;
+            border-radius: 10px;
+        }
+        .modalContent{
+            margin-top: 25vh;
+            margin-left: 25vw;
+            filter: blur(0px);
+            width: 50vw;
+            height: 50vh;
+            background-color: white;
+        }
+        .modalBlur{
+            z-index: 2s;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(1, 0, 0, 0.2);
+        }
+    }
+}

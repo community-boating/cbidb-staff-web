@@ -16,8 +16,6 @@ export default function reducer(state = initialState, actions) {
 				...state,
 				isBoxed: true
 			};
-		case types.SIDEBAR_STICKY_ENABLE:
-		case types.SIDEBAR_STICKY_TOGGLE:
 		case types.LAYOUT_BOXED_DISABLE:
 			return {
 				...state,

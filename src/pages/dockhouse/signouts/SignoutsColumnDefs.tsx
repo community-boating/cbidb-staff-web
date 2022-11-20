@@ -5,7 +5,7 @@ import { option } from 'fp-ts';
 import * as moment from "moment";
 import reassignedIcon from "assets/img/reassigned.png";
 import stopwatchIcon from "assets/img/stopwatch.jpg";
-import { FlagStatusIcons } from './FlagStatusIcons';
+import { FlagStatusIcons } from '../FlagStatusIcons';
 import { RatingsHover } from './RatingSorter';
 import { CrewHover } from './input/EditCrewModal';
 import { iconWidth, iconHeight, programsHR, signoutTypesHR, orphanedRatingsShownByDefault } from './Constants';

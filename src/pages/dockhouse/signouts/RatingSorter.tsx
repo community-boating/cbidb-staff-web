@@ -1,7 +1,7 @@
 import { ratingValidator, programsValidator, boatsValidator, personRatingValidator } from "async/rest/signouts-tables";
 import { option } from "fp-ts";
 import * as React from 'react';
-import { FlagStatusIcons } from "./FlagStatusIcons"
+import { FlagStatusIcons } from "../FlagStatusIcons"
 import * as t from "io-ts";
 import { SignoutTablesState, RatingsValidatorState, SignoutsTablesExtraState } from "./SignoutsTablesPage";
 import { MultiHover } from "./MultiHover";

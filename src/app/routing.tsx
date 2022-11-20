@@ -1,8 +1,8 @@
 import * as React from "react";
 import { Router, Route, Switch, Redirect } from "react-router";
 import {
-	sideBarRoutes,
-} from "./SidebarCategories";
+	dhRoutes,
+} from "./routes/routes";
 
 import { StandardLayout } from "../layouts/StandardLayout";
 import AuthLayout from "../layouts/Auth";
@@ -19,9 +19,7 @@ import { BorderlessLayout } from "../layouts/BorderlessLayout";
 const authenticatedRoutes = (history: History<any>) => {
 	const borderless = asc.state.borderless;
 	const Layout = borderless ? BorderlessLayout : StandardLayout;
-	const routes = sideBarRoutes.flatMap((category, index) => {
-		return category.children.concat((category.unrenderedChildren || []));
-	}).filter(r => !r.requireSudo || asc.state.sudo)
+	const routes = dhRoutes.filter(r => !r.requireSudo || asc.state.sudo)
 	.map(r => r.asRoute(history));
 	return (
 		<Route

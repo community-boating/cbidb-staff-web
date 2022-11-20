@@ -1,0 +1,105 @@
+@mixin dockhouse_header_themable($theme_name, $theme_map){
+    .#{$theme_name} {
+        $font_family: map-get($theme_map, font_family);
+        $header_height: map-get($theme_map, header_height);
+        $header_height_halfish: calc($header_height / 2.5);
+        .dockhouse_header{
+            white-space: nowrap;
+            width: 100%;
+            h1{
+                font-family: $font_family;
+                font-weight: 900;
+                font-size: $header_height;
+                margin: 0;
+            }
+            h2{
+                font-family: $font_family;
+                margin: 0;
+            }
+            h3{
+                font-family: $font_family;
+                margin: 0;
+            }
+            .time{
+                h2{
+                    font-weight: 500;
+                    font-size: $header_height_halfish;
+                    text-align: right;
+                }
+            }
+            .wind{
+                h2{
+                    font-weight: 900;
+                    font-size: calc($header_height / 2);
+                    text-align: center;
+                }
+                h3{
+                    font-size: calc($header_height / 4);
+                    text-align: center;
+                }
+            }
+            .announcements{
+                h2{
+                    font-weight: 900;
+                    font-size: $header_height_halfish;
+                    padding: 0;
+                }
+                width: 800px;
+            }
+            .scroll{
+                @include horizontal;
+                overflow-x: scroll;
+                width: 50%;
+                padding: 0;
+            }
+            .low{
+                color: green;
+                @include horizontal;
+            }
+            .high{
+                color: red;
+            }
+            .medium{
+                color: orange;
+                @include horizontal;
+            }
+            .buttons{
+                button{
+                    border-color: transparent;
+                    background-color: lightgrey;
+                    padding: 2px;
+                    margin: 5px;
+                }
+                button:hover{
+                    border-color: black;
+                }
+                button:active{
+                    background-color: red;
+                }
+                h2{
+                    font-weight: 900;
+                    font-size: calc($header_height / 2);
+                    text-align: center;
+                }
+                h3{
+                    font-weight: 900;
+                    font-size: calc($header_height / 4);
+                    text-align: center;
+                }
+            }
+            .logout{
+                border: none;
+                background-color: white;
+                h3{
+                    color: darkred;
+                }
+            }
+            td{
+                height: $header_height;
+            }
+            img{
+                height: 100%;
+            }
+        }
+    }
+}
