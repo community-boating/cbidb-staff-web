@@ -14,11 +14,12 @@
 @import "2-mixins/switch";
 @import "2-mixins/tabs";
 @import "2-mixins/wizard";
-@import "dockhouse/mixins.scss";
 
+@import "dockhouse/mixins.scss";
 @import "dockhouse/dockhouse.scss";
 @import "dockhouse/header.scss";
 @import "dockhouse/roboto.scss";
+@import "dockhouse/themes.scss";
 
 // Theme components
 @import "3-components/accordion";
@@ -54,8 +55,6 @@
 @import "4-utilities/borders";
 @import "4-utilities/cursors";
 @import "4-utilities/overflow";
-
-@import "dockhouse/themes.scss";
 
 // 3rd party plugins
 @import 'react-redux-toastr/src/styles/index';

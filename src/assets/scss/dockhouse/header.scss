@@ -1,3 +1,5 @@
+@import "mixins";
+
 @mixin dockhouse_header_themable($theme_name, $theme_map){
     .#{$theme_name} {
         $font_family: map-get($theme_map, font_family);
