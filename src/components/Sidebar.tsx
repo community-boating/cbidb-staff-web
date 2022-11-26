@@ -22,7 +22,7 @@ const SidebarCategory = ({
 }) => {
 	const location = useLocation();
 
-	const getSidebarItemClass = path => {
+	const getSidebarItemClass = (path: string) => {
 		return location.pathname.indexOf(path) !== -1 ||
 			(location.pathname === "/" && path === "/dashboard")
 			? "active"
