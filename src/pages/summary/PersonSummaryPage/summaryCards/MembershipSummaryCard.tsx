@@ -5,17 +5,34 @@ import { Card, CardBody, CardHeader, CardTitle, Spinner } from "reactstrap";
 import { membershipValidator } from "async/rest/person/get-person-memberships";
 import { SimpleReport } from "core/SimpleReport";
 import { ColumnDef } from "@tanstack/react-table";
+import { MembershipType } from "async/rest/membership-types";
 
 type PersonMembership = t.TypeOf<typeof membershipValidator>;
 
 interface Props {
 	memberships: PersonMembership[];
+	membershipTypes: MembershipType[]
 }
 
-export default function MembershipSummaryCard(props: Props) {
-	const { memberships } = props;
 
-	const columns: ColumnDef<PersonMembership, any>[] = [{
+
+export default function MembershipSummaryCard(props: Props) {
+	const { memberships, membershipTypes } = props;
+
+	const findTypeForMembership = (mem: PersonMembership) => membershipTypes.find(t => t.membershipTypeId == mem.membershipTypeId)
+
+	const decorateMembershipRecord = (mem: PersonMembership) => ({
+		...mem,
+		membershipType: findTypeForMembership(mem)
+	})
+
+	type DecoratedMembershipRecord = ReturnType<typeof decorateMembershipRecord>;
+
+	const columns: ColumnDef<DecoratedMembershipRecord, any>[] = [{
+		accessorKey: "assignId",
+		header: "ID",
+		size: 80,
+	}, {
 		accessorKey: "assignId",
 		header: "ID",
 		size: 80,
@@ -23,7 +40,7 @@ export default function MembershipSummaryCard(props: Props) {
 
 	const report = <SimpleReport 
 		columns={columns}
-		data={memberships}
+		data={memberships.map(decorateMembershipRecord)}
 		keyField={"assignId"}
 	/>
 

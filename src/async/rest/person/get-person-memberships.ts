@@ -5,6 +5,7 @@ import { HttpMethod } from "core/HttpMethod";
 export const membershipValidator = t.type({
 	assignId: t.number,
 	personId: t.number,
+	membershipTypeId: t.number
 });
 
 export const validator = t.array(membershipValidator);

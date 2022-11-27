@@ -11,12 +11,15 @@ import { pathPersonSearch, pathPersonSummary } from "app/paths";
 import {getWrapper as getRatings} from 'async/staff/rating-html'
 import {validator as ratingsValidator} from 'async/staff/rating-html'
 import {ApiResult} from 'core/APIWrapperTypes'
-import {
-	membershipValidator,
-	getWrapper as getMemberships,
-} from "async/rest/person/get-person-memberships";
+import { membershipValidator, getWrapper as getMemberships } from "async/rest/person/get-person-memberships";
+import {getWrapper as getMembershipTypes, memTypeValidator} from "async/rest/membership-types"
 
-type AsyncResult = [t.TypeOf<typeof validator>, t.TypeOf<typeof ratingsValidator>[], t.TypeOf<typeof membershipValidator>[]];
+type AsyncResult = [
+	t.TypeOf<typeof validator>,
+	t.TypeOf<typeof ratingsValidator>[],
+	t.TypeOf<typeof membershipValidator>[],
+	t.TypeOf<typeof memTypeValidator>[]
+];
 
 export const routePersonSummary = new RouteWrapper(
 	{
@@ -30,11 +33,12 @@ export const routePersonSummary = new RouteWrapper(
 		<PageWrapper
 			key="person summary"
 			history={history}
-			component={(_urlProps: {personId: number},  [person, ratings, memberships]: AsyncResult) => (
+			component={(_urlProps: {personId: number},  [person, ratings, memberships, membershipTypes]: AsyncResult) => (
 				<PersonSummaryPage
 					person={person}
 					ratings={ratings}
 					memberships={memberships}
+					membershipTypes={membershipTypes}
 				/>
 			)}
 			urlProps={{personId: (function() {
@@ -44,10 +48,26 @@ export const routePersonSummary = new RouteWrapper(
 				return Promise.all([
 					getWrapper(urlProps.personId).send(),
 					getRatings(urlProps.personId).send(),
-					getMemberships(urlProps.personId).send()
-				]).then(([summaryRes, ratingsRes, membershipsRes]) => {
-					if (summaryRes.type == "Success" && ratingsRes.type == "Success" && membershipsRes.type == "Success") {
-						return Promise.resolve({type: "Success", success: [summaryRes.success, ratingsRes.success, membershipsRes.success]} as ApiResult<AsyncResult>)
+					getMemberships(urlProps.personId).send(),
+					getMembershipTypes.send()
+				]).then(([
+					summaryRes,
+					ratingsRes,
+					membershipsRes,
+					membershipTypesRes
+				]) => {
+					if (
+						summaryRes.type == "Success" &&
+						ratingsRes.type == "Success" &&
+						membershipsRes.type == "Success" &&
+						membershipTypesRes.type == "Success"
+					 ) {
+						return Promise.resolve({type: "Success", success: [
+							summaryRes.success,
+							ratingsRes.success,
+							membershipsRes.success,
+							membershipTypesRes.success
+						]} as ApiResult<AsyncResult>)
 					}
 					else return Promise.reject()
 				}).catch((err) => {

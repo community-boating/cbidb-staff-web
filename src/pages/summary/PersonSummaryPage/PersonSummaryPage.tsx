@@ -12,6 +12,7 @@ import RatingsSummaryCard from "./summaryCards/RatingsSummaryCard";
 import "./person-summary.scss";
 import {validator as ratingsValidator} from 'async/staff/rating-html'
 import { membershipValidator } from "async/rest/person/get-person-memberships";
+import { MembershipType } from "async/rest/membership-types";
 
 type Person = t.TypeOf<typeof validator>;
 type Ratings = t.TypeOf<typeof ratingsValidator>
@@ -20,11 +21,12 @@ type Membership = t.TypeOf<typeof membershipValidator>
 interface Props {
 	person: Person;
 	ratings: Ratings[];
-	memberships: Membership[]
+	memberships: Membership[],
+	membershipTypes: MembershipType[]
 }
 
 export default function PersonSummaryPage(props: Props) {
-	const { person, ratings, memberships } = props;
+	const { person, ratings, memberships, membershipTypes } = props;
 
 	return (
 		<Row className="person-summary-page">
@@ -33,7 +35,7 @@ export default function PersonSummaryPage(props: Props) {
 				<RatingsSummaryCard person={person} ratings={ratings} />
 			</Col>
 			<Col>
-				<MembershipSummaryCard memberships={memberships} />
+				<MembershipSummaryCard memberships={memberships} membershipTypes={membershipTypes} />
 				{/* <DamageWaiverSummaryCard person={person} />
 				<CardsSummaryCard person={person} /> */}
 			</Col>
