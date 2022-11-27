@@ -11,8 +11,12 @@ import { pathPersonSearch, pathPersonSummary } from "app/paths";
 import {getWrapper as getRatings} from 'async/staff/rating-html'
 import {validator as ratingsValidator} from 'async/staff/rating-html'
 import {ApiResult} from 'core/APIWrapperTypes'
+import {
+	membershipValidator,
+	getWrapper as getMemberships,
+} from "async/rest/person/get-person-memberships";
 
-type AsyncResult = [t.TypeOf<typeof validator>, t.TypeOf<typeof ratingsValidator>[]]
+type AsyncResult = [t.TypeOf<typeof validator>, t.TypeOf<typeof ratingsValidator>[], t.TypeOf<typeof membershipValidator>[]];
 
 export const routePersonSummary = new RouteWrapper(
 	{
@@ -26,10 +30,11 @@ export const routePersonSummary = new RouteWrapper(
 		<PageWrapper
 			key="person summary"
 			history={history}
-			component={(_urlProps: {personId: number},  [person, ratings]: AsyncResult) => (
+			component={(_urlProps: {personId: number},  [person, ratings, memberships]: AsyncResult) => (
 				<PersonSummaryPage
 					person={person}
 					ratings={ratings}
+					memberships={memberships}
 				/>
 			)}
 			urlProps={{personId: (function() {
@@ -38,10 +43,11 @@ export const routePersonSummary = new RouteWrapper(
 			getAsyncProps={(urlProps: { personId: number }) => {
 				return Promise.all([
 					getWrapper(urlProps.personId).send(),
-					getRatings(urlProps.personId).send()
-				]).then(([summaryRes, ratingsRes]) => {
-					if (summaryRes.type == "Success" && ratingsRes.type == "Success") {
-						return Promise.resolve({type: "Success", success: [summaryRes.success, ratingsRes.success]} as ApiResult<AsyncResult>)
+					getRatings(urlProps.personId).send(),
+					getMemberships(urlProps.personId).send()
+				]).then(([summaryRes, ratingsRes, membershipsRes]) => {
+					if (summaryRes.type == "Success" && ratingsRes.type == "Success" && membershipsRes.type == "Success") {
+						return Promise.resolve({type: "Success", success: [summaryRes.success, ratingsRes.success, membershipsRes.success]} as ApiResult<AsyncResult>)
 					}
 					else return Promise.reject()
 				}).catch((err) => {
@@ -54,3 +60,5 @@ export const routePersonSummary = new RouteWrapper(
 		/>
 	)
 );
+
+
