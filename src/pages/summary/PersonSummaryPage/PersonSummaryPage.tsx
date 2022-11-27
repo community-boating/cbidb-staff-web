@@ -9,7 +9,6 @@ import MembershipSummaryCard from "./summaryCards/MembershipSummaryCard";
 import DamageWaiverSummaryCard from "./summaryCards/DamageWaiverSummaryCard";
 import GeneralSummaryCard from "./summaryCards/GeneralSummaryCard";
 import RatingsSummaryCard from "./summaryCards/RatingsSummaryCard";
-import CardsSummaryCard from "./summaryCards/CardsSummaryCard";
 import "./person-summary.scss";
 import {validator as ratingsValidator} from 'async/staff/rating-html'
 

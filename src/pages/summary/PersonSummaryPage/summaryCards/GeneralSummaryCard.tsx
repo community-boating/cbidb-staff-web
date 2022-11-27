@@ -1,12 +1,13 @@
 import * as React from "react";
 import * as t from "io-ts";
 import { validator as personValidator } from "async/rest/person/get-person";
-
-import PersonSummaryCard from "./PersonSummaryCard";
-import { Col, FormGroup, Input, Row, Table } from "reactstrap";
+import { Edit as EditIcon } from "react-feather";
+import { Card, CardBody, CardHeader, CardTitle, Col, FormGroup, Input, Row, Table } from "reactstrap";
 
 import * as moment from 'moment';
 import { DATE_FORMAT_LOCAL_DATE } from "util/dateUtil";
+import { NavLink } from "react-router-dom";
+import { pathPersonSummary } from "app/paths";
 
 interface Props {
 	person: t.TypeOf<typeof personValidator>;
@@ -79,9 +80,24 @@ export default function GeneralSummaryCard(props: Props) {
 			</tbody>
 		</Table>;
 	}
-
-	const body = () => {
-		return (
+	
+	return <Card className={`person-summary-card`.trim()}>
+		<CardHeader>
+			<CardTitle tag="h5" className="mb-0">
+				Person Details
+				<div className="card-header-actions">
+					<NavLink
+						to={pathPersonSummary.getPathFromArgs({
+							personId: String(person.personId),
+						})}
+						title="Edit person details"
+					>
+						<EditIcon color="#777" size="1rem" />
+					</NavLink>
+				</div>
+			</CardTitle>
+		</CardHeader>
+		<CardBody>
 			<Row>
 				<Col>
 					{renderCell(personCell)}
@@ -93,8 +109,6 @@ export default function GeneralSummaryCard(props: Props) {
 					{renderCell(emerg2Cell)}
 				</Col>
 			</Row>
-		);
-	};
-
-	return <PersonSummaryCard title="Details" body={body} person={person} />;
+		</CardBody>
+	</Card>
 }
