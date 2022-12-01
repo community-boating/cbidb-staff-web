@@ -1,0 +1,22 @@
+.right{
+    //margin-left: auto;
+    //margin-right: 0;
+
+}
+.popover{
+    //margin-left: auto
+    right: 0;
+    padding-right: 5px;
+    position: absolute;
+    overflow: hidden;
+    background: white;
+    z-index: 12;
+}
+.popover-spacing-helper{
+    height: 100%;
+    width: 0%;
+}
+.popover-wrapper{
+    position: sticky;
+    display: block;
+}

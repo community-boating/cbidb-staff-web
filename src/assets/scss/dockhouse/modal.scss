@@ -1,0 +1,15 @@
+.modal-content{
+    margin-top: 25vh;
+    margin-left: 25vw;
+    width: 50vw;
+    height: 50vh;
+    background-color: white;
+}
+.modal-wrapper{
+    z-index: 2;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+}

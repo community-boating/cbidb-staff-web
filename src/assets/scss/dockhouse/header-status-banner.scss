@@ -1,0 +1,132 @@
+@import "mixins";
+
+@mixin header-status-banner($font_family, $header_height){
+    $header_height_halfish: calc($header_height / 2.5);
+    .header-status-banner{
+        border-spacing: 0px;
+        white-space: nowrap;
+        width: 100%;
+        h1{
+            font-family: $font_family;
+            font-weight: 900;
+            font-size: $header_height;
+            margin: 0;
+            line-height: $header_height;
+        }
+        h2{
+            font-family: $font_family;
+            margin: 0;
+        }
+        h3{
+            font-family: $font_family;
+            margin: 0;
+        }
+        .time{
+            h2{
+                font-weight: 500;
+                font-size: $header_height_halfish;
+                text-align: right;
+            }
+        }
+        .image{
+            height: $header_height;
+            line-height: 0px;
+        }
+        .wind{
+            h2{
+                font-weight: 900;
+                font-size: calc($header_height / 2);
+                text-align: center;
+            }
+            h3{
+                font-size: calc($header_height / 4);
+                text-align: center;
+            }
+        }
+        .announcements{
+            h2{
+                font-weight: 900;
+                font-size: $header_height_halfish;
+                padding: 0;
+            }
+            height: 100%;
+            width: 100%;
+        }
+        .scroll{
+            overflow-x: scroll;
+            height: 50%;
+            width: 100%;
+        }
+        .scroll-inner{
+            width: 0px;
+            *{
+                @include horizontal;
+            }
+        }
+        .fill-remaining{
+            width: 100%;
+        }
+        .low{
+            color: green;
+            @include horizontal;
+        }
+        .high{
+            color: red;
+        }
+        .medium{
+            color: orange;
+            @include horizontal;
+        }
+        .buttons{
+            height: 100%;
+            button{
+                border-color: transparent;
+                background-color: lightgrey;
+                height: 100%;
+                border: none;
+                margin: 0;
+                margin-left: 5px;
+            }
+            button:hover{
+                border-color: black;
+            }
+            button:active{
+                background-color: red;
+            }
+            h2{
+                font-weight: 900;
+                font-size: calc($header_height / 2);
+                text-align: center;
+            }
+            h3{
+                font-weight: 900;
+                font-size: calc($header_height / 4);
+                text-align: center;
+            }
+        }
+        .logout{
+            border: none;
+            height: 100%;
+            background-color: white;
+            h3{
+                color: darkred;
+            }
+        }
+        tr{
+            height: $header_height;
+        }
+        td{
+            padding: 0px;
+            padding-left: 5px;
+            height: $header_height;
+        }
+        img{
+            height: 100%;
+        }
+    }
+    hr{
+        border: 2px solid black;
+        margin-top: 10px;
+        margin-bottom: 10px;
+    }
+}

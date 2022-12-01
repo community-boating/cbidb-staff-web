@@ -1,0 +1,27 @@
+@mixin header-navbar($main_color, $padding, $font_family, $nav_height){
+    .navbar{
+        background-color: $main_color;
+        line-height: 0px;
+        border: none;
+        padding-top: $padding;
+        padding-bottom: $padding;
+        a{
+            display: inline-block;
+            padding-left: $padding;
+            padding-right: $padding;
+            border-left: 2px solid black;
+            font-family: $font_family;
+            font-weight: 500;
+            font-size: $nav_height;
+            line-height: $nav_height;
+            text-decoration: none;
+            color: black !important;
+        }
+        a:first-child{
+            border-left: none;
+        }
+        .active{
+            font-weight: 900;
+        }
+    }
+}

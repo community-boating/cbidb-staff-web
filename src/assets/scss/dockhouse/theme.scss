@@ -1,6 +1,31 @@
-$theme_default: (
-    header_height: 60px,
-    font_family: 'Roboto',
-    main_color: lightgrey,
-    padding: 5px
-);
+@import "main";
+@import "header-status-banner";
+@import "header-navbar";
+@import "themes";
+@import "card";
+
+@mixin themable($theme_name, $theme_map){
+    $font_family: map-get($theme_map, font_family);
+    $main_color: map-get($theme_map, main_color);
+    $header_height: map-get($theme_map, header_height);
+    $nav_height: map-get($theme_map, nav_height);
+    $padding: 10px;
+    $card_padding: 5px;
+    $card_spacing: 5px;
+    $body_padding: 8px;
+    body{
+        overflow-x: hidden;
+        margin: $body_padding;
+        *{
+            box-sizing: border-box;
+        }
+    }
+    .#{$theme_name} {
+        @include header-status-banner($font_family, $header_height);
+        @include header-navbar($main_color, $padding, $font_family, $nav_height);
+        @include main($header_height, $nav_height, $padding, $body_padding);
+        @include card($card_padding, $card_spacing, $main_color, $font_family);
+    }
+}
+
+@include themable("default", $theme_default);

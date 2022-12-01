@@ -1,35 +1,35 @@
 import * as React from 'react';
 
 export enum LayoutDirection {
-    VERTICAL = "dockhousecardlayoutvertical",
-    HORIZONTAL = "dockhousecardlayouthorizontal"
+    VERTICAL = "layout-vertical",
+    HORIZONTAL = "layout-horizontal"
 }
 
-type DockHouseCardLayoutChildProps = {
+type CardLayoutChildProps = {
     weight?: number,
     total?: number,
     parentDirection?: LayoutDirection
 };
 
-type DockHouseCardProps = DockHouseCardLayoutChildProps & {
+type CardProps = CardLayoutChildProps & {
     children?: React.ReactNode,
     title: string
 }
 
-export function Padding(props: DockHouseCardLayoutChildProps & {children?: React.ReactNode}){
+export function Padding(props: CardLayoutChildProps & {children?: React.ReactNode}){
     return <div className="padding" style={getChildStyling(props)}>{props.children}</div>
 }
 
-export function DockHouseCard(props: DockHouseCardProps){
-    return <Padding {...props}><div className="dockhousecard"><h2>{props.title}</h2><div className="dockhousecardinner">{props.children}</div></div></Padding>;
+export function Card(props: CardProps){
+    return <Padding {...props}><div className="card"><h2 className="title">{props.title}</h2><div className="card-inner">{props.children}</div></div></Padding>;
 }
 
-type DockHouseCardLayoutProps = DockHouseCardLayoutChildProps & {
+type CardLayoutProps = CardLayoutChildProps & {
     children?: React.ReactNode,
     direction: LayoutDirection
 }
 
-function getWeight(props: DockHouseCardLayoutChildProps){
+function getWeight(props: CardLayoutChildProps){
     if(props.weight !== undefined){
         return props.weight;
     }else{
@@ -37,7 +37,7 @@ function getWeight(props: DockHouseCardLayoutChildProps){
     }
 }
 
-function getChildStyling(props: DockHouseCardLayoutChildProps): React.CSSProperties{
+function getChildStyling(props: CardLayoutChildProps): React.CSSProperties{
     const adjusted = getWeight(props) / props.total * 100;
     if(props.parentDirection == LayoutDirection.HORIZONTAL){
         return {width: adjusted + "%"};
@@ -46,14 +46,14 @@ function getChildStyling(props: DockHouseCardLayoutChildProps): React.CSSPropert
     }
 }
 
-export function DockHouseCardLayout(props: DockHouseCardLayoutProps){
+export function CardLayout(props: CardLayoutProps){
     var total = 0;
     React.Children.forEach(props.children, (child) => {
         if(React.isValidElement(child)){
             total += getWeight(child.props);
         }
     });
-    const children = React.Children.map(props.children, (child: React.ReactElement<DockHouseCardLayoutChildProps>) => {
+    const children = React.Children.map(props.children, (child: React.ReactElement<CardLayoutChildProps>) => {
         if(React.isValidElement(child)){
             return React.cloneElement(child, {total, parentDirection: props.direction});
         }

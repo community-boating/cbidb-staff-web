@@ -1,0 +1,9 @@
+@mixin main($header_height, $nav_height, $padding, $body_padding){
+    .content{
+        margin-top: 0;
+        margin-bottom: 0;
+        overflow-y: hidden;
+        height: calc(100vh - $header_height - $nav_height - 2 * $padding - 2 * $body_padding - 2 * 10px - 2 * 2px);
+        width: 100%;
+    }
+}

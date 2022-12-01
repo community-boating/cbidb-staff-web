@@ -1,7 +1,10 @@
 import * as React from 'react';
-import { Flag, FlagStatusIcons } from '../FlagStatusIcons';
+import { Flag, FlagStatusIcons } from '../../pages/dockhouse/FlagStatusIcons';
 import CBI_boat from 'assets/img/CBI_boat.jpg';
 import * as moment from "moment";
+import Popover, { closePopover, openPopover, PopoverLocation, PopoverWithLabel } from 'components/dockhouse/Popover';
+import asc from 'app/AppStateContainer';
+import { logout } from 'async/logout';
 
 type HeaderFlagProps = {flag: Flag};
 
@@ -33,26 +36,61 @@ type HeaderProps = HeaderFlagProps & HeaderTimeProps & HeaderSunsetProps & Heade
 
 const TIME_FORMAT = "HH:mm";
 
-export default function Header(props: HeaderProps) {
-    return (<table className="dockhouse_header"><tbody><tr>
+export default function HeaderStatusBanner(props: HeaderProps) {
+    return (<table className="header-status-banner"><tbody><tr>
         <td><CBIBoatIcon {...props}/></td>
         <td><FlagIcon {...props}/></td>
         <td><HeaderTime {...props}/></td>
         <td><HeaderSunset {...props}/></td>
         <td><HeaderWindSpeed {...props}/></td>
         <td><HeaderWindDirection {...props}/></td>
-        <td><HeaderAnnouncements {...props}/></td>
+        <td className="fill-remaining"><HeaderAnnouncements {...props}/></td>
         <td><HeaderButtons {...props}/></td>
         <td><HeaderLogout/></td>
         </tr></tbody></table>);
 }
 
 function HeaderLogout(props){
-    return <button className="logout"><h2>DOCK</h2><h3>Logout</h3></button>
+    const [state, setState] = React.useState({open: false, action: 0, location: PopoverLocation.RIGHT});
+    const sudo = asc.state.sudo;
+
+	const ifSudo = (
+		sudo
+		? <div>
+			<span className="align-middle" onClick={() => asc.updateState.setSudo(false)}>Suspend Superpowers</span>
+		</div>
+		: <div onClick={e => {
+			e.preventDefault();
+			asc.sudoModalOpener();
+		}}>
+			<span className="align-middle">Elevate Session</span>
+		</div>
+	);
+    //onMouseLeave={() => {if(state.open) setState(closePopover)}}
+    return <PopoverWithLabel location={PopoverLocation.DOWN} label={<button className="logout" onClick={() => {if(!state.open)setState(openPopover)}}><h2>DOCK</h2><h3>Logout</h3></button>}>
+        <nav className="ml-auto">
+                <div className="mr-2">
+                    <div className="nav-flag">
+                        Sudo Enabled
+                    </div>
+                    <div>
+                    {ifSudo}
+                    <div onClick={e => {
+                        e.preventDefault();
+                        logout.send().then(() => {
+                            asc.updateState.login.logout()
+                        })
+                    }}>
+                        <span className="align-middle">Sign out</span>
+                    </div>
+                    </div>
+                </div>
+            </nav>
+    </PopoverWithLabel>
 }
 
 function HeaderButtons(props: HeaderButtonsProps){
-    return <div className="buttons">{props.buttons.map((a) => <HeaderButton {...a}/>)}</div>;
+    return <div className="buttons">{props.buttons.map((a, i) => <span key={i}><HeaderButton {...a}/></span>)}</div>;
 }
 
 function HeaderButton(props: HeaderButtonProps){
@@ -65,10 +103,16 @@ function HeaderAccountment(props: HeaderAnnouncementProps){
 
 function HeaderAnnouncements(props: HeaderAnnouncementsProps){
     return (<div className="announcements">
-        <HeaderAccountment {...props.high} className="high"/>
-        <HeaderAccountment {...props.medium} className="medium"/>
         <div className="scroll">
-            {props.low.map((a, i) => <HeaderAccountment {...a} key={i} className="low"/>)}
+            <div className="scroll-inner">
+                <HeaderAccountment {...props.high} className="high"/>
+            </div>
+        </div>
+        <div className="scroll">
+            <div className="scroll-inner">
+                <HeaderAccountment {...props.medium} className="medium"/>
+                {props.low.map((a, i) => <HeaderAccountment {...a} key={i} className="low"/>)}
+            </div>
         </div>
     </div>);
 }
@@ -107,5 +151,5 @@ function FlagIcon(props: HeaderProps){
 }
 
 function HeaderImage(props: HeaderImageProps){
-    return <img src={props.src}/>;
+    return <div className="image"><img src={props.src}/></div>;
 }

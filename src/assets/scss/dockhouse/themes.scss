@@ -1,6 +1,7 @@
-@import "dockhouse";
-@import "header";
-@import "theme";
-
-@include dockhouse_header_themable("default", $theme_default);
-@include dockhouse_themable("default", $theme_default);
+$theme_default: (
+    header_height: 60px,
+    font_family: 'Roboto',
+    main_color: lightgrey,
+    padding: 5px,
+    nav_height: 20px
+);
