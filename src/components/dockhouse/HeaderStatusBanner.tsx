@@ -1,10 +1,10 @@
 import * as React from 'react';
-import { Flag, FlagStatusIcons } from '../../pages/dockhouse/FlagStatusIcons';
+import { Flag, FlagStatusIcons } from './FlagStatusIcons';
 import CBI_boat from 'assets/img/CBI_boat.jpg';
 import * as moment from "moment";
-import Popover, { closePopover, openPopover, PopoverLocation, PopoverWithLabel } from 'components/dockhouse/Popover';
 import asc from 'app/AppStateContainer';
 import { logout } from 'async/logout';
+import Menu from 'components/wrapped/Menu';
 
 type HeaderFlagProps = {flag: Flag};
 
@@ -37,60 +37,39 @@ type HeaderProps = HeaderFlagProps & HeaderTimeProps & HeaderSunsetProps & Heade
 const TIME_FORMAT = "HH:mm";
 
 export default function HeaderStatusBanner(props: HeaderProps) {
-    return (<table className="header-status-banner"><tbody><tr>
-        <td><CBIBoatIcon {...props}/></td>
-        <td><FlagIcon {...props}/></td>
-        <td><HeaderTime {...props}/></td>
-        <td><HeaderSunset {...props}/></td>
-        <td><HeaderWindSpeed {...props}/></td>
-        <td><HeaderWindDirection {...props}/></td>
-        <td className="fill-remaining"><HeaderAnnouncements {...props}/></td>
-        <td><HeaderButtons {...props}/></td>
-        <td><HeaderLogout/></td>
-        </tr></tbody></table>);
+    return (<div className="flex flex-row h-[8vh]">
+        <CBIBoatIcon {...props}/>
+        <FlagIcon {...props}/>
+        <HeaderTime {...props}/>
+        <HeaderSunset {...props}/>
+        <HeaderWindSpeed {...props}/>
+        <HeaderWindDirection {...props}/>
+        <HeaderAnnouncements {...props}/>
+        <HeaderButtons {...props}/>
+        <HeaderLogout/>
+        </div>);
 }
 
 function HeaderLogout(props){
-    const [state, setState] = React.useState({open: false, action: 0, location: PopoverLocation.RIGHT});
     const sudo = asc.state.sudo;
-
-	const ifSudo = (
-		sudo
-		? <div>
-			<span className="align-middle" onClick={() => asc.updateState.setSudo(false)}>Suspend Superpowers</span>
-		</div>
-		: <div onClick={e => {
-			e.preventDefault();
-			asc.sudoModalOpener();
-		}}>
-			<span className="align-middle">Elevate Session</span>
-		</div>
-	);
     //onMouseLeave={() => {if(state.open) setState(closePopover)}}
-    return <PopoverWithLabel location={PopoverLocation.DOWN} label={<button className="logout" onClick={() => {if(!state.open)setState(openPopover)}}><h2>DOCK</h2><h3>Logout</h3></button>}>
-        <nav className="ml-auto">
-                <div className="mr-2">
-                    <div className="nav-flag">
-                        Sudo Enabled
-                    </div>
-                    <div>
-                    {ifSudo}
-                    <div onClick={e => {
-                        e.preventDefault();
-                        logout.send().then(() => {
-                            asc.updateState.login.logout()
-                        })
-                    }}>
-                        <span className="align-middle">Sign out</span>
-                    </div>
-                    </div>
-                </div>
-            </nav>
-    </PopoverWithLabel>
+    
+    const menuItems: React.ReactNode[] = [];
+
+    if(sudo){
+        menuItems.push(<p>Superuser Active</p>);
+        menuItems.push(<a onClick={(e) => {asc.updateState.setSudo(false);e.preventDefault();}}>Suspend Superpowers</a>);
+    }else{
+        menuItems.push(<a onClick={(e) => {asc.sudoModalOpener();e.preventDefault();}}>Elevate Session</a>);
+    }
+
+    menuItems.push(<a onClick={(e) => {e.preventDefault(); logout.send();}}>Elevate Session</a>);
+
+    return <Menu title="*" items={menuItems}/>;
 }
 
 function HeaderButtons(props: HeaderButtonsProps){
-    return <div className="buttons">{props.buttons.map((a, i) => <span key={i}><HeaderButton {...a}/></span>)}</div>;
+    return <div className="buttons h-full">{props.buttons.map((a, i) => <span key={i}><HeaderButton {...a}/></span>)}</div>;
 }
 
 function HeaderButton(props: HeaderButtonProps){
@@ -102,7 +81,7 @@ function HeaderAccountment(props: HeaderAnnouncementProps){
 }
 
 function HeaderAnnouncements(props: HeaderAnnouncementsProps){
-    return (<div className="announcements">
+    return (<div className="grow-[1]">
         <div className="scroll">
             <div className="scroll-inner">
                 <HeaderAccountment {...props.high} className="high"/>
@@ -118,27 +97,27 @@ function HeaderAnnouncements(props: HeaderAnnouncementsProps){
 }
 
 function HeaderWindDirection(props: HeaderWindProps){
-    return (<span className="wind">
-        <h3>KTS</h3>
-        <h2>{props.direction}</h2>
+    return (<span>
+        <h3 className="text-[2vh]">KTS</h3>
+        <h2 className="text-[4vh]">{props.direction}</h2>
     </span>)
 }
 
 function HeaderWindSpeed(props: HeaderWindProps){
-    return (<span className="wind">
-        <h1>{props.speed}</h1>
-    </span>);
+    return (
+        <h1 className="text-[8vh] leading-none">{props.speed}</h1>
+    );
 }
 
 function HeaderSunset(props: HeaderSunsetProps){
-    return (<span className="time">
+    return (<span className="text-[4vh] leading-none whitespace-nowrap">
         <h2>Sunset: {props.sunset.format(TIME_FORMAT)}</h2>
         <h2>Call In: {props.sunset.subtract(30, "minutes").format(TIME_FORMAT)}</h2>
     </span>);
 }
 
 function HeaderTime(props: HeaderTimeProps){
-    return <span className="time"><h1>{props.time.format(TIME_FORMAT)}</h1></span>;
+    return <h1 className="text-[8vh] leading-none">{props.time.format(TIME_FORMAT)}</h1>;
 }
 
 function CBIBoatIcon(props: HeaderProps){
@@ -151,5 +130,5 @@ function FlagIcon(props: HeaderProps){
 }
 
 function HeaderImage(props: HeaderImageProps){
-    return <div className="image"><img src={props.src}/></div>;
+    return <span className="h-full"><img src={props.src} className="h-full"/></span>;
 }

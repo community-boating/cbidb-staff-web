@@ -1,5 +1,5 @@
 
-import red from "assets/img/red.png";
+import red from 'assets/img/red.png';
 import green from "assets/img/green.png";
 import yellow from "assets/img/yellow.png";
 import black from "assets/img/black.png";

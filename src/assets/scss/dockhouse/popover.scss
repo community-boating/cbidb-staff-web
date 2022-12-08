@@ -1,11 +1,19 @@
-.right{
+.popover .right{
     //margin-left: auto;
     //margin-right: 0;
-
+    right: 0;
+}
+.popover .left{
+    left: 0;
+}
+.popover .top{
+    top: 0;
+}
+.popover .bottom{
+    bottom: 0;
 }
 .popover{
     //margin-left: auto
-    right: 0;
     padding-right: 5px;
     position: absolute;
     overflow: hidden;
@@ -19,4 +27,16 @@
 .popover-wrapper{
     position: sticky;
     display: block;
+}
+.transition-opacity{
+    transition-property: opacity;
+}
+.duration-750{
+    transition-duration: 7500;
+}
+.opacity-0{
+    opacity: 0;
+}
+.opacity-100{
+    opacity: 100%;
 }

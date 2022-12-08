@@ -5,8 +5,27 @@ export enum LayoutDirection {
     HORIZONTAL = "layout-horizontal"
 }
 
+export enum FlexSize{
+    S_0 = "grow-0",
+    S_1 = "grow-[1]",
+    S_2 = "grow-[2]",
+    S_3 = "grow-[3]",
+    S_4 = "grow-[4]",
+    S_5 = "grow-[5]",
+    S_6 = "grow-[6]",
+    S_7 = "grow-[7]",
+    S_8 = "grow-[8]",
+    S_9 = "grow-[9]",
+    S_10 = "grow-[10]",
+    S_25 = "grow-[25]",
+    S_50 = "grow-[50]",
+    S_75 = "grow-[75]",
+    S_100 = "grow-[100]",
+    S_1000 = "grow-[1000]"
+}
+
 type CardLayoutChildProps = {
-    weight?: number,
+    weight?: FlexSize,
     total?: number,
     parentDirection?: LayoutDirection
 };
@@ -16,12 +35,8 @@ type CardProps = CardLayoutChildProps & {
     title: string
 }
 
-export function Padding(props: CardLayoutChildProps & {children?: React.ReactNode}){
-    return <div className="padding" style={getChildStyling(props)}>{props.children}</div>
-}
-
 export function Card(props: CardProps){
-    return <Padding {...props}><div className="card"><h2 className="title">{props.title}</h2><div className="card-inner">{props.children}</div></div></Padding>;
+    return <div className={(props.weight || FlexSize.S_1) + " basis-0 bg-card"}><h2 className="">{props.title}</h2><div className="">{props.children}</div></div>;
 }
 
 type CardLayoutProps = CardLayoutChildProps & {
@@ -29,35 +44,13 @@ type CardLayoutProps = CardLayoutChildProps & {
     direction: LayoutDirection
 }
 
-function getWeight(props: CardLayoutChildProps){
-    if(props.weight !== undefined){
-        return props.weight;
-    }else{
-        return 1;
-    }
-}
-
-function getChildStyling(props: CardLayoutChildProps): React.CSSProperties{
-    const adjusted = getWeight(props) / props.total * 100;
-    if(props.parentDirection == LayoutDirection.HORIZONTAL){
-        return {width: adjusted + "%"};
-    }else{
-        return {height: adjusted + "%"};
-    }
-}
-
 export function CardLayout(props: CardLayoutProps){
     var total = 0;
-    React.Children.forEach(props.children, (child) => {
-        if(React.isValidElement(child)){
-            total += getWeight(child.props);
-        }
-    });
     const children = React.Children.map(props.children, (child: React.ReactElement<CardLayoutChildProps>) => {
         if(React.isValidElement(child)){
             return React.cloneElement(child, {total, parentDirection: props.direction});
         }
         return child;
     });
-    return <Padding {...props}><div className={props.direction}>{children}</div></Padding>;
+    return <div className={(props.direction == LayoutDirection.HORIZONTAL ? "flex flex-row w-full basis-0 space-x-1 " : "flex flex-col h-full basis-0 space-y-1 ") + (props.weight || FlexSize.S_1)}>{children}</div>;
 }

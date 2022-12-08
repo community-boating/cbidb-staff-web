@@ -1,8 +1,5 @@
 import * as React from "react";
 import { connect } from "react-redux";
-import { logout } from "../../async/logout";
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUser, faUserShield } from '@fortawesome/free-solid-svg-icons'
 import * as moment from 'moment';
 
 import HeaderNavbar from "./HeaderNavbar";
@@ -15,7 +12,7 @@ const Header = (props: { history, dispatch }) => {
         {short: "GND", long: "AGROUND", onClick: (a) => {alert("clicked GND")}},
         {short: "AST", long: "ASSIST", onClick: (a) => {alert("clicked AST")}}];
 	return (
-		<div className="header">
+		<div className="header grow-0">
 			<StatusHeader flag={"R"} time={moment()} sunset={moment("2022-11-16T00:43:00Z")} speed={13} direction={"W"}
 			high={{title: "Announcement Title Here", message: "Click for announcement modal blah blah"}}
 			medium={{title: "", message: "Medium priority announcement"}}

@@ -1,16 +1,17 @@
 import * as React from 'react';
-import { CardLayout, Padding, Card, LayoutDirection } from '../../../components/dockhouse/Card';
+import { CardLayout, Card, LayoutDirection, FlexSize } from '../../../components/dockhouse/Card';
 import go from 'assets/img/go.svg';
-import Modal, { ModalAction } from '../../../components/dockhouse/Modal';
-import SelectInput from 'components/Input/SelectInput';
-import { PopoverLocation, PopoverWithLabel } from 'components/dockhouse/Popover';
+import Modal, { ModalAction } from '../../../components/wrapped/Modal';
+
+import { Transition } from '@headlessui/react'
 
 export default function DockHousePage (props) {
     const [inputState, setInputState] = React.useState("");
-    const [state, setState] = React.useState({open: false, action: ModalAction.NONE});
+    const [state, setState] = React.useState(false);
+    const [derp, setDerp] = React.useState(false);
+    const derpPP = 0;
     return (<>
-     <CardLayout direction={LayoutDirection.VERTICAL} total={1} parentDirection={LayoutDirection.VERTICAL}>
-        <Padding weight={0}/>
+     <CardLayout direction={LayoutDirection.VERTICAL} parentDirection={LayoutDirection.VERTICAL}>
         <CardLayout direction={LayoutDirection.HORIZONTAL}>
             <CardLayout direction={LayoutDirection.VERTICAL}>
                 <Card title="Member Actions">
@@ -19,7 +20,7 @@ export default function DockHousePage (props) {
                 <Card title="Program Status"></Card>
                 <Card title="Testing"></Card>
             </CardLayout>
-            <CardLayout direction={LayoutDirection.VERTICAL} weight={2}>
+            <CardLayout direction={LayoutDirection.VERTICAL} weight={FlexSize.S_2}>
                 <Card title="Dynamic Large View"></Card>
             </CardLayout>
             <CardLayout direction={LayoutDirection.VERTICAL}>
@@ -29,10 +30,19 @@ export default function DockHousePage (props) {
             </CardLayout>
         </CardLayout>
         <Card title="Active Signouts">
-            <PopoverWithLabel location={PopoverLocation.DOWN} label={"Link"}><li>derp</li></PopoverWithLabel>
+            <button onClick={() => setDerp(!derp)}>Toggle Derp</button>
+            <Transition 
+            appear={true}
+            show={derp}
+            enter="transition-opacity duration-750"
+            enterFrom="opacity-0"
+            enterTo="opacity-100"
+            leave="transition-opacity duration-750"
+            leaveFrom="opacity-100"
+            leaveTo="opacity-0"><p>Testing the fade</p></Transition>
         </Card>
         <Card title="Completed Signouts">
-            <button onClick={() => setState({open: true, action: ModalAction.OPEN})}>Open</button>
+            <button onClick={() => setState(true)}>Open</button>
         </Card>
      </CardLayout>
      <Modal state={state} setState={setState} title={""}></Modal>

@@ -8,10 +8,8 @@ import Content from "../components/Content";
 export const StandardLayout = ({ history, children }) => (
 	<React.Fragment>
 		<Wrapper>
-			<Main className={"default"}>
-				<Header history={history}/>
-				<Content>{children}</Content>
-			</Main>
+			<Header history={history}/>
+			<Content>{children}</Content>
 		</Wrapper>
 	</React.Fragment>
 );
