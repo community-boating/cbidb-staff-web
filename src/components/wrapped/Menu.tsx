@@ -20,7 +20,7 @@ export default function Popover(props: PopoverProps){
         leaveFrom="opacity-100 scale-100 "
         leaveTo="opacity-0 scale-95 "
       >
-                <Menu.Items className="absolute right-0 bottom-0 bg-white" static>
+                <Menu.Items className="absolute right-0 origin-top-right bg-white z-10" static>
                     {props.items.map((a, i) => <div key={i} className={"" + i}><Menu.Item>{a}</Menu.Item></div>)}
                 </Menu.Items>
             </Transition>

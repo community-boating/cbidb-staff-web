@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 <!-- Created with Vectornator (http://vectornator.io/) -->
-<svg height="100%" stroke-miterlimit="10" style="fill-rule:nonzero;clip-rule:evenodd;stroke-linecap:round;stroke-linejoin:round;" version="1.1" viewBox="0 0 800 800" width="100%" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:vectornator="http://vectornator.io" xmlns:xlink="http://www.w3.org/1999/xlink">
+<svg height="100%" stroke-miterlimit="10" style="fill-rule:nonzero;clip-rule:evenodd;stroke-linecap:round;stroke-linejoin:round;" version="1.1" viewBox="0 0 800 800" width="100%" xmlSpace="preserve" xmlns="http://www.w3.org/2000/svg" xmlnsVectornator="http://vectornator.io" xmlnsXlink="http://www.w3.org/1999/xlink">
 <defs>
 <linearGradient gradientTransform="matrix(1 0 0 1 0 0)" gradientUnits="userSpaceOnUse" id="LinearGradient" x1="367.954" x2="600.1" y1="373.527" y2="373.527">
 <stop offset="0" stop-color="#00507d"/>
@@ -15,7 +15,7 @@
 <clipPath id="ArtboardFrame">
 <rect height="800" width="800" x="0" y="0"/>
 </clipPath>
-<g clip-path="url(#ArtboardFrame)" id="Layer-1" vectornator:layerName="Layer 1">
+<g clip-path="url(#ArtboardFrame)" id="Layer-1" vectornatorLayerName="Layer 1">
 <path d="M-4.04221e-06-9.73976e-06L800-9.73976e-06L800 800L-4.04221e-06 800L-4.04221e-06-9.73976e-06Z" fill="none" opacity="1" stroke="#3584b1" stroke-linecap="butt" stroke-linejoin="miter" stroke-width="0.1"/>
 <path d="M367.954 126.492L368.712 620.418L600.1 620.562C600.1 620.598 401.303 184.926 367.954 126.492Z" fill="url(#LinearGradient)" fill-rule="evenodd" opacity="1" stroke="none"/>
 <path d="M362.287 620.778C362.287 620.778 198.175 626.806 187.816 628.611C187.816 628.611 182.727 628.611 191.1 610.853C199.51 593.096 343.194 252.382 343.194 252.382C343.194 252.382 227.121 498.281 362.287 620.778Z" fill="url(#LinearGradient_2)" fill-rule="evenodd" opacity="1" stroke="none"/>

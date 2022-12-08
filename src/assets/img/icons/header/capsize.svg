@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 <!-- Created with Vectornator (http://vectornator.io/) -->
-<svg height="100%" stroke-miterlimit="10" style="fill-rule:nonzero;clip-rule:evenodd;stroke-linecap:round;stroke-linejoin:round;" version="1.1" viewBox="0 0 144 144" width="100%" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:vectornator="http://vectornator.io" xmlns:xlink="http://www.w3.org/1999/xlink">
+<svg height="100%" stroke-miterlimit="10" style="fill-rule:nonzero;clip-rule:evenodd;stroke-linecap:round;stroke-linejoin:round;" version="1.1" viewBox="0 0 144 144" width="100%" xmlSpace="preserve" xmlns="http://www.w3.org/2000/svg" xmlnsVectornator="http://vectornator.io" xmlnsXlink="http://www.w3.org/1999/xlink">
 <defs>
 <clipPath id="TextBounds">
 <rect height="27.4373" width="144" x="0" y="116.563"/>
@@ -11,7 +11,7 @@
 <clipPath id="ArtboardFrame">
 <rect height="144" width="144" x="0" y="0"/>
 </clipPath>
-<g clip-path="url(#ArtboardFrame)" id="Layer-1" vectornator:layerName="Layer 1">
+<g clip-path="url(#ArtboardFrame)" id="Layer-1" vectornatorLayerName="Layer 1">
 <path d="M1.08655 102.736C12.8286 102.736 18.8149 97.1285 18.8149 97.1285C18.8149 97.1285 24.6653 102.736 36.5433 102.736C48.4213 102.736 54.2716 97.1285 54.2716 97.1285C54.2716 97.1285 60.1161 102.736 72 102.736C83.8839 102.736 89.7284 97.1285 89.7284 97.1285C89.7284 97.1285 95.5669 102.736 107.457 102.736C119.347 102.736 125.185 97.1285 125.185 97.1285C125.185 97.1285 131.148 102.736 142.913 102.736" fill="none" opacity="1" stroke="#00507d" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
 <g fill="#00507d" opacity="1" stroke="none">
 <path clip-path="url(#TextBounds)" d="M32.925 128.388C32.7917 127.871 32.6083 127.396 32.375 126.963C32.1417 126.529 31.8417 126.154 31.475 125.838C31.1083 125.521 30.6792 125.275 30.1875 125.1C29.6958 124.925 29.125 124.838 28.475 124.838C27.525 124.838 26.7042 125.029 26.0125 125.413C25.3208 125.796 24.7583 126.309 24.325 126.95C23.8917 127.592 23.5708 128.321 23.3625 129.138C23.1542 129.954 23.05 130.788 23.05 131.638C23.05 132.488 23.1542 133.321 23.3625 134.138C23.5708 134.954 23.8917 135.684 24.325 136.325C24.7583 136.967 25.3208 137.479 26.0125 137.863C26.7042 138.246 27.525 138.438 28.475 138.438C29.175 138.438 29.7917 138.317 30.325 138.075C30.8583 137.834 31.3167 137.5 31.7 137.075C32.0833 136.65 32.3833 136.154 32.6 135.588C32.8167 135.021 32.9583 134.413 33.025 133.763L36.075 133.763C36.0083 134.829 35.7792 135.804 35.3875 136.688C34.9958 137.571 34.4667 138.334 33.8 138.975C33.1333 139.617 32.35 140.113 31.45 140.463C30.55 140.813 29.5583 140.988 28.475 140.988C27.1417 140.988 25.9458 140.742 24.8875 140.25C23.8292 139.759 22.9333 139.088 22.2 138.238C21.4667 137.388 20.9042 136.396 20.5125 135.263C20.1208 134.129 19.925 132.921 19.925 131.638C19.925 130.371 20.1208 129.171 20.5125 128.038C20.9042 126.904 21.4667 125.913 22.2 125.063C22.9333 124.213 23.8292 123.538 24.8875 123.038C25.9458 122.538 27.1417 122.288 28.475 122.288C29.475 122.288 30.4167 122.425 31.3 122.7C32.1833 122.975 32.9625 123.375 33.6375 123.9C34.3125 124.425 34.8583 125.063 35.275 125.813C35.6917 126.563 35.95 127.421 36.05 128.388L32.925 128.388Z"/>
@@ -30,9 +30,9 @@
 <g opacity="1">
 <mask height="144" id="StrokeMask" maskUnits="userSpaceOnUse" width="144" x="-1.42109e-14" y="2.4869e-14">
 <rect fill="#000000" height="144" stroke="none" width="144" x="-1.42109e-14" y="2.4869e-14"/>
-<use fill="#ffffff" fill-rule="evenodd" stroke="none" xlink:href="#Fill"/>
+<use fill="#ffffff" fill-rule="evenodd" stroke="none" xlinkHref="#Fill"/>
 </mask>
-<use fill="none" mask="url(#StrokeMask)" stroke="#00507d" stroke-linecap="butt" stroke-linejoin="round" stroke-width="2" xlink:href="#Fill"/>
+<use fill="none" mask="url(#StrokeMask)" stroke="#00507d" stroke-linecap="butt" stroke-linejoin="round" stroke-width="2" xlinkHref="#Fill"/>
 </g>
 </g>
 </svg>

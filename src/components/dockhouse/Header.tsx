@@ -5,12 +5,16 @@ import * as moment from 'moment';
 import HeaderNavbar from "./HeaderNavbar";
 import StatusHeader from "components/dockhouse/HeaderStatusBanner";
 
+import runaground from 'assets/img/icons/header/runaground.svg';
+import capsize from 'assets/img/icons/header/capsize.svg';
+import assist from 'assets/img/icons/header/assist.svg';
+
 const Header = (props: { history, dispatch }) => {
 	const buttons = [
-        {short: "I M S", long: "INCIDENTS", onClick: (a) => {alert("clicked IMS")}},
-        {short: "CAP", long: "CAPSIZE", onClick: (a) => {alert("clicked CAP")}},
-        {short: "GND", long: "AGROUND", onClick: (a) => {alert("clicked GND")}},
-        {short: "AST", long: "ASSIST", onClick: (a) => {alert("clicked AST")}}];
+        {src: runaground, onClick: (a) => {alert("clicked IMS")}},
+        {src: runaground, onClick: (a) => {alert("clicked RUN")}},
+        {src: capsize, onClick: (a) => {alert("clicked CAP")}},
+        {src: assist, onClick: (a) => {alert("clicked AST")}}];
 	return (
 		<div className="header grow-0">
 			<StatusHeader flag={"R"} time={moment()} sunset={moment("2022-11-16T00:43:00Z")} speed={13} direction={"W"}

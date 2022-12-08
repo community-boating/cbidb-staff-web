@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 <!-- Created with Vectornator (http://vectornator.io/) -->
-<svg height="100%" stroke-miterlimit="10" style="fill-rule:nonzero;clip-rule:evenodd;stroke-linecap:round;stroke-linejoin:round;" version="1.1" viewBox="0 0 144 144" width="100%" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:vectornator="http://vectornator.io" xmlns:xlink="http://www.w3.org/1999/xlink">
+<svg height="100%" stroke-miterlimit="10" style="fill-rule:nonzero;clip-rule:evenodd;stroke-linecap:round;stroke-linejoin:round;" version="1.1" viewBox="0 0 144 144" width="100%" xmlSpace="preserve" xmlns="http://www.w3.org/2000/svg" xmlnsVectornator="http://vectornator.io" xmlnsXlink="http://www.w3.org/1999/xlink">
 <defs>
 <clipPath id="TextBounds">
 <rect height="27.4373" width="144" x="0" y="116.563"/>
@@ -11,7 +11,7 @@
 <clipPath id="ArtboardFrame">
 <rect height="144" width="144" x="0" y="0"/>
 </clipPath>
-<g clip-path="url(#ArtboardFrame)" id="Layer-1" vectornator:layerName="Layer 1">
+<g clip-path="url(#ArtboardFrame)" id="Layer-1" vectornatorLayerName="Layer 1">
 <path d="M1.08655 102.736C12.8286 102.736 18.8149 97.1285 18.8149 97.1285C18.8149 97.1285 24.6653 102.736 36.5433 102.736C48.4213 102.736 54.2716 97.1285 54.2716 97.1285C54.2716 97.1285 60.1161 102.736 72 102.736C83.8839 102.736 89.7284 97.1285 89.7284 97.1285" fill="none" opacity="1" stroke="#00507d" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
 <g fill="#00507d" opacity="1" stroke="none">
 <path clip-path="url(#TextBounds)" d="M15.475 122.713L18.8 122.713L25.675 140.563L22.325 140.563L20.65 135.838L13.525 135.838L11.85 140.563L8.625 140.563L15.475 122.713ZM14.375 133.463L19.825 133.463L17.15 125.788L17.075 125.788L14.375 133.463Z"/>
@@ -33,9 +33,9 @@
 <g opacity="1">
 <mask height="144" id="StrokeMask" maskUnits="userSpaceOnUse" width="144" x="-1.42109e-14" y="0">
 <rect fill="#000000" height="144" stroke="none" width="144" x="-1.42109e-14" y="0"/>
-<use fill="#ffffff" fill-rule="evenodd" stroke="none" xlink:href="#Fill"/>
+<use fill="#ffffff" fill-rule="evenodd" stroke="none" xlinkHref="#Fill"/>
 </mask>
-<use fill="none" mask="url(#StrokeMask)" stroke="#00507d" stroke-linecap="butt" stroke-linejoin="round" stroke-width="2" xlink:href="#Fill"/>
+<use fill="none" mask="url(#StrokeMask)" stroke="#00507d" stroke-linecap="butt" stroke-linejoin="round" stroke-width="2" xlinkHref="#Fill"/>
 </g>
 </g>
 </svg>

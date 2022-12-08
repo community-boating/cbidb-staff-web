@@ -1,7 +1,7 @@
 
-import red from 'assets/img/red.png';
-import green from "assets/img/green.png";
-import yellow from "assets/img/yellow.png";
+import red from 'assets/img/icons/flags/red.svg';
+import green from "assets/img/icons/flags/green.svg";
+import yellow from "assets/img/icons/flags/yellow.svg";
 import black from "assets/img/black.png";
 import white from "assets/img/white.png";
 

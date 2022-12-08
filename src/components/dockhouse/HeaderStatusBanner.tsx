@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Flag, FlagStatusIcons } from './FlagStatusIcons';
-import CBI_boat from 'assets/img/CBI_boat.jpg';
+import boat from 'assets/img/icons/header/boat.svg';
 import * as moment from "moment";
 import asc from 'app/AppStateContainer';
 import { logout } from 'async/logout';
@@ -23,8 +23,7 @@ type HeaderAnnouncementsProps = {high: Announcement, medium: Announcement, low: 
 type HeaderAnnouncementProps = Announcement & { className: string};
 
 type HeaderButtonProps = {
-    short: string,
-    long: string,
+    src: any,
     onClick: React.MouseEventHandler<HTMLButtonElement>
 }
 
@@ -69,11 +68,11 @@ function HeaderLogout(props){
 }
 
 function HeaderButtons(props: HeaderButtonsProps){
-    return <div className="buttons h-full">{props.buttons.map((a, i) => <span key={i}><HeaderButton {...a}/></span>)}</div>;
+    return <div className="flex flex-row">{props.buttons.map((a, i) => <HeaderButton {...a} key={i}/>)}</div>;
 }
 
 function HeaderButton(props: HeaderButtonProps){
-    return <button onClick={props.onClick}><h2>{props.short}</h2><h3>{props.long}</h3></button>;
+    return <button onClick={props.onClick} className="h-full"><img className="h-full" src={props.src}></img></button>;
 }
 
 function HeaderAccountment(props: HeaderAnnouncementProps){
@@ -121,7 +120,7 @@ function HeaderTime(props: HeaderTimeProps){
 }
 
 function CBIBoatIcon(props: HeaderProps){
-    return <HeaderImage {...props} src={CBI_boat}/>;
+    return <HeaderImage {...props} src={boat}/>;
 }
 
 function FlagIcon(props: HeaderProps){
