@@ -1,6 +1,6 @@
 import * as React from 'react';
-import { CardLayout, Card, LayoutDirection, FlexSize } from '../../../components/dockhouse/Card';
-import go from 'assets/img/go.svg';
+import { CardLayout, Card, LayoutDirection, FlexSize, CardOrButton } from '../../../components/dockhouse/Card';
+import go from 'assets/img/icons/buttons/go.svg';
 import Modal, { ModalAction } from '../../../components/wrapped/Modal';
 
 import { Transition } from '@headlessui/react'
@@ -14,9 +14,9 @@ export default function DockHousePage (props) {
      <CardLayout direction={LayoutDirection.VERTICAL} parentDirection={LayoutDirection.VERTICAL}>
         <CardLayout direction={LayoutDirection.HORIZONTAL}>
             <CardLayout direction={LayoutDirection.VERTICAL}>
-                <Card title="Member Actions">
-                    <Input label={"Card Number:"}value={inputState} onChange={setInputState}/>
-                </Card>
+                <CardOrButton title="Member Actions" button={<div><input className="object-fill" type="image" src={go}/></div>}>
+                    <Input label={"Card Number:"} value={inputState} onChange={setInputState}/>
+                </CardOrButton>
                 <Card title="Program Status"></Card>
                 <Card title="Testing"></Card>
             </CardLayout>
@@ -30,7 +30,7 @@ export default function DockHousePage (props) {
             </CardLayout>
         </CardLayout>
         <Card title="Active Signouts">
-            <button onClick={() => setDerp(!derp)}>Toggle Derp</button>
+            <button className="place-self-start" onClick={() => setDerp(!derp)}>Toggle Derp</button>
             <Transition 
             appear={true}
             show={derp}
@@ -42,7 +42,7 @@ export default function DockHousePage (props) {
             leaveTo="opacity-0"><p>Testing the fade</p></Transition>
         </Card>
         <Card title="Completed Signouts">
-            <button onClick={() => setState(true)}>Open</button>
+            <button className="place-self-start" onClick={() => setState(true)}>Open</button>
         </Card>
      </CardLayout>
      <Modal state={state} setState={setState} title={""}></Modal>
@@ -60,9 +60,9 @@ function Input(props: InputProps){
         const value = e.target.value;
         props.onChange(value);
     }
-    return <div className="input-area"><label>{props.label}</label><input className="input" value={props.value} onChange={onChange}/><GoButton/></div>;
+    return <div className="flex mt-auto place-self-end gap-2"><label>{props.label}</label><input className="rounded-md" value={props.value} onChange={onChange}/><GoButton/></div>;
 }
 
 function GoButton(props){
-    return <button className="gobutton"><img src={go}/></button>;
+    return <input type="image" src={go} className="rounded-md"/>;
 }

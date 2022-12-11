@@ -2,7 +2,7 @@ import * as React from "react";
 import { connect } from "react-redux";
 
 const Wrapper = ({ layout, children }) => (
-	<div className={"h-[100vh] flex flex-col font-primary"}>
+	<div className={"h-[100vh] flex flex-col font-primary px-primary my-theme"}>
 		{children}
 	</div>
 );

@@ -19,15 +19,15 @@ type ModalProps = StateAndSet<ModalState> & {
     children?: React.ReactNode,
     title: React.ReactNode
     description?: string;
-}
+}   
 
 export default function Modal(props: ModalProps){
     return (
-    <Dialog className="modal-wrapper" open={props.state} onClose={() => props.setState(false)}>
-            <Dialog.Panel className="modal-content">
+    <Dialog className="fixed h-full w-full top-0 left-0 flex items-center justify-center z-10" open={props.state} onClose={() => props.setState(false)}>
+            <Dialog.Panel className="bg-white w-[75%] h-[75%]">
                 <Dialog.Title>{props.title}</Dialog.Title>
                 <Dialog.Description>{props.description}</Dialog.Description>
-                <button onClick={() => props.setState(false)}>Click</button>
+                <button className="justify-right" onClick={() => props.setState(false)}>Close</button>
                 {props.children}
             </Dialog.Panel>
     </Dialog>);

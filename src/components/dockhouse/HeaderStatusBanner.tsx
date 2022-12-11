@@ -1,10 +1,12 @@
 import * as React from 'react';
-import { Flag, FlagStatusIcons } from './FlagStatusIcons';
+import { Flag, FlagStatusIcon, FlagStatusIcons } from './FlagStatusIcons';
 import boat from 'assets/img/icons/header/boat.svg';
 import * as moment from "moment";
 import asc from 'app/AppStateContainer';
 import { logout } from 'async/logout';
 import Menu from 'components/wrapped/Menu';
+
+import settings from 'assets/img/icons/header/settings.svg';
 
 type HeaderFlagProps = {flag: Flag};
 
@@ -31,14 +33,21 @@ type HeaderButtonsProps = {
     buttons: HeaderButtonProps[];
 }
 
+type HeaderGridProps = {
+    cols?: boolean,
+    children: React.ReactNode
+}
+
 type HeaderProps = HeaderFlagProps & HeaderTimeProps & HeaderSunsetProps & HeaderWindProps & HeaderAnnouncementsProps & HeaderButtonsProps;
 
 const TIME_FORMAT = "HH:mm";
 
 export default function HeaderStatusBanner(props: HeaderProps) {
-    return (<div className="flex flex-row h-[8vh]">
-        <CBIBoatIcon {...props}/>
-        <FlagIcon {...props}/>
+    return (<div className="flex flex-row h-status_banner_height gap-1 mt-primary">
+        <HeaderGrid>
+            <CBIBoatIcon {...props}/>
+            <FlagIcon {...props}/>
+        </HeaderGrid>
         <HeaderTime {...props}/>
         <HeaderSunset {...props}/>
         <HeaderWindSpeed {...props}/>
@@ -62,34 +71,38 @@ function HeaderLogout(props){
         menuItems.push(<a onClick={(e) => {asc.sudoModalOpener();e.preventDefault();}}>Elevate Session</a>);
     }
 
-    menuItems.push(<a onClick={(e) => {e.preventDefault(); logout.send();}}>Elevate Session</a>);
+    menuItems.push(<a onClick={(e) => {e.preventDefault(); logout.send();}}>Logout</a>);
 
-    return <Menu title="*" items={menuItems}/>;
+    return <Menu title={<HeaderImage src={settings}/>} items={menuItems}/>;
+}
+
+function HeaderGrid(props: HeaderGridProps){
+    return <div className={"shrink-0 h-full grid lg:grid-rows-none lg:grid-cols-none lg:flex " + (props.cols ? "grid-rows-2 grid-cols-2" : "grid-rows-2 grid-cols-1")}>{props.children}</div>;
 }
 
 function HeaderButtons(props: HeaderButtonsProps){
-    return <div className="flex flex-row">{props.buttons.map((a, i) => <HeaderButton {...a} key={i}/>)}</div>;
+    return <HeaderGrid cols={true}>{props.buttons.map((a, i) => <HeaderButton {...a} key={i}/>)}</HeaderGrid>;
 }
 
 function HeaderButton(props: HeaderButtonProps){
-    return <button onClick={props.onClick} className="h-full"><img className="h-full" src={props.src}></img></button>;
+    return <div className="object-cover"><input type="image" className="h-full w-full" src={props.src}/></div>;
 }
 
 function HeaderAccountment(props: HeaderAnnouncementProps){
-    return <h2 className={props.className}>{props.title} : {props.message}</h2>
+    return <h1 className={"leading-none text-status_banner_height_half " + props.className}>{props.title} : {props.message}</h1>
 }
 
 function HeaderAnnouncements(props: HeaderAnnouncementsProps){
-    return (<div className="grow-[1]">
-        <div className="scroll">
-            <div className="scroll-inner">
-                <HeaderAccountment {...props.high} className="high"/>
+    return (<div className="grow-[1] shrink-[10] overflow-x-hidden overflow-y-hidden">
+        <div className="overflow-x-scroll overflow-y-hidden hidden-scrollbar">
+            <div className="whitespace-nowrap">
+                <HeaderAccountment {...props.high} className="text-red-500 font-medium"/>
             </div>
         </div>
-        <div className="scroll">
-            <div className="scroll-inner">
-                <HeaderAccountment {...props.medium} className="medium"/>
-                {props.low.map((a, i) => <HeaderAccountment {...a} key={i} className="low"/>)}
+        <div className="overflow-x-scroll overflow-y-hidden hidden-scrollbar">
+            <div className="flex flex-row whitespace-nowrap">
+                <HeaderAccountment {...props.medium} className="text-yellow-500 font-medium"/>
+                {props.low.map((a, i) => <HeaderAccountment {...a} key={i} className="text-green-500 font-medium"/>)}
             </div>
         </div>
     </div>);
@@ -97,26 +110,26 @@ function HeaderAnnouncements(props: HeaderAnnouncementsProps){
 
 function HeaderWindDirection(props: HeaderWindProps){
     return (<span>
-        <h3 className="text-[2vh]">KTS</h3>
-        <h2 className="text-[4vh]">{props.direction}</h2>
+        <h1 className="text-status_banner_height_quarter font-thin">KTS</h1>
+        <h1 className="text-status_banner_height_half font-bold">{props.direction}</h1>
     </span>)
 }
 
 function HeaderWindSpeed(props: HeaderWindProps){
     return (
-        <h1 className="text-[8vh] leading-none">{props.speed}</h1>
+        <h1 className="text-status_banner_height leading-none font-bold">{props.speed}</h1>
     );
 }
 
 function HeaderSunset(props: HeaderSunsetProps){
-    return (<span className="text-[4vh] leading-none whitespace-nowrap">
-        <h2>Sunset: {props.sunset.format(TIME_FORMAT)}</h2>
-        <h2>Call In: {props.sunset.subtract(30, "minutes").format(TIME_FORMAT)}</h2>
+    return (<span className="text-status_banner_height_half leading-none whitespace-nowrap font-medium text-right">
+        <h1>Sunset: {props.sunset.format(TIME_FORMAT)}</h1>
+        <h1>Call In: {props.sunset.subtract(30, "minutes").format(TIME_FORMAT)}</h1>
     </span>);
 }
 
 function HeaderTime(props: HeaderTimeProps){
-    return <h1 className="text-[8vh] leading-none">{props.time.format(TIME_FORMAT)}</h1>;
+    return <h1 className="text-status_banner_height leading-none font-bold">{props.time.format(TIME_FORMAT)}</h1>;
 }
 
 function CBIBoatIcon(props: HeaderProps){
@@ -124,10 +137,9 @@ function CBIBoatIcon(props: HeaderProps){
 }
 
 function FlagIcon(props: HeaderProps){
-    const src = FlagStatusIcons[props.flag].src;
-    return <HeaderImage {...props} src={src}/>;
+    return <FlagStatusIcon flag={props.flag}></FlagStatusIcon>;
 }
 
 function HeaderImage(props: HeaderImageProps){
-    return <span className="h-full"><img src={props.src} className="h-full"/></span>;
+    return <div className="h-full"><img className="h-full w-full" src={props.src}/></div>;
 }

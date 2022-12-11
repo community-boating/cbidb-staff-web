@@ -32,11 +32,23 @@ type CardLayoutChildProps = {
 
 type CardProps = CardLayoutChildProps & {
     children?: React.ReactNode,
-    title: string
+    title: string,
+    className?: string
+}
+
+type CardOrButtonProps = CardProps & {
+    button: React.ReactNode;
+}
+
+export function CardOrButton(props: CardOrButtonProps){
+    return <>
+        <Card {...props} className="hidden lg:flex"/>
+        <div className="lg:hidden basis-0 grow-[1]">{props.button}</div>
+    </>
 }
 
 export function Card(props: CardProps){
-    return <div className={(props.weight || FlexSize.S_1) + " basis-0 bg-card"}><h2 className="">{props.title}</h2><div className="">{props.children}</div></div>;
+    return <div className={(props.weight || FlexSize.S_1) + " flex flex-col basis-0 bg-card p-card " + props.className}><h2 className="text-xl font-bold leading-none">{props.title}</h2>{props.children}</div>;
 }
 
 type CardLayoutProps = CardLayoutChildProps & {
@@ -52,5 +64,5 @@ export function CardLayout(props: CardLayoutProps){
         }
         return child;
     });
-    return <div className={(props.direction == LayoutDirection.HORIZONTAL ? "flex flex-row w-full basis-0 space-x-1 " : "flex flex-col h-full basis-0 space-y-1 ") + (props.weight || FlexSize.S_1)}>{children}</div>;
+    return <div className={(props.direction == LayoutDirection.HORIZONTAL ? "flex flex-row w-full basis-0 space-x-primary " : "flex flex-col h-full basis-0 space-y-primary ") + (props.weight || FlexSize.S_1)}>{children}</div>;
 }

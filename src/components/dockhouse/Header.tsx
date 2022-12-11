@@ -23,7 +23,7 @@ const Header = (props: { history, dispatch }) => {
 			low={[{title: "", message: "low priority announcement"}, {title: "", message: "scroll blah blah"}]}
 			buttons={buttons}
 			></StatusHeader>
-			<hr/>
+			<hr className="border-t-1 border-black mb-[2px] mt-[5px]"/>
 			<HeaderNavbar history={props.history}/>
 		</div>
 	);

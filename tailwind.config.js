@@ -8,6 +8,18 @@ module.exports = {
   
   theme: {
     extend: {
+      spacing: ({ theme }) => ({
+        '1': '.5mm',
+        '2': '1mm',
+        'primary': '2mm',
+        'card': '1mm',
+        status_banner_height: theme('extra.status_banner_height'),
+      }),
+      fontSize: ({theme}) => ({
+        status_banner_height: theme('extra.status_banner_height'),
+        status_banner_height_half: 'calc(' + theme('extra.status_banner_height') + ' / 2)',
+        status_banner_height_quarter: 'calc(' + theme('extra.status_banner_height') + ' / 4)'
+      })
     },
   },
   plugins: [
@@ -16,22 +28,6 @@ module.exports = {
         // put the default values of any config you want themed
         // just as if you were to extend tailwind's theme like normal https://tailwindcss.com/docs/theme#extending-the-default-theme
         extend: {
-          screens: {
-            'sm': '640px',
-            // => @media (min-width: 640px) { ... }
-
-            'md': '768px',
-            // => @media (min-width: 768px) { ... }
-
-            'lg': '1024px',
-            // => @media (min-width: 1024px) { ... }
-
-            'xl': '1280px',
-            // => @media (min-width: 1280px) { ... }
-
-            '2xl': '1536px',
-            // => @media (min-width: 1536px) { ... }
-          },
           // colors is used here for demonstration purposes
           colors: {
             primary: 'red',
@@ -40,7 +36,10 @@ module.exports = {
           },
           fontFamily: {
             primary: ['Roboto']
-          }
+          },
+          extra: {
+            status_banner_height: "15mm",
+          },
         }
       },
       themes: [
@@ -54,7 +53,7 @@ module.exports = {
             colors: {
               primary: 'blue'
             }
-          }
+          },
         }
       ]
     })

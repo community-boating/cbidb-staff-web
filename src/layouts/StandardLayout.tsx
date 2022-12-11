@@ -1,7 +1,6 @@
 import * as React from "react";
 
 import Wrapper from "../components/Wrapper";
-import Main from "../components/Main";
 import Header from "../components/dockhouse/Header";
 import Content from "../components/Content";
 

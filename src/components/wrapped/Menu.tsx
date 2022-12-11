@@ -10,9 +10,11 @@ type PopoverProps = {
 export default function Popover(props: PopoverProps){
     
     return (
+        <div>
         <Menu>
-            <Menu.Button>{props.title}</Menu.Button>
+            <Menu.Button className="h-full">{props.title}</Menu.Button>
             <Transition
+        className="inline-block"
         enter="transform transition duration-200"
         enterFrom="opacity-0 scale-50"
         enterTo="opacity-100 scale-100"
@@ -20,10 +22,11 @@ export default function Popover(props: PopoverProps){
         leaveFrom="opacity-100 scale-100 "
         leaveTo="opacity-0 scale-95 "
       >
-                <Menu.Items className="absolute right-0 origin-top-right bg-white z-10" static>
+                <Menu.Items className="absolute bg-white z-10 whitespace-nowrap right-0 top-0" static>
                     {props.items.map((a, i) => <div key={i} className={"" + i}><Menu.Item>{a}</Menu.Item></div>)}
                 </Menu.Items>
             </Transition>
         </Menu>
+        </div>
     );
 }
