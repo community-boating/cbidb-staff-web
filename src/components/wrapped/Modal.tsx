@@ -21,7 +21,7 @@ export default function Modal(props: ModalProps){
         <Dialog className="fixed h-full w-full top-0 left-0 flex items-center justify-center z-10" open={props.open} onClose={() => props.setOpen(false)}>
                 <Dialog.Panel className={props.className}>
                     <Theme>
-                        <div className="flex flex-col p-5">
+                        <div className="flex flex-col p-5 h-full">
                             <Dialog.Title><div className="flex flex-row">{props.title}<button className="ml-auto mr-0" onClick={() => props.setOpen(false)}>X</button></div></Dialog.Title>
                             <Dialog.Description>{props.description}</Dialog.Description>
                             {props.children}

@@ -8,7 +8,6 @@ import * as React from 'react';
 import { ErrorPopup } from './ErrorPopup';
 import Modal from './wrapped/Modal';
 import Button from './wrapped/Button';
-import { ButtonWrapper } from './ButtonWrapper';
 import { Input } from './wrapped/Input';
 
 export function showSudoToastr() {
