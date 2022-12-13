@@ -10,6 +10,7 @@ import optionify from 'util/optionify';
 import { ERROR_DELIMITER } from 'core/APIWrapper';
 import { combineValidations, validateNumber } from 'util/validate';
 import { ColumnDef } from '@tanstack/react-table';
+import EditCard from './EditCard';
 
 type HullCount = t.TypeOf<typeof dockReportHullCountValidator>
 
@@ -87,15 +88,8 @@ export default (props: {
 	counts: HullCount[],
 	openModal: (content: JSX.Element) => void,
 	setSubmitAction: (submit: SubmitAction) => void
-}) => <Card>
-	<CardHeader style={{borderBottom: "none", paddingBottom: 0}}>
-		<Edit height="18px" className="float-right" style={{ cursor: "pointer" }} onClick={() => props.openModal(
-			<EditHullCounts counts={props.counts} setSubmitAction={props.setSubmitAction} />
-		)} />
-		<CardTitle><h4>Hull Inventory</h4></CardTitle>
-	</CardHeader>
-	<CardBody>
-		<Table size="sm">
+}) => <EditCard title="Hull Inventory" openModal={props.openModal} editModal={<EditHullCounts counts={props.counts} setSubmitAction={props.setSubmitAction} />}>
+		<table>
 			<tbody>
 				<tr>
 					<th style={{textAlign: "right"}}>Hull Type</th>
@@ -108,7 +102,6 @@ export default (props: {
 					<td>{countObj.STAFF_TALLY}</td>
 				</tr>)}
 			</tbody>
-		</Table>
-	</CardBody>
-</Card>
+		</table>
+</EditCard>
 

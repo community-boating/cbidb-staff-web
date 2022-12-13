@@ -11,6 +11,7 @@ import { Edit } from 'react-feather';
 import { Card, CardBody, CardHeader, CardTitle, Table } from 'reactstrap';
 import { SubmitAction, WeatherRecord } from '.';
 import { ColumnDef } from '@tanstack/react-table';
+import EditCard from './EditCard';
 
 const WEATHER_TIMES = [
 	"09:00AM",
@@ -129,33 +130,25 @@ export default (props: {
 	openModal: (content: JSX.Element) => void,
 	setSubmitAction: (submit: SubmitAction) => void
 	reportDate: string
-}) => <Card>
-	<CardHeader style={{borderBottom: "none", paddingBottom: 0}}>
-		<Edit height="18px" className="float-right" style={{ cursor: "pointer" }} onClick={() => props.openModal(
-			<EditWeather weatherRecords={props.weatherRecords} setSubmitAction={props.setSubmitAction} reportDate={props.reportDate} />
-		)} />
-		<CardTitle><h4>Weather</h4></CardTitle>
-	</CardHeader>
-	<CardBody>
-		<Table size="sm">
-			<tbody>
-				<tr>
-					<th style={{width: "75px"}}>Time</th>
-					<th style={{width: "75px"}}>Temp (F)</th>
-					<th>Weather</th>
-					<th style={{width: "70px"}}>Wind Dir</th>
-					<th style={{width: "90px"}}>Wind (kts)</th>
-					<th style={{maxWidth: "180px"}}>Restrictions</th>
-				</tr>
-				{getDisplayRows(props.weatherRecords, props.reportDate).map((row, i) => <tr key={`row_${i}`}>
-					<td><b>{row.WEATHER_DATETIME}</b></td>
-					<td>{row.TEMP}</td>
-					<td>{row.WEATHER_SUMMARY}</td>
-					<td>{row.WIND_DIR}</td>
-					<td>{row.WIND_SPEED_KTS_STEADY} - {row.WIND_SPEED_KTS_GUST}</td>
-					<td>{row.RESTRICTIONS}</td>
-				</tr>)}
-			</tbody>
-		</Table>
-	</CardBody>
-</Card>
+}) => <EditCard title="Weather" openModal={props.openModal} editModal={<EditWeather weatherRecords={props.weatherRecords} setSubmitAction={props.setSubmitAction} reportDate={props.reportDate} />}>
+	<table>
+		<tbody>
+			<tr>
+				<th style={{width: "75px"}}>Time</th>
+				<th style={{width: "75px"}}>Temp (F)</th>
+				<th>Weather</th>
+				<th style={{width: "70px"}}>Wind Dir</th>
+				<th style={{width: "90px"}}>Wind (kts)</th>
+				<th style={{maxWidth: "180px"}}>Restrictions</th>
+			</tr>
+			{getDisplayRows(props.weatherRecords, props.reportDate).map((row, i) => <tr key={`row_${i}`}>
+				<td><b>{row.WEATHER_DATETIME}</b></td>
+				<td>{row.TEMP}</td>
+				<td>{row.WEATHER_SUMMARY}</td>
+				<td>{row.WIND_DIR}</td>
+				<td>{row.WIND_SPEED_KTS_STEADY} - {row.WIND_SPEED_KTS_GUST}</td>
+				<td>{row.RESTRICTIONS}</td>
+			</tr>)}
+		</tbody>
+	</table>
+</EditCard>

@@ -12,6 +12,7 @@ import optionify from 'util/optionify';
 import { ERROR_DELIMITER } from 'core/APIWrapper';
 import { combineValidations, validateMilitaryTime, validateNotBlank } from 'util/validate';
 import { ColumnDef } from '@tanstack/react-table';
+import EditCard from './EditCard';
 
 type Staff = t.TypeOf<typeof dockReportStaffValidator>
 
@@ -72,17 +73,9 @@ const StaffTable = (props: Props & { staff: Staff[], dockmaster: boolean }) => {
 
 	const staffToDisplay = props.staff.map(mapToDisplay);
 
-	return <Card>
-		<CardHeader style={{ borderBottom: "none", paddingBottom: 0 }}>
-			<Edit height="18px" className="float-right" style={{ cursor: "pointer" }} onClick={() => props.openModal(
-				<EditStaffTable staff={staffToDisplay} setSubmitAction={props.setSubmitAction} statekey={statekey} reportDate={props.reportDate} dockmaster={props.dockmaster}/>
-			)} />
-			<CardTitle tag="h2" className="mb-0">{title}</CardTitle>
-		</CardHeader>
-		<CardBody>
-			{makeStaffTable(staffToDisplay)}
-		</CardBody>
-	</Card>
+	return <EditCard title={title} openModal={props.openModal} editModal={<EditStaffTable staff={staffToDisplay} setSubmitAction={props.setSubmitAction} statekey={statekey} reportDate={props.reportDate} dockmaster={props.dockmaster}/>}>
+		{makeStaffTable(staffToDisplay)}
+	</EditCard>
 };
 
 export const DockmastersReport = (props: Props) => <StaffTable {...props} staff={props.staff} dockmaster={true}/>

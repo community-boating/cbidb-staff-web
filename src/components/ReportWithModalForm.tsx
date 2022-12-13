@@ -1,6 +1,6 @@
 import * as React from "react";
 import * as t from 'io-ts';
-import { Card, CardHeader, CardTitle, CardBody, Modal, ModalHeader, ModalBody, ModalFooter, Button, Form } from 'reactstrap';
+import { Card, CardHeader, CardTitle, CardBody, Form } from 'reactstrap';
 import {
 	Edit as EditIcon,
 } from 'react-feather'
@@ -11,6 +11,8 @@ import APIWrapper from "core/APIWrapper";
 import { ButtonWrapper } from "./ButtonWrapper";
 import { destringify, nullifyEmptyStrings, StringifiedProps, stringify, stringifyAndMakeBlank } from "util/StringifyObjectProps";
 import { SortingState, FilterFnOption, ColumnDef } from "@tanstack/react-table";
+import Button from "./wrapped/Button";
+import Modal from "./wrapped/Modal";
 
 export type validationError = {
 	key: string,
@@ -243,19 +245,17 @@ export default function ReportWithModalForm<K extends keyof U, T extends t.TypeC
 
 	const toRender = <div>
 		{report}
-		{props.hideAdd !== true ? <Button className="mr-1 mb-1" outline onClick={() => openForEdit(none) }>{props.addRowText || "Add Row"}</Button> : <></>}
+		{props.hideAdd !== true ? <Button className="mr-1 mb-1" onClick={() => openForEdit(none) }>{props.addRowText || "Add Row"}</Button> : <></>}
 	</div>;
 
 	return <React.Fragment>
 		<Modal
-			isOpen={modalIsOpen}
-			toggle={closeModal}
-			centered
+			open={modalIsOpen}
+			setOpen={closeModal}
+			title={<h1>Add/Edit</h1>}
+			className="bg-white"
 		>
-			<ModalHeader toggle={closeModal}>
-				Add/Edit
-			</ModalHeader>
-			<ModalBody className="text-center m-3">
+			<div>
 				<ErrorPopup errors={validationErrors.map((a) => (a["display"] || a))}/>
 				<Form onSubmit={e => {
 					e.preventDefault();
@@ -263,15 +263,15 @@ export default function ReportWithModalForm<K extends keyof U, T extends t.TypeC
 				} }>
 					{props.formComponents(formData.rowForEdit, updateStatesCombined ,formData.currentRow, validationErrors)}
 				</Form>
-			</ModalBody>
-			<ModalFooter>
-				<Button color="secondary" outline onClick={closeModal}>
+			</div>
+			<div>
+				<Button color="secondary" onClick={closeModal}>
 					Cancel
 				</Button>{" "}
-				<ButtonWrapper spinnerOnClick onClick={submit} >
+				<Button spinnerOnClick onSubmit={submit} >
 					Save
-				</ButtonWrapper>
-			</ModalFooter>
+				</Button>
+			</div>
 		</Modal>
 		{props.noCard ? toRender : <Card>
 			<CardHeader>

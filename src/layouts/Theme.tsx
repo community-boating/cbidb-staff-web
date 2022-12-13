@@ -11,7 +11,7 @@ export type ThemeProps = {
 }
 
 function Theme(props: ThemeProps){
-    return <div className={(props.theme || ThemeType.DEFAULT)}>{props.children}</div>;
+    return <div className={(props.theme == undefined ? ThemeType.DEFAULT : props.theme) + " "}>{props.children}</div>;
 }
 
 export default connect((store: any) => ({

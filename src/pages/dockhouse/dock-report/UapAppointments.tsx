@@ -15,6 +15,7 @@ import { DropDownCell } from 'components/table/DropDownCell';
 import { MAGIC_NUMBERS } from 'app/magicNumbers';
 import { charToNullableBool, nullableBoolToChar } from 'util/boolean-to-char';
 import { ColumnDef } from '@tanstack/react-table';
+import EditCard from './EditCard';
 
 type UapAppointment = t.TypeOf<typeof dockReportUapApptValidator>
 
@@ -155,15 +156,8 @@ const EditUapAppts = (props: {
 
 export default (props: Props) => {
 	const appts = props.appts.map(mapToDisplay)
-	return <Card>
-		<CardHeader style={{ borderBottom: "none", paddingBottom: 0 }}>
-			<Edit height="18px" className="float-right" style={{ cursor: "pointer" }} onClick={() => props.openModal(
-				<EditUapAppts appts={appts} setSubmitAction={props.setSubmitAction} reportDate={props.reportDate} />
-			)} />
-			<CardTitle><h4>UAP Appointments</h4></CardTitle>
-		</CardHeader>
-		<CardBody>
-			<Table size="sm">
+	return <EditCard title="UAP Appointments" openModal={props.openModal} editModal={<EditUapAppts appts={appts} setSubmitAction={props.setSubmitAction} reportDate={props.reportDate} />}>
+			<table>
 				<tbody>
 					<tr>
 						<th style={{ width: "75px" }}>Time</th>
@@ -184,7 +178,6 @@ export default (props: Props) => {
 						</tr>
 					})}
 				</tbody>
-			</Table>
-		</CardBody>
-	</Card>
+			</table>
+	</EditCard>
 }

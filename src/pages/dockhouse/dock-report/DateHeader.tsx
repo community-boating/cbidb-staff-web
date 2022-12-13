@@ -6,6 +6,7 @@ import * as React from 'react';
 import { Edit } from 'react-feather';
 import { Card, CardBody, CardHeader, CardTitle, Input, Table } from 'reactstrap';
 import { SubmitAction } from '.';
+import EditCard from './EditCard';
 
 export const DateHeader = (props: {
 	date: moment.Moment,
@@ -17,15 +18,8 @@ export const DateHeader = (props: {
 		.map(time => time.clone().subtract(30, "minutes").format("HH:mm"))
 		.getOrElse("");
 
-	return <Card>
-		<CardHeader style={{borderBottom: "none", paddingBottom: 0}}>
-			<Edit height="18px" className="float-right" style={{ cursor: "pointer" }} onClick={() => props.openModal(
-				<EditDateHeader date={props.date} sunset={props.sunset} setSubmitAction={props.setSubmitAction} />
-			)} />
-			<CardTitle tag="h2" className="mb-0">Dock Report</CardTitle>
-		</CardHeader>
-		<CardBody>
-			<Table size="sm">
+	return <EditCard title="Dock Report" openModal={props.openModal} editModal={<EditDateHeader date={props.date} sunset={props.sunset} setSubmitAction={props.setSubmitAction} />}>
+			<table>
 				<tbody>
 					<tr>
 						<th>Date</th>
@@ -44,9 +38,8 @@ export const DateHeader = (props: {
 						<td>{hiper}</td>
 					</tr>
 				</tbody>
-			</Table>
-		</CardBody>
-	</Card>;
+			</table>
+	</EditCard>;
 }
 
 const EditDateHeader = (props: {

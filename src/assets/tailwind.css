@@ -1,7 +1,11 @@
 @import "tailwindcss/base";
 @import "tailwindcss/components";
 @import "tailwindcss/utilities";
+
 @import url(//fonts.googleapis.com/css?family=Roboto:100,200,300,400,500,600,700,800,900);
+
+@import '../../node_modules/react-redux-toastr/lib/css/react-redux-toastr.min.css';
+
 .hidden-scrollbar {
   -ms-overflow-style: none;  /* IE and Edge */
   scrollbar-width: none; 

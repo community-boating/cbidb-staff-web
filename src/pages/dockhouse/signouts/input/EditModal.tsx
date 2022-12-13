@@ -1,9 +1,9 @@
-import { Modal, ModalHeader, ModalBody, ModalFooter, Button } from "reactstrap";
-
 import * as React from "react";
 import { SignoutTablesState } from "../SignoutsTablesPage";
 import { ErrorPopupControlled } from "components/ErrorPopup";
 import { SetErrorsType } from "./EditCommentModal";
+import Modal from "components/wrapped/Modal";
+import Button from "components/wrapped/Button";
 
 export type EditModalCommonProps = {modalIsOpen: boolean, closeModal: () => void, currentRow: SignoutTablesState};
 
@@ -11,23 +11,20 @@ export const EditModal: (props: EditModalCommonProps & {children: React.ReactNod
    const closeModal = () => {props.closeModal(); props.setErrors([])};
    return (<>
         <Modal
-            isOpen={props.modalIsOpen}
-            toggle={() => closeModal()}
-            centered
+            open={props.modalIsOpen}
+            setOpen={() => closeModal()}
+            title={props.headerChildren}
             >
-            <ModalHeader toggle={() => closeModal()}>
-                {props.headerChildren}
-            </ModalHeader>
-            <ModalBody className="text-center m-3">
+            <div className="text-center m-3">
                 <ErrorPopupControlled errors={props.errors} setErrors={props.setErrors}/>
                 {props.children}
-            </ModalBody>
-            <ModalFooter>
-                <Button color="secondary" outline onClick={(e) => {e.preventDefault(); closeModal()}}>
+            </div>
+            <div>
+                <Button color="secondary" onClick={(e) => {e.preventDefault(); closeModal()}}>
                     Back
                 </Button>{" "}
                 {props.footerChildren === undefined ? <></> : props.footerChildren}
-            </ModalFooter>
+            </div>
         </Modal>
         </>);
 }

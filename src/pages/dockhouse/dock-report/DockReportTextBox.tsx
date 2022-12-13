@@ -2,27 +2,20 @@ import optionify from 'util/optionify';
 import { Option } from 'fp-ts/lib/Option';
 import * as React from 'react';
 import { Edit } from 'react-feather';
-import { Card, CardBody, CardHeader, CardTitle, Col, Row, Table } from 'reactstrap';
 import { DockReportState, SubmitAction } from '.';
+import { Card } from 'components/dockhouse/Card';
+import EditCard from './EditCard';
 
 export default function DockReportTextBox(props: {
 	message: Option<string>,
 	title: string,
 	statekey: keyof DockReportState,
-	openModal: (content: JSX.Element) => void,
+	openModal: (content: React.ReactNode) => void,
 	setSubmitAction: (submit: SubmitAction) => void
 }) {
-	return <Card>
-		<CardHeader style={{ paddingBottom: 0 }}>
-			<Edit height="18px" className="float-right" style={{ cursor: "pointer" }} onClick={() => props.openModal(
-				<EditDockReportTextBox message={props.message.getOrElse("")} title={props.title} setSubmitAction={props.setSubmitAction} statekey={props.statekey} />
-			)} />
-			<CardTitle><h4>{props.title}</h4></CardTitle>
-		</CardHeader>
-		<CardBody>
-			<textarea style={{border: "none", width: "100%"}} rows={7} value={props.message.getOrElse("")} readOnly />
-		</CardBody>
-	</Card>
+	return (<EditCard title={props.title} openModal={props.openModal} editModal={<EditDockReportTextBox message={props.message.getOrElse("")} title={props.title} setSubmitAction={props.setSubmitAction} statekey={props.statekey} />}>
+		<textarea className="bg-gray-100 w-full" rows={7} value={props.message.getOrElse("")} readOnly />
+	</EditCard>);
 }
 
 const EditDockReportTextBox = (props: {

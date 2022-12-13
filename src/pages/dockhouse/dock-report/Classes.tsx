@@ -13,6 +13,7 @@ import { combineValidations, validateMilitaryTime, validateNotBlank, validateNum
 import { ERROR_DELIMITER } from 'core/APIWrapper';
 import { sortOnCol } from 'util/sort';
 import { ColumnDef } from '@tanstack/react-table';
+import EditCard from './EditCard';
 
 type Class = t.TypeOf<typeof dockReportApClassValidator>
 
@@ -47,16 +48,8 @@ export default (props: {
 	reportDate: string
 }) => {
 	const classes = props.classes.map(mapToDisplay)
-	return <Card>
-		<CardHeader style={{borderBottom: "none", paddingBottom: 0}}>
-			<Edit height="18px" className="float-right" style={{ cursor: "pointer" }} onClick={() => props.openModal(
-					<EditClassTable classes={classes} setSubmitAction={props.setSubmitAction} statekey={"apClasses"} reportDate={props.reportDate} />
-			)} />
-			<CardTitle><h4>Classes</h4></CardTitle>
-
-		</CardHeader>
-		<CardBody>
-			<Table size="sm">
+	return <EditCard title="Classes" openModal={props.openModal} editModal={<EditClassTable classes={classes} setSubmitAction={props.setSubmitAction} statekey={"apClasses"} reportDate={props.reportDate} />}>
+			<table>
 				<tbody>
 					<tr>
 						<th style={{width: "75px"}}>Time</th>
@@ -75,9 +68,8 @@ export default (props: {
 					</tr>
 					})}
 				</tbody>
-			</Table>
-		</CardBody>
-	</Card>
+			</table>
+	</EditCard>
 }
 
 const EditClassTable = (props: {
