@@ -17,33 +17,34 @@ import swap from 'assets/img/icons/buttons/swap.svg';
 import x from 'assets/img/icons/buttons/x.svg';
 import IconButton from 'components/wrapped/IconButton';
 
-type SkipperType = t.TypeOf<typeof skipperValidator>;
-
-type SkipperInfoProps = {
-    skipper: SkipperType;
-};
-
 type CrewType = t.TypeOf<typeof crewValidator>;
 
-type CrewProps = {
+type SignoutState = {
     crew: CrewType;
-};
+    currentSkipper: number;
+}
+
+type SignoutProps = {
+    state: SignoutState;
+    setState: React.Dispatch<React.SetStateAction<SignoutState>>;
+}
 
 function getProgramHR(programId: number){
     return ((programsHR.filter((a) => a.value == programId)[0]) || {display: "Invalid Program"}).display;
 }
 
-function SkipperInfo(props: SkipperInfoProps){
-    const currentMembership = props.skipper.$$memberships[0];
+function SkipperInfo(props: SignoutProps){
+    const skipper = props.state.crew[props.state.currentSkipper];
+    const currentMembership = skipper.$$memberships[0];
     const programHR = getProgramHR(currentMembership.programId);
     return <div className="flex flex-row grow-0 gap-5">
         <div className="flex flex-col">
             <h3 className="font-bold">Skipper:</h3>
             <div className="flex flex-row">
-                {props.skipper.comments.isSome() ? <img src={hold} width={50}/> : <></>}
-                {props.skipper.hold ? <img src={comments} width={50}/> : <></>}
+                {skipper.comments.isSome() ? <img src={hold} width={50}/> : <></>}
+                {skipper.hold ? <img src={comments} width={50}/> : <></>}
             </div>
-            <h3 className="text-2xl font-bold">{props.skipper.nameFirst} {props.skipper.nameLast}</h3>
+            <h3 className="text-2xl font-bold">{skipper.nameFirst} {skipper.nameLast}</h3>
             <h3 className="text-xl">{programHR}</h3>
             <h3 className="text-xl">{currentMembership.type}</h3>
             <h3 className="text-xl">{currentMembership.endDate}</h3>
@@ -55,7 +56,7 @@ function SkipperInfo(props: SkipperInfoProps){
     </div>
 }
 
-function Crew(props: CrewProps){
+function Crew(props: SignoutProps){
     return <div className="flex flex-row grow-[2] gap-5">
         <div className="flex flex-col grow-0 gap-2">
             <h3 className="font-bold">Crew:</h3>
@@ -69,11 +70,11 @@ function Crew(props: CrewProps){
             <Button className="bg-gray-200 p-card">Find Highest Privileges</Button>
         </div>
         <div className="grid grid-rows-2 grid-flow-col grow-[1]">
-            {props.crew.map((a, i) => <div key={i} className="flex flex-row">
-                <div className="w-[1em]">
-                    <IconButton src={x}/>
-                    <IconButton src={swap}/>
-                </div>
+            {props.state.crew.map((a, i) => <div key={i} className="flex flex-row my-auto">
+                {props.state.currentSkipper != i ? <div className="w-[1em]">
+                    <IconButton src={x} onClick={() => {props.setState((state) => ({...state, crew: state.crew.filter((a, i2) => i2 != i)}))}}/>
+                    <IconButton src={swap} onClick={() => {props.setState((state) => ({...state, currentSkipper: i}))}}/>
+                </div> : <></>}
                 <div>
                     <h3 className="font-medium">{a.nameFirst} {a.nameLast}</h3>
                     <h3 className="font-light">{getProgramHR(1)}</h3>
@@ -84,16 +85,18 @@ function Crew(props: CrewProps){
     </div>
 }
 
+const testMemberships = [{
+    activeDate: "1992",
+    endDate: "12/20/2022",
+    type:"Full Year",
+    programId: 1,
+    guestPrivileges: true}];
+
 const testSkipper = {
     $$personRatings: undefined,
     nameFirst: "Evan",
     nameLast: "McCarter",
-    personId: 100, $$memberships:[{
-            activeDate: "1992",
-            endDate: "12/20/2022",
-            type:"Full Year",
-            programId: 1,
-            guestPrivileges: true}],
+    personId: 100, $$memberships:testMemberships,
     comments: option.some("Comment Here"),
     hold: true
 };
@@ -103,7 +106,7 @@ const b = {
     nameFirst: "Joon",
     nameLast: "Coal",
     personId: 100,
-    $$memberships: [],
+    $$memberships: testMemberships,
     comments: option.none,
     hold: false
 }
@@ -113,7 +116,7 @@ const c = {
     nameFirst: "Pawl",
     nameLast: "Gammind",
     personId: 100,
-    $$memberships: [],
+    $$memberships: testMemberships,
     comments: option.none,
     hold: false
 }
@@ -123,7 +126,7 @@ const d = {
     nameFirst: "Samp",
     nameLast: "Peersin",
     personId: 100,
-    $$memberships: [],
+    $$memberships: testMemberships,
     comments: option.none,
     hold: false
 }
@@ -131,13 +134,13 @@ const d = {
 const testCrew = [testSkipper, b, c, d]
 
 
-const memberActionTypes = [{
+const memberActionTypes: {title: React.ReactNode, getContent: (state: SignoutState, setState: React.Dispatch<React.SetStateAction<SignoutState>>) => React.ReactNode}[] = [{
     title: "Sign Out",
-    getContent: () => (
+    getContent: (state, setState) => (
     <div className="flex flex-col h-full grow-[1] gap-5">
         <div className="flex flex-row grow-[0] gap-5">
-            <SkipperInfo skipper={testSkipper}></SkipperInfo>
-            <Crew crew={testCrew}></Crew>
+            <SkipperInfo state={state} setState={setState}></SkipperInfo>
+            <Crew state={state} setState={setState}></Crew>
         </div>
         <div className="flex flex-row grow-[1]">
             <div className="bg-card w-full"><p>Dialog Output</p></div>
@@ -170,11 +173,11 @@ export type MemberActionModalProps = {
 }
 
 export default function MemberActionModal(props: MemberActionModalProps){
+    const [state, setState] = React.useState({crew: testCrew, currentSkipper: 0});
     const header = (
         <Tab.List className="flex flex-row gap-primary">
             <h1 className="text-2xl font-bold">Member Actions:</h1>
             {memberActionTypes.map((a, i) => <Tab key={i} as={React.Fragment}>
-                
                 {({selected}) => (
                     
                     <div className="flex flex-row gap-primary">
@@ -190,7 +193,7 @@ export default function MemberActionModal(props: MemberActionModalProps){
         <Modal title={header} {...props} open={true} className="bg-gray-100 rounded-lg">
             <hr className="border-t-1 border-black"/>
             <Tab.Panels className="h-[80vh] w-[80vw] flex flex-col">
-                {memberActionTypes.map((a, i) => <Tab.Panel className="grow-[1]" key={i}>{a.getContent()}</Tab.Panel>)}
+                {memberActionTypes.map((a, i) => <Tab.Panel className="grow-[1]" key={i}>{a.getContent(state, setState)}</Tab.Panel>)}
             </Tab.Panels>
         </Modal>
     </Tab.Group>);
