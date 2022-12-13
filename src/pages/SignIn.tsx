@@ -1,19 +1,16 @@
 import * as React from "react";
 
-import {
-	Card,
-	CardBody,
-	Label,
-	Input,
-} from "reactstrap";
 import { none, Option, some } from "fp-ts/lib/Option";
 import {formUpdateState} from "../util/form-update-state";
 import asc from "../app/AppStateContainer";
 import detectEnter from "../util/detectEnterPress";
 import { ButtonWrapper } from "../components/ButtonWrapper";
 
-import cbiLogo from "../assets/img/CBI_boat.jpg"
+import cbiLogo from "../assets/img/icons/boat.svg"
 import { ErrorPopup } from "components/ErrorPopup";
+import { Input } from "components/wrapped/Input";
+import Button from "components/wrapped/Button";
+import { toastr } from "react-redux-toastr";
 
 export const formDefault = {
 	username: none as Option<string>,
@@ -80,65 +77,55 @@ class SignIn extends React.PureComponent<{}, State> {
 		return (
 			<React.Fragment>
 				<div className="text-center mt-4">
-					<h2>Community Boating, Inc.</h2>
-					<p className="lead">Front Office</p>
+					<h1 className="text-2xl">Community Boating, Inc.</h1>
+					<p className="lead">Dock House</p>
 				</div>
+				<div className="flex flex-col items-center justify-center my-auto bg-gray-100 p-card">
+						<img
 
-				<Card>
-					<CardBody>
-						<div className="m-sm-4">
-							<div className="text-center" style={{ marginBottom: "20px" }}>
-								<img
-									src={cbiLogo}
-									className="img-fluid rounded-circle"
-									width="132"
-									height="132"
-								/>
-							</div>
-							<ErrorPopup errors={self.state.validationErrors} />
-							<Label>Username</Label>
-							<Input
-								bsSize="lg"
-								type="text"
-								name="username"
-								id="username"
-								placeholder="Enter your username"
-								value={self.state.formData.username.getOrElse("")}
-								onChange={event => updateState("username", event.target.value)}
-							/>
-							<br />
-							<Label>Password</Label>
-							<Input
-								bsSize="lg"
-								type="password"
-								name="password"
-								placeholder="Enter your password"
-								value={self.state.formData.password.getOrElse("")}
-								onChange={event => {
-									self.setState({
-										...self.state,
-										formData: {
-											...self.state.formData,
-											password: event.target.value == "" ? none : some(event.target.value)
-										}
-									})
-								}}
-								onKeyDown={detectEnter(loginFunction)}
-							/>
-							<div className="text-center mt-3">
-								<ButtonWrapper
-									color="primary"
-									size="lg"
-									onClick={loginFunction}
-									spinnerOnClick
-									forceSpinner={(this.state || {}).loginProcessing}
-								>
-									Sign in
-								</ButtonWrapper>
-							</div>
-						</div>
-					</CardBody>
-				</Card>
+							src={cbiLogo}
+							className="img-fluid rounded-circle inline"
+							width="132"
+							height="132"
+						/>
+					<ErrorPopup errors={self.state.validationErrors} />
+					<Input
+						label="Username"
+						type="text"
+						name="username"
+						id="username"
+						placeholder="Enter your username"
+						value={self.state.formData.username.getOrElse("")}
+						onChange={event => updateState("username", event.target.value)}
+					/>
+					<br />
+					<Input
+						label="Password"
+						type="password"
+						name="password"
+						placeholder="Enter your password"
+						value={self.state.formData.password.getOrElse("")}
+						onChange={event => {
+							self.setState({
+								...self.state,
+								formData: {
+									...self.state.formData,
+									password: event.target.value == "" ? none : some(event.target.value)
+								}
+							})
+						}}
+						onKeyDown={detectEnter(loginFunction)}
+					/>
+					<div className="text-center mt-3">
+						<Button
+							onClick={loginFunction}
+							spinnerOnClick
+							forceSpinner={(this.state || {}).loginProcessing}
+						>
+							Sign in
+						</Button>
+					</div>
+				</div>
 			</React.Fragment>
 		);
 	}

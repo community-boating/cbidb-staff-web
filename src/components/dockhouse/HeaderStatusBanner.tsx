@@ -1,10 +1,10 @@
 import * as React from 'react';
-import { Flag, FlagStatusIcon, FlagStatusIcons } from './FlagStatusIcons';
-import boat from 'assets/img/icons/header/boat.svg';
+import { Flag, FlagStatusIcon } from './FlagStatusIcons';
+import boat from 'assets/img/icons/boat.svg';
 import * as moment from "moment";
 import asc from 'app/AppStateContainer';
 import { logout } from 'async/logout';
-import Menu from 'components/wrapped/Menu';
+import Menu, { DirectionX } from 'components/wrapped/Menu';
 
 import settings from 'assets/img/icons/header/settings.svg';
 
@@ -38,12 +38,15 @@ type HeaderGridProps = {
     children: React.ReactNode
 }
 
-type HeaderProps = HeaderFlagProps & HeaderTimeProps & HeaderSunsetProps & HeaderWindProps & HeaderAnnouncementsProps & HeaderButtonsProps;
+type HeaderProps = HeaderFlagProps & HeaderTimeProps & HeaderSunsetProps & HeaderWindProps & HeaderAnnouncementsProps & HeaderButtonsProps & {
+    dropdownNavbar: React.ReactNode
+};
 
 const TIME_FORMAT = "HH:mm";
 
 export default function HeaderStatusBanner(props: HeaderProps) {
     return (<div className="flex flex-row h-status_banner_height gap-1 mt-primary">
+        <div className="lg:hidden">{props.dropdownNavbar}</div>
         <HeaderGrid>
             <CBIBoatIcon {...props}/>
             <FlagIcon {...props}/>
@@ -71,9 +74,13 @@ function HeaderLogout(props){
         menuItems.push(<a onClick={(e) => {asc.sudoModalOpener();e.preventDefault();}}>Elevate Session</a>);
     }
 
-    menuItems.push(<a onClick={(e) => {e.preventDefault(); logout.send(); console.log("logged out");}}>Logout</a>);
+    menuItems.push(<a onClick={(e) => {
+        e.preventDefault(); logout.send().then(() => {
+            asc.updateState.login.logout()
+        })
+    }}>Logout</a>);
 
-    return <Menu title={<HeaderImage half={true} src={settings}/>} items={menuItems}/>;
+    return <Menu title={<HeaderImage half={true} src={settings}/>} x={DirectionX.RIGHT} items={menuItems}/>;
 }
 
 function HeaderGrid(props: HeaderGridProps){
