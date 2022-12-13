@@ -10,7 +10,7 @@ import settings from 'assets/img/icons/header/settings.svg';
 
 type HeaderFlagProps = {flag: Flag};
 
-type HeaderImageProps = {src: string};
+type HeaderImageProps = {src: string, half?: boolean};
 
 type HeaderTimeProps = {time: moment.Moment};
 
@@ -71,9 +71,9 @@ function HeaderLogout(props){
         menuItems.push(<a onClick={(e) => {asc.sudoModalOpener();e.preventDefault();}}>Elevate Session</a>);
     }
 
-    menuItems.push(<a onClick={(e) => {e.preventDefault(); logout.send();}}>Logout</a>);
+    menuItems.push(<a onClick={(e) => {e.preventDefault(); logout.send(); console.log("logged out");}}>Logout</a>);
 
-    return <Menu title={<HeaderImage src={settings}/>} items={menuItems}/>;
+    return <Menu title={<HeaderImage half={true} src={settings}/>} items={menuItems}/>;
 }
 
 function HeaderGrid(props: HeaderGridProps){
@@ -141,5 +141,5 @@ function FlagIcon(props: HeaderProps){
 }
 
 function HeaderImage(props: HeaderImageProps){
-    return <div className="h-full"><img className="h-full w-full" src={props.src}/></div>;
+    return <div className={(props.half ? "h-[50%]" : "h-full")}><img className="h-full w-full" src={props.src}/></div>;
 }
