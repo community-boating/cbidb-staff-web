@@ -23,6 +23,7 @@ type CrewType = t.TypeOf<typeof crewValidator>;
 type SignoutState = {
     crew: CrewType;
     currentSkipper: number;
+    boatId: option.Option<number>;
 }
 
 type SignoutProps = {
@@ -156,7 +157,10 @@ const memberActionTypes: {title: React.ReactNode, getContent: (state: SignoutSta
         <div className="flex flex-row grow-[3]">
             <div className="w-full">
                 <p>Boat Type</p>
-                <BoatIcon />
+                <BoatIcon boatId={state.boatId}/>
+                <div className="my-5 py-5 border-dashed border-2">
+                derp
+                </div>
             </div>
         </div>
     </div>)
@@ -184,7 +188,7 @@ export type MemberActionModalProps = {
 }
 
 export default function MemberActionModal(props: MemberActionModalProps){
-    const [state, setState] = React.useState({crew: testCrew, currentSkipper: 0});
+    const [state, setState] = React.useState({crew: testCrew, currentSkipper: 0, boatId: option.none});
     const header = (
         <Tab.List className="flex flex-row gap-primary">
             <h1 className="text-2xl font-bold">Member Actions:</h1>
@@ -201,7 +205,7 @@ export default function MemberActionModal(props: MemberActionModalProps){
         </Tab.List>);
     return (
     <Tab.Group>
-        <Modal title={header} {...props} className="bg-gray-100 rounded-lg">
+        <Modal title={header} {...props} className="bg-gray-100 rounded-lg" open={true}>
             <hr className="border-t-1 border-black"/>
             <Tab.Panels className="h-[80vh] w-[80vw] flex flex-col">
                 {memberActionTypes.map((a, i) => <Tab.Panel className="grow-[1]" key={i}>{a.getContent(state, setState)}</Tab.Panel>)}

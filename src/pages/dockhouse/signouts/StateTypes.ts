@@ -14,15 +14,15 @@ export type ReassignedMapType = { [key: string]: { [key: number]: number[] } };
 
 export type SignoutsTablesExtraState = {
 	multiSignInSelected: number[]
-	setUpdateCrewModal: (signoutId: number) => void
-	setUpdateCommentsModal: (signoutId: number) => void
-	setMultiSignInSelected: (selected: number[]) => void
+	setUpdateCrewModal?: (signoutId: number) => void
+	setUpdateCommentsModal?: (signoutId: number) => void
+	setMultiSignInSelected?: (selected: number[]) => void
 } & SignoutsTablesExtraStateDepOnMainState & SignoutsTablesExtraStateDepOnAsync
 export type SignoutsTablesExtraStateDepOnMainState = {
 	reassignedHullsMap: ReassignedMapType
 	reassignedSailsMap: ReassignedMapType
-	handleSingleSignIn: (signoutId: number, isUndo: boolean) => void
-	handleMultiSignIn: (signoutsSelected: number[]) => Promise<any>
+	handleSingleSignIn?: (signoutId: number, isUndo: boolean) => void
+	handleMultiSignIn?: (signoutsSelected: number[]) => Promise<any>
 }
 export type SignoutsTablesExtraStateDepOnAsync = {
 	ratingsSorted: SortedRatings

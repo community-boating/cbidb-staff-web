@@ -1,5 +1,5 @@
 import { none, some } from "fp-ts/lib/Option"
-import asc, { AppStateContainer } from "./AppStateContainer"
+import asc from "./AppStateContainer"
 
 import { apiw } from "../async/authenticate-staff";
 import { apiw as getPermissions } from "async/staff/user-permissions"
@@ -49,10 +49,9 @@ export function initUpdateState() {
             //	});
             }).bind(this),
             attemptLogin: (function(userName: string, password: string): Promise<boolean> {
-                const self: AppStateContainer = this
                 return apiw().sendFormUrlEncoded({username: userName, password}).then(res => {
                     if (res.type == "Success" && res.success) {
-                        self.updateState.login.setLoggedIn(userName);
+                        asc.updateState.login.setLoggedIn(userName);
                         return true;
                     } else return false;
                 })

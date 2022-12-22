@@ -10,8 +10,10 @@ import mercury from 'assets/img/icons/boats/mercury.svg';
 import windsurf from 'assets/img/icons/boats/windsurf.svg';
 import sonar from 'assets/img/icons/boats/sonar.svg';
 import IconButton from 'components/wrapped/IconButton';
+import { option } from 'fp-ts';
 
 export type BoatIconProps = {
+    boatId: option.Option<number>
 }
 
 const BoatIcons = [{
@@ -54,7 +56,7 @@ const BoatIcons = [{
 
 export default function(props: BoatIconProps){
     return (<div className="flex flex-row gap-5">
-        {BoatIcons.map((a, i) => <IconButton key={i} src={a.src} className="max-h-[100px]"/>)}
+        {BoatIcons.map((a, i) => <IconButton key={i} src={a.src} className="max-h-[100px] text-black rounded-2 border border-[#00507d]"/>)}
     </div>
     )
 }

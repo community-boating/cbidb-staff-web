@@ -15,7 +15,6 @@ import SignIn from "../pages/SignIn";
 import asc from "./AppStateContainer";
 import { BorderlessLayout } from "../layouts/BorderlessLayout";
 
-
 const authenticatedRoutes = (history: History<any>) => {
 	const borderless = asc.state.borderless;
 	const Layout = borderless ? BorderlessLayout : StandardLayout;
@@ -30,6 +29,7 @@ const authenticatedRoutes = (history: History<any>) => {
 					<Switch>
 						{routes}
 					</Switch>
+					<Redirect from="/*" to="/"/>
 				</Layout>
 			)}
 		/>

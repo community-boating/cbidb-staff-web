@@ -28,7 +28,7 @@
 <rect fill="#000000" height="144" stroke="none" width="144" x="-1.42109e-14" y="0"/>
 <use fill="#ffffff" fill-rule="evenodd" stroke="none" xlink:href="#Fill"/>
 </mask>
-<use fill="none" mask="url(#StrokeMask)" stroke="#00507d" stroke-linecap="butt" stroke-linejoin="round" stroke-width="2" xlink:href="#Fill"/>
+<use fill="none" mask="url(#StrokeMask)" stroke="none" stroke-linecap="butt" stroke-linejoin="round" stroke-width="2" xlink:href="#Fill"/>
 </g>
 <g fill="#00507d" opacity="1" stroke="none"/>
 <path d="M72 26.5925C67.1496 26.5908 63.2167 30.5224 63.2167 35.3728C63.2167 40.2232 67.1496 44.1548 72 44.1531C76.8504 44.1548 80.7833 40.2232 80.7833 35.3728C80.7833 30.5224 76.8504 26.5908 72 26.5925ZM64.9729 51.1872C60.1225 51.1855 56.1896 55.1171 56.1896 59.9675C56.1896 64.8179 60.1225 68.7495 64.9729 68.7478C69.8234 68.7495 73.7563 64.8179 73.7563 59.9675C73.7563 55.1171 69.8234 51.1855 64.9729 51.1872ZM57.9459 72.2684C53.0943 72.265 49.1595 76.1971 49.1595 81.0487C49.1595 85.9003 53.0943 89.8323 57.9459 89.829C62.7975 89.8323 66.7323 85.9003 66.7323 81.0487C66.7323 76.1971 62.7975 72.265 57.9459 72.2684Z" fill="#000000" fill-rule="nonzero" opacity="1" stroke="none"/>

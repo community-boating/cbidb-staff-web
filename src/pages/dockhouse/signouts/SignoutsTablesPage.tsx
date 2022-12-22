@@ -1,16 +1,12 @@
 import * as React from 'react';
 
 import { putSignout, putSignouts } from 'async/rest/signouts-tables';
-import { UpdateStateType, wrapForFormComponentsMoment } from 'components/ReportWithModalForm';
-import { ValidatedHourInput, ValidatedMinuteInput, ValidatedAmPmInput, Input } from 'components/wrapped/Input';
 import { Option } from 'fp-ts/lib/Option';
 import { option } from 'fp-ts';
 import * as moment from "moment";
 
 
 import { sortRatings } from './RatingSorter';
-import { MultiHover } from './MultiHover';
-import { Info } from 'react-feather';
 import { EditCommentsModal } from './input/EditCommentModal';
 import { DefaultDateTimeFormat } from 'util/OptionalTypeValidators';
 import { EditCrewModal } from './input/EditCrewModal';
@@ -19,7 +15,7 @@ import { filterActive, SignoutsTable } from './SignoutsTable';
 import { getUsersHR } from './SignoutsColumnDefs';
 import { Row } from '@tanstack/react-table';
 import asc from 'app/AppStateContainer';
-import { BoatTypesValidatorState, SignoutsTablesExtraState, SignoutsTablesExtraStateDepOnAsync, SignoutsTablesState, SignoutTablesState } from './StateTypes';
+import { BoatTypesValidatorState, ReassignedMapType, SignoutsTablesExtraState, SignoutsTablesExtraStateDepOnAsync, SignoutsTablesState, SignoutTablesState } from './StateTypes';
 
 function matchNameOrCard(row: SignoutTablesState, nameOrCard: string) {
 	if(nameOrCard.trim().length === 0){
@@ -66,8 +62,7 @@ export const SignoutsTablesPage = (props: {
 		const filteredSignouts = state.filter(filterActive(true));
 		const reassignedHullsMap = {};
 		const reassignedSailsMap = {};
-		filteredSignouts.forEach((a) => { mapOptional(a.hullNumber, a.boatId, a.signoutId, reassignedHullsMap); });
-		filteredSignouts.forEach((a) => { mapOptional(a.sailNumber, a.boatId, a.signoutId, reassignedSailsMap); });
+		makeReassignedMaps(filteredSignouts, reassignedHullsMap, reassignedSailsMap);
 		return {
 			reassignedHullsMap,
 			reassignedSailsMap,
@@ -153,6 +148,11 @@ export const SignoutsTablesPage = (props: {
 
 }
 
+export function makeReassignedMaps(activeSignouts: SignoutsTablesState, reassignedHullsMap: ReassignedMapType, reassignedSailsMap: ReassignedMapType){
+	activeSignouts.forEach((a) => { mapOptional(a.hullNumber, a.boatId, a.signoutId, reassignedHullsMap); });
+	activeSignouts.forEach((a) => { mapOptional(a.sailNumber, a.boatId, a.signoutId, reassignedSailsMap); });
+}
+
 export function mapOptional(n: Option<string>, boatId: number, signoutId: number, b: { [key: string]: { [key: number]: number[] } }) {
 	if (option.isSome(n)) {
 		var val = (b[n.getOrElse("")] || {})
@@ -161,31 +161,8 @@ export function mapOptional(n: Option<string>, boatId: number, signoutId: number
 	}
 }
 
-function makeBoatTypesHR(boatTypes: BoatTypesValidatorState) {
+export function makeBoatTypesHR(boatTypes: BoatTypesValidatorState) {
 	return boatTypes.sort((a, b) => a.displayOrder - b.displayOrder).map((v) => ({ value: v.boatId, display: v.boatName }));
-}
-
-export const CommentsHover = (props: { row: SignoutTablesState, extraState: SignoutsTablesExtraState }) => {
-	const display = <>Comments{props.row.comments["_tag"] === "Some" ? <Info color="#777" size="1.4em" /> : <></>}</>;
-	return <MultiHover makeChildren={() => props.row.comments["_tag"] === "Some" ? <p>{props.row.comments.getOrElse("")}</p> : undefined} handleClick={() => props.extraState.setUpdateCommentsModal(props.row.signoutId)} openDisplay={display} noMemoChildren={true} />;
-}
-
-export const MultiSigninCheckbox = (props: { row: SignoutTablesState, extraState: SignoutsTablesExtraState }) => {
-	return <Input type="checkbox" className="m-auto" checked={props.extraState.multiSignInSelected.contains(props.row.signoutId)} onChange={(e) => { if (e.target.checked) { props.extraState.setMultiSignInSelected(props.extraState.multiSignInSelected.concat(props.row.signoutId)) } else { props.extraState.setMultiSignInSelected(props.extraState.multiSignInSelected.filter((a) => a != props.row.signoutId)) } }} />;
-}
-
-export const ValidatedTimeInput: (props: { rowForEdit: any, updateState: UpdateStateType, validationResults, columnId: string, lower: moment.Moment, upper: moment.Moment }) => JSX.Element = (props) => {
-	return <>
-		<div>
-			<ValidatedHourInput {...wrapForFormComponentsMoment(props.rowForEdit, props.updateState, props.columnId, props.validationResults)} lower={props.lower} upper={props.upper} />
-		</div>
-		<div>
-			<ValidatedMinuteInput {...wrapForFormComponentsMoment(props.rowForEdit, props.updateState, props.columnId, props.validationResults)} lower={props.lower} upper={props.upper} />
-		</div>
-		<div>
-			<ValidatedAmPmInput {...wrapForFormComponentsMoment(props.rowForEdit, props.updateState, props.columnId, props.validationResults)} lower={props.lower} upper={props.upper} />
-		</div>
-	</>;
 }
 
 function handleMultiSignIn(multiSignInSelected: number[], setMultiSignInSelected: (selected: number[]) => void, state: SignoutsTablesState, setState: (state: SignoutsTablesState) => void): Promise<any> {
