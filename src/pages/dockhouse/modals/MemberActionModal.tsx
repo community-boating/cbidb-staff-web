@@ -205,7 +205,7 @@ export default function MemberActionModal(props: MemberActionModalProps){
         </Tab.List>);
     return (
     <Tab.Group>
-        <Modal title={header} {...props} className="bg-gray-100 rounded-lg" open={true}>
+        <Modal title={header} {...props} className="bg-gray-100 rounded-lg">
             <hr className="border-t-1 border-black"/>
             <Tab.Panels className="h-[80vh] w-[80vw] flex flex-col">
                 {memberActionTypes.map((a, i) => <Tab.Panel className="grow-[1]" key={i}>{a.getContent(state, setState)}</Tab.Panel>)}
