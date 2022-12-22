@@ -10,6 +10,9 @@ export type SignoutsTablesStateRaw = t.TypeOf<typeof signoutsValidator>;
 export type BoatTypesValidatorState = t.TypeOf<typeof boatTypesValidator>;
 export type RatingsValidatorState = t.TypeOf<typeof ratingsValidator>;
 
+export type BoatTypesType = t.TypeOf<typeof boatTypesValidator>;
+export type RatingsType = t.TypeOf<typeof ratingsValidator>;
+
 export type ReassignedMapType = { [key: string]: { [key: number]: number[] } };
 
 export type SignoutsTablesExtraState = {

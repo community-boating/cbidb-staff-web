@@ -157,7 +157,7 @@ const memberActionTypes: {title: React.ReactNode, getContent: (state: SignoutSta
         <div className="flex flex-row grow-[3]">
             <div className="w-full">
                 <p>Boat Type</p>
-                <BoatIcon boatId={state.boatId}/>
+                <BoatIcon boatId={state.boatId} setBoatId={(boatId) => {setState({...state, boatId: option.some(boatId)})}}/>
                 <div className="my-5 py-5 border-dashed border-2">
                 derp
                 </div>

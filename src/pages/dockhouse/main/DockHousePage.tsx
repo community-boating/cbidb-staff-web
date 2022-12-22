@@ -41,7 +41,6 @@ export default function DockHousePage (props) {
             </CardLayout>
         </CardLayout>
         <AsyncStateProvider apiWrapper={getSignoutsToday} initState={[]} makeChildren={(state, setState, providerState) => {
-            console.log(state);
             const filteredSignouts = (state || []).filter(filterActive(true));
             const reassignedHullsMap = {};
             const reassignedSailsMap = {};

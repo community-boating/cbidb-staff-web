@@ -28,7 +28,6 @@ export default class AsyncStateProvider<T_Validator extends t.Any> extends React
     loadAsync(){
         this.props.apiWrapper.send().then((a) => {
             if(a.type == "Success"){
-                console.log(a.success);
                 this.setState({mainState: a.success, providerState: ProviderState.SUCCESS});
             }else{
                 this.setState((s) => ({...s, providerState: ProviderState.ERROR}));
