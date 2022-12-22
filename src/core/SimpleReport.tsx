@@ -19,7 +19,8 @@ import {
 	Header,
 	SortingState
 } from '@tanstack/react-table'
-import { Button, ButtonGroup, Col, DropdownItem, DropdownMenu, DropdownToggle, Row, Table, UncontrolledButtonDropdown } from 'reactstrap';
+import Button from 'components/wrapped/Button';
+import Menu from 'components/wrapped/Menu';
 
 type SimpleReportRequiredProps<T_Data, T_Filter = any> = {
 	keyField: keyof T_Data
@@ -67,34 +68,27 @@ export const SimpleReport: <T_Data, T_Filter>(props: SimpleReportRequiredProps<T
 	const [state, setState] = React.useState(table.initialState);
 	table.setOptions(prev => ({ ...prev, state: {...state, globalFilter: globalFilterState}, onStateChange: setState, }));
 	const paginationState = state.pagination;
-	const pagination = React.useMemo(() => {return usingPagination ? <Row>
-		<Col>
-			<UncontrolledButtonDropdown  className="mr-1 mb-1">
-				<DropdownToggle caret >{paginationState.pageSize}</DropdownToggle>
-				<DropdownMenu>
-					{sizePerPageList.map(s => <DropdownItem key={s} onClick={() => table.setPageSize(s)}>{s}</DropdownItem>)}
-				</DropdownMenu>
-			</UncontrolledButtonDropdown>
-		</Col>
-		<Col>
+	const pagination = React.useMemo(() => {return usingPagination ? <div className="flex flex-row">
+		<div>
+			<Menu title={paginationState.pageSize} items={sizePerPageList.map(s => <div key={s} onClick={() => table.setPageSize(s)}>{s}</div>)} />
+		</div>
+		<div>
 			{paginationControls(table)}
-		</Col>
-	</Row> : undefined}, [state, dataProp]);
+		</div>
+	</div> : undefined}, [state, dataProp]);
 	const hiddenColumnsControl = hidableColumns ?
-		<div style={{ marginBottom: "15px" }}>
-			<ButtonGroup>
+			<div className="flex flex-row gap-1">
 				{table.getAllColumns().filter((a) => (typeof a.columnDef.header != 'function') && a.getCanHide()).map((a, i) => {
 					const text = flexRender(a.columnDef.header, a)
-					return <Button outline color="primary" size="sm" active={!a.getIsVisible()} key={i} onClick={
+					return <Button className="bg-gray-100 rounded-md px-1" activeClass="bg-blue-100" active={!a.getIsVisible()} key={i} onClick={
 						() => a.toggleVisibility(!a.getIsVisible())
 					}>{text}</Button>
 				})}
 
-				<Button outline color="primary" size="sm" active={true} onClick={
+				<Button className="bg-gray-100 rounded-md px-1" onClick={
 					() => table.toggleAllColumnsVisible(true)
 				}>Show All</Button>
-			</ButtonGroup>
-		</div>
+			</div>
 		: null;
 	const header = React.useMemo(() => <thead>
 		{table.getHeaderGroups().map(headerGroup => (
@@ -137,11 +131,11 @@ export const SimpleReport: <T_Data, T_Filter>(props: SimpleReportRequiredProps<T
 	}, []);
 	return (
 		<div className="p-2">
-			<Table striped bordered >
+			<table className="table-auto">
 				{header}
 				<tbody>
 					{table.getRowModel().rows.map(row => (
-						<tr key={row.id}>
+						<tr key={row.id} className="even:bg-gray-100">
 							{row.getVisibleCells().map(cell => (
 								<td key={cell.id}>
 										{flexRender(cell.column.columnDef.cell, cell.getContext())}
@@ -151,7 +145,7 @@ export const SimpleReport: <T_Data, T_Filter>(props: SimpleReportRequiredProps<T
 					))}
 				</tbody>
 				{footer}
-			</Table>
+			</table>
 			<div className="h-4" />
 			{pagination}
 			{hiddenColumnsControl}
@@ -183,7 +177,7 @@ function paginationControls<T_Data> (table: TableRT<T_Data>) {
 	const disablePrev = !table.getCanPreviousPage();
 	const disableNext = !table.getCanNextPage();
 
-	return <ul style={{ justifyContent: "flex-end" }} className="pagination">
+	return <ul className="flex gap-1">
 		<li className={"pagination-button page-item " + (disablePrev && "disabled")} title="first page"><a href="#" onClick={goTo(0)} className="page-link">&lt;&lt;</a></li>
 		<li className={"pagination-button page-item " + (disablePrev && "disabled")} title="previous page"><a href="#" onClick={goPrevious} className="page-link">&lt;</a></li>
 		{pageIndex > (pageCount - 2) && pageIndex > 3 ? pageLink(pageIndex - 4) : null}

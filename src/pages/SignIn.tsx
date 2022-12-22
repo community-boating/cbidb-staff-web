@@ -4,13 +4,11 @@ import { none, Option, some } from "fp-ts/lib/Option";
 import {formUpdateState} from "../util/form-update-state";
 import asc from "../app/AppStateContainer";
 import detectEnter from "../util/detectEnterPress";
-import { ButtonWrapper } from "../components/ButtonWrapper";
 
 import cbiLogo from "../assets/img/icons/boat.svg"
 import { ErrorPopup } from "components/ErrorPopup";
 import { Input } from "components/wrapped/Input";
 import Button from "components/wrapped/Button";
-import { toastr } from "react-redux-toastr";
 
 export const formDefault = {
 	username: none as Option<string>,

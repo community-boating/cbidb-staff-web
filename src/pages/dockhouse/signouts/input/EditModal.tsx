@@ -1,9 +1,9 @@
 import * as React from "react";
-import { SignoutTablesState } from "../SignoutsTablesPage";
 import { ErrorPopupControlled } from "components/ErrorPopup";
 import { SetErrorsType } from "./EditCommentModal";
 import Modal from "components/wrapped/Modal";
 import Button from "components/wrapped/Button";
+import { SignoutTablesState } from "../StateTypes";
 
 export type EditModalCommonProps = {modalIsOpen: boolean, closeModal: () => void, currentRow: SignoutTablesState};
 
@@ -14,6 +14,7 @@ export const EditModal: (props: EditModalCommonProps & {children: React.ReactNod
             open={props.modalIsOpen}
             setOpen={() => closeModal()}
             title={props.headerChildren}
+            className="w-[75vw]"
             >
             <div className="text-center m-3">
                 <ErrorPopupControlled errors={props.errors} setErrors={props.setErrors}/>

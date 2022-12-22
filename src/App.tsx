@@ -8,6 +8,7 @@ import asc from "./app/AppStateContainer";
 import {apiw as isLoggedInAsStaff} from './async/is-logged-in-as-staff';
 import {AppStateContainer} from "./app/AppStateContainer"
 import SudoModal from "components/SudoModal";
+import { initUpdateState } from "app/AppStateAction";
 
 interface Props {
 	history: any
@@ -18,9 +19,13 @@ class App extends React.Component<Props> {
 	constructor(props) {
 		super(props);
 		const self = this;
-		asc.setListener(() => {
+
+		initUpdateState();
+		const globalStateListener = () => {
 			self.forceUpdate();
-		})
+		}
+		asc.setListener(globalStateListener);
+		asc.updateState.init();
 		isLoggedInAsStaff.send().then(usernameResult => {
 			if (usernameResult.type == "Success") {
 				asc.updateState.login.setLoggedIn(usernameResult.success.value)

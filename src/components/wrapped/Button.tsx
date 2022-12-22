@@ -5,10 +5,12 @@ export type ButtonType = React.DetailedHTMLProps<React.ButtonHTMLAttributes<HTML
     spinnerOnClick?: boolean,
     forceSpinner?: boolean,
     onSubmit?: (e: React.EventHandler<React.MouseEvent<HTMLButtonElement>>) => Promise<any>,
+    activeClass?: string
+    active?: boolean
 }
 
 export default function Button(props: ButtonType){
-    const {spinnerOnClick,forceSpinner,onSubmit,onClick,children, ...buttonProps} = props;
+    const {spinnerOnClick,forceSpinner,onSubmit,onClick,children,className,active,activeClass,...buttonProps} = props;
     const [spinning, setSpinning] = React.useState(false);
     if(spinnerOnClick && (forceSpinner != undefined)){
         React.useEffect(() => {
@@ -20,5 +22,5 @@ export default function Button(props: ButtonType){
         useClick = (e) => {e.preventDefault(); setSpinning(true); onSubmit.apply(e).then(() => {setSpinning(false)})};
     }
     const useChildren = <div className="flex flex-row whitespace-nowrap">{children}{spinning ? <Spinner/> : ""}</div>
-    return <><button {...buttonProps} onClick={useClick} children={useChildren}/>{}</>;
+    return <><button {...buttonProps} onClick={useClick} className={className + ((props.activeClass && props.active) ? (" " + props.activeClass) : "")} children={useChildren}/>{}</>;
 }

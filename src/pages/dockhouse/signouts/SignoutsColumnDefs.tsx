@@ -1,19 +1,29 @@
 import * as React from 'react';
-import { SelectOption } from './input/ValidatedInput';
+import { Input, SelectOption } from 'components/wrapped/Input';
 import { none, Option } from 'fp-ts/lib/Option';
 import { option } from 'fp-ts';
 import * as moment from "moment";
 import reassignedIcon from "assets/img/reassigned.png";
 import stopwatchIcon from "assets/img/stopwatch.jpg";
-import { FlagStatusIcons } from '../../../components/dockhouse/FlagStatusIcons';
+import { FlagStatusIcon, FlagStatusIcons } from '../../../components/dockhouse/FlagStatusIcons';
 import { RatingsHover } from './RatingSorter';
 import { CrewHover } from './input/EditCrewModal';
 import { iconWidth, iconHeight, programsHR, signoutTypesHR, orphanedRatingsShownByDefault } from './Constants';
 import { CellOptionBase, CellOptionTime, CellSelect } from 'util/tableUtil';
-import { SignoutTablesState, SignoutsTablesState, CommentsHover, MultiSigninCheckbox, SignoutsTablesExtraState } from './SignoutsTablesPage';
-import { ButtonWrapper } from 'components/ButtonWrapper';
 import { InteractiveColumnDef } from './InteractiveColumnProvider';
-import { random } from 'lodash';
+import { SignoutsTablesExtraState, SignoutsTablesState, SignoutTablesState } from './StateTypes';
+import { MultiHover } from './MultiHover';
+import { Info } from 'react-feather';
+import Button from 'components/wrapped/Button';
+
+export const CommentsHover = (props: { row: SignoutTablesState, extraState: SignoutsTablesExtraState }) => {
+	const display = <span className="flex flex-row">Comments{props.row.comments["_tag"] === "Some" ? <Info color="#777" size="1.4em" /> : <></>}</span>;
+	return <MultiHover makeChildren={() => props.row.comments["_tag"] === "Some" ? <p>{props.row.comments.getOrElse("")}</p> : undefined} handleClick={() => props.extraState.setUpdateCommentsModal(props.row.signoutId)} openDisplay={display} noMemoChildren={true} />;
+}
+
+export const MultiSigninCheckbox = (props: { row: SignoutTablesState, extraState: SignoutsTablesExtraState }) => {
+	return <Input type="checkbox" className="m-auto" checked={props.extraState.multiSignInSelected.contains(props.row.signoutId)} onChange={(e) => { if (e.target.checked) { props.extraState.setMultiSignInSelected(props.extraState.multiSignInSelected.concat(props.row.signoutId)) } else { props.extraState.setMultiSignInSelected(props.extraState.multiSignInSelected.filter((a) => a != props.row.signoutId)) } }} />;
+}
 
 function isMax(n: number, a: number[]) {
 	if (a === undefined) {
@@ -26,13 +36,14 @@ function isMax(n: number, a: number[]) {
 	}
 	return true;
 }
+const iconClass = "w-[30px]";
 const ReassignedIcon = (props: { row: SignoutTablesState, extraState: SignoutsTablesExtraState }) => {
 	const reassignedHullsMap = props.extraState.reassignedHullsMap;
 	const reassignedSailsMap = props.extraState.reassignedSailsMap;
 	const reassignedHull = option.isSome(props.row.hullNumber || none) && !isMax(props.row.signoutId, (reassignedHullsMap[props.row.hullNumber.getOrElse("")] || [])[props.row.boatId]);
 	const reassignedSail = option.isSome(props.row.sailNumber || none) && !isMax(props.row.signoutId, (reassignedSailsMap[props.row.sailNumber.getOrElse("")] || [])[props.row.boatId]);
 	if (reassignedHull || reassignedSail) {
-		return <img width={iconWidth} height={iconHeight} src={reassignedIcon} />;
+		return <img className={iconClass} src={reassignedIcon} />;
 	}
 	return <></>;
 };
@@ -47,7 +58,7 @@ const FlagIcon = (props: { row: SignoutTablesState; extraState: SignoutsTablesEx
 	});
 	const skipperRatings = props.row.$$skipper.$$personRatings.map((a) => mapped[a.ratingId]);
 	const flags = skipperRatings.map((a) => getHighestFlag(a, props.row.programId, props.row.boatId)).flatten().filter((a) => FlagStatusIcons[a as string] !== undefined).sort((a, b) => FlagStatusIcons[a as string].sortOrder - FlagStatusIcons[b as string].sortOrder);
-	return <img width={iconWidth} height={iconHeight} src={(FlagStatusIcons[flags[0] as string] || FlagStatusIcons.B).src} />;
+	return <FlagStatusIcon flag={FlagStatusIcons[flags[0] as string] || FlagStatusIcons.B} className={iconClass}/>
 };
 const MakeLinks = (props: { row: SignoutTablesState; isActive: boolean; extraState: SignoutsTablesExtraState }) => {
 	if (props.isActive) {
@@ -59,7 +70,7 @@ const MakeLinks = (props: { row: SignoutTablesState; isActive: boolean; extraSta
 const StopwatchIcon = (props: { row: SignoutTablesState; }) => {
 	//2 hours
 	if (moment().diff(moment(props.row.signoutDatetime.getOrElse(""))) > 2 * 60 * 60 * 1000) {
-		return <img width={iconWidth} height={iconHeight} src={stopwatchIcon} />;
+		return <img className={iconClass} src={stopwatchIcon} />;
 	}
 	return <></>;
 };
@@ -99,10 +110,6 @@ export function getUsersHR(signouts: SignoutsTablesState): SelectOption[] {
 		foundUsers[a.createdBy.getOrElse("")] = true;
 	});
 	return Object.keys(foundUsers).map((a) => ({ value: a, display: a }));
-}
-
-export function makeInitFilter() {
-	return { boatType: -1, nameOrCard: "", sail: "", signoutType: "", programId: -1, personId: "", createdBy: "" };
 }
 
 export type SignoutsTablesColumnDef = InteractiveColumnDef<SignoutTablesState, SignoutsTablesExtraState, any>;
@@ -192,7 +199,7 @@ export const columnsInactive: SignoutsTablesColumnDef[] = columnsBaseUpper.conca
 export const columnsActive: SignoutsTablesColumnDef[] = columnsBaseUpper.concat(columnsBaseLower(true)).concat([
 	{
 		accessorFn: () => "MutliSignIn",
-		headerWithExtra: (a, extraState) =>  <div style={{width: "100%", display: "grid"}} ><ButtonWrapper style={{margin: "0 auto"}}spinnerOnClick onClick={(e) => {e.preventDefault(); return extraState.handleMultiSignIn(extraState.multiSignInSelected);}}>Multi Sign In</ButtonWrapper></div>,
+		headerWithExtra: (a, extraState) =>  <div style={{width: "100%", display: "grid"}} ><Button style={{margin: "0 auto"}}spinnerOnClick onClick={(e) => {e.preventDefault(); return extraState.handleMultiSignIn(extraState.multiSignInSelected);}}>Multi Sign In</Button></div>,
 		id: "multisignin__",
 		enableSorting: false,
 		enableMultiSort: false,
@@ -205,6 +212,6 @@ export const columnsActive: SignoutsTablesColumnDef[] = columnsBaseUpper.concat(
 		id: "icons__",
 		enableSorting: false,
 		size: 150,
-		cellWithExtra: (a, extraState) => { const o = a.row.original; return (<>{<FlagIcon row={o} extraState={extraState} />}{<StopwatchIcon row={o} />}{<ReassignedIcon row={o} extraState={extraState} />}</>); }
+		cellWithExtra: (a, extraState) => { const o = a.row.original; return (<div className="flex flex-row">{<FlagIcon row={o} extraState={extraState} />}{<StopwatchIcon row={o} />}{<ReassignedIcon row={o} extraState={extraState} />}</div>); }
 	}
 ]);

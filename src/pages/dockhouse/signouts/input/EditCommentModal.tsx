@@ -1,10 +1,9 @@
-import { ButtonWrapper } from "components/ButtonWrapper";
-
 import * as React from "react";
-import { ValidatedTextInput } from "./ValidatedInput";
+import { ValidatedTextInput } from "components/wrapped/Input";
 import { option } from "fp-ts";
 import { Option } from "fp-ts/lib/Option";
 import { EditModal, EditModalCommonProps } from "./EditModal";
+import Button from "components/wrapped/Button";
 
 export type SetErrorsType = (errors: React.SetStateAction<string[]>) => void;
 
@@ -20,9 +19,9 @@ export const EditCommentsModal = (props: EditModalCommonProps & {updateComments:
             "Edit Comments"
         }
             footerChildren={
-                <ButtonWrapper spinnerOnClick onClick={() => props.updateComments(comments, props.currentRow.signoutId, setErrors)} >
+                <Button spinnerOnClick onClick={() => props.updateComments(comments, props.currentRow.signoutId, setErrors)} >
                     Save
-                </ButtonWrapper>
+                </Button>
             }>
             <ValidatedTextInput type={"textarea"} initValue={commentsPadded} updateValue={setComments} validationResults={[]} />
         </EditModal>

@@ -5,7 +5,6 @@ import { Card, CardHeader, CardTitle, CardBody, Button, Col, Row, Modal, ModalHe
 import { validator} from "async/staff/open-order-details"
 import Currency from 'util/Currency';
 import {toMomentFromLocalDate} from 'util/dateUtil'
-import { ButtonWrapper } from 'components/ButtonWrapper';
 import {postWrapper as finishOrder} from "async/staff/finish-open-order"
 import { ErrorPopup } from 'components/ErrorPopup';
 import { SimpleReport } from 'core/SimpleReport';
@@ -69,7 +68,7 @@ export default function StaggeredOrder(props: { history: History<any>, personId:
 			<Button color="secondary" outline onClick={abort}>
 				Cancel
 			</Button>{" "}
-			<ButtonWrapper spinnerOnClick onClick={() => {
+			<Button spinnerOnClick onClick={() => {
 				return finishOrder(props.personId).sendJson({}).then(ret => {
 					if (ret.type == "Success") {
 						props.history.push("/redirect" + window.location.pathname)
@@ -79,7 +78,7 @@ export default function StaggeredOrder(props: { history: History<any>, personId:
 				})
 			}} >
 				Finish Order
-			</ButtonWrapper>
+			</Button>
 		</ModalFooter>
 	</Modal>;
 	

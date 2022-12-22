@@ -12,9 +12,9 @@ export default function DockHousePage (props) {
         <CardLayout direction={LayoutDirection.HORIZONTAL}>
             <CardLayout direction={LayoutDirection.VERTICAL}>
                 <CardOrButton title="Member Actions" button={<div><input className="object-fill" type="image" src={""}/></div>}>
-                    <Input label={"Card Number:"} end={<GoButton onClick={() => {setOpen(true);}}/>} isEnd={true} groupClassName="mt-auto" value={inputState} onChange={(e) => {setInputState(e.target.value)}}/>
+                    <Input label={"Card Number:"} end={<GoButton onClick={() => {setOpen(true);}}/>} isEnd={true} groupClassName="mt-auto" value={inputState} onChange={(e) => {setInputState(e.target.value)}} onEnter={() => {setOpen(true);}}/>
                 </CardOrButton>
-                <Card title="Program Status"></Card>
+                <Card title="One Day Rentals"></Card>
                 <Card title="Testing"></Card>
             </CardLayout>
             <CardLayout direction={LayoutDirection.VERTICAL} weight={FlexSize.S_2}>

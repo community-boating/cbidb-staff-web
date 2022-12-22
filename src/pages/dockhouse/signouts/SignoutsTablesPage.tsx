@@ -1,33 +1,25 @@
 import * as React from 'react';
-import { Col, Input } from 'reactstrap';
-import * as t from "io-ts";
 
-import { boatTypesValidator, getBoatTypes, getRatings, putSignout, ratingsValidator, signoutsValidator, signoutValidator, signoutCrewValidator, putSignouts } from 'async/rest/signouts-tables';
-import { UpdateStateType } from 'components/ReportWithModalForm';
-import { ValidatedHourInput, ValidatedMinuteInput, ValidatedAmPmInput, wrapForFormComponentsMoment, SelectOption } from './input/ValidatedInput';
+import { putSignout, putSignouts } from 'async/rest/signouts-tables';
+import { UpdateStateType, wrapForFormComponentsMoment } from 'components/ReportWithModalForm';
+import { ValidatedHourInput, ValidatedMinuteInput, ValidatedAmPmInput, Input } from 'components/wrapped/Input';
 import { Option } from 'fp-ts/lib/Option';
 import { option } from 'fp-ts';
 import * as moment from "moment";
 
 
-import { sortRatings, SortedRatings } from './RatingSorter';
+import { sortRatings } from './RatingSorter';
 import { MultiHover } from './MultiHover';
 import { Info } from 'react-feather';
 import { EditCommentsModal } from './input/EditCommentModal';
 import { DefaultDateTimeFormat } from 'util/OptionalTypeValidators';
 import { EditCrewModal } from './input/EditCrewModal';
-import { SignoutsTableFilter, SignoutsTableFilterState } from './input/SignoutsTableFilter';
+import { makeInitFilter, SignoutsTableFilter, SignoutsTableFilterState } from './input/SignoutsTableFilter';
 import { filterActive, SignoutsTable } from './SignoutsTable';
-import { makeInitFilter, getUsersHR } from './SignoutsColumnDefs';
+import { getUsersHR } from './SignoutsColumnDefs';
 import { Row } from '@tanstack/react-table';
-
-export type SignoutTablesState = t.TypeOf<typeof signoutValidator>;
-export type SignoutsTablesState = (SignoutTablesState[]);
-export type SignoutsTablesStateRaw = t.TypeOf<typeof signoutsValidator>;
-export type BoatTypesValidatorState = t.TypeOf<typeof boatTypesValidator>;
-export type RatingsValidatorState = t.TypeOf<typeof ratingsValidator>;
-
-type ReassignedMapType = { [key: string]: { [key: number]: number[] } };
+import asc from 'app/AppStateContainer';
+import { BoatTypesValidatorState, SignoutsTablesExtraState, SignoutsTablesExtraStateDepOnAsync, SignoutsTablesState, SignoutTablesState } from './StateTypes';
 
 function matchNameOrCard(row: SignoutTablesState, nameOrCard: string) {
 	if(nameOrCard.trim().length === 0){
@@ -53,27 +45,6 @@ export function filterRows(row: Row<SignoutTablesState>, columnId: string, filte
 		(filterValue.programId === -1 || (row.original.programId == filterValue.programId)) &&
 		(filterValue.signoutType.length === 0 || (row.original.signoutType == filterValue.signoutType)) &&
 		(filterValue.createdBy.length === 0 || (row.original.createdBy.getOrElse("") == filterValue.createdBy));
-}
-
-export type SignoutsTablesExtraState = {
-	multiSignInSelected: number[]
-	setUpdateCrewModal: (signoutId: number) => void
-	setUpdateCommentsModal: (signoutId: number) => void
-	setMultiSignInSelected: (selected: number[]) => void
-} & SignoutsTablesExtraStateDepOnMainState & SignoutsTablesExtraStateDepOnAsync
-type SignoutsTablesExtraStateDepOnMainState = {
-	reassignedHullsMap: ReassignedMapType
-	reassignedSailsMap: ReassignedMapType
-	handleSingleSignIn: (signoutId: number, isUndo: boolean) => void
-	handleMultiSignIn: (signoutsSelected: number[]) => Promise<any>
-}
-type SignoutsTablesExtraStateDepOnAsync = {
-	ratingsSorted: SortedRatings
-	boatTypesHR: SelectOption[]
-} & AsyncPageState
-type AsyncPageState = {
-	ratings: RatingsValidatorState
-	boatTypes: BoatTypesValidatorState
 }
 
 function getPropsMemoDep(state: SignoutsTablesState){
@@ -110,33 +81,14 @@ export const SignoutsTablesPage = (props: {
 	}, [state]);
 	const [extraStateDepOnAsync, setExtraStateDepOnAsync] = React.useState<SignoutsTablesExtraStateDepOnAsync>({ratings: [], ratingsSorted: {ratingsRows: [], orphanedRatings: []}, boatTypes: [], boatTypesHR: []});
 	const [filterValue, setFilterValue] = React.useState(makeInitFilter());
-	const asyncStateResponse: AsyncPageState = React.useMemo(() => ({ratings: undefined, boatTypes: undefined}), []);
-	const handleAsyncResponse = () => {
-		if(asyncStateResponse.boatTypes !== undefined && asyncStateResponse.ratings !== undefined){
-			setExtraStateDepOnAsync({
-				boatTypes: asyncStateResponse.boatTypes,
-				boatTypesHR: makeBoatTypesHR(asyncStateResponse.boatTypes),
-				ratings: asyncStateResponse.ratings,
-				ratingsSorted: sortRatings(asyncStateResponse.ratings)
-			})
-		}
-	};
 	React.useEffect(() => {
-		getBoatTypes.send().then((a) => {
-			if (a.type == "Success") {
-				asyncStateResponse.boatTypes = a.success;
-				handleAsyncResponse();
-			}
-		});
-	}, []);
+		const ratings = asc.state.ratings;
+		setExtraStateDepOnAsync((s) => ({...s, ratings: ratings, ratingsSorted: sortRatings(ratings)}));
+	}, [asc.state.ratings]);
 	React.useEffect(() => {
-		getRatings.send().then((a) => {
-			if (a.type == "Success") {
-				asyncStateResponse.ratings = a.success;
-				handleAsyncResponse();
-			}
-		});
-	}, []);
+		const boatTypes = asc.state.boatTypes;
+		setExtraStateDepOnAsync((s) => ({...s, boatTypes: boatTypes, boatTypesHR: makeBoatTypesHR(boatTypes)}));
+	}, [asc.state.boatTypes]);
 	const usersHR = React.useMemo(() => getUsersHR(state), [state]);
 
 	const updateState = (id: any, value: any) => {
@@ -219,20 +171,20 @@ export const CommentsHover = (props: { row: SignoutTablesState, extraState: Sign
 }
 
 export const MultiSigninCheckbox = (props: { row: SignoutTablesState, extraState: SignoutsTablesExtraState }) => {
-	return <Input type="checkbox" style={{ display: "block", margin: "0 auto", position: "relative" }} checked={props.extraState.multiSignInSelected.contains(props.row.signoutId)} onChange={(e) => { if (e.target.checked) { props.extraState.setMultiSignInSelected(props.extraState.multiSignInSelected.concat(props.row.signoutId)) } else { props.extraState.setMultiSignInSelected(props.extraState.multiSignInSelected.filter((a) => a != props.row.signoutId)) } }} />;
+	return <Input type="checkbox" className="m-auto" checked={props.extraState.multiSignInSelected.contains(props.row.signoutId)} onChange={(e) => { if (e.target.checked) { props.extraState.setMultiSignInSelected(props.extraState.multiSignInSelected.concat(props.row.signoutId)) } else { props.extraState.setMultiSignInSelected(props.extraState.multiSignInSelected.filter((a) => a != props.row.signoutId)) } }} />;
 }
 
 export const ValidatedTimeInput: (props: { rowForEdit: any, updateState: UpdateStateType, validationResults, columnId: string, lower: moment.Moment, upper: moment.Moment }) => JSX.Element = (props) => {
 	return <>
-		<Col sm={3}>
+		<div>
 			<ValidatedHourInput {...wrapForFormComponentsMoment(props.rowForEdit, props.updateState, props.columnId, props.validationResults)} lower={props.lower} upper={props.upper} />
-		</Col>
-		<Col sm={3}>
+		</div>
+		<div>
 			<ValidatedMinuteInput {...wrapForFormComponentsMoment(props.rowForEdit, props.updateState, props.columnId, props.validationResults)} lower={props.lower} upper={props.upper} />
-		</Col>
-		<Col sm={3}>
+		</div>
+		<div>
 			<ValidatedAmPmInput {...wrapForFormComponentsMoment(props.rowForEdit, props.updateState, props.columnId, props.validationResults)} lower={props.lower} upper={props.upper} />
-		</Col>
+		</div>
 	</>;
 }
 

@@ -1,6 +1,5 @@
 import * as React from "react";
 import * as t from 'io-ts';
-import { Card, CardHeader, CardTitle, CardBody, Form } from 'reactstrap';
 import {
 	Edit as EditIcon,
 } from 'react-feather'
@@ -8,11 +7,12 @@ import { SimpleReport } from "core/SimpleReport";
 import { ErrorPopup } from "components/ErrorPopup";
 import { none, Option, some } from "fp-ts/lib/Option";
 import APIWrapper from "core/APIWrapper";
-import { ButtonWrapper } from "./ButtonWrapper";
 import { destringify, nullifyEmptyStrings, StringifiedProps, stringify, stringifyAndMakeBlank } from "util/StringifyObjectProps";
 import { SortingState, FilterFnOption, ColumnDef } from "@tanstack/react-table";
 import Button from "./wrapped/Button";
 import Modal from "./wrapped/Modal";
+import { option } from "fp-ts";
+import * as moment from 'moment';
 
 export type validationError = {
 	key: string,
@@ -253,16 +253,16 @@ export default function ReportWithModalForm<K extends keyof U, T extends t.TypeC
 			open={modalIsOpen}
 			setOpen={closeModal}
 			title={<h1>Add/Edit</h1>}
-			className="bg-white"
+			className="bg-white min-w-[75vw]"
 		>
 			<div>
 				<ErrorPopup errors={validationErrors.map((a) => (a["display"] || a))}/>
-				<Form onSubmit={e => {
+				<form onSubmit={e => {
 					e.preventDefault();
 					submit();
 				} }>
 					{props.formComponents(formData.rowForEdit, updateStatesCombined ,formData.currentRow, validationErrors)}
-				</Form>
+				</form>
 			</div>
 			<div>
 				<Button color="secondary" onClick={closeModal}>
@@ -273,13 +273,37 @@ export default function ReportWithModalForm<K extends keyof U, T extends t.TypeC
 				</Button>
 			</div>
 		</Modal>
-		{props.noCard ? toRender : <Card>
-			<CardHeader>
-				<CardTitle tag="h5" className="mb-0">{props.cardTitle ?? "Report Table"}</CardTitle>
-			</CardHeader>
-			<CardBody>
+		{props.noCard ? toRender : <div>
+			<div>
+				<div className="mb-0">{props.cardTitle ?? "Report Table"}</div>
+			</div>
+			<div>
 				{toRender}
-			</CardBody>
-		</Card>}
+			</div>
+		</div>}
 	</React.Fragment>;
+}
+
+
+export function wrapForFormComponentsMoment(rowForEdit: any, updateState: UpdateStateType, rowId: string, validationResults: string[]){
+	const initMoment = moment(rowForEdit[rowId]);
+	return {
+		initValue:initMoment.isValid() ? option.some(initMoment) : option.none,
+		updateValue:(v) => {
+			updateState(rowId, v.getOrElse(moment()).format())
+		},
+		validationResults: validationResults.filter((a) => a["key"] == rowId),
+		id: rowId
+	};
+}
+
+export function wrapForFormComponents (rowForEdit: any, updateState: UpdateStateType, rowId: string, validationResults: string[], isNumerical: boolean = false){
+	return {
+		initValue:option.some(rowForEdit[rowId]),
+		updateValue:(v) => {
+			updateState(rowId, v.getOrElse(isNumerical? -1: ""));
+		},
+		validationResults: validationResults.filter((a) => a["key"] == rowId),
+		id: rowId
+	};
 }

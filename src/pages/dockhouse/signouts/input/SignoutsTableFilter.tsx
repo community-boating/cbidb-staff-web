@@ -1,9 +1,8 @@
 import * as React from 'react';
 import { Button, Label, Table } from 'reactstrap';
-import { ValidatedSelectInput, ValidatedTextInput, wrapForFormComponents, SelectOption } from './ValidatedInput';
-import { makeInitFilter } from "../SignoutsColumnDefs";
+import { ValidatedSelectInput, ValidatedTextInput, SelectOption } from 'components/wrapped/Input';
 import { signoutTypesHR, programsHR } from '../Constants';
-import { UpdateStateType } from 'components/ReportWithModalForm';
+import { UpdateStateType, wrapForFormComponents } from 'components/ReportWithModalForm';
 
 export const SignoutsTableFilter = (props: { tdStyle: React.CSSProperties; labelStyle: React.CSSProperties; filterValue: SignoutsTableFilterState; updateState: UpdateStateType; boatTypesHR: SelectOption[]; setFilterValue: (filterValue: SignoutsTableFilterState) => void; usersHR: SelectOption[]}) => {
 	const tdStyle = props.tdStyle;
@@ -81,6 +80,7 @@ export const SignoutsTableFilter = (props: { tdStyle: React.CSSProperties; label
 	</Table>
 	</>);
 };
+
 export type SignoutsTableFilterState = {
 	boatType: number;
 	signoutType: string;
@@ -90,3 +90,7 @@ export type SignoutsTableFilterState = {
 	personId: string;
 	createdBy: string;
 };
+
+export function makeInitFilter(): SignoutsTableFilterState {
+	return { boatType: -1, nameOrCard: "", sail: "", signoutType: "", programId: -1, personId: "", createdBy: "" };
+}

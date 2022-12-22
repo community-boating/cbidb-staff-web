@@ -1,5 +1,11 @@
 import * as React from 'react';
 
+export type Flag = {
+    fill: string,
+    sortOrder: number,
+    hr: string
+};
+
 export const FlagStatusIcons = {
     "R":{fill:"#a61e1e", sortOrder:3, hr:"Red"},
     "G":{fill:"#007d1d", sortOrder:5, hr:"Green"},
@@ -8,12 +14,10 @@ export const FlagStatusIcons = {
     "W":{fill:"#ffffff", sortOrder:1, hr:"White"},
 }
 
-export type Flag = keyof typeof FlagStatusIcons;
-
-export function FlagStatusIcon(props: {flag: Flag}){
-    const fill = FlagStatusIcons[props.flag].fill;
+export function FlagStatusIcon(props: {flag: Flag, className?: string}){
+    const fill = props.flag.fill;
     return (
-        <svg strokeMiterlimit="10" style={{fillRule:'nonzero',clipRule:'evenodd',strokeLinecap:'round',strokeLinejoin:'round'}} version="1.1" viewBox="0 0 144 144" xmlSpace="preserve" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink">
+        <svg className={props.className} strokeMiterlimit="10" style={{fillRule:'nonzero',clipRule:'evenodd',strokeLinecap:'round',strokeLinejoin:'round'}} version="1.1" viewBox="0 0 144 144" xmlSpace="preserve" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink">
             <defs/>
             <g id="Layer-1">
                 <g opacity="1">

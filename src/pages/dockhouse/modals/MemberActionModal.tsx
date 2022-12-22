@@ -8,7 +8,7 @@ import hold from 'assets/img/icons/hold.svg';
 import comments from 'assets/img/icons/comments.svg';
 import person from 'assets/img/icons/person.svg';
 import { crewValidator, skipperValidator } from 'async/rest/DockHouseModels';
-import { option } from 'fp-ts';
+import { option, state } from 'fp-ts';
 import { programsHR } from '../signouts/Constants';
 import Button from 'components/wrapped/Button';
 import { Input } from 'components/wrapped/Input';
@@ -16,6 +16,7 @@ import { Input } from 'components/wrapped/Input';
 import swap from 'assets/img/icons/buttons/swap.svg';
 import x from 'assets/img/icons/buttons/x.svg';
 import IconButton from 'components/wrapped/IconButton';
+import BoatIcon from './BoatIcon';
 
 type CrewType = t.TypeOf<typeof crewValidator>;
 
@@ -57,6 +58,9 @@ function SkipperInfo(props: SignoutProps){
 }
 
 function Crew(props: SignoutProps){
+    const setRandom = () => {
+        props.setState((state) => ({...state, currentSkipper: Math.floor(Math.random()*state.crew.length)}));
+    }
     return <div className="flex flex-row grow-[2] gap-5">
         <div className="flex flex-col grow-0 gap-2">
             <h3 className="font-bold">Crew:</h3>
@@ -65,22 +69,26 @@ function Crew(props: SignoutProps){
                 <Button className="bg-gray-200 p-card">Search Name</Button>
             </div>
             <h3>Add by card #...</h3>
-            <Input></Input>
-            <Button className="bg-gray-200 p-card">Find Highest Ratings</Button>
-            <Button className="bg-gray-200 p-card">Find Highest Privileges</Button>
+            <Input onEnter={() => {
+                const poss = [testSkipper, b, c, d];
+                const rand = Math.floor(Math.random()*4);
+                props.setState((state) => ({...state, crew: [poss[rand]].concat(state.crew.concat()), currentSkipper: state.currentSkipper + 1}));
+            }}></Input>
+            <Button className="bg-gray-200 p-card" onClick={setRandom}>Find Highest Ratings</Button>
+            <Button className="bg-gray-200 p-card" onClick={setRandom}>Find Highest Privileges</Button>
         </div>
-        <div className="grid grid-rows-2 grid-flow-col grow-[1]">
-            {props.state.crew.map((a, i) => <div key={i} className="flex flex-row my-auto">
-                {props.state.currentSkipper != i ? <div className="w-[1em]">
-                    <IconButton src={x} onClick={() => {props.setState((state) => ({...state, crew: state.crew.filter((a, i2) => i2 != i)}))}}/>
+        <div className="grid grid-rows-2 grid-cols-4 grow-[1]">
+            {props.state.crew.map((a, i) => (i != props.state.currentSkipper) ? <div key={i} className="flex flex-row my-auto">
+                <div className="w-[1em]">
+                    <IconButton src={x} onClick={() => {props.setState((state) => ({...state, crew: state.crew.filter((a, i2) => i2 != i), currentSkipper: Math.min(state.currentSkipper, state.crew.length - 2)}))}}/>
                     <IconButton src={swap} onClick={() => {props.setState((state) => ({...state, currentSkipper: i}))}}/>
-                </div> : <></>}
+                </div>
                 <div>
                     <h3 className="font-medium">{a.nameFirst} {a.nameLast}</h3>
                     <h3 className="font-light">{getProgramHR(1)}</h3>
                     </div>
                 </div>
-                )}
+                : undefined)}
         </div>
     </div>
 }
@@ -146,7 +154,10 @@ const memberActionTypes: {title: React.ReactNode, getContent: (state: SignoutSta
             <div className="bg-card w-full"><p>Dialog Output</p></div>
         </div>
         <div className="flex flex-row grow-[3]">
-            <div className="w-full"><p>Boat Type</p></div>
+            <div className="w-full">
+                <p>Boat Type</p>
+                <BoatIcon />
+            </div>
         </div>
     </div>)
 },

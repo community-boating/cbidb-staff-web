@@ -10,21 +10,6 @@ import Modal from './wrapped/Modal';
 import Button from './wrapped/Button';
 import { Input } from './wrapped/Input';
 
-export function showSudoToastr() {
-	const options = {
-		timeOut: 4000,
-		showCloseButton: true,
-		progressBar: true,
-		position: "top-center",
-	};
-
-	toastr.warning(
-		"Elevate Session",
-		"That feature is locked, elevate session to continue.",
-		options
-	);
-}
-
 export default function () {
 	const [isOpen, setOpen] = React.useState(false);
 	const [loginProcessing, setLoginProcessing] = React.useState(false);

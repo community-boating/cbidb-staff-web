@@ -1,26 +1,10 @@
 import {History} from 'history';
-import { toastr } from "react-redux-toastr";
 
 import RouteWrapper from './RouteWrapper';
 import { canAccessPage } from "pages/accessControl";
 import { StringObject } from './PathWrapper';
 import asc from 'app/AppStateContainer';
-import { showSudoToastr } from 'components/SudoModal';
-
-function showToastr() {
-	const options = {
-		timeOut: 4000,
-		showCloseButton: true,
-		progressBar: true,
-		position: "top-right"
-	};
-
-	toastr.error(
-		"Access Denied",
-		"You don't have access to that page.",
-		options
-	);
-}
+import { showAccessToastr, showSudoToastr } from 'components/wrapped/Toast';
 
 export const linkWithAccessControl = <T extends StringObject>(
 	history: History<any>,
@@ -30,7 +14,7 @@ export const linkWithAccessControl = <T extends StringObject>(
 	pathString?: string
 ) => {
 	if (!canAccessPage(rw.pageName)) {
-		showToastr();
+		showAccessToastr();
 	} else if (requireSudo && !asc.state.sudo) {
 		showSudoToastr();
 	} else {

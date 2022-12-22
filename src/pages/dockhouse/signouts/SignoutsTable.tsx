@@ -1,19 +1,20 @@
 import * as React from 'react';
-import { Col, FormGroup, Label } from 'reactstrap';
 import { putSignout, signoutValidator } from 'async/rest/signouts-tables';
-import ReportWithModalForm, { UpdateStateType, validationError } from 'components/ReportWithModalForm';
+import ReportWithModalForm, { UpdateStateType, wrapForFormComponents, wrapForFormComponentsMoment } from 'components/ReportWithModalForm';
 import { StringifiedProps } from 'util/StringifyObjectProps';
-import { ValidatedSelectInput, ValidatedTextInput, wrapForFormComponents } from './input/ValidatedInput';
+import { ValidatedAmPmInput, ValidatedHourInput, ValidatedMinuteInput, ValidatedSelectInput, ValidatedTextInput } from 'components/wrapped/Input';
 import { option } from 'fp-ts';
 import * as moment from "moment";
 import { SignoutsTableFilterState } from './input/SignoutsTableFilter';
 import { programsHR, signoutTypesHR, testResultsHR, SignoutTablesNonEditableObject, SignoutTypes } from './Constants';
 import { FilterFnOption } from '@tanstack/react-table';
-import { SignoutsTablesState, SignoutsTablesExtraState, SignoutTablesState, ValidatedTimeInput } from './SignoutsTablesPage';
 import { formatSelection, formatOptional, columnsActive, columnsInactive } from "./SignoutsColumnDefs";
 import { InteractiveColumnProvider } from './InteractiveColumnProvider';
+import { SignoutTablesState, SignoutsTablesState, SignoutsTablesExtraState } from './StateTypes';
 
 export const filterActive = (isActive) => isActive ? (a: SignoutTablesState) => option.isNone(a.signinDatetime) : (a: SignoutTablesState) => option.isSome(a.signinDatetime);
+
+const spanClassName = "text-left whitespace-nowrap";
 
 export const SignoutsTable = (props: {
 	state: SignoutsTablesState;
@@ -30,87 +31,48 @@ export const SignoutsTable = (props: {
 		rowForEdit: StringifiedProps<SignoutTablesState>,
 		updateState: UpdateStateType,
 		currentRow: SignoutTablesState,
-		validationResults: validationError[]
+		validationResults: string[]
 	) => {
 		const lower = moment("2000", "yyyy");
 		const upper = moment("2032", "yyyy").add(1, "days");
 		return <>
-			<React.Fragment>
-				<FormGroup row>
-					<Label sm={3} className="text-sm-right">
-						Boat Type
-					</Label>
-					<Col sm={9}>
+			<div className="flex flex-col">
+				<div>
 						<ValidatedSelectInput {...wrapForFormComponents(rowForEdit, (id, value) => {
 							updateState([id, "testRatingId"], [value, ""]);
-						}, "boatId", validationResults)} selectOptions={props.extraState.boatTypesHR} showNone={{value: "", display: "None"}} />
-					</Col>
-				</FormGroup>
-				<FormGroup row>
-					<Label sm={3} className="text-sm-right">
-						Card #
-					</Label>
-					<Col sm={9}>
-						<div style={{ padding: "5px" }} className="text-left">
-							{rowForEdit.cardNum || "(none)"}
-						</div>
-					</Col>
-				</FormGroup>
-				<FormGroup row>
-					<Label sm={3} className="text-sm-right">
-						Program
-					</Label>
-					<Col sm={9}>
-						<div style={{ padding: "5px" }} className="text-left">
-							{formatSelection(currentRow.programId, programsHR) || "(none)"}
-						</div>
-					</Col>
-				</FormGroup>
-				<FormGroup row>
-					<Label sm={3} className="text-sm-right">
-						First Name
-					</Label>
-					<Col sm={9}>
-						<div style={{ padding: "5px" }} className="text-left">
-							{formatOptional((currentRow.$$skipper || {}).nameFirst) || "(none)"}
-						</div>
-					</Col>
-				</FormGroup>
-				<FormGroup row>
-					<Label sm={3} className="text-sm-right">
-						Last Name
-					</Label>
-					<Col sm={9}>
-						<div style={{ padding: "5px" }} className="text-left">
+						}, "boatId", validationResults)} selectOptions={props.extraState.boatTypesHR} showNone={{value: "", display: "None"}} label="Boat Type" />
+				</div>
+				<div>
+					<span className={spanClassName}>
+						Card # {rowForEdit.cardNum || "(none)"}
+					</span>
+				</div>
+				<div>
+					<span className={spanClassName}>
+						{formatSelection(currentRow.programId, programsHR) || "(none)"}
+					</span>
+				</div>
+				<div>
+					<span className={spanClassName}>
+						{formatOptional((currentRow.$$skipper || {}).nameFirst) || "(none)"}
+					</span>
+				</div>
+				<div>
+						<div className={spanClassName}>
 							{formatOptional((currentRow.$$skipper || {}).nameLast) || "(none)"}
 						</div>
-					</Col>
-				</FormGroup>
-				<FormGroup row>
-					<Label sm={3} className="text-sm-right">
-						Signout Date/Time
-					</Label>
-					<Col sm={9}>
-						<div style={{ padding: "5px" }} className="text-left">
+				</div>
+				<div>
+						<div className={spanClassName}>
 							{formatOptional((currentRow || {}).signoutDatetime) || "(none)"}
 						</div>
-					</Col>
-				</FormGroup>
-				<FormGroup row>
-					<Label sm={3} className="text-sm-right">
-						Signin Date/Time
-					</Label>
-					<Col sm={9}>
-						<div style={{ padding: "5px" }} className="text-left">
+				</div>
+				<div>
+						<div className={spanClassName}>
 							{formatOptional((currentRow || {}).signinDatetime) || "(none)"}
 						</div>
-					</Col>
-				</FormGroup>
-				<FormGroup row>
-					<Label sm={3} className="text-sm-right">
-						Signout Type
-					</Label>
-					<Col sm={9}>
+				</div>
+				<div>
 						<ValidatedSelectInput {...wrapForFormComponents(rowForEdit, (id, value) => {
 							if (value != SignoutTypes.TEST) {
 								updateState([id, "testRatingId", "testResult"], [value, "", ""]);
@@ -118,47 +80,25 @@ export const SignoutsTable = (props: {
 								updateState(id, value);
 							}
 						}, "signoutType", validationResults)} selectOptions={signoutTypesHR} showNone={{value: "", display: "None"}} />
-					</Col>
-				</FormGroup>
-				<FormGroup row>
-					<Label sm={3} className="text-sm-right">
-						Sail Number
-					</Label>
-					<Col sm={9}>
+				</div>
+				<div>
 						<ValidatedTextInput type="text" {...wrapForFormComponents(rowForEdit, updateState, "sailNumber", validationResults)} />
-					</Col>
-				</FormGroup>
-				<FormGroup row>
-					<Label sm={3} className="text-sm-right">
-						Test Rating
-					</Label>
-					{<Col sm={9}>
+				</div>
+				<div>
 						<ValidatedSelectInput {...wrapForFormComponents(rowForEdit, (id, value) => {
 							updateState([id, "signoutType"], [value, SignoutTypes.TEST]);
 						}, "testRatingId", validationResults)} selectOptions={ratingsHR/*.filter((a) => a.boats.find((b) => b.boatId == Number(rowForEdit.boatId)) !== undefined)*/} showNone={{value: "", display: "None"}} selectNone={true} />
-					</Col>}
-				</FormGroup>
-				<FormGroup row>
-					<Label sm={3} className="text-sm-right">
-						Test Result
-					</Label>
-					<Col sm={9}>
+				</div>
+				<div>
 						<ValidatedSelectInput {...wrapForFormComponents(rowForEdit, updateState, "testResult", validationResults)} selectOptions={testResultsHR} showNone={{value: "", display: "None"}}selectNone={true} disabled={rowForEdit.signoutType != "T"} />
-					</Col>
-				</FormGroup>
-				<FormGroup row>
-					<Label sm={3} className="text-sm-right">
-						Signout Time
-					</Label>
+				</div>
+				<div>
 					<ValidatedTimeInput rowForEdit={rowForEdit} updateState={updateState} columnId="signoutDatetime" validationResults={validationResults} upper={upper} lower={lower} />
-				</FormGroup>
-				<FormGroup row>
-					<Label sm={3} className="text-sm-right">
-						Signin Time
-					</Label>
+				</div>
+				<div>
 					<ValidatedTimeInput rowForEdit={rowForEdit} updateState={updateState} columnId="signinDatetime" validationResults={validationResults} upper={upper} lower={moment(rowForEdit.signoutDatetime)} />
-				</FormGroup>
-			</React.Fragment>
+				</div>
+			</div>
 		</>;
 	};
 	const cardTitle = props.isActive ? "Active Signouts" : "Completed Signouts";
@@ -187,3 +127,17 @@ export const SignoutsTable = (props: {
 			}}*/ />
 	</>;
 };
+
+export const ValidatedTimeInput: (props: { rowForEdit: any, updateState: UpdateStateType, validationResults, columnId: string, lower: moment.Moment, upper: moment.Moment }) => JSX.Element = (props) => {
+	return <>
+		<div>
+			<ValidatedHourInput {...wrapForFormComponentsMoment(props.rowForEdit, props.updateState, props.columnId, props.validationResults)} lower={props.lower} upper={props.upper} />
+		</div>
+		<div>
+			<ValidatedMinuteInput {...wrapForFormComponentsMoment(props.rowForEdit, props.updateState, props.columnId, props.validationResults)} lower={props.lower} upper={props.upper} />
+		</div>
+		<div>
+			<ValidatedAmPmInput {...wrapForFormComponentsMoment(props.rowForEdit, props.updateState, props.columnId, props.validationResults)} lower={props.lower} upper={props.upper} />
+		</div>
+	</>;
+}

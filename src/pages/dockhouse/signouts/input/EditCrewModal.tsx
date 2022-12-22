@@ -1,9 +1,7 @@
-import { ButtonWrapper } from "components/ButtonWrapper";
-import { Table } from "reactstrap";
+import { Button, Table } from "reactstrap";
 
 import * as React from "react";
-import { BoatTypesValidatorState, SignoutsTablesExtraState, SignoutTablesState } from "../SignoutsTablesPage";
-import { SelectOption, ValidatedSelectInput, ValidatedTextInput } from "./ValidatedInput";
+import { SelectOption, ValidatedTextInput } from "components/wrapped/Input";
 import { option } from "fp-ts";
 import { Option } from "fp-ts/lib/Option";
 import * as t from "io-ts";
@@ -14,6 +12,7 @@ import { EditModal, EditModalCommonProps } from "./EditModal";
 import * as moment from "moment";
 import { DefaultDateTimeFormat } from "util/OptionalTypeValidators";
 import { deoptionifyProps, OptionifiedProps, optionifyProps } from "util/OptionifyObjectProps";
+import { BoatTypesValidatorState, SignoutsTablesExtraState, SignoutTablesState } from "../StateTypes";
 
 type SignoutCrewState = t.TypeOf<typeof signoutCrewValidator>;
 type SignoutCrewStateOptional = OptionifiedProps<SignoutCrewState>;
@@ -212,7 +211,7 @@ const AddCrew = (props: { row: SignoutTablesState, updateCrew: UpdateCrewType, s
     return <>
         <ValidatedTextInput type={"text"} initValue={cardNum} updateValue={(val) => {setCardNum(val); setPersonGetState((s) => ({...s, state: PERSON_GET_STATE_WAITING}))}} validationResults={[]} placeholder={"Card #"} />
         {state === PERSON_GET_STATE_SUCCESSFUL ? <><Table><tbody><CrewRow crew={{ $$person: person, cardNum: cardNum, crewId: -1, personId: option.some(person.personId), signoutId: undefined, startActive: undefined, endActive: undefined }} updateCrew={undefined} /></tbody></Table>
-        <ButtonWrapper spinnerOnClick onClick={(e) => {
+        <Button spinnerOnClick onClick={(e) => {
             e.preventDefault();
             console.log("doing");
             if (props.row.$$skipper.personId == person.personId) {
@@ -224,7 +223,7 @@ const AddCrew = (props: { row: SignoutTablesState, updateCrew: UpdateCrewType, s
                 return Promise.resolve();
             }
             return props.updateCrew({cardNum: cardNum, $$person: option.some(person), startActive: option.none, endActive: option.none, crewId: option.none, signoutId: option.some(props.row.signoutId), personId: option.some(person.personId) }, true);
-        }}>Add</ButtonWrapper></> : <h1>{state === PERSON_GET_STATE_WAITING ? "Loading" : "Not Found"}</h1>}
+        }}>Add</Button></> : <h1>{state === PERSON_GET_STATE_WAITING ? "Loading" : "Not Found"}</h1>}
     </>
 }
 
