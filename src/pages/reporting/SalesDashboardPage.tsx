@@ -16,6 +16,13 @@ export const SalesDashboardPage = (props: {membershipTypes: MembershipType[]}) =
 
 	const now = moment();
 	const nowYear = Number(now.format("YYYY"));
+	const nowMonth = Number(now.format("MM"));
+	
+	const highestYear = (
+		nowMonth == 11 || nowMonth == 12
+		? nowYear + 1
+		: nowYear
+	);
 
 	const [month, setMonth] = React.useState("-1");
 	const [activeYears, setActiveYears] = React.useState([nowYear, nowYear-1, nowYear-2].map(String));
@@ -192,7 +199,7 @@ export const SalesDashboardPage = (props: {membershipTypes: MembershipType[]}) =
 												setActiveYears(selectedOptions)
 											}}
 										>
-											{_.range(2013, nowYear+1).reverse().map(y =><option key={y} value={y}>{y}{y==2020?"🦠":""}</option> )}
+											{_.range(highestYear-10, highestYear+1).reverse().map(y =><option key={y} value={y}>{y}{y==2020?"🦠":""}</option> )}
 										</CustomInput>
 									</Col>
 								</FormGroup>
