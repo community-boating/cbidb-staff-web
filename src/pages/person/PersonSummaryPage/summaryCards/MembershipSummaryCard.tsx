@@ -6,6 +6,9 @@ import { membershipValidator } from "async/rest/person/get-person-memberships";
 import { SimpleReport } from "core/SimpleReport";
 import { ColumnDef } from "@tanstack/react-table";
 import { MembershipType } from "async/rest/membership-types";
+import Currency from "util/Currency";
+import * as moment from 'moment';
+import {Moment} from 'moment';
 
 type PersonMembership = t.TypeOf<typeof membershipValidator>;
 
@@ -23,7 +26,10 @@ export default function MembershipSummaryCard(props: Props) {
 
 	const decorateMembershipRecord = (mem: PersonMembership) => ({
 		...mem,
-		membershipType: findTypeForMembership(mem)
+		membershipType: findTypeForMembership(mem),
+		purchaseDate: moment(mem.purchaseDate),
+		startDate: moment(mem.startDate),
+		expirationDate: moment(mem.expirationDate)
 	})
 
 	type DecoratedMembershipRecord = ReturnType<typeof decorateMembershipRecord>;
@@ -31,11 +37,34 @@ export default function MembershipSummaryCard(props: Props) {
 	const columns: ColumnDef<DecoratedMembershipRecord, any>[] = [{
 		accessorKey: "assignId",
 		header: "ID",
+		size: 20,
+	}, {
+		accessorKey: "$$membershipType.membershipTypeName",
+		header: "Type",
 		size: 80,
 	}, {
-		accessorKey: "assignId",
-		header: "ID",
+		header: "Discount",
 		size: 80,
+		cell: x => x.row.original.$$discountInstance.map(di => di.$$discount.discountName).getOrElse(" - ")
+	}, {
+		header: "price",
+		size: 80,
+		cell: x => Currency.dollars(x.row.original.price).format()
+	}, {
+		accessorKey: "purchaseDate",
+		header: "Purchase Date",
+		size: 80,
+		cell: x => (x.getValue() as Moment).format("MM/DD/YYYY HH:mm")
+	}, {
+		accessorKey: "startDate",
+		header: "Start Date",
+		size: 80,
+		cell: x => (x.getValue() as Moment).format("MM/DD/YYYY")
+	}, {
+		accessorKey: "expirationDate",
+		header: "Expiration Date",
+		size: 80,
+		cell: x => (x.getValue() as Moment).format("MM/DD/YYYY")
 	}]
 
 	const report = <SimpleReport 

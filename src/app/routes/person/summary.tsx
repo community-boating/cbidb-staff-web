@@ -5,7 +5,7 @@ import RouteWrapper from "core/RouteWrapper";
 import PageWrapper from "core/PageWrapper";
 import Loader from "components/Loader";
 import { PageName } from "pages/pageNames";
-import PersonSummaryPage from "pages/summary/PersonSummaryPage/PersonSummaryPage";
+import PersonSummaryPage from "pages/person/PersonSummaryPage/PersonSummaryPage";
 import { validator, getWrapper } from "async/rest/person/get-person";
 import { pathPersonSearch, pathPersonSummary } from "app/paths";
 import {getWrapper as getRatings} from 'async/staff/rating-html'

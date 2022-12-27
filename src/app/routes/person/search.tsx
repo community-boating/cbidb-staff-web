@@ -4,7 +4,7 @@ import RouteWrapper from "core/RouteWrapper";
 import PageWrapper from "core/PageWrapper";
 import Loader from "components/Loader";
 import { PageName } from "pages/pageNames";
-import PersonSearchPage from "pages/summary/PersonSearchPage";
+import PersonSearchPage from "pages/person/PersonSearchPage";
 import { pathPersonSearch } from "app/paths";
 
 export const routePersonSearch = new RouteWrapper(

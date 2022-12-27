@@ -3,8 +3,8 @@ import APIWrapper from "core/APIWrapper";
 import { HttpMethod } from "core/HttpMethod";
 
 export const guestPrivValidator = t.type({
-	MEMBERSHIP_ID: t.number,
-	PRICE: t.number,
+	membershipId: t.number,
+	price: t.number,
 });
 
 export const validator = t.array(guestPrivValidator);
