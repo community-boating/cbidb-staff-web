@@ -4,7 +4,7 @@ import { ValidatedSelectInput, ValidatedTextInput, SelectOption } from 'componen
 import { signoutTypesHR, programsHR } from '../Constants';
 import { UpdateStateType, wrapForFormComponents } from 'components/ReportWithModalForm';
 
-export const SignoutsTableFilter = (props: { tdStyle: React.CSSProperties; labelStyle: React.CSSProperties; filterValue: SignoutsTableFilterState; updateState: UpdateStateType; boatTypesHR: SelectOption[]; setFilterValue: (filterValue: SignoutsTableFilterState) => void; usersHR: SelectOption[]}) => {
+export const SignoutsTableFilter = (props: { tdStyle: React.CSSProperties; labelStyle: React.CSSProperties; filterValue: SignoutsTableFilterState; updateState: UpdateStateType; boatTypesHR: SelectOption<number>[]; setFilterValue: (filterValue: SignoutsTableFilterState) => void; usersHR: SelectOption<string>[]}) => {
 	const tdStyle = props.tdStyle;
 	const labelStyle = props.labelStyle;
 	const filterValue = props.filterValue;

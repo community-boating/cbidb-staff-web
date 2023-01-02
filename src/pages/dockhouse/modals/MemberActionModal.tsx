@@ -11,12 +11,12 @@ import { crewValidator, skipperValidator } from 'async/rest/DockHouseModels';
 import { option, state } from 'fp-ts';
 import { programsHR } from '../signouts/Constants';
 import Button from 'components/wrapped/Button';
-import { Input } from 'components/wrapped/Input';
+import { Input, ValidatedSecondInput, ValidatedSelectInput } from 'components/wrapped/Input';
 
 import swap from 'assets/img/icons/buttons/swap.svg';
 import x from 'assets/img/icons/buttons/x.svg';
 import IconButton from 'components/wrapped/IconButton';
-import BoatIcon from './BoatIcon';
+import BoatIcon, { BoatSelect } from './BoatIcon';
 
 type CrewType = t.TypeOf<typeof crewValidator>;
 
@@ -142,28 +142,37 @@ const d = {
 
 const testCrew = [testSkipper, b, c, d]
 
-
 const memberActionTypes: {title: React.ReactNode, getContent: (state: SignoutState, setState: React.Dispatch<React.SetStateAction<SignoutState>>) => React.ReactNode}[] = [{
     title: "Sign Out",
-    getContent: (state, setState) => (
-    <div className="flex flex-col h-full grow-[1] gap-5">
-        <div className="flex flex-row grow-[0] gap-5">
-            <SkipperInfo state={state} setState={setState}></SkipperInfo>
-            <Crew state={state} setState={setState}></Crew>
-        </div>
-        <div className="flex flex-row grow-[1]">
-            <div className="bg-card w-full"><p>Dialog Output</p></div>
-        </div>
-        <div className="flex flex-row grow-[3]">
-            <div className="w-full">
-                <p>Boat Type</p>
-                <BoatIcon boatId={state.boatId} setBoatId={(boatId) => {setState({...state, boatId: option.some(boatId)})}}/>
-                <div className="my-5 py-5 border-dashed border-2">
-                derp
+    getContent: (state, setState) => { 
+        const setBoatId = (boatId: option.Option<number>) => {
+            console.log(boatId);
+            setState({...state, boatId: boatId})
+        };
+        console.log(state.boatId);
+        return (
+        <div className="flex flex-col h-full grow-[1] gap-5">
+            <div className="flex flex-row grow-[0] gap-5">
+                <SkipperInfo state={state} setState={setState}></SkipperInfo>
+                <Crew state={state} setState={setState}></Crew>
+            </div>
+            <div className="flex flex-row grow-[1]">
+                <div className="bg-card w-full"><p>Dialog Output</p></div>
+            </div>
+            <div className="flex flex-row grow-[3]">
+                <div className="w-full flex flex-col">
+                    <p>Boat Type</p>
+                    <BoatIcon boatId={state.boatId} setBoatId={setBoatId}/>
+                    <div className="my-5 py-5 border-dashed border-2 grow-[1]">
+                        <BoatSelect boatId={state.boatId} setBoatId={setBoatId}></BoatSelect>
+                    </div>
+                    <div className="flex flex-row gap-2 mr-0 ml-auto">
+                        <Button className="bg-gray-300 px-5 py-2">Queue Signout</Button>
+                        <Button className="bg-gray-300 px-5 py-2">Queue Signout</Button>
+                    </div>
                 </div>
             </div>
-        </div>
-    </div>)
+        </div>)}
 },
 {
     title: "Testing",

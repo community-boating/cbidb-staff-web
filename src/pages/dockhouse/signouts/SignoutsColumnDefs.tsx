@@ -90,7 +90,7 @@ export function formatOptional(v: undefined | null | number | string | moment.Mo
 	}
 }
 
-export function formatSelection(s: undefined | null | string | number | moment.Moment | Option<moment.Moment> | Option<string>, selectOptions: SelectOption[]): string {
+export function formatSelection(s: undefined | null | string | number | moment.Moment | Option<moment.Moment> | Option<string>, selectOptions: SelectOption<string | number>[]): string {
 	const stringS = formatOptional(s);
 	if (stringS === "None") {
 		return stringS;
@@ -104,7 +104,7 @@ export function formatSelection(s: undefined | null | string | number | moment.M
 	}
 }
 
-export function getUsersHR(signouts: SignoutsTablesState): SelectOption[] {
+export function getUsersHR(signouts: SignoutsTablesState): SelectOption<string>[] {
 	const foundUsers = {};
 	signouts.forEach((a) => {
 		foundUsers[a.createdBy.getOrElse("")] = true;

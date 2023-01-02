@@ -48,7 +48,7 @@ export function isCrewValid(crew: SignoutCrewState[], boatId: number, boatTypes:
 	}
 }
 
-export const EditCrewModal = (props: EditModalCommonProps & { updateCurrentRow: (row: SignoutTablesState) => void, boatTypes: BoatTypesValidatorState, boatTypesHR: SelectOption[] }) => {
+export const EditCrewModal = (props: EditModalCommonProps & { updateCurrentRow: (row: SignoutTablesState) => void, boatTypes: BoatTypesValidatorState, boatTypesHR: SelectOption<number>[] }) => {
     const [errors, setErrors] = React.useState([] as string[]);
     const updateCrew: UpdateCrewType = (crewMember, active) => {
 

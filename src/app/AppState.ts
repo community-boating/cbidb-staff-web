@@ -1,10 +1,6 @@
 import { Option } from 'fp-ts/lib/Option';
 
-import { boatTypesValidator, ratingsValidator } from "async/rest/signouts-tables";
-import * as t from "io-ts";
-
-type BoatTypesType = t.TypeOf<typeof boatTypesValidator>;
-type RatingsType = t.TypeOf<typeof ratingsValidator>;
+import { BoatTypesType, RatingsType } from 'pages/dockhouse/signouts/StateTypes';
 
 export interface AppProps {
 

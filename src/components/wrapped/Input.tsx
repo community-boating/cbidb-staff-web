@@ -5,6 +5,7 @@ import { option} from 'fp-ts';
 import { ReactNode } from 'react';
 import * as moment from "moment";
 import { Listbox } from '@headlessui/react';
+import { ChevronDown } from 'react-feather';
 
 export type InputProps = {
     label?: React.ReactNode,
@@ -15,13 +16,15 @@ export type InputProps = {
     ref?: any
 } & React.DetailedHTMLProps<React.InputHTMLAttributes<HTMLInputElement>, HTMLInputElement>;
 
+const inputClassName = "rounded-md border border-gray-700"
+
 export type SelectInputProps = {
     options: React.ReactNode[];
 }
 
 export function Input(props: InputProps){
     const {isEnd, label, end, groupClassName, onEnter, ...inputProps} = props;
-    return <div className={"flex gap-2 " + (isEnd ? " self-end " : "") + groupClassName}><label>{label}</label><input className="rounded-md" {...inputProps} onKeyDown={(e) => {
+    return <div className={"flex gap-2 " + (isEnd ? " self-end " : "") + groupClassName}><label>{label}</label><input className={inputClassName} {...inputProps} onKeyDown={(e) => {
         if(props.onEnter && e.key == "Enter"){
             props.onEnter();
         }
@@ -79,21 +82,24 @@ export const ValidatedTextInput = (props: (ValidatedInputProps<any> & InputProps
 	}/>);
 }
 
-export type SelectOptionType = string | number;
+export type SelectOption<T_SelectOption> = {value: T_SelectOption, display: ReactNode};
 
-export type SelectOption = {value: SelectOptionType, display: ReactNode};
-
-export const ValidatedSelectInput = (props: ValidatedInputProps<Option<SelectOptionType>> & InputProps & {selectOptions : SelectOption[], showNone?: SelectOption, selectNone?: boolean, isNumber?: boolean}) => {
+export function ValidatedSelectInput<T_SelectOption extends string | number> (props: ValidatedInputProps<Option<T_SelectOption>> & InputProps & {selectOptions : SelectOption<T_SelectOption>[], showNone?: SelectOption<T_SelectOption>, selectNone?: boolean, isNumber?: boolean}) {
 	const {selectOptions,showNone,selectNone,isNumber,initValue,updateValue,...other} = props;
-	const showNonePadded = showNone === undefined ? {value: "", display: "None"} : showNone;
+	const showNonePadded = showNone === undefined ? {value: undefined, display: "None"} : showNone;
 	const selectOptionsWithNone = [showNonePadded].concat(selectOptions);
-    const current = selectOptionsWithNone.filter((a) => a.value == initValue.getOrElse(""))[0];
-    const options = React.useMemo(() => (selectOptionsWithNone.map((a, i) => (<Listbox.Option key={i} value={option.some(a.value)}>{a.display}</Listbox.Option>))), [selectOptions]);
+    const current = selectOptionsWithNone.filter((a) => a.value == initValue.getOrElse(undefined))[0];
+	const useOptions = (selectNone || props.initValue.isNone() ? selectOptionsWithNone : selectOptions);
+    const options = React.useMemo(() => (useOptions.map((a, i) => (<Listbox.Option key={i} value={option.some(a.value)} as={React.Fragment}>
+		{({active, selected}) => (<div className={active ? "bg-gray-100" : ""}>{a.display}</div>)}
+		</Listbox.Option>))), [selectOptions]);
 	return (<Listbox value={initValue} onChange={(e) => updateValue(e)}>
-                <Listbox.Button>{current.display}</Listbox.Button>
-                <Listbox.Options className="absolute bg-white">
+				<div className="relative max-w-min">
+                <Listbox.Button className={"min-w-[180px] flex flex-col items-end bg-white " + inputClassName}><div className="flex flex-row">{current.display}<ChevronDown/></div></Listbox.Button>
+                <Listbox.Options className="absolute bg-white w-full">
                     {options}
                 </Listbox.Options>
+				</div>
             </Listbox>
     );
 }
@@ -125,7 +131,7 @@ var lastMoment;
 
 export const ValidatedMomentInput = (props: ValidatedInputProps<Option<moment.Moment>> & InputProps & {format : string, start:moment.Moment,end:moment.Moment, lower?:moment.Moment, upper?:moment.Moment, inc: any, timeVar: moment.unitOfTime.All, sToM? : typeof stringToMoment, mToS?: typeof momentToString}) => {
 	const {format,start,end,inc,timeVar,sToM,mToS,updateValue,upper,lower,...others} = props;
-	const selectOptions: {value: SelectOptionType, display: ReactNode} [] = [];
+	const selectOptions: {value: string | number, display: ReactNode} [] = [];
 	const initValue = props.initValue;
 	const valval = lower === undefined ? undefined : lower.toJSON();
 	React.useEffect(() => {

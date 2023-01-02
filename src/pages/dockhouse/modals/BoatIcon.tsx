@@ -13,9 +13,11 @@ import IconButton from 'components/wrapped/IconButton';
 import { option } from 'fp-ts';
 import asc from 'app/AppStateContainer';
 import RadioGroup from 'components/wrapped/RadioGroup';
+import { ValidatedSelectInput } from 'components/wrapped/Input';
+import { makeBoatTypesHR } from '../signouts/SignoutsTablesPage';
 export type BoatIconProps = {
     boatId: option.Option<number>
-    setBoatId: (boatId: number) => void
+    setBoatId: (boatId: option.Option<number>) => void
 }
 
 const BoatIcons = [{
@@ -64,7 +66,6 @@ const BoatIcons = [{
     src: windsurf
 }]
 
-
 export default function(props: BoatIconProps){
     const boatsByHR = {};
     const boatsById = {};
@@ -72,14 +73,23 @@ export default function(props: BoatIconProps){
         boatsByHR[a.boatName] = a;
         boatsById[a.boatId] = a;
     });
-    const currentBoatHR = (boatsById[props.boatId.getOrElse(-1)] || {}).boatName;
     return (
-    <RadioGroup value={currentBoatHR} setValue={(value) => props.setBoatId(boatsByHR[value].boatId)} className="flex flex-row gap-5" children={BoatIcons.map((a, i) => ({
-        value: a.hr,
-        makeNode: (checked) => <IconButton key={i} src={a.src} className={"max-h-[100px] text-black rounded-2 border border-[#00507d]" + (checked? " bg-blue-200 border-gray-200" : "")} onClick={() => {
-            props.setBoatId(boatsByHR[a.hr].boatId);
-        }}/>
+    <RadioGroup value={props.boatId} setValue={(value) => props.setBoatId(value)} className="flex flex-row gap-5" keyListener={(key) => {
+        console.log("derp" + key);
+        const boat = BoatIcons.filter((a) => a.key.toLowerCase() == key.toLowerCase());
+        if(boat.length > 0){
+            props.setBoatId(option.some(boatsByHR[boat[0].hr].boatId));
+        }
+    }} children={BoatIcons.map((a, i) => ({
+        value: boatsByHR[a.hr].boatId,
+        makeNode: (checked) => <IconButton key={i} src={a.src} className={"min-w-[100px] text-black rounded-2 border border-[#00507d]" + (checked? " bg-blue-200 border-gray-200" : "")}/>
     })
     )}/>
     )
+}
+
+export function BoatSelect(props: BoatIconProps){
+    console.log(props);
+    const boatTypesHR = React.useMemo(() => makeBoatTypesHR(asc.state.boatTypes), [asc.state.boatTypes]);
+    return <ValidatedSelectInput initValue={props.boatId} updateValue={props.setBoatId} validationResults={[]} selectOptions={boatTypesHR} selectNone={false} label={"Boat Type:"}></ValidatedSelectInput>
 }

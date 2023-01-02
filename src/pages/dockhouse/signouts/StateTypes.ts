@@ -29,7 +29,7 @@ export type SignoutsTablesExtraStateDepOnMainState = {
 }
 export type SignoutsTablesExtraStateDepOnAsync = {
 	ratingsSorted: SortedRatings
-	boatTypesHR: SelectOption[]
+	boatTypesHR: SelectOption<number>[]
 } & AsyncPageState
 export type AsyncPageState = {
 	ratings: RatingsValidatorState
