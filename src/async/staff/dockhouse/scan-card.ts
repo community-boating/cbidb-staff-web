@@ -36,8 +36,8 @@ export const scanCardValidator = t.type({
 
 const path = "/staff/dockhouse/scan-card"
 
-export const getWrapper = new APIWrapper({
-	path: path,
+export const getWrapper = (cardNumber: string) => new APIWrapper({
+	path: path + "?cardNumber=" + cardNumber,
 	type: HttpMethod.GET,
 	resultValidator: scanCardValidator
 })
