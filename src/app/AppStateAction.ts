@@ -3,7 +3,7 @@ import asc from "./AppStateContainer"
 
 import { apiw } from "../async/authenticate-staff";
 import { apiw as getPermissions } from "async/staff/user-permissions"
-import { getBoatTypes, getRatings } from "async/rest/signouts-tables";
+import { getBoatTypes, getRatings } from "async/staff/dockhouse/signouts-tables";
 
 export default class AppStateAction {
     

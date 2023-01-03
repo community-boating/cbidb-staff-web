@@ -7,8 +7,7 @@ import * as t from "io-ts";
 import hold from 'assets/img/icons/hold.svg';
 import comments from 'assets/img/icons/comments.svg';
 import person from 'assets/img/icons/person.svg';
-import { crewValidator, skipperValidator } from 'async/rest/DockHouseModels';
-import { option, state } from 'fp-ts';
+import { option } from 'fp-ts';
 import { programsHR } from '../signouts/Constants';
 import Button from 'components/wrapped/Button';
 import { Input, ValidatedSecondInput, ValidatedSelectInput } from 'components/wrapped/Input';
@@ -16,9 +15,12 @@ import { Input, ValidatedSecondInput, ValidatedSelectInput } from 'components/wr
 import swap from 'assets/img/icons/buttons/swap.svg';
 import x from 'assets/img/icons/buttons/x.svg';
 import IconButton from 'components/wrapped/IconButton';
-import BoatIcon, { BoatSelect } from './BoatIcon';
+import BoatIcon from './BoatIcon';
+import { scanCardValidator } from 'async/staff/dockhouse/scan-card';
 
-type CrewType = t.TypeOf<typeof crewValidator>;
+type CrewMemberType = t.TypeOf<typeof scanCardValidator>;
+
+type CrewType = CrewMemberType[];
 
 type SignoutState = {
     crew: CrewType;
@@ -35,22 +37,29 @@ function getProgramHR(programId: number){
     return ((programsHR.filter((a) => a.value == programId)[0]) || {display: "Invalid Program"}).display;
 }
 
+function isHold(crew: CrewMemberType){
+    return true;
+}
+
 function SkipperInfo(props: SignoutProps){
     const skipper = props.state.crew[props.state.currentSkipper];
-    const currentMembership = skipper.$$memberships[0];
-    const programHR = getProgramHR(currentMembership.programId);
+    //console.log(skipper);
+    const currentMembership = skipper.activeMemberships[0];
+    //console.log("derp");
+    const programHR = "";//getProgramHR(currentMembership.programId);
+    console.log(programHR);
     return <div className="flex flex-row grow-0 gap-5">
         <div className="flex flex-col">
             <h3 className="font-bold">Skipper:</h3>
             <div className="flex flex-row">
-                {skipper.comments.isSome() ? <img src={hold} width={50}/> : <></>}
-                {skipper.hold ? <img src={comments} width={50}/> : <></>}
+                {skipper.bannerComment.isSome() ? <img src={hold} width={50}/> : <></>}
+                {isHold(skipper) ? <img src={comments} width={50}/> : <></>}
             </div>
             <h3 className="text-2xl font-bold">{skipper.nameFirst} {skipper.nameLast}</h3>
             <h3 className="text-xl">{programHR}</h3>
-            <h3 className="text-xl">{currentMembership.type}</h3>
-            <h3 className="text-xl">{currentMembership.endDate}</h3>
-            <h3 className="text-xl">Guest Privileges: {currentMembership.guestPrivileges ? "Yes" : "No"}</h3>
+            <h3 className="text-xl">{currentMembership.membershipTypeId} TODO make this HR</h3>
+            <h3 className="text-xl">{currentMembership.expirationDate.getOrElse("")}</h3>
+            <h3 className="text-xl">Guest Privileges: {currentMembership.hasGuestPrivs ? "Yes" : "No"}</h3>
         </div>
         <div className="flex flex-col">
             <img src={person} className="mt-auto mb-0"></img>
@@ -71,9 +80,8 @@ function Crew(props: SignoutProps){
             </div>
             <h3>Add by card #...</h3>
             <Input onEnter={() => {
-                const poss = [testSkipper, b, c, d];
                 const rand = Math.floor(Math.random()*4);
-                props.setState((state) => ({...state, crew: [poss[rand]].concat(state.crew.concat()), currentSkipper: state.currentSkipper + 1}));
+                props.setState((state) => ({...state, crew: ([testCrew[rand]].concat(state.crew.concat())), currentSkipper: state.currentSkipper + 1}));
             }}></Input>
             <Button className="bg-gray-200 p-card" onClick={setRandom}>Find Highest Ratings</Button>
             <Button className="bg-gray-200 p-card" onClick={setRandom}>Find Highest Privileges</Button>
@@ -94,50 +102,59 @@ function Crew(props: SignoutProps){
     </div>
 }
 
-const testMemberships = [{
-    activeDate: "1992",
-    endDate: "12/20/2022",
-    type:"Full Year",
+const testMemberships: CrewMemberType["activeMemberships"] = [{
+    startDate: option.some("1992"),
+    expirationDate: option.some("12/20/2022"),
+    membershipTypeId: 0,
     programId: 1,
-    guestPrivileges: true}];
+    isDiscountFrozen: false,
+    hasGuestPrivs: true,
+    assignId: 0,
+    discountName: option.none,
+}];
 
-const testSkipper = {
-    $$personRatings: undefined,
+const testSkipper: CrewMemberType = {
     nameFirst: "Evan",
     nameLast: "McCarter",
-    personId: 100, $$memberships:testMemberships,
-    comments: option.some("Comment Here"),
-    hold: true
+    personId: 100, 
+    cardNumber: "1234567",
+    activeMemberships:testMemberships,
+    bannerComment: option.some("Comment Here"),
+    specialNeeds: option.none,
+    personsRatings: []
 };
 
 const b = {
-    $$personRatings: undefined,
     nameFirst: "Joon",
     nameLast: "Coal",
-    personId: 100,
-    $$memberships: testMemberships,
-    comments: option.none,
-    hold: false
+    personId: 100, 
+    cardNumber: "1234567",
+    activeMemberships:testMemberships,
+    bannerComment: option.some("Comment Here"),
+    specialNeeds: option.none,
+    personsRatings: []
 }
 
 const c = {
-    $$personRatings: undefined,
     nameFirst: "Pawl",
     nameLast: "Gammind",
-    personId: 100,
-    $$memberships: testMemberships,
-    comments: option.none,
-    hold: false
+    personId: 100, 
+    cardNumber: "1234567",
+    activeMemberships:testMemberships,
+    bannerComment: option.some("Comment Here"),
+    specialNeeds: option.none,
+    personsRatings: []
 }
 
 const d = {
-    $$personRatings: undefined,
     nameFirst: "Samp",
     nameLast: "Peersin",
-    personId: 100,
-    $$memberships: testMemberships,
-    comments: option.none,
-    hold: false
+    personId: 100, 
+    cardNumber: "1234567",
+    activeMemberships:testMemberships,
+    bannerComment: option.some("Comment Here"),
+    specialNeeds: option.none,
+    personsRatings: []
 }
 
 const testCrew = [testSkipper, b, c, d]
@@ -214,7 +231,7 @@ export default function MemberActionModal(props: MemberActionModalProps){
         </Tab.List>);
     return (
     <Tab.Group>
-        <Modal title={header} {...props} className="bg-gray-100 rounded-lg">
+        <Modal title={header} {...props} className="bg-gray-100 rounded-lg" open={true}>
             <hr className="border-t-1 border-black"/>
             <Tab.Panels className="h-[80vh] w-[80vw] flex flex-col">
                 {memberActionTypes.map((a, i) => <Tab.Panel className="grow-[1]" key={i}>{a.getContent(state, setState)}</Tab.Panel>)}

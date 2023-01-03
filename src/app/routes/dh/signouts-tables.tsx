@@ -6,7 +6,7 @@ import RouteWrapper from 'core/RouteWrapper';
 import PageWrapper from 'core/PageWrapper';
 import { Loader } from 'react-feather';
 import { SignoutsTablesPage } from 'pages/dockhouse/signouts/SignoutsTablesPage';
-import { signoutsValidator, getSignoutsToday } from 'async/rest/signouts-tables';
+import { signoutsValidator, getSignoutsToday } from 'async/staff/dockhouse/signouts-tables';
 export const routeSignoutsTablesPage = new RouteWrapper({
 	requiresAuth: true,
 	exact: true,

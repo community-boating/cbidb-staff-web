@@ -1,7 +1,7 @@
 import { OptionalBoolean, OptionalNumber, OptionalString, makeOptionalProps, OptionalDateTime, allowNullUndefinedProps } from "util/OptionalTypeValidators";
 import * as t from "io-ts";
-import APIWrapper from "../../core/APIWrapper";
-import { HttpMethod } from "../../core/HttpMethod";
+import APIWrapper from "../../../core/APIWrapper";
+import { HttpMethod } from "../../../core/HttpMethod";
 
 const pathGet = "/rest/signouts-today";
 const pathPost = "/rest/signout";

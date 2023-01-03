@@ -1,4 +1,4 @@
-import { boatTypesValidator, ratingsValidator, signoutsValidator, signoutValidator } from 'async/rest/signouts-tables';
+import { boatTypesValidator, ratingsValidator, signoutsValidator, signoutValidator, skipperValidator } from 'async/staff/dockhouse/signouts-tables';
 import { SelectOption } from 'components/wrapped/Input';
 
 import * as t from "io-ts";
@@ -12,6 +12,8 @@ export type RatingsValidatorState = t.TypeOf<typeof ratingsValidator>;
 
 export type BoatTypesType = t.TypeOf<typeof boatTypesValidator>;
 export type RatingsType = t.TypeOf<typeof ratingsValidator>;
+
+export type SkipperType = t.TypeOf<typeof skipperValidator>;
 
 export type ReassignedMapType = { [key: string]: { [key: number]: number[] } };
 

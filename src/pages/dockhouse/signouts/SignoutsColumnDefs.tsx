@@ -197,7 +197,7 @@ export const columnsInactive: SignoutsTablesColumnDef[] = columnsBaseUpper.conca
 	}
 ]).concat(columnsBaseLower(false));
 export const columnsActive: SignoutsTablesColumnDef[] = columnsBaseUpper.concat(columnsBaseLower(true)).concat([
-	{
+	/*{
 		accessorFn: () => "MutliSignIn",
 		headerWithExtra: (a, extraState) =>  <div style={{width: "100%", display: "grid"}} ><Button style={{margin: "0 auto"}}spinnerOnClick onClick={(e) => {e.preventDefault(); return extraState.handleMultiSignIn(extraState.multiSignInSelected);}}>Multi Sign In</Button></div>,
 		id: "multisignin__",
@@ -206,9 +206,9 @@ export const columnsActive: SignoutsTablesColumnDef[] = columnsBaseUpper.concat(
 		enableHiding: false,
 		size: 90,
 		cellWithExtra: (a, extraState) => <MultiSigninCheckbox row={a.row.original} extraState={extraState} />
-	}, {
+	},*/ {
 		accessorFn: () => "Icons",
-		header: "Icons",
+		header: "Actions",
 		id: "icons__",
 		enableSorting: false,
 		size: 150,

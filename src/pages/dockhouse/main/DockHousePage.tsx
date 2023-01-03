@@ -4,7 +4,7 @@ import { Input } from 'components/wrapped/Input';
 import { GoButton } from 'components/wrapped/IconButton';
 import MemberActionModal from '../modals/MemberActionModal';
 import AsyncStateProvider, { ProviderState } from 'core/AsyncStateProvider';
-import { getSignoutsToday } from 'async/rest/signouts-tables';
+import { getSignoutsToday } from 'async/staff/dockhouse/signouts-tables';
 import { filterActive, SignoutsTable } from '../signouts/SignoutsTable';
 import { makeInitFilter } from '../signouts/input/SignoutsTableFilter';
 import { SignoutsTablesExtraState, SignoutsTablesExtraStateDepOnAsync } from '../signouts/StateTypes';
