@@ -41,6 +41,7 @@ export default function ReportWithModalForm<K extends keyof U, T extends t.TypeC
 	noCard?: boolean
 	initialSortBy?: SortingState
 	blockEdit?: {[K: string]: true}
+	className?: string,
 }) {
 
 	const blankForm = {
@@ -254,6 +255,14 @@ export default function ReportWithModalForm<K extends keyof U, T extends t.TypeC
 			setOpen={closeModal}
 			title={<h1>Add/Edit</h1>}
 			className="bg-white min-w-[75vw]"
+			footer={<div>
+				<Button color="secondary" onClick={closeModal}>
+					Cancel
+				</Button>{" "}
+				<Button spinnerOnClick onSubmit={submit} >
+					Save
+				</Button>
+			</div>}
 		>
 			<div>
 				<ErrorPopup errors={validationErrors.map((a) => (a["display"] || a))}/>
@@ -263,14 +272,6 @@ export default function ReportWithModalForm<K extends keyof U, T extends t.TypeC
 				} }>
 					{props.formComponents(formData.rowForEdit, updateStatesCombined ,formData.currentRow, validationErrors)}
 				</form>
-			</div>
-			<div>
-				<Button color="secondary" onClick={closeModal}>
-					Cancel
-				</Button>{" "}
-				<Button spinnerOnClick onSubmit={submit} >
-					Save
-				</Button>
 			</div>
 		</Modal>
 		{props.noCard ? toRender : <div>

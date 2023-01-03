@@ -13,6 +13,7 @@ type ModalProps = {
     children?: React.ReactNode;
     title: React.ReactNode;
     description?: React.ReactNode;
+    footer?: React.ReactNode;
     className?: string;
 }
 
@@ -25,6 +26,7 @@ export default function Modal(props: ModalProps){
                             <Dialog.Title><div className="flex flex-row">{props.title}<button className="ml-auto mr-0" onClick={() => props.setOpen(false)}>X</button></div></Dialog.Title>
                             <Dialog.Description>{props.description}</Dialog.Description>
                             {props.children}
+                            {props.footer}
                         </div>
                     </Theme>
                 </Dialog.Panel>

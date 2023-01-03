@@ -1,6 +1,6 @@
 import { Option } from 'fp-ts/lib/Option';
 
-import { boatTypesValidator, ratingsValidator } from "async/rest/signouts-tables";
+import { boatTypesValidator, ratingsValidator } from "async/staff/dockhouse/signouts-tables";
 import * as t from "io-ts";
 
 type BoatTypesType = t.TypeOf<typeof boatTypesValidator>;

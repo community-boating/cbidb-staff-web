@@ -10,7 +10,8 @@ const scanCardMembershipValidator = t.type({
 	expirationDate: OptionalString,
 	discountName: OptionalString,
 	isDiscountFrozen: t.boolean,
-	hasGuestPrivs: t.boolean
+	hasGuestPrivs: t.boolean,
+	programId: t.number
 })
 
 const scanCardRatingValidator = t.type({

@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { putSignout, putSignouts } from 'async/rest/signouts-tables';
+import { putSignout, putSignouts } from 'async/staff/dockhouse/signouts-tables';
 import { Option } from 'fp-ts/lib/Option';
 import { option } from 'fp-ts';
 import * as moment from "moment";
@@ -66,9 +66,6 @@ export const SignoutsTablesPage = (props: {
 		return {
 			reassignedHullsMap,
 			reassignedSailsMap,
-			handleMultiSignIn: (a) => {
-				return handleMultiSignIn(a, setMultiSignInSelected, state, setState);
-			},
 			handleSingleSignIn: (a, b) => {
 				handleSingleSignIn(a, b, state, setState);
 			}
@@ -163,28 +160,6 @@ export function mapOptional(n: Option<string>, boatId: number, signoutId: number
 
 export function makeBoatTypesHR(boatTypes: BoatTypesValidatorState) {
 	return boatTypes.sort((a, b) => a.displayOrder - b.displayOrder).map((v) => ({ value: v.boatId, display: v.boatName }));
-}
-
-function handleMultiSignIn(multiSignInSelected: number[], setMultiSignInSelected: (selected: number[]) => void, state: SignoutsTablesState, setState: (state: SignoutsTablesState) => void): Promise<any> {
-	const signinDatetime = option.some(moment().format(DefaultDateTimeFormat));
-	if (multiSignInSelected.length === 0) {
-		return Promise.resolve();
-	}
-	return putSignouts.sendJson(multiSignInSelected.map((a) => ({ signoutId: a, signinDatetime: signinDatetime }))).then((a) => {
-		if (a.type === "Success") {
-			const newState = Object.assign([], state);
-			for (var i = 0; i < newState.length; i++) {
-				if (multiSignInSelected.contains(state[i].signoutId)) {
-					newState[i] = Object.assign({}, state[i]);
-					newState[i].signinDatetime = signinDatetime;
-				}
-			}
-			setState(newState);
-			setMultiSignInSelected([]);
-		} else {
-			alert("internal server error");
-		}
-	});
 }
 
 function handleSingleSignIn(signoutId: number, isUndo: boolean, state: SignoutsTablesState, setState: (state: SignoutsTablesState) => void) {

@@ -5,7 +5,7 @@ import { SelectOption, ValidatedTextInput } from "components/wrapped/Input";
 import { option } from "fp-ts";
 import { Option } from "fp-ts/lib/Option";
 import * as t from "io-ts";
-import { getPersonByCardNumber, putSignoutCrew, signoutCrewValidator } from "async/rest/signouts-tables";
+import { getPersonByCardNumber, putSignoutCrew, signoutCrewValidator } from "async/staff/dockhouse/signouts-tables";
 import { Plus, X } from "react-feather";
 import { MultiHover } from "../MultiHover";
 import { EditModal, EditModalCommonProps } from "./EditModal";

@@ -1,4 +1,4 @@
-import { ratingValidator, programsValidator, boatsValidator, personRatingValidator } from "async/rest/signouts-tables";
+import { ratingValidator, programsValidator, boatsValidator, personRatingValidator } from "async/staff/dockhouse/signouts-tables";
 import { option } from "fp-ts";
 import * as React from 'react';
 import { FlagStatusIcons } from "../../../components/dockhouse/FlagStatusIcons"

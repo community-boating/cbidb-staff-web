@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { putSignout, signoutValidator } from 'async/rest/signouts-tables';
+import { putSignout, signoutValidator } from 'async/staff/dockhouse/signouts-tables';
 import ReportWithModalForm, { UpdateStateType, wrapForFormComponents, wrapForFormComponentsMoment } from 'components/ReportWithModalForm';
 import { StringifiedProps } from 'util/StringifyObjectProps';
 import { ValidatedAmPmInput, ValidatedHourInput, ValidatedMinuteInput, ValidatedSelectInput, ValidatedTextInput } from 'components/wrapped/Input';
