@@ -14,6 +14,8 @@ import { DATE_FORMAT_LOCAL_DATE, DATE_FORMAT_LOCAL_DATETIME } from 'util/dateUti
 import { ERROR_DELIMITER } from 'core/APIWrapper';
 import Modal from 'components/wrapped/Modal';
 import Button from 'components/wrapped/Button';
+import {postWrapper as createSignout} from 'async/staff/dockhouse/create-signout'
+import { none, some } from 'fp-ts/lib/Option';
 
 const POLL_FREQ_SEC = 10
 
@@ -45,6 +47,19 @@ export const DockReportPage = (props: {
 	const [refreshTimeout, setRefreshTimeout] = React.useState(null as NodeJS.Timeout)
 
 	function updateStateForever() {
+		createSignout.sendJson({
+			skipperPersonId: 1,
+			skipperCardNumber: "2",
+			skipperTestRatingId: none,
+			boatId: 1,
+			sailNumber: some("11"),
+			hullNumber: none,
+			classSessionid: none,
+			isRacing: true,
+			dockmasterOverride: false,
+			didInformKayakRules: false,
+			signoutCrew: []
+		});
 		return getDockReport.send().then(res => {
 			if (res.type == "Success") {
 				setDockReportState(res.success)
