@@ -2,7 +2,7 @@ import * as React from 'react';
 import { CardLayout, Card, LayoutDirection, FlexSize, CardOrButton } from '../../../components/dockhouse/Card';
 import { Input } from 'components/wrapped/Input';
 import { GoButton } from 'components/wrapped/IconButton';
-import MemberActionModal from '../modals/MemberActionModal';
+import MemberActionModal from '../memberaction/MemberActionModal';
 import AsyncStateProvider, { ProviderState } from 'core/AsyncStateProvider';
 import { getSignoutsToday } from 'async/staff/dockhouse/signouts-tables';
 import { filterActive, SignoutsTable } from '../signouts/SignoutsTable';

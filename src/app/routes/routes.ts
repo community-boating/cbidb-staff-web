@@ -11,12 +11,14 @@ import { routeStaggeredOrder } from "app/routes/staggered-order";
 import { routeDockReportPage } from "app/routes/dh/dock-report";
 import { routeSignoutsTablesPage } from "./dh/signouts-tables";
 import { routeDockhousePage } from "app/routes/dh/dockhouse-page";
+import { routeIncidentsPage } from "./dh/incidents";
 
 // Dashboard specific routes
 export const dhRoutes: RouteWrapper<any>[] = [
 	routeJpClassesPage,
 	routeStaggeredOrder,
 	routeDockReportPage,
+	routeIncidentsPage,
 	routeSignoutsTablesPage,
 	routeDockhousePage,
 ];

@@ -23,6 +23,8 @@ export const pathStaggeredOrder = new PathWrapper("staggered-order/:personId");
 
 export const pathSignoutsTables = pathDockhouseBase.appendPathSegment("signouts-tables");
 
+export const pathIncidents = pathDockhouseBase.appendPathSegment("incidents");
+
 export const pathDockhousePage = new PathWrapper("/");
 
 export const pathManagePermissions = pathAdminBase.appendPathSegment("permissions")

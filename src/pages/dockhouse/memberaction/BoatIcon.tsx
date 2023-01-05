@@ -75,21 +75,19 @@ export default function(props: BoatIconProps){
     });
     return (
     <RadioGroup value={props.boatId} setValue={(value) => props.setBoatId(value)} className="flex flex-row gap-5" keyListener={(key) => {
-        console.log("derp" + key);
         const boat = BoatIcons.filter((a) => a.key.toLowerCase() == key.toLowerCase());
         if(boat.length > 0){
             props.setBoatId(option.some(boatsByHR[boat[0].hr].boatId));
         }
     }} children={BoatIcons.map((a, i) => ({
         value: boatsByHR[a.hr].boatId,
-        makeNode: (checked) => <IconButton key={i} src={a.src} className={"min-w-[100px] text-black rounded-2 border border-[#00507d]" + (checked? " bg-blue-200 border-gray-200" : "")}/>
+        makeNode: (checked) => <IconButton key={i} src={a.src} onClick={() => props.setBoatId(option.some(boatsByHR[a.hr].boatId))} className={"min-w-[100px] text-black rounded-2 border border-[#00507d]" + (checked? " bg-blue-200 border-gray-200" : "")}/>
     })
     )}/>
     )
 }
 
 export function BoatSelect(props: BoatIconProps){
-    console.log(props);
     const boatTypesHR = React.useMemo(() => makeBoatTypesHR(asc.state.boatTypes), [asc.state.boatTypes]);
     return <ValidatedSelectInput initValue={props.boatId} updateValue={props.setBoatId} validationResults={[]} selectOptions={boatTypesHR} selectNone={false} label={"Boat Type:"}></ValidatedSelectInput>
 }

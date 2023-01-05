@@ -106,7 +106,7 @@ export function ValidatedSelectInput<T_SelectOption extends string | number> (pr
 
 export const ValidatedCheckboxInput = (props: ValidatedInputProps<Option<boolean>> & InputProps) => {
 	return <ValidatedInput {...props} 
-	makeInputProps={(v) => {return {checked:v.getOrElse(false)} }}
+	makeInputProps={(v) => {return {checked:v.getOrElse(false) == true} }}
 	convertChange={(e) => option.some(e.target.checked)}
 	type="checkbox"/>;
 }

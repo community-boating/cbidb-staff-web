@@ -30,6 +30,7 @@ export function canAccessPage(pageName: PageName): boolean {
 			return !!asc.state.login.permissions[PERMISSIONS.PERM_MANAGE_ACCESS]
 		case PageName.SIGNOUTS_TABLES:
 		case PageName.DOCK_HOUSE_PAGE:
+		case PageName.INCIDENTS:
 			return true;
 		default:
 			assertNever(pageName);

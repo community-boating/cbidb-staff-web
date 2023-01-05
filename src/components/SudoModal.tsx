@@ -6,7 +6,7 @@ import { toastr } from "react-redux-toastr";
 import * as React from 'react';
 
 import { ErrorPopup } from './ErrorPopup';
-import Modal from './wrapped/Modal';
+import Modal, { ModalHeader } from './wrapped/Modal';
 import Button from './wrapped/Button';
 import { Input } from './wrapped/Input';
 
@@ -68,9 +68,9 @@ export default function () {
 	return <Modal
 		open={isOpen}
 		setOpen={setOpen}
-		title={<h1>Elevate Session</h1>}
-		className="bg-white"
+		className="bg-gray-100 rounded-lg"
 	>
+		<ModalHeader><h1>Elevate Session</h1></ModalHeader>
 		<div className="w-[50vh] h-[50vh] flex flex-col">
 			<ErrorPopup errors={validationErrors}/>
 			<p className="mb-0">

@@ -12,7 +12,7 @@ import * as moment from 'moment'
 import { dockReportValidator, dockReportWeatherValidator, getDockReport, putDockReport } from 'async/rest/dock-report';
 import { DATE_FORMAT_LOCAL_DATE, DATE_FORMAT_LOCAL_DATETIME } from 'util/dateUtil';
 import { ERROR_DELIMITER } from 'core/APIWrapper';
-import Modal from 'components/wrapped/Modal';
+import Modal, { ModalHeader } from 'components/wrapped/Modal';
 import Button from 'components/wrapped/Button';
 
 const POLL_FREQ_SEC = 10
@@ -108,9 +108,9 @@ export const DockReportPage = (props: {
 			open={(modalContent != null)}
 			setOpen={() => setModalContent(null)}
 			// toggle={() => setModalContent(null)}
-			title={<h1>Edit Dock Report</h1>}
 			className="bg-gray-100"
 		>
+			<ModalHeader><h1>Edit Dock Report</h1></ModalHeader>
 			<div className="flex flex-col min-h-[50vh] min-w-[50vw]">
 				{errorPopup}
 				{modalContent}

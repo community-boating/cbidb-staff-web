@@ -10,7 +10,7 @@ import APIWrapper from "core/APIWrapper";
 import { destringify, nullifyEmptyStrings, StringifiedProps, stringify, stringifyAndMakeBlank } from "util/StringifyObjectProps";
 import { SortingState, FilterFnOption, ColumnDef } from "@tanstack/react-table";
 import Button from "./wrapped/Button";
-import Modal from "./wrapped/Modal";
+import Modal, { ModalFoooter, ModalHeader } from "./wrapped/Modal";
 import { option } from "fp-ts";
 import * as moment from 'moment';
 
@@ -42,6 +42,8 @@ export default function ReportWithModalForm<K extends keyof U, T extends t.TypeC
 	initialSortBy?: SortingState
 	blockEdit?: {[K: string]: true}
 	className?: string,
+	customHeader?: boolean,
+	customFooter?: (submit: () => void, closeModal: () => void) => void
 }) {
 
 	const blankForm = {
@@ -54,7 +56,7 @@ export default function ReportWithModalForm<K extends keyof U, T extends t.TypeC
 	const [formData, setFormData] = React.useState(blankForm);
 
 	var rowData = props.rows;
-	var updateRowData = props.setRowData;
+	var updateRowData = (u) => {props.setRowData(u)};
 	if(!updateRowData){
 		[rowData, updateRowData] = React.useState(props.rows);
 	}
@@ -206,6 +208,7 @@ export default function ReportWithModalForm<K extends keyof U, T extends t.TypeC
 							)
 							if (isUpdate) {
 								// was an update.  Find the row and update it
+								console.log(updateRowData);
 								updateRowData(rowData.map(row => {
 									if (rowMatches(row)) {
 										if(props.columnsNonEditable !== undefined){
@@ -253,26 +256,27 @@ export default function ReportWithModalForm<K extends keyof U, T extends t.TypeC
 		<Modal
 			open={modalIsOpen}
 			setOpen={closeModal}
-			title={<h1>Add/Edit</h1>}
-			className="bg-white min-w-[75vw]"
-			footer={<div>
-				<Button color="secondary" onClick={closeModal}>
-					Cancel
-				</Button>{" "}
-				<Button spinnerOnClick onSubmit={submit} >
-					Save
-				</Button>
-			</div>}
+			className={props.className}
 		>
-			<div>
-				<ErrorPopup errors={validationErrors.map((a) => (a["display"] || a))}/>
-				<form onSubmit={e => {
-					e.preventDefault();
-					submit();
-				} }>
-					{props.formComponents(formData.rowForEdit, updateStatesCombined ,formData.currentRow, validationErrors)}
-				</form>
-			</div>
+			{!props.customHeader ? <ModalHeader><h1>Add/Edit</h1></ModalHeader> : <></>}
+			<ErrorPopup errors={validationErrors.map((a) => (a["display"] || a))}/>
+			<form onSubmit={e => {
+				e.preventDefault();
+				console.log("submitted");
+				submit();
+			}}>
+				{props.formComponents(formData.rowForEdit, updateStatesCombined ,formData.currentRow, validationErrors)}
+			</form>
+			{!props.customFooter ? <ModalFoooter>
+				<div>
+					<Button color="secondary" onClick={closeModal}>
+						Cancel
+					</Button>{" "}
+					<Button spinnerOnClick onSubmit={submit} >
+						Save
+					</Button>
+				</div>
+			</ModalFoooter> : props.customFooter(submit, closeModal) }
 		</Modal>
 		{props.noCard ? toRender : <div>
 			<div>

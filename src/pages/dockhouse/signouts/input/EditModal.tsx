@@ -1,7 +1,7 @@
 import * as React from "react";
 import { ErrorPopupControlled } from "components/ErrorPopup";
 import { SetErrorsType } from "./EditCommentModal";
-import Modal from "components/wrapped/Modal";
+import Modal, { ModalHeader } from "components/wrapped/Modal";
 import Button from "components/wrapped/Button";
 import { SignoutTablesState } from "../StateTypes";
 
@@ -13,9 +13,9 @@ export const EditModal: (props: EditModalCommonProps & {children: React.ReactNod
         <Modal
             open={props.modalIsOpen}
             setOpen={() => closeModal()}
-            title={props.headerChildren}
             className="w-[75vw]"
             >
+            <ModalHeader>{props.headerChildren}</ModalHeader>
             <div className="text-center m-3">
                 <ErrorPopupControlled errors={props.errors} setErrors={props.setErrors}/>
                 {props.children}

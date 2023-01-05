@@ -23,6 +23,7 @@ export default class AsyncStateProvider<T_Validator extends t.Any> extends React
     constructor(props){
         super(props);
         this.state = {mainState:props.initState, providerState: ProviderState.INITIAL};
+        this.setState = this.setState.bind(this);
         this.loadAsync();
     }
     loadAsync(){

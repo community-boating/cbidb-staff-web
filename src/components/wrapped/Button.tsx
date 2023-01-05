@@ -19,8 +19,8 @@ export default function Button(props: ButtonType){
     }
     var useClick = onClick;
     if(spinnerOnClick && onSubmit != undefined){
-        useClick = (e) => {e.preventDefault(); setSpinning(true); onSubmit.apply(e).then(() => {setSpinning(false)})};
+        useClick = (e) => {setSpinning(true); onSubmit.apply(e).then(() => {setSpinning(false)})};
     }
     const useChildren = <div className="flex flex-row whitespace-nowrap">{children}{spinning ? <Spinner/> : ""}</div>
-    return <><button {...buttonProps} onClick={useClick} className={className + ((props.activeClass && props.active) ? (" " + props.activeClass) : "")} children={useChildren}/>{}</>;
+    return <><button {...buttonProps} onClick={(e) => {e.preventDefault(); if(useClick) useClick(e);}} className={className + ((props.activeClass && props.active) ? (" " + props.activeClass) : "")} children={useChildren}/>{}</>;
 }
