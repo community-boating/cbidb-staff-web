@@ -14,13 +14,10 @@ const scanCardMembershipValidator = t.type({
 })
 
 const scanCardRatingValidator = t.type({
-	assignId: t.number,
-	membershipTypeId: t.number,
-	startDate: OptionalString,
-	expirationDate: OptionalString,
-	discountName: OptionalString,
-	isDiscountFrozen: t.boolean,
-	hasGuestPrivs: t.boolean
+	ratingId: t.number,
+	programId: t.number,
+	ratingName: t.string,
+	status: t.string // Y | F
 })
 
 export const scanCardValidator = t.type({
