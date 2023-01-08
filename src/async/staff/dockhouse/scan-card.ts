@@ -28,7 +28,7 @@ export const scanCardValidator = t.type({
 	bannerComment: OptionalString,
 	specialNeeds: OptionalString,
 	activeMemberships: t.array(scanCardMembershipValidator),
-	personsRatings: t.array(scanCardRatingValidator)
+	personRatings: t.array(scanCardRatingValidator)
 })
 
 const path = "/staff/dockhouse/scan-card"
