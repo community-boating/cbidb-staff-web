@@ -16,7 +16,7 @@ const createSignoutValidator = t.type({
     boatId: t.number,
     sailNumber: OptionalString,
     hullNumber: OptionalString,
-    classSessionid: OptionalNumber,
+    classSessionId: OptionalNumber,
     isRacing: t.boolean,
     dockmasterOverride: t.boolean,
     didInformKayakRules: t.boolean,
