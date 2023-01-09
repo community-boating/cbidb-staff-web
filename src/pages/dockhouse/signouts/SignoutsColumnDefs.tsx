@@ -116,23 +116,23 @@ export type SignoutsTablesColumnDef = InteractiveColumnDef<SignoutTablesState, S
 
 const columnsBaseUpper: SignoutsTablesColumnDef[] = [
 	{
+		header: "Time",
+		accessorKey: "signoutDatetime",
+		size: 100,
+		cell: CellOptionTime
+	},
+	{
 		header: "Program",
 		accessorKey: "programId",
 		size: 200,
 		enableMultiSort: true,
 		cellWithExtra: CellSelect(programsHR)
 	}, {
-		header: "Signout Type",
+		header: "Type",
 		accessorKey: "signoutType",
 		size: 30,
 		enableMultiSort: true,
 		cellWithExtra: CellSelect(signoutTypesHR)
-	}, {
-		header: "Card #",
-		accessorKey: "cardNum",
-		size: 100,
-		enableMultiSort: true,
-		cell: CellOptionBase("None")
 	}, {
 		header: "Name First",
 		accessorKey: "$$skipper.nameFirst",
@@ -141,6 +141,18 @@ const columnsBaseUpper: SignoutsTablesColumnDef[] = [
 		header: "Name Last",
 		accessorKey: "$$skipper.nameLast",
 		size: 100,
+	},{
+		header: "Card #",
+		accessorKey: "cardNum",
+		size: 100,
+		enableMultiSort: true,
+		cell: CellOptionBase("None")
+	},
+	{
+		header: "Boat",
+		accessorKey: "boatId",
+		size: 150,
+		cellWithExtra: (a, extraState) => CellSelect(extraState.boatTypesHR)(a)
 	}, {
 		header: "Sail #",
 		accessorKey: "sailNumber",
@@ -151,41 +163,22 @@ const columnsBaseUpper: SignoutsTablesColumnDef[] = [
 		accessorKey: "hullNumber",
 		size: 50,
 		cell: CellOptionBase("-")
-	}, {
-		header: "Boat",
-		accessorKey: "boatId",
-		size: 150,
-		cellWithExtra: (a, extraState) => CellSelect(extraState.boatTypesHR)(a)
-	}, {
-		header: "Signout Time",
-		accessorKey: "signoutDatetime",
-		size: 100,
-		cell: CellOptionTime
+	},
+	{
+		accessorKey: "$$crew",
+		header: "Additional Crew",
+		size: 50,
+		cellWithExtra: (a, extraState) => <CrewHover row={a.row.original} extraState={extraState} />
 	}
 ];
 const columnsBaseLower: (active: boolean) => SignoutsTablesColumnDef[] = (active) => [
-	{
-		accessorKey: "$$crew",
-		header: "Crew",
-		size: 50,
-		cellWithExtra: (a, extraState) => <CrewHover row={a.row.original} extraState={extraState} />
-	}, {
-		accessorFn: () => "Links",
+	, {
+		accessorFn: () => "Actions",
 		header: "Links",
 		id: "links",
 		size: 90,
 		cellWithExtra: (a, extraState) => <MakeLinks row={a.row.original} isActive={active} extraState={extraState} />
-	}, {
-		header: "Ratings",
-		id: "ratings__",
-		size: 90,
-		cellWithExtra: (a, extraState) => <RatingsHover row={a.row.original} orphanedRatingsShownByDefault={orphanedRatingsShownByDefault} extraState={extraState}/>
-	}, {
-		header: "Comments",
-		accessorKey: "comments",
-		size: 150,
-		cellWithExtra: (a, extraState) => <CommentsHover row={a.row.original} extraState={extraState} />
-	}
+	}, 
 ];
 
 export const columnsInactive: SignoutsTablesColumnDef[] = columnsBaseUpper.concat([
