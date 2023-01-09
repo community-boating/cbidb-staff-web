@@ -1,7 +1,7 @@
 import * as React from "react";
 import * as t from 'io-ts';
 import {classInstructorValidator} from 'async/rest/class-instructor'
-import ReportWithModalForm from "components/ReportWithModalForm";
+import TableWithModalForm, { TableWithModalFormStringified } from "components/table/TableWithModalForm";
 import {putWrapper as putInstructor} from "async/rest/class-instructor"
 import { FormGroup, Label, Col, Input } from 'reactstrap';
 import { StringifiedProps } from "util/StringifyObjectProps";
@@ -66,13 +66,13 @@ export default function ManageClassInstructorsPage(props: { instructors: ClassIn
 		</FormGroup>
 	</React.Fragment>;
 
-	return <ReportWithModalForm
-		rowValidator={classInstructorValidator}
+	return <TableWithModalFormStringified
+		validator={classInstructorValidator}
 		rows={props.instructors}
-		primaryKey="INSTRUCTOR_ID"
+		keyField="INSTRUCTOR_ID"
 		columns={columns}
 		formComponents={formComponents}
-		submitRow={putInstructor}
+		action={putInstructor}
 		cardTitle="Manage Instructors"
 	/>;
 }

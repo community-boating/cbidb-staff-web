@@ -4,7 +4,7 @@ import * as React from 'react';
 
 export type RadioGroupProps<T_Value> = {
     label?: React.ReactNode
-    children: {value: T_Value, makeNode: (checked: boolean, setValue: (value: option.Option<T_Value>) => void) => React.ReactNode}[]
+    makeChildren: {value: T_Value, makeNode: (checked: boolean, setValue: (value: option.Option<T_Value>) => void) => React.ReactNode}[]
     value: option.Option<T_Value>
     setValue: (value: option.Option<T_Value>) => void
     keyListener?: (key: string) => void
@@ -12,6 +12,7 @@ export type RadioGroupProps<T_Value> = {
 }
 
 export default function RadioGroup<T_Value>(props: RadioGroupProps<T_Value>){
+    console.log("rendering radio group" + props.value);
     const ref = React.useRef<HTMLDivElement>();
     if(props.keyListener){
         React.useEffect(() => {
@@ -24,7 +25,7 @@ export default function RadioGroup<T_Value>(props: RadioGroupProps<T_Value>){
     return <RadioGroupHUI value={props.value.getOrElse("" as any)} onChange={(e) => {props.setValue(option.some(e))}}>
         <RadioGroupHUI.Label>{props.label}</RadioGroupHUI.Label>
         <div ref={ref} className={props.className} tabIndex={0}>
-            {props.children.map((a, i) => (<RadioGroupHUI.Option key={i} value={a.value} as={React.Fragment}>
+            {props.makeChildren.map((a, i) => (<RadioGroupHUI.Option key={i} value={a.value} as={React.Fragment}>
                 {({active, checked}) => <div key={i} className="flex">{a.makeNode(checked, props.setValue)}</div>}
             </RadioGroupHUI.Option>))}
         </div>

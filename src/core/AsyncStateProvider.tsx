@@ -25,6 +25,7 @@ export default class AsyncStateProvider<T_Validator extends t.Any> extends React
         this.state = {mainState:props.initState, providerState: ProviderState.INITIAL};
         this.setState = this.setState.bind(this);
         this.loadAsync();
+        this.render = this.render.bind(this);
     }
     loadAsync(){
         this.props.apiWrapper.send().then((a) => {
@@ -42,6 +43,6 @@ export default class AsyncStateProvider<T_Validator extends t.Any> extends React
         if(this.props.spinnerOnInit && this.state.providerState == ProviderState.INITIAL){
             return <p>derp</p>;
         }
-        return this.props.makeChildren(this.state.mainState, this.setState, this.state.providerState);
+        return <>{this.props.makeChildren(this.state.mainState, this.setState, this.state.providerState)}</>;
     }
 }

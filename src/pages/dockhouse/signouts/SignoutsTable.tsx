@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { putSignout, signoutValidator } from 'async/staff/dockhouse/signouts-tables';
-import ReportWithModalForm, { UpdateStateType, wrapForFormComponents, wrapForFormComponentsMoment } from 'components/ReportWithModalForm';
+import TableWithModalForm, { TableWithModalFormAsync, UpdateStateType, wrapForFormComponents, wrapForFormComponentsMoment } from 'components/table/TableWithModalForm';
 import { StringifiedProps } from 'util/StringifyObjectProps';
 import { Input, SelectOption, ValidatedAmPmInput, ValidatedHourInput, ValidatedMinuteInput, ValidatedSelectInput, ValidatedTextInput } from 'components/wrapped/Input';
 import { option, state } from 'fp-ts';
@@ -11,7 +11,7 @@ import { FilterFnOption } from '@tanstack/react-table';
 import { formatSelection, formatOptional, columnsActive, columnsInactive } from "./SignoutsColumnDefs";
 import { InteractiveColumnProvider } from './InteractiveColumnProvider';
 import { SignoutTablesState, SignoutsTablesState, SignoutsTablesExtraState } from './StateTypes';
-import { adaptPerson, EditCrew, DialogOutput, DotBox, AddCrew, SignoutProps, SkipperInfo, AddCrewMode } from '../memberaction/MemberActionModal';
+import { adaptPerson, EditCrew, DialogOutput, DotBox, AddCrew, SignoutProps, SkipperInfo, MemberActionMode, AddEditCrew } from '../memberaction/MemberActionModal';
 import { ModalFoooter, ModalHeader } from 'components/wrapped/Modal';
 import RadioGroup from 'components/wrapped/RadioGroup';
 import { Button } from 'reactstrap';
@@ -32,14 +32,17 @@ function adaptSignoutState(state: SignoutTablesState): SignoutProps["state"]{
 }
 
 export function SignoutStateAdapter(props: {makeChildren: (props: SignoutProps) => React.ReactNode, state: SignoutTablesState, setState: UpdateStateType}){
-	const [adaptedState, setAdaptedState] = React.useState(adaptSignoutState(props.state));
+	const [adaptedState, setAdaptedStateR] = React.useState(adaptSignoutState(props.state));
+	const setAdaptedState = (s) => {console.log("setting"); setAdaptedStateR(s);}
+	console.log("running signout state");
 	React.useEffect(() => {
 		setAdaptedState(adaptSignoutState(props.state));
 	}, [props.state]);
-	const setState = (scannedState: SignoutProps["state"]) => {
-		props.setState("boatId", scannedState.boatId.getOrElse(-1).toString());
-	}
-	return <>{props.makeChildren({state: adaptedState, setState: setAdaptedState})}</>;
+	//const setState = (scannedState: SignoutProps["state"]) => {
+	//	props.setState("boatId", scannedState.boatId.getOrElse(-1).toString());
+	//}
+	const children = React.useMemo(() => {console.log("doing"); return props.makeChildren({state: adaptedState, setState: setAdaptedState})}, [adaptedState]);
+	return <>{children}</>;
 }
 
 const makeNode = (index: number, display: React.ReactNode) => (checked: boolean, setValue) => {
@@ -49,6 +52,39 @@ const makeNode = (index: number, display: React.ReactNode) => (checked: boolean,
 function BasicInput(props: {label: string}){
 	return <Input groupClassName="mt-0 mb-auto ml-auto mr-0 whitespace-nowrap grow-[0]" label={props.label}></Input>
 }
+
+/*
+<div className="flex flex-col h-full gap-5">
+						<div className="flex flex-row grow-[0] gap-5">
+							<SkipperInfo {...props}></SkipperInfo>
+							<AddEditCrew state={props.state} setState={props.setState} mode={MemberActionMode.SIGNOUT}></AddEditCrew>
+						</div>
+						<div className="flex flex-row grow-[1]">
+							<DialogOutput>
+								<p>Dialog Output</p>
+							</DialogOutput>
+						</div>
+						<div className="flex flex-row grow-[3]">
+							<div className="w-full flex flex-col">
+								<p>Boat Type</p>
+								<BoatIcon boatId={boatId} setBoatId={setBoatId}/>
+								<DotBox className="grow-[1] flex flex-row">
+									<div className="flex">
+										<BoatSelect boatId={boatId} setBoatId={setBoatId}></BoatSelect>
+									</div>
+									<div className="flex flex-col">
+										<BasicInput label="Boat Number"/>
+										<BasicInput label="Sail Number"/>
+										<BasicInput label="Hull Number"/>
+									</div>
+									<div className="flex">
+										<ValidatedSelectInput initValue={option.some(rowForEdit.signoutType)} updateValue={(v) => {updateState("signoutType", v.getOrElse(""))}} selectOptions={signoutTypesHR} validationResults={[]}/>
+									</div>
+								</DotBox>
+							</div>
+						</div>
+					</div>
+					*/
 
 export const SignoutsTable = (props: {
 	state: SignoutsTablesState;
@@ -61,29 +97,28 @@ export const SignoutsTable = (props: {
 	const ratingsHR = React.useMemo(() => props.extraState.ratings.sort((a, b) => a.ratingName.localeCompare(b.ratingName)).map((v) => ({ value: v.ratingId, display: v.ratingName, boats: v.$$boats })), [props.extraState.ratings]);
 	// Define edit/add form
 	const formComponents = (
-		rowForEdit: StringifiedProps<SignoutTablesState>,
+		rowForEdit: SignoutTablesState,
 		updateState: UpdateStateType,
-		currentRow: SignoutTablesState,
-		validationResults: string[]
 	) => {
+		const currentRow = {$$crew: []} as any;
 		const lower = moment("2000", "yyyy");
 		const upper = moment("2032", "yyyy").add(1, "days");
-		const boatId = option.some(parseInt(rowForEdit.boatId));
+		const boatId = option.none;//option.some(parseInt(rowForEdit.boatId));
 		const setBoatId = (id: option.Option<number>) => {
 			updateState("boatId", id.getOrElse(-1).toString());
 		}
 		const signoutType = rowForEdit.signoutType;
+		console.log("running");
 		return <>
 			<ModalHeader>
-				<RadioGroup className="flex flex-row" value={option.some(currentRow.signoutType) } setValue={(v) => updateState("signoutType", v.getOrElse(""))} children={signoutTypesHR.map((a,i) => ({value: a.value, makeNode: makeNode(i, a.display)}))}/>
+				<RadioGroup className="flex flex-row" value={option.some(currentRow.signoutType) } setValue={(v) => updateState("signoutType", v.getOrElse(""))} makeChildren={signoutTypesHR.map((a,i) => ({value: a.value, makeNode: makeNode(i, a.display)}))}/>
 			</ModalHeader>
 			<SignoutStateAdapter state={currentRow} setState={updateState} makeChildren={
 				(props) => (<div className="w-[80vw] h-[80vh] p-5">
-					<div className="flex flex-col h-full">
-						<div className="flex flex-row grow-[1] gap-5">
+					<div className="flex flex-col h-full gap-5">
+						<div className="flex flex-row grow-[0] gap-5">
 							<SkipperInfo {...props}></SkipperInfo>
-							<AddCrew {...props} mode={AddCrewMode.SIGNOUT}></AddCrew>
-							<EditCrew {...props}></EditCrew>
+							<AddEditCrew state={props.state} setState={props.setState} mode={MemberActionMode.SIGNOUT}></AddEditCrew>
 						</div>
 						<div className="flex flex-row grow-[1]">
 							<DialogOutput>
@@ -127,16 +162,17 @@ export const SignoutsTable = (props: {
 	const filteredSignouts = props.state.filter(f);
 
 	return <>
-		<ReportWithModalForm<any, typeof signoutValidator, SignoutsTableFilterState, SignoutTablesState>
+		<TableWithModalFormAsync<any, typeof signoutValidator, SignoutsTableFilterState, SignoutTablesState>
+			defaultRowEdit={{} as any}
 			globalFilter={props.globalFilter}
 			globalFilterState={props.filterValue}
-			rowValidator={signoutValidator}
+			validator={signoutValidator}
 			className="bg-white"
 			rows={filteredSignouts}
-			primaryKey="signoutId"
+			keyField="signoutId"
 			columns={columns}
 			formComponents={formComponents}
-			submitRow={putSignout}
+			action={putSignout}
 			cardTitle={cardTitle}
 			columnsNonEditable={SignoutTablesNonEditableObject}
 			setRowData={props.setState}
@@ -144,9 +180,7 @@ export const SignoutsTable = (props: {
 			hideAdd
 			customFooter={footer}
 			customHeader
-			validateSubmit={(rowForEdit, currentRow) => {
-				return isCrewValid(currentRow.$$crew, Number(rowForEdit.boatId), props.extraState.boatTypes, false) || [];
-			}} />
+			/>
 	</>;
 };
 

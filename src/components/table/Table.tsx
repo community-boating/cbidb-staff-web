@@ -22,9 +22,9 @@ import {
 import Button from 'components/wrapped/Button';
 import Menu from 'components/wrapped/Menu';
 
-type SimpleReportRequiredProps<T_Data, T_Filter = any> = {
+export type TableProps<T_Data, T_Filter = any> = {
 	keyField: keyof T_Data
-	data: T_Data[]
+	rows: T_Data[]
 	columns: ColumnDef<T_Data, any>[]
 	sizePerPage?: number
 	sizePerPageList?: number[]
@@ -46,7 +46,7 @@ const handleColumnClick: <T_Data>(header: Header<T_Data, any>) => React.MouseEve
 	}
 };
 
-export const SimpleReport: <T_Data, T_Filter>(props: SimpleReportRequiredProps<T_Data, T_Filter>) => JSX.Element = ({ columns, data: dataProp, sizePerPage, sizePerPageList, keyField, globalFilterState, globalFilter, hidableColumns, showFooter, initialSortBy }) => {
+export const Table: <T_Data, T_Filter>(props: TableProps<T_Data, T_Filter>) => JSX.Element = ({ columns, rows: dataProp, sizePerPage, sizePerPageList, keyField, globalFilterState, globalFilter, hidableColumns, showFooter, initialSortBy }) => {
 	const usingPagination = sizePerPage !== undefined && sizePerPageList !== undefined;
 	const table = useReactTable({
 		data: dataProp,

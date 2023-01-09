@@ -7,7 +7,7 @@ import { tagValidator } from "async/rest/tags";
 import { putWrapper as putTag } from "async/rest/tags";
 
 // The common display structure which is a table editable via modal
-import ReportWithModalForm from "components/ReportWithModalForm";
+import TableWithModalForm, { TableWithModalFormStringified } from "components/table/TableWithModalForm";
 import { StringifiedProps } from "util/StringifyObjectProps";
 import { ColumnDef } from "@tanstack/react-table";
 
@@ -62,13 +62,13 @@ export default function ManageTagsPage(props: { tags: Tag[] }) {
 	);
 
 	return (
-		<ReportWithModalForm
-			rowValidator={tagValidator}
+		<TableWithModalFormStringified
+			validator={tagValidator}
 			rows={props.tags}
-			primaryKey="TAG_ID"
+			keyField="TAG_ID"
 			columns={columns}
 			formComponents={formComponents}
-			submitRow={putTag}
+			action={putTag}
 			cardTitle="Manage Tags"
 		/>
 	);

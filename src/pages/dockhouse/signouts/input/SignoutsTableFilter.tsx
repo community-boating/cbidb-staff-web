@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Button, Label, Table } from 'reactstrap';
 import { ValidatedSelectInput, ValidatedTextInput, SelectOption } from 'components/wrapped/Input';
 import { signoutTypesHR, programsHR } from '../Constants';
-import { UpdateStateType, wrapForFormComponents } from 'components/ReportWithModalForm';
+import { UpdateStateType, wrapForFormComponents } from 'components/table/TableWithModalForm';
 
 export const SignoutsTableFilter = (props: { tdStyle: React.CSSProperties; labelStyle: React.CSSProperties; filterValue: SignoutsTableFilterState; updateState: UpdateStateType; boatTypesHR: SelectOption<number>[]; setFilterValue: (filterValue: SignoutsTableFilterState) => void; usersHR: SelectOption<string>[]}) => {
 	const tdStyle = props.tdStyle;

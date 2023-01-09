@@ -11,10 +11,15 @@ import { SignoutsTablesExtraState, SignoutsTablesExtraStateDepOnAsync } from '..
 import { makeBoatTypesHR, makeReassignedMaps } from '../signouts/SignoutsTablesPage';
 import asc from 'app/AppStateContainer';
 import { sortRatings } from '../signouts/RatingSorter';
+import Form from 'components/wrapped/Form';
+import * as t from "io-ts";
+import Button from 'components/wrapped/Button';
+import { Injectable } from 'components/Injector';
 
 export default function DockHousePage (props) {
     const [inputState, setInputState] = React.useState("");
     const [open, setOpen] = React.useState(false);
+    const v = t.type({derp: t.boolean});
     const extraStateAsync: SignoutsTablesExtraStateDepOnAsync = React.useMemo(() => ({
         ratings: asc.state.ratings,
         ratingsSorted: sortRatings(asc.state.ratings),

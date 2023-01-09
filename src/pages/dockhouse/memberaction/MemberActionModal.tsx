@@ -14,6 +14,7 @@ import { Input, ValidatedSelectInput } from 'components/wrapped/Input';
 
 import swap from 'assets/img/icons/buttons/swap.svg';
 import x from 'assets/img/icons/buttons/x.svg';
+import add from 'assets/img/icons/buttons/add.svg';
 import IconButton from 'components/wrapped/IconButton';
 import BoatIcon, { BoatSelect } from './BoatIcon';
 import { scanCardValidator } from 'async/staff/dockhouse/scan-card';
@@ -60,21 +61,32 @@ export function SkipperInfo(props: SignoutProps){
             <h3 className="text-xl">Guest Privileges: {currentMembership.hasGuestPrivs ? "Yes" : "No"}</h3>
         </div>
         <div className="flex flex-col">
-            <img src={person} className="mt-auto mb-0"></img>
+            <img src={person} className="mt-auto mb-0 border-r pr-5 border-black"></img>
         </div>
     </div>
 }
 
-export enum AddCrewMode{
-    SIGNOUT, NORMAL
+export enum MemberActionMode{
+    SIGNOUT, TESTING, OTHER
 }
 
-export function AddCrew(props: SignoutProps & {mode: AddCrewMode}){
+export function AddEditCrew(props: SignoutProps & {mode: MemberActionMode}){
+    return (
+        <div className="flex flex-col">
+            <h3 className="font-bold">Crew:</h3>
+            <div className="flex flex-row gap-5">
+                <AddCrew {...props}></AddCrew>
+                <EditCrew {...props}></EditCrew>
+            </div>
+        </div>);
+}
+
+export function AddCrew(props: SignoutProps & {mode: MemberActionMode}){
     const setRandom = (e) => {
         props.setState((state) => ({...state, currentSkipper: Math.floor(Math.random()*state.crew.length)}));
     }
     return (<div className="flex flex-col grow-0 gap-2">
-            {props.mode == AddCrewMode.SIGNOUT ? <div className="flex flex-row gap-2">
+            {props.mode == MemberActionMode.SIGNOUT ? <div className="flex flex-row gap-2">
                 <Button className="bg-gray-200 p-card">Search Phone</Button>
                 <Button className="bg-gray-200 p-card">Search Name</Button>
             </div> : <></>}
@@ -82,25 +94,29 @@ export function AddCrew(props: SignoutProps & {mode: AddCrewMode}){
                 const rand = Math.floor(Math.random()*4);
                 props.setState((state) => ({...state, crew: ([testCrew[rand]].concat(state.crew.concat())), currentSkipper: state.currentSkipper + 1}));
             }}></Input>
-            {props.mode == AddCrewMode.SIGNOUT ? <><Button className="bg-gray-200 p-card" onClick={setRandom}>Find Highest Ratings</Button>
+            {props.mode == MemberActionMode.SIGNOUT ? <><Button className="bg-gray-200 p-card" onClick={setRandom}>Find Highest Ratings</Button>
             <Button className="bg-gray-200 p-card" onClick={setRandom}>Find Highest Privileges</Button></> : <></>}
         </div>);
 }
 
-export function EditCrew(props: SignoutProps){
-    return (<div className="grid grid-rows-2 grid-cols-4 grow-[1]">
-            {props.state.crew.map((a, i) => (i != props.state.currentSkipper) ? <div key={i} className="flex flex-row my-auto">
-                <div className="w-[1em]">
-                    <IconButton src={x} onClick={() => {props.setState((state) => ({...state, crew: state.crew.filter((a, i2) => i2 != i), currentSkipper: Math.min(state.currentSkipper, state.crew.length - 2)}))}}/>
-                    <IconButton src={swap} onClick={() => {props.setState((state) => ({...state, currentSkipper: i}))}}/>
-                </div>
-                <div>
-                    <h3 className="font-medium">{a.nameFirst} {a.nameLast}</h3>
-                    <h3 className="font-light">{getProgramHR(1)}</h3>
-                    </div>
-                </div>
-                : undefined)}
+function EditCrewButton(props: {src: string, onClick: (e) => void, mode: MemberActionMode}){
+    return <>{props.mode != MemberActionMode.OTHER ? <IconButton src={props.src} className="h-[24px]" onClick={props.onClick}/> : <></>}</>;
+}
+
+export function EditCrew(props: SignoutProps & {mode: MemberActionMode}){
+    const iconTwo = props.mode == MemberActionMode.SIGNOUT ? swap : add;
+    const crew = <>{props.state.crew.map((a, i) => (i != props.state.currentSkipper) ? (<div key={i} className="whitespace-nowrap">        
+            <div className="flex flex-row">
+                <EditCrewButton src={x} onClick={() => {props.setState((state) => ({...state, crew: state.crew.filter((a, i2) => i2 != i), currentSkipper: Math.min(state.currentSkipper, state.crew.length - 2)}))}} mode={props.mode}/>
+                <h3 className="font-medium">{a.nameFirst} {a.nameLast}</h3>
+            </div>
+            <div className="flex flex-row">
+                <EditCrewButton src={iconTwo} onClick={() => {props.setState((state) => ({...state, currentSkipper: i}))}} mode={props.mode}/>
+                <h3 className="font-light">{getProgramHR(a.activeMemberships[0].programId)}</h3>
+            </div>
         </div>)
+        : undefined)}</>;
+    return (<div className={"grid grow-[1] gap-5 " + (props.mode != MemberActionMode.TESTING ? "grid-cols-4 grid-rows-2" : "grid-cols-2 grid-rows-2")}>{crew}</div>)
 }
 
 const testMemberships: ScannedPersonsType["activeMemberships"] = [{
@@ -161,7 +177,7 @@ const d = {
 const testCrew = [testSkipper, b, c, d]
 
 export function DotBox(props: {className?: string, children: React.ReactNode}){
-    return <div className={"my-5 py-5 border-dashed border-2 " + props.className}>
+    return <div className={"my-5 py-5 border-dashed border-2 grow-[1] " + props.className}>
         {props.children}
     </div>
 }
@@ -180,8 +196,7 @@ const memberActionTypes: {title: React.ReactNode, getContent: (state: SignoutSta
         <div className="flex flex-col h-full grow-[1] gap-5">
             <div className="flex flex-row grow-[0] gap-5">
                 <SkipperInfo state={state} setState={setState}></SkipperInfo>
-                <AddCrew state={state} setState={setState} mode={AddCrewMode.SIGNOUT}></AddCrew>
-                <EditCrew state={state} setState={setState}></EditCrew>
+                <AddEditCrew state={state} setState={setState} mode={MemberActionMode.SIGNOUT}></AddEditCrew>
             </div>
             <div className="flex flex-row grow-[1]">
                 <DialogOutput>
@@ -214,8 +229,7 @@ const memberActionTypes: {title: React.ReactNode, getContent: (state: SignoutSta
             <div className="flex flex-row grow-[0] gap-5">
                 <SkipperInfo state={state} setState={setState}></SkipperInfo>
                 <SkipperInfo state={state} setState={setState}></SkipperInfo>
-                <AddCrew state={state} setState={setState} mode={AddCrewMode.NORMAL}></AddCrew>
-                <EditCrew state={state} setState={setState}></EditCrew>
+                <AddEditCrew state={state} setState={setState} mode={MemberActionMode.TESTING}></AddEditCrew>
             </div>
             <div className="flex flex-row grow-[1]">
                 <DialogOutput>
@@ -255,9 +269,10 @@ const memberActionTypes: {title: React.ReactNode, getContent: (state: SignoutSta
 },
 {
     title: "Comments",
-    getContent: () => (
+    getContent: (state, setState) => (
         <div>
-
+            <AddEditCrew state={state} setState={setState} mode={MemberActionMode.OTHER}></AddEditCrew>
+            <textarea cols={100} rows={20}></textarea>
         </div>)
 }]
 
@@ -267,8 +282,7 @@ function MemberActionRatings(props: {state: SignoutState, setState: React.Dispat
     const [programId, setProgramId] = React.useState<option.Option<number>>(option.none);
     const [selectedRatings, setSelectedRatings] = React.useState<{[key: number]: boolean}>({});
     return <div>
-            <AddCrew {...props} mode={AddCrewMode.NORMAL}></AddCrew>
-            <EditCrew {...props}></EditCrew>
+            <AddEditCrew state={props.state} setState={props.setState} mode={MemberActionMode.OTHER}></AddEditCrew>
             <ValidatedSelectInput initValue={programId} updateValue={setProgramId} selectOptions={programsHR.filter((a) => availablePrograms[a.value])} validationResults={[]}></ValidatedSelectInput>
            <RatingsGrid selectedProgram={programId} selectedRatings={selectedRatings} setSelectedRatings={setSelectedRatings}></RatingsGrid>
         </div>
@@ -299,7 +313,7 @@ export default function MemberActionModal(props: MemberActionModalProps){
         <Modal {...props} className="bg-gray-100 rounded-lg">
             <ModalHeader>{header}</ModalHeader>
             <hr className="border-t-1 border-black"/>
-            <Tab.Panels className="h-[80vh] w-[80vw] flex flex-col">
+            <Tab.Panels className="h-[80vh] w-min-[80vw] flex flex-col">
                 {memberActionTypes.map((a, i) => <Tab.Panel className="grow-[1]" key={i}>{a.getContent(state, setState)}</Tab.Panel>)}
             </Tab.Panels>
         </Modal>

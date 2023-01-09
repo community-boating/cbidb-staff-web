@@ -12,7 +12,7 @@ import { highSchoolValidator } from "async/rest/high-schools";
 import { putWrapper as putHighSchool } from "async/rest/high-schools";
 
 // The common display structure which is a table editable via modal
-import ReportWithModalForm from "components/ReportWithModalForm";
+import TableWithModalForm, { TableWithModalFormStringified } from "components/table/TableWithModalForm";
 import { ColumnDef } from "@tanstack/react-table";
 
 type HighSchool = t.TypeOf<typeof highSchoolValidator>;
@@ -91,13 +91,13 @@ export default function ManageHighSchoolsPage(props: {
 	);
 
 	return (
-		<ReportWithModalForm
-			rowValidator={highSchoolValidator}
+		<TableWithModalFormStringified
+			validator={highSchoolValidator}
 			rows={props.highSchools}
-			primaryKey="SCHOOL_ID"
+			keyField="SCHOOL_ID"
 			columns={columns}
 			formComponents={formComponents}
-			submitRow={putHighSchool}
+			action={putHighSchool}
 			cardTitle="Manage High Schools"
 		/>
 	);

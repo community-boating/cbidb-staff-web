@@ -2,6 +2,7 @@ import * as React from 'react';
 import { Dialog } from '@headlessui/react'
 import Theme from 'layouts/Theme';
 import { SignoutStateAdapter } from 'pages/dockhouse/signouts/SignoutsTable';
+import { findChildren } from 'components/Injector';
 
 export enum ModalAction{
     NONE = 0,
@@ -35,13 +36,11 @@ function ModalWrapper(props: ModalWrapperProps){
     return <></>
 }
 
-
-
 function modalWrapRecurse(store: {headers: React.ReactNode[], descriptions: React.ReactNode[], footers: React.ReactNode[]}, children: React.ReactNode, depth: number){
     if(depth > 5){
         return;
     }
-    React.Children.map(React.Children.toArray(children), (a, i) => {
+    React.Children.forEach(React.Children.toArray(children), (a, i) => {
         if(React.isValidElement(a)){
             switch(a.type){
                 case ModalHeader:
@@ -53,8 +52,6 @@ function modalWrapRecurse(store: {headers: React.ReactNode[], descriptions: Reac
                 case ModalFoooter:
                     store.footers.push(a.props.children);
                     break;
-                case SignoutStateAdapter:
-                    modalWrapRecurse(store, a.props.makeChildren(a.props), depth+1);
                 default:
                     modalWrapRecurse(store, a.props.children, depth+1);
             }
@@ -70,6 +67,7 @@ export default function Modal(props: ModalProps){
         footers: [] as React.ReactNode[]
     }
     modalWrapRecurse(store, props.children, 0);
+    console.log("running modal");
     return (
         <Dialog className="fixed h-full w-full top-0 left-0 flex items-center justify-center z-10" open={props.open} onClose={() => props.setOpen(false)}>
                 <Dialog.Panel className={props.className}>

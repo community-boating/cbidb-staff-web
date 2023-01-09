@@ -11,7 +11,7 @@ import { donationFundValidator } from "async/rest/donation-funds";
 import { putWrapper as putDonationFund } from "async/rest/donation-funds";
 
 // The common display structure which is a table editable via modal
-import ReportWithModalForm from "components/ReportWithModalForm";
+import TableWithModalForm, { TableWithModalFormStringified } from "components/table/TableWithModalForm";
 import { StringifiedProps } from "util/StringifyObjectProps";
 import { ColumnDef } from "@tanstack/react-table";
 
@@ -201,13 +201,13 @@ export default function ManageDonationFundsPage(props: {
 	);
 
 	return (
-		<ReportWithModalForm
-			rowValidator={donationFundValidator}
+		<TableWithModalFormStringified
+			validator={donationFundValidator}
 			rows={props.donationFunds}
-			primaryKey="FUND_ID"
+			keyField="FUND_ID"
 			columns={columns}
 			formComponents={formComponents}
-			submitRow={putDonationFund}
+			action={putDonationFund}
 			cardTitle="Manage Donation Funds"
 			initialSortBy={[{id: "DISPLAY_ORDER", desc: false}]}
 		/>

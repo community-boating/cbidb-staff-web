@@ -24,7 +24,7 @@ export type SelectInputProps = {
 
 export function Input(props: InputProps){
     const {isEnd, label, end, groupClassName, onEnter, ...inputProps} = props;
-    return <div className={"flex gap-2 " + (isEnd ? " self-end " : "") + groupClassName}><label>{label}</label><input className={inputClassName} {...inputProps} onKeyDown={(e) => {
+    return <div className={"flex gap-2 whitespace-nowrap " + (isEnd ? " self-end " : "") + groupClassName}><label>{label}</label><input className={inputClassName} {...inputProps} onKeyDown={(e) => {
         if(props.onEnter && e.key == "Enter"){
             props.onEnter();
         }
@@ -96,7 +96,7 @@ export function ValidatedSelectInput<T_SelectOption extends string | number> (pr
 	return (<Listbox value={initValue} onChange={(e) => updateValue(e)}>
 				<div className="relative max-w-min">
                 <Listbox.Button className={"min-w-[180px] flex flex-col items-end bg-white " + inputClassName}><div className="flex flex-row">{current.display}<ChevronDown/></div></Listbox.Button>
-                <Listbox.Options className="absolute bg-white w-full">
+                <Listbox.Options className="absolute bg-white w-full z-50">
                     {options}
                 </Listbox.Options>
 				</div>

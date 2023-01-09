@@ -7,7 +7,7 @@ import Currency from 'util/Currency';
 import {toMomentFromLocalDate} from 'util/dateUtil'
 import {postWrapper as finishOrder} from "async/staff/finish-open-order"
 import { ErrorPopup } from 'components/ErrorPopup';
-import { SimpleReport } from 'core/SimpleReport';
+import { Table } from 'components/table/Table';
 import { ColumnDef } from '@tanstack/react-table';
 
 type PaymentList = t.TypeOf<typeof validator>
@@ -89,10 +89,10 @@ export default function StaggeredOrder(props: { history: History<any>, personId:
 				<CardTitle tag="h5" className="mb-0">Staggered Order</CardTitle>
 			</CardHeader>
 			<CardBody>
-				<SimpleReport
+				<Table
 					keyField="expectedDateToShow"
 					columns={columns}
-					data={data}
+					rows={data}
 				/>
 				{/* <BootstrapTable
 					keyField="staggerId"
