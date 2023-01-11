@@ -34,7 +34,7 @@ export function Input(props: InputProps){
 export type ValidatedInputProps<T> = {
 	initValue: T,
 	updateValue: (value: T) => void,
-	validationResults: string[]
+	validationResults?: string[]
 }
 
 type StateType<T> = {
@@ -84,7 +84,7 @@ export const ValidatedTextInput = (props: (ValidatedInputProps<any> & InputProps
 
 export type SelectOption<T_SelectOption> = {value: T_SelectOption, display: ReactNode};
 
-export function ValidatedSelectInput<T_SelectOption extends string | number> (props: ValidatedInputProps<Option<T_SelectOption>> & InputProps & {selectOptions : SelectOption<T_SelectOption>[], showNone?: SelectOption<T_SelectOption>, selectNone?: boolean, isNumber?: boolean}) {
+export function SelectInput<T_SelectOption extends string | number> (props: ValidatedInputProps<Option<T_SelectOption>> & InputProps & {selectOptions : SelectOption<T_SelectOption>[], showNone?: SelectOption<T_SelectOption>, selectNone?: boolean, isNumber?: boolean}) {
 	const {selectOptions,showNone,selectNone,isNumber,initValue,updateValue,...other} = props;
 	const showNonePadded = showNone === undefined ? {value: undefined, display: "None"} : showNone;
 	const selectOptionsWithNone = [showNonePadded].concat(selectOptions);
@@ -170,7 +170,7 @@ export const ValidatedMomentInput = (props: ValidatedInputProps<Option<moment.Mo
 			updateValue(paddedValue);
 		}
 	}
-	return (<ValidatedSelectInput {...others}
+	return (<SelectInput {...others}
 		initValue={paddedInitValue} updateValue={paddedUpdateValue} selectOptions={selectOptions}
 	/>);
 }

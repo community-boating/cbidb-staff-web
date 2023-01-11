@@ -10,7 +10,7 @@ import person from 'assets/img/icons/person.svg';
 import { option } from 'fp-ts';
 import { programsHR } from '../signouts/Constants';
 import Button from 'components/wrapped/Button';
-import { Input, ValidatedSelectInput } from 'components/wrapped/Input';
+import { Input, SelectInput } from 'components/wrapped/Input';
 
 import swap from 'assets/img/icons/buttons/swap.svg';
 import x from 'assets/img/icons/buttons/x.svg';
@@ -283,7 +283,7 @@ function MemberActionRatings(props: {state: SignoutState, setState: React.Dispat
     const [selectedRatings, setSelectedRatings] = React.useState<{[key: number]: boolean}>({});
     return <div>
             <AddEditCrew state={props.state} setState={props.setState} mode={MemberActionMode.OTHER}></AddEditCrew>
-            <ValidatedSelectInput initValue={programId} updateValue={setProgramId} selectOptions={programsHR.filter((a) => availablePrograms[a.value])} validationResults={[]}></ValidatedSelectInput>
+            <SelectInput initValue={programId} updateValue={setProgramId} selectOptions={programsHR.filter((a) => availablePrograms[a.value])} validationResults={[]}></SelectInput>
            <RatingsGrid selectedProgram={programId} selectedRatings={selectedRatings} setSelectedRatings={setSelectedRatings}></RatingsGrid>
         </div>
 }

@@ -1,5 +1,5 @@
 import asc from 'app/AppStateContainer';
-import { ValidatedCheckboxInput, ValidatedSelectInput } from 'components/wrapped/Input';
+import { ValidatedCheckboxInput, SelectInput } from 'components/wrapped/Input';
 import { option } from 'fp-ts';
 import * as React from 'react';
 import { programsHR } from '../signouts/Constants';

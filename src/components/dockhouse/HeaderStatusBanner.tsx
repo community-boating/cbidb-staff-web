@@ -1,14 +1,14 @@
 import * as React from 'react';
-import { Flag, FlagStatusIcon } from './FlagStatusIcons';
+import { Flag, FlagStatusIcon, FlagStatusIcons } from './FlagStatusIcons';
 import boat from 'assets/img/icons/boat.svg';
 import * as moment from "moment";
 import asc from 'app/AppStateContainer';
 import { logout } from 'async/logout';
-import Menu, { DirectionX } from 'components/wrapped/Menu';
+import Menu, { ButtonMenu, DirectionX } from 'components/wrapped/Menu';
 
 import settings from 'assets/img/icons/header/settings.svg';
 
-type HeaderFlagProps = {flag: Flag};
+type HeaderFlagProps = {flag: Flag, setFlag: (flag: Flag) => void};
 
 type HeaderImageProps = {src: string, half?: boolean};
 
@@ -80,7 +80,7 @@ function HeaderLogout(props){
         })
     }}>Logout</a>);
 
-    return <Menu title={<HeaderImage half={true} src={settings}/>} x={DirectionX.RIGHT} items={menuItems}/>;
+    return <Menu className="h-full" title={<HeaderImage half={true} src={settings}/>} x={DirectionX.RIGHT} items={menuItems}/>;
 }
 
 function HeaderGrid(props: HeaderGridProps){
@@ -136,15 +136,27 @@ function HeaderSunset(props: HeaderSunsetProps){
 }
 
 function HeaderTime(props: HeaderTimeProps){
-    return <h1 className="text-status_banner_height leading-none font-bold">{props.time.format(TIME_FORMAT)}</h1>;
+    const [time, setTime] = React.useState(props.time);
+    React.useEffect(() => {
+        const callback = () => {
+            setTime(moment());
+        }
+        const timerID = setInterval(callback, 1000);
+        return () => {
+            clearInterval(timerID);
+        }
+    }, []);
+    return <h1 className="text-status_banner_height leading-none font-bold">{time.format(TIME_FORMAT)}</h1>;
 }
 
 function CBIBoatIcon(props: HeaderProps){
     return <HeaderImage {...props} src={boat}/>;
 }
 
+const availableFlags = [FlagStatusIcons.R, FlagStatusIcons.Y, FlagStatusIcons.G, FlagStatusIcons.B];
+
 function FlagIcon(props: HeaderProps){
-    return <FlagStatusIcon flag={props.flag}></FlagStatusIcon>;
+    return <ButtonMenu className="h-full" itemClassName="h-[25%]" itemsClassName="h-[400%]" title={<FlagStatusIcon flag={props.flag} className="h-full"></FlagStatusIcon>} itemAction={props.setFlag} items={availableFlags.map((a) => ({node: <FlagStatusIcon className="h-full" flag={a}></FlagStatusIcon>, value: a}))}/>;
 }
 
 function HeaderImage(props: HeaderImageProps){

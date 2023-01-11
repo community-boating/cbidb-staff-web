@@ -16,6 +16,7 @@ export const FlagStatusIcons = {
 
 export function FlagStatusIcon(props: {flag: Flag, className?: string}){
     const fill = props.flag.fill;
+    console.log(props['ref']);
     return (
         <svg className={props.className} strokeMiterlimit="10" style={{fillRule:'nonzero',clipRule:'evenodd',strokeLinecap:'round',strokeLinejoin:'round'}} version="1.1" viewBox="0 0 144 144" xmlSpace="preserve" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink">
             <defs/>

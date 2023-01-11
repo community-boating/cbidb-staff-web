@@ -2,7 +2,7 @@ import * as React from 'react';
 import { putSignout, signoutValidator } from 'async/staff/dockhouse/signouts-tables';
 import TableWithModalForm, { TableWithModalFormAsync, UpdateStateType, wrapForFormComponents, wrapForFormComponentsMoment } from 'components/table/TableWithModalForm';
 import { StringifiedProps } from 'util/StringifyObjectProps';
-import { Input, SelectOption, ValidatedAmPmInput, ValidatedHourInput, ValidatedMinuteInput, ValidatedSelectInput, ValidatedTextInput } from 'components/wrapped/Input';
+import { Input, SelectOption, ValidatedAmPmInput, ValidatedHourInput, ValidatedMinuteInput, SelectInput, ValidatedTextInput } from 'components/wrapped/Input';
 import { option, state } from 'fp-ts';
 import * as moment from "moment";
 import { SignoutsTableFilterState } from './input/SignoutsTableFilter';
@@ -139,7 +139,7 @@ export const SignoutsTable = (props: {
 										<BasicInput label="Hull Number"/>
 									</div>
 									<div className="flex">
-										<ValidatedSelectInput initValue={option.some(rowForEdit.signoutType)} updateValue={(v) => {updateState("signoutType", v.getOrElse(""))}} selectOptions={signoutTypesHR} validationResults={[]}/>
+										<SelectInput initValue={option.some(rowForEdit.signoutType)} updateValue={(v) => {updateState("signoutType", v.getOrElse(""))}} selectOptions={signoutTypesHR} validationResults={[]}/>
 									</div>
 								</DotBox>
 							</div>

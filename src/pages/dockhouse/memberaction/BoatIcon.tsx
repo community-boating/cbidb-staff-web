@@ -13,7 +13,7 @@ import IconButton from 'components/wrapped/IconButton';
 import { option } from 'fp-ts';
 import asc from 'app/AppStateContainer';
 import RadioGroup from 'components/wrapped/RadioGroup';
-import { ValidatedSelectInput } from 'components/wrapped/Input';
+import { SelectInput } from 'components/wrapped/Input';
 import { makeBoatTypesHR } from '../signouts/SignoutsTablesPage';
 export type BoatIconProps = {
     boatId: option.Option<number>
@@ -89,5 +89,5 @@ export default function(props: BoatIconProps){
 
 export function BoatSelect(props: BoatIconProps){
     const boatTypesHR = React.useMemo(() => makeBoatTypesHR(asc.state.boatTypes), [asc.state.boatTypes]);
-    return <ValidatedSelectInput initValue={props.boatId} updateValue={props.setBoatId} validationResults={[]} selectOptions={boatTypesHR} selectNone={false} label={"Boat Type:"}></ValidatedSelectInput>
+    return <SelectInput initValue={props.boatId} updateValue={props.setBoatId} validationResults={[]} selectOptions={boatTypesHR} selectNone={false} label={"Boat Type:"}></SelectInput>
 }

@@ -12,6 +12,10 @@ import assist from 'assets/img/icons/header/assist.svg';
 import { FlagStatusIcons } from "./FlagStatusIcons";
 
 const Header = (props: { history, dispatch }) => {
+	const [headerState, setHeaderState] = React.useState({flag:FlagStatusIcons.R, time:moment(), sunset:moment("2022-11-16T00:43:00Z"), speed:13, direction:"W",
+	high:{title: "Announcement Title Here", message: "Click for announcement modal blah blah"},
+	medium:{title: "", message: "Medium priority announcement"},
+	low:[{title: "", message: "low priority announcement"}, {title: "", message: "scroll blah blah"}]})
 	const buttons = [
         {src: ims, onClick: (a) => {alert("clicked IMS")}},
         {src: runaground, onClick: (a) => {alert("clicked RUN")}},
@@ -19,10 +23,9 @@ const Header = (props: { history, dispatch }) => {
         {src: assist, onClick: (a) => {alert("clicked AST")}}];
 	return (
 		<div className="grow-0 relative">
-			<StatusHeader flag={FlagStatusIcons.R} time={moment()} sunset={moment("2022-11-16T00:43:00Z")} speed={13} direction={"W"}
-			high={{title: "Announcement Title Here", message: "Click for announcement modal blah blah"}}
-			medium={{title: "", message: "Medium priority announcement"}}
-			low={[{title: "", message: "low priority announcement"}, {title: "", message: "scroll blah blah"}]}
+			<StatusHeader
+			{...headerState}
+			setFlag={(flag) => {setHeaderState((s) => ({...s, flag: flag}))}}
 			buttons={buttons}
 			dropdownNavbar={<HeaderNavbarDropdown history={props.history}/>}
 			></StatusHeader>
