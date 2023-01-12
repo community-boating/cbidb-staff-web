@@ -14,9 +14,6 @@ import { DATE_FORMAT_LOCAL_DATE, DATE_FORMAT_LOCAL_DATETIME } from 'util/dateUti
 import { ERROR_DELIMITER } from 'core/APIWrapper';
 import Modal from 'components/wrapped/Modal';
 import Button from 'components/wrapped/Button';
-import {postWrapper as createSignout} from 'async/staff/dockhouse/create-signout'
-import {getWrapper} from 'async/staff/dockhouse/scan-card'
-import { none, some } from 'fp-ts/lib/Option';
 
 const POLL_FREQ_SEC = 10
 
@@ -27,8 +24,6 @@ function Col(props: {md: string, children?: React.ReactNode}){
 function Row(props: {children?: React.ReactNode}){
 	return <div className="grow-[1] flex flex-row gap-primary">{props.children}</div>
 }
-
-var didCall = false;
 
 export type DockReportState = t.TypeOf<typeof dockReportValidator>;
 
@@ -50,30 +45,6 @@ export const DockReportPage = (props: {
 	const [refreshTimeout, setRefreshTimeout] = React.useState(null as NodeJS.Timeout)
 
 	function updateStateForever() {
-		getWrapper("5675675").send().then(r => console.log(r))
-		if (!didCall) {
-			didCall = true;
-			setTimeout(() => {
-				console.log(didCall)
-				createSignout.sendJson({
-					skipperPersonId: 1,
-					skipperCardNumber: "2",
-					skipperTestRatingId: none,
-					boatId: 1,
-					sailNumber: some("11"),
-					hullNumber: none,
-					classSessionId: none,
-					isRacing: true,
-					dockmasterOverride: false,
-					didInformKayakRules: false,
-					signoutCrew: []
-				}).then(r => {
-					console.log(didCall)
-					console.log("create signout", r)
-				})
-			}, 0)
-		}
-		
 		return getDockReport.send().then(res => {
 			if (res.type == "Success") {
 				setDockReportState(res.success)
