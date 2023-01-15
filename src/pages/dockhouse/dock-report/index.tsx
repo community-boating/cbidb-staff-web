@@ -14,6 +14,8 @@ import { DATE_FORMAT_LOCAL_DATE, DATE_FORMAT_LOCAL_DATETIME } from 'util/dateUti
 import { ERROR_DELIMITER } from 'core/APIWrapper';
 import Modal, { ModalHeader } from 'components/wrapped/Modal';
 import Button from 'components/wrapped/Button';
+import { AppStateCombined } from 'app/state/AppState';
+import { AppStateContext } from 'app/state/AppStateContext';
 
 const POLL_FREQ_SEC = 10
 
@@ -44,14 +46,16 @@ export const DockReportPage = (props: {
 	const [modalErrors, setModalErrors] = React.useState(null as string[])
 	const [refreshTimeout, setRefreshTimeout] = React.useState(null as NodeJS.Timeout)
 
-	function updateStateForever() {
-		return getDockReport.send().then(res => {
+	function updateStateForever(asc: AppStateCombined) {
+		return getDockReport.send(asc).then(res => {
 			if (res.type == "Success") {
 				setDockReportState(res.success)
 			}
 			setRefreshTimeout(setTimeout(updateStateForever, 1000*POLL_FREQ_SEC))
 		})
 	}
+
+	const asc = React.useContext(AppStateContext);
 
 	// clear errors whenever the modal is updated
 	React.useEffect(() => {
@@ -61,7 +65,7 @@ export const DockReportPage = (props: {
 	// if the edit modal is closed, refresh every 10 sec. On opening the modal, clear the next refresh timeout
 	React.useEffect(() => {
 		if (modalContent == null) {
-			updateStateForever()
+			updateStateForever(asc)
 		} else {
 			refreshTimeout && clearTimeout(refreshTimeout);
 		}
@@ -127,7 +131,7 @@ export const DockReportPage = (props: {
 									...additionalState,
 								}
 							}
-							return putDockReport.sendJson(newState)
+							return putDockReport.sendJson(asc, newState)
 						}).then(res => {
 							if (res.type == "Failure") {
 								return Promise.reject(res.message)

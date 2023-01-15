@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { CardLayout, Card, LayoutDirection, FlexSize, CardOrButton } from '../../../components/dockhouse/Card';
-import { Input } from 'components/wrapped/Input';
+import { CustomInput as Input } from 'components/wrapped/Input';
 import { GoButton } from 'components/wrapped/IconButton';
 import MemberActionModal from '../memberaction/MemberActionModal';
 import AsyncStateProvider, { ProviderState } from 'core/AsyncStateProvider';
@@ -9,15 +9,15 @@ import { filterActive, SignoutsTable } from '../signouts/SignoutsTable';
 import { makeInitFilter } from '../signouts/input/SignoutsTableFilter';
 import { SignoutsTablesExtraState, SignoutsTablesExtraStateDepOnAsync } from '../signouts/StateTypes';
 import { makeBoatTypesHR, makeReassignedMaps } from '../signouts/SignoutsTablesPage';
-import asc from 'app/AppStateContainer';
 import { sortRatings } from '../signouts/RatingSorter';
 import Form from 'components/wrapped/Form';
 import * as t from "io-ts";
 import Button from 'components/wrapped/Button';
-import { Injectable } from 'components/Injector';
+import { AppStateContext } from 'app/state/AppStateContext';
 
 export default function DockHousePage (props) {
     const [inputState, setInputState] = React.useState("");
+    const asc = React.useContext(AppStateContext);
     const [open, setOpen] = React.useState(false);
     const v = t.type({derp: t.boolean});
     const extraStateAsync: SignoutsTablesExtraStateDepOnAsync = React.useMemo(() => ({

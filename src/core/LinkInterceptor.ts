@@ -3,17 +3,18 @@ import {History} from 'history';
 import RouteWrapper from './RouteWrapper';
 import { canAccessPage } from "pages/accessControl";
 import { StringObject } from './PathWrapper';
-import asc from 'app/AppStateContainer';
 import { showAccessToastr, showSudoToastr } from 'components/wrapped/Toast';
+import { AppStateCombined } from 'app/state/AppState';
 
 export const linkWithAccessControl = <T extends StringObject>(
 	history: History<any>,
 	rw: RouteWrapper<T>,
 	args: T,
+	asc: AppStateCombined,
 	requireSudo?: boolean,
 	pathString?: string
 ) => {
-	if (!canAccessPage(rw.pageName)) {
+	if (!canAccessPage(asc, rw.pageName)) {
 		showAccessToastr();
 	} else if (requireSudo && !asc.state.sudo) {
 		showSudoToastr();

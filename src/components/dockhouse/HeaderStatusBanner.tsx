@@ -2,11 +2,11 @@ import * as React from 'react';
 import { Flag, FlagStatusIcon, FlagStatusIcons } from './FlagStatusIcons';
 import boat from 'assets/img/icons/boat.svg';
 import * as moment from "moment";
-import asc from 'app/AppStateContainer';
 import { logout } from 'async/logout';
 import Menu, { ButtonMenu, DirectionX } from 'components/wrapped/Menu';
 
 import settings from 'assets/img/icons/header/settings.svg';
+import { AppStateContext } from 'app/state/AppStateContext';
 
 type HeaderFlagProps = {flag: Flag, setFlag: (flag: Flag) => void};
 
@@ -62,6 +62,7 @@ export default function HeaderStatusBanner(props: HeaderProps) {
 }
 
 function HeaderLogout(props){
+    const asc = React.useContext(AppStateContext);
     const sudo = asc.state.sudo;
     //onMouseLeave={() => {if(state.open) setState(closePopover)}}
     
@@ -69,14 +70,14 @@ function HeaderLogout(props){
 
     if(sudo){
         menuItems.push(<p>Superuser Active</p>);
-        menuItems.push(<a onClick={(e) => {asc.updateState.setSudo(false);e.preventDefault();}}>Suspend Superpowers</a>);
+        menuItems.push(<a onClick={(e) => {asc.stateAction.setSudo(false);e.preventDefault();}}>Suspend Superpowers</a>);
     }else{
-        menuItems.push(<a onClick={(e) => {asc.sudoModalOpener();e.preventDefault();}}>Elevate Session</a>);
+        menuItems.push(<a onClick={(e) => {asc.state.sudoModalOpener();e.preventDefault();}}>Elevate Session</a>);
     }
 
     menuItems.push(<a onClick={(e) => {
-        e.preventDefault(); logout.send().then(() => {
-            asc.updateState.login.logout()
+        e.preventDefault(); logout.send(asc).then(() => {
+            asc.stateAction.login.logout()
         })
     }}>Logout</a>);
 

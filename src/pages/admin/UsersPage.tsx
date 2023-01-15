@@ -15,15 +15,16 @@ import {  StringifiedProps } from "util/StringifyObjectProps";
 import { none, Option, some } from "fp-ts/lib/Option";
 import optionify from "util/optionify";
 import {accessStateValidator} from 'async/staff/access-state'
-import asc from "app/AppStateContainer";
 import { MAGIC_NUMBERS } from "app/magicNumbers";
 import { ColumnDef, sortingFns } from "@tanstack/react-table";
 import { CellBooleanIcon, CellOption, SortType, SortTypeOption, SortTypeOptionalString, SortTypeOptionalStringCI } from "util/tableUtil";
+import { AppStateContext } from "app/state/AppStateContext";
 
 type User = t.TypeOf<typeof userValidator>
 type AccessState = t.TypeOf<typeof accessStateValidator>;
 
 export default function UsersPage(props: { users: User[], accessState: AccessState }) {
+	const asc = React.useContext(AppStateContext);
 	const decorateRow = (u: User) => ({
 		...u, pw1: none as Option<string>, pw2: none as Option<string>, userId: u.userId
 	});

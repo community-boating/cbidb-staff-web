@@ -2,6 +2,7 @@ import * as React from 'react';
 import APIWrapper from './APIWrapper';
 import * as t from 'io-ts';
 import Spinner from 'components/wrapped/Spinner';
+import { AppStateContext } from 'app/state/AppStateContext';
 
 export type AsyncStateProviderProps<T_Validator extends t.Any> = {
     apiWrapper: APIWrapper<T_Validator, any, any>
@@ -28,7 +29,7 @@ export default class AsyncStateProvider<T_Validator extends t.Any> extends React
         this.render = this.render.bind(this);
     }
     loadAsync(){
-        this.props.apiWrapper.send().then((a) => {
+        this.props.apiWrapper.send(this.context).then((a) => {
             if(a.type == "Success"){
                 this.setState({mainState: a.success, providerState: ProviderState.SUCCESS});
             }else{
@@ -46,3 +47,4 @@ export default class AsyncStateProvider<T_Validator extends t.Any> extends React
         return <>{this.props.makeChildren(this.state.mainState, this.setState, this.state.providerState)}</>;
     }
 }
+AsyncStateProvider.contextType = AppStateContext;

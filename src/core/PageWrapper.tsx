@@ -1,12 +1,14 @@
 import * as React from "react";
 import { History } from 'history';
 import { ApiResult } from "./APIWrapperTypes";
+import { AppStateCombined } from "app/state/AppState";
+import { AppStateContext } from "app/state/AppStateContext";
 
 interface Props<T_URL, T_Async> {
 	key: string,
 	urlProps: T_URL
 	component: (urlProps: T_URL, asyncProps: T_Async) => JSX.Element
-	getAsyncProps?: (urlProps: T_URL) => Promise<ApiResult<T_Async>>,
+	getAsyncProps?: (urlProps: T_URL, asc?: AppStateCombined) => Promise<ApiResult<T_Async>>,
 	shadowComponent?: JSX.Element,
 	history: History<any>,
 	autoRefresh?: number,
@@ -39,7 +41,7 @@ export default class PageWrapper<T_URL, T_Async> extends React.Component<Props<T
 		const self = this;
 		// When API comes back, manually trigger `serverSideResolveOnAsyncComplete`
 		// (if this is clientside, that fn will not do anything and that's fine)
-		this.props.getAsyncProps(this.props.urlProps).then(asyncProps => {
+		this.props.getAsyncProps(this.props.urlProps, this.context).then(asyncProps => {
 			if (asyncProps && asyncProps instanceof Array) {
 				const success = asyncProps.reduce((totalSuccess, e) => totalSuccess && e.type == "Success", true);
 				if (success) {
@@ -83,3 +85,4 @@ export default class PageWrapper<T_URL, T_Async> extends React.Component<Props<T
 		}
 	}
 }
+PageWrapper.contextType = AppStateContext;

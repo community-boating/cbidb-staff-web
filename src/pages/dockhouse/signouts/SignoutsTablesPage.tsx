@@ -14,8 +14,8 @@ import { makeInitFilter, SignoutsTableFilter, SignoutsTableFilterState } from '.
 import { filterActive, SignoutsTable } from './SignoutsTable';
 import { getUsersHR } from './SignoutsColumnDefs';
 import { Row } from '@tanstack/react-table';
-import asc from 'app/AppStateContainer';
 import { BoatTypesValidatorState, ReassignedMapType, SignoutsTablesExtraState, SignoutsTablesExtraStateDepOnAsync, SignoutsTablesState, SignoutTablesState } from './StateTypes';
+import { AppStateContext } from 'app/state/AppStateContext';
 
 function matchNameOrCard(row: SignoutTablesState, nameOrCard: string) {
 	if(nameOrCard.trim().length === 0){
@@ -51,6 +51,7 @@ export const SignoutsTablesPage = (props: {
 	initState: SignoutsTablesState,
 }) => {
 	const [state, setState] = React.useState(props.initState);
+	const asc = React.useContext(AppStateContext);
 	React.useEffect(() => {
 		setState(props.initState);
 	}, [getPropsMemoDep(props.initState)]);
@@ -88,7 +89,7 @@ export const SignoutsTablesPage = (props: {
 		newFilterState[id] = value;
 		setFilterValue(newFilterState);
 	};
-	const updateCommentsSubmit = (comments: Option<string>, signoutId: number, setErrors: (errors: React.SetStateAction<string[]>) => void) => putSignout.sendJson({ signoutId: signoutId, comments: comments }).then((a) => {
+	const updateCommentsSubmit = (comments: Option<string>, signoutId: number, setErrors: (errors: React.SetStateAction<string[]>) => void) => putSignout.sendJson(asc, { signoutId: signoutId, comments: comments }).then((a) => {
 		if (a.type === "Success") {
 			setUpdateCommentsModal(undefined);
 			const newRows = Object.assign([], state);
@@ -164,7 +165,8 @@ export function makeBoatTypesHR(boatTypes: BoatTypesValidatorState) {
 
 function handleSingleSignIn(signoutId: number, isUndo: boolean, state: SignoutsTablesState, setState: (state: SignoutsTablesState) => void) {
 	const signinDatetime = isUndo ? option.none : option.some(moment().format(DefaultDateTimeFormat));
-	return putSignout.sendJson({ signoutId: signoutId, signinDatetime: signinDatetime }).then((a) => {
+	return Promise.reject();
+	/*return putSignout.sendJson({ signoutId: signoutId, signinDatetime: signinDatetime }).then((a) => {
 		if (a.type === "Success") {
 			const newState = Object.assign([], state);
 			for (var i = 0; i < newState.length; i++) {
@@ -176,7 +178,7 @@ function handleSingleSignIn(signoutId: number, isUndo: boolean, state: SignoutsT
 			}
 			setState(newState);
 		}
-	})
+	})*/
 }
 
 

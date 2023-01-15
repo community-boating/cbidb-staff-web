@@ -1,8 +1,6 @@
 import * as React from 'react';
 import { Dialog } from '@headlessui/react'
 import Theme from 'layouts/Theme';
-import { SignoutStateAdapter } from 'pages/dockhouse/signouts/SignoutsTable';
-import { findChildren } from 'components/Injector';
 
 export enum ModalAction{
     NONE = 0,
@@ -67,7 +65,6 @@ export default function Modal(props: ModalProps){
         footers: [] as React.ReactNode[]
     }
     modalWrapRecurse(store, props.children, 0);
-    console.log("running modal");
     return (
         <Dialog className="fixed h-full w-full top-0 left-0 flex items-center justify-center z-10" open={props.open} onClose={() => props.setOpen(false)}>
                 <Dialog.Panel className={props.className}>

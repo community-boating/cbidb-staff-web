@@ -1,9 +1,9 @@
-import asc from "app/AppStateContainer";
+import { AppStateCombined } from "app/state/AppState";
 import { PERMISSIONS } from "models/permissions";
 import assertNever from "util/assertNever";
 import { PageName } from "./pageNames";
 
-export function canAccessPage(pageName: PageName): boolean {
+export function canAccessPage(asc: AppStateCombined, pageName: PageName): boolean {
 	switch (pageName) {
 		case PageName.HOME:
 		case PageName.JP_CLASSES:

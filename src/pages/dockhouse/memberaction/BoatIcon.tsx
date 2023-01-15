@@ -11,10 +11,10 @@ import windsurf from 'assets/img/icons/boats/windsurf.svg';
 import sonar from 'assets/img/icons/boats/sonar.svg';
 import IconButton from 'components/wrapped/IconButton';
 import { option } from 'fp-ts';
-import asc from 'app/AppStateContainer';
 import RadioGroup from 'components/wrapped/RadioGroup';
 import { SelectInput } from 'components/wrapped/Input';
 import { makeBoatTypesHR } from '../signouts/SignoutsTablesPage';
+import { AppStateContext } from 'app/state/AppStateContext';
 export type BoatIconProps = {
     boatId: option.Option<number>
     setBoatId: (boatId: option.Option<number>) => void
@@ -69,6 +69,7 @@ const BoatIcons = [{
 export default function(props: BoatIconProps){
     const boatsByHR = {};
     const boatsById = {};
+    const asc = React.useContext(AppStateContext);
     asc.state.boatTypes.forEach((a) => {
         boatsByHR[a.boatName] = a;
         boatsById[a.boatId] = a;
@@ -88,6 +89,7 @@ export default function(props: BoatIconProps){
 }
 
 export function BoatSelect(props: BoatIconProps){
+    const asc = React.useContext(AppStateContext);
     const boatTypesHR = React.useMemo(() => makeBoatTypesHR(asc.state.boatTypes), [asc.state.boatTypes]);
     return <SelectInput initValue={props.boatId} updateValue={props.setBoatId} validationResults={[]} selectOptions={boatTypesHR} selectNone={false} label={"Boat Type:"}></SelectInput>
 }

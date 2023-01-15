@@ -2,7 +2,7 @@ import * as React from 'react';
 import { putSignout, signoutValidator } from 'async/staff/dockhouse/signouts-tables';
 import TableWithModalForm, { TableWithModalFormAsync, UpdateStateType, wrapForFormComponents, wrapForFormComponentsMoment } from 'components/table/TableWithModalForm';
 import { StringifiedProps } from 'util/StringifyObjectProps';
-import { Input, SelectOption, ValidatedAmPmInput, ValidatedHourInput, ValidatedMinuteInput, SelectInput, ValidatedTextInput } from 'components/wrapped/Input';
+import { CustomInput as Input, SelectOption, AmPmInput, HourInput, MinuteInput, SelectInput, ValidatedTextInput } from 'components/wrapped/Input';
 import { option, state } from 'fp-ts';
 import * as moment from "moment";
 import { SignoutsTableFilterState } from './input/SignoutsTableFilter';
@@ -33,15 +33,14 @@ function adaptSignoutState(state: SignoutTablesState): SignoutProps["state"]{
 
 export function SignoutStateAdapter(props: {makeChildren: (props: SignoutProps) => React.ReactNode, state: SignoutTablesState, setState: UpdateStateType}){
 	const [adaptedState, setAdaptedStateR] = React.useState(adaptSignoutState(props.state));
-	const setAdaptedState = (s) => {console.log("setting"); setAdaptedStateR(s);}
-	console.log("running signout state");
+	const setAdaptedState = (s) => { setAdaptedStateR(s);}
 	React.useEffect(() => {
 		setAdaptedState(adaptSignoutState(props.state));
 	}, [props.state]);
 	//const setState = (scannedState: SignoutProps["state"]) => {
 	//	props.setState("boatId", scannedState.boatId.getOrElse(-1).toString());
 	//}
-	const children = React.useMemo(() => {console.log("doing"); return props.makeChildren({state: adaptedState, setState: setAdaptedState})}, [adaptedState]);
+	const children = React.useMemo(() => {return props.makeChildren({state: adaptedState, setState: setAdaptedState})}, [adaptedState]);
 	return <>{children}</>;
 }
 
@@ -108,7 +107,6 @@ export const SignoutsTable = (props: {
 			updateState("boatId", id.getOrElse(-1).toString());
 		}
 		const signoutType = rowForEdit.signoutType;
-		console.log("running");
 		return <>
 			<ModalHeader>
 				<RadioGroup className="flex flex-row" value={option.some(currentRow.signoutType) } setValue={(v) => updateState("signoutType", v.getOrElse(""))} makeChildren={signoutTypesHR.map((a,i) => ({value: a.value, makeNode: makeNode(i, a.display)}))}/>
@@ -187,13 +185,13 @@ export const SignoutsTable = (props: {
 export const ValidatedTimeInput: (props: { rowForEdit: any, updateState: UpdateStateType, validationResults, columnId: string, lower: moment.Moment, upper: moment.Moment }) => JSX.Element = (props) => {
 	return <>
 		<div>
-			<ValidatedHourInput {...wrapForFormComponentsMoment(props.rowForEdit, props.updateState, props.columnId, props.validationResults)} lower={props.lower} upper={props.upper} />
+			<HourInput {...wrapForFormComponentsMoment(props.rowForEdit, props.updateState, props.columnId, props.validationResults)} lower={props.lower} upper={props.upper} />
 		</div>
 		<div>
-			<ValidatedMinuteInput {...wrapForFormComponentsMoment(props.rowForEdit, props.updateState, props.columnId, props.validationResults)} lower={props.lower} upper={props.upper} />
+			<MinuteInput {...wrapForFormComponentsMoment(props.rowForEdit, props.updateState, props.columnId, props.validationResults)} lower={props.lower} upper={props.upper} />
 		</div>
 		<div>
-			<ValidatedAmPmInput {...wrapForFormComponentsMoment(props.rowForEdit, props.updateState, props.columnId, props.validationResults)} lower={props.lower} upper={props.upper} />
+			<AmPmInput {...wrapForFormComponentsMoment(props.rowForEdit, props.updateState, props.columnId, props.validationResults)} lower={props.lower} upper={props.upper} />
 		</div>
 	</>;
 }

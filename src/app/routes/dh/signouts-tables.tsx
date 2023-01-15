@@ -21,8 +21,8 @@ export const routeSignoutsTablesPage = new RouteWrapper({
 		initState={async}
 	/>}
 	urlProps={{}}
-	getAsyncProps = {() => {
-		return getSignoutsToday.send()
+	getAsyncProps = {(urlProps, asc) => {
+		return getSignoutsToday.send(asc)
 	}}
 	shadowComponent={<Loader />}
 />);

@@ -4,52 +4,55 @@ import ReduxToastr from "react-redux-toastr";
 
 import store from "./redux/store/index";
 import Routes from "./app/routing";
-import asc from "./app/AppStateContainer";
 import {apiw as isLoggedInAsStaff} from './async/is-logged-in-as-staff';
-import { AppStateContainer } from "./app/AppStateContainer"
+import { AppStateContext } from "./app/state/AppStateContext"
 import SudoModal from "components/SudoModal";
-import { initUpdateState } from "app/AppStateAction";
+import { getAppStateCombined } from "app/state/AppStateAction";
+import { AppState, AppStateCombined } from "app/state/AppState";
 
 interface Props {
 	history: any
-	asc: AppStateContainer
+	asc: AppState
 }
 
-class App extends React.Component<Props> {
-	constructor(props) {
+class App extends React.Component<Props, AppState> {
+	appStateCombined: AppStateCombined
+	constructor(props: Props) {
 		super(props);
-		const self = this;
-
-		initUpdateState();
-		const globalStateListener = () => {
-			self.forceUpdate();
-		}
-		asc.setListener(globalStateListener);
+		this.state = props.asc;
+		this.setState = this.setState.bind(this);
 	}
 	componentDidMount(): void {
-		asc.updateState.init();
-		isLoggedInAsStaff.send().then(usernameResult => {
+		this.makeAppStateCombined();
+		this.appStateCombined.stateAction.init();
+		isLoggedInAsStaff.send(this.appStateCombined).then(usernameResult => {
 			if (usernameResult.type == "Success") {
-				asc.updateState.login.setLoggedIn(usernameResult.success.value)
+				this.appStateCombined.stateAction.login.setLoggedIn(usernameResult.success.value)
 			}
 		}, () => {
 			// not logged in
 		});
 	}
+	makeAppStateCombined(){
+		this.appStateCombined = getAppStateCombined(this.state, this.setState);
+	}
 	render() {
+		this.makeAppStateCombined()
 		return (
 			<Provider store={store}>
-				<Routes authenticatedUserName={asc.state.login.authenticatedUserName} history={this.props.history}/>
-				<ReduxToastr
-					timeOut={15000}
-					newestOnTop={true}
-					position="top-right"
-					transitionIn="fadeIn"
-					transitionOut="fadeOut"
-					progressBar
-					closeOnToastrClick
-				/>
-				<SudoModal />
+				<AppStateContext.Provider value={this.appStateCombined}>
+					<Routes authenticatedUserName={this.state.login.authenticatedUserName} history={this.props.history}/>
+					<ReduxToastr
+						timeOut={15000}
+						newestOnTop={true}
+						position="top-right"
+						transitionIn="fadeIn"
+						transitionOut="fadeOut"
+						progressBar
+						closeOnToastrClick
+					/>
+					<SudoModal />
+				</AppStateContext.Provider>
 			</Provider>
 		)
 	}

@@ -18,7 +18,6 @@ export default function Button(props: ButtonType){
             setSpinning(forceSpinner);
         }, [forceSpinner]);
     }
-    console.log(props.className);
     var useClick = onClick;
     if(spinnerOnClick && onSubmit != undefined){
         useClick = (e) => {setSpinning(true); onSubmit.apply(e).then(() => {setSpinning(false)})};

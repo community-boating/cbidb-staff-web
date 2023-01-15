@@ -10,7 +10,7 @@ import { removeOptions } from 'util/deserializeOption';
 import { HttpMethod } from "./HttpMethod";
 import { PostType, Config, ApiResult, ServerParams } from './APIWrapperTypes';
 import * as moment from 'moment';
-import asc from 'app/AppStateContainer';
+import { AppStateCombined } from 'app/state/AppState';
 
 export const ERROR_DELIMITER = "\\n"
 
@@ -69,11 +69,11 @@ export default class APIWrapper<T_ResponseValidator extends t.Any, T_PostBodyVal
 	constructor(config: Config<T_ResponseValidator, T_PostBodyValidator, T_FixedParams>) {
 		this.config = config;
 	}
-	send: () => Promise<ApiResult<t.TypeOf<T_ResponseValidator>>> = () => this.sendWithParams(none)(undefined)
-	sendJson: (data: t.TypeOf<T_PostBodyValidator>) => Promise<ApiResult<t.TypeOf<T_ResponseValidator>>> = data => this.sendWithParams(none)(makePostJSON(data))
-	sendFormUrlEncoded: (data: t.TypeOf<T_PostBodyValidator>) => Promise<ApiResult<t.TypeOf<T_ResponseValidator>>> = data => this.sendWithParams(none)(makePostString(data))
+	send: (asc: AppStateCombined) => Promise<ApiResult<t.TypeOf<T_ResponseValidator>>> = (asc) => this.sendWithParams(asc, none)(undefined)
+	sendJson: (asc: AppStateCombined, data: t.TypeOf<T_PostBodyValidator>) => Promise<ApiResult<t.TypeOf<T_ResponseValidator>>> = (asc, data) => this.sendWithParams(asc, none)(makePostJSON(data))
+	sendFormUrlEncoded: (asc: AppStateCombined, data: t.TypeOf<T_PostBodyValidator>) => Promise<ApiResult<t.TypeOf<T_ResponseValidator>>> = (asc, data) => this.sendWithParams(asc, none)(makePostString(data))
 	// send: (data: PostType<t.TypeOf<T_PostBodyValidator>>) => Promise<ApiResult<t.TypeOf<T_ResponseValidator>>> = data => this.sendWithParams(none)(data)
-	sendWithParams: (serverParamsOption: Option<ServerParams>, params?: any) => (data: PostType<t.TypeOf<T_PostBodyValidator>>) => Promise<ApiResult<t.TypeOf<T_ResponseValidator>>> = (serverParamsOption, params) => data => {
+	sendWithParams: (asc: AppStateCombined, serverParamsOption: Option<ServerParams>, params?: any) => (data: PostType<t.TypeOf<T_PostBodyValidator>>) => Promise<ApiResult<t.TypeOf<T_ResponseValidator>>> = (asc, serverParamsOption, params) => data => {
 		moment.fn.toJSON = function() { return this.format(this["_f"]); }
 		const serverParams = serverParamsOption.getOrElse((process.env as any).serverToUseForAPI);
 		const self = this;
@@ -136,7 +136,7 @@ export default class APIWrapper<T_ResponseValidator extends t.Any, T_PostBodyVal
 				data: postValues.map(pv => pv.content).getOrElse(null),
 				headers
 			})).then((res: AxiosResponse) => {
-				return this.parseResponse(res.data);
+				return this.parseResponse(asc, res.data);
 			}, err => {
 				console.log("Send Error: ", err);
 				const ret: Return = Promise.resolve({type: "Failure", code: "fail_during_send", message: "An internal error has occurred.", extra: {err}});
@@ -150,7 +150,7 @@ export default class APIWrapper<T_ResponseValidator extends t.Any, T_PostBodyVal
 			})
 		}
 	}
-	private parseResponse: (response: any) => ApiResult<t.TypeOf<T_ResponseValidator>> = response => {
+	private parseResponse: (asc: AppStateCombined, response: any) => ApiResult<t.TypeOf<T_ResponseValidator>> = (asc, response) => {
 		type Result = t.TypeOf<T_ResponseValidator>;
 		type Return = ApiResult<t.TypeOf<T_ResponseValidator>>;
 		const self = this;
@@ -167,9 +167,9 @@ export default class APIWrapper<T_ResponseValidator extends t.Any, T_PostBodyVal
 		if (parsed["error"]) {
 			// Did the session time out? 
 			if (parsed.error.code == "unauthorized") {
+				
 				// TODO: call the is-logged-in endpoint and verify we are indeed not logged in
 				// TODO: differentiate between unauthorized from cbi api vs some other random host (is that a supported use case?)
-				asc.updateState.login.logout();
 			}
 			const ret2: Return = {type: "Failure", code: parsed.error.code, message: parsed.error.message, extra: parsed.error}
 			// console.log(ret2)

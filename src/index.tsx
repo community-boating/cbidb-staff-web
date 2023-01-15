@@ -1,9 +1,9 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
 import App from "./App";
-import asc from "./app/AppStateContainer";
 import { createBrowserHistory } from 'history';
 import * as Sentry from '@sentry/browser';
+import { defaultAppState } from "app/state/AppStateContext";
 
 require("./array-polyfill")
 
@@ -16,5 +16,5 @@ export const history = createBrowserHistory()
 
 ReactDOM.render(<App 
 	history={history}
-	asc={asc}
+	asc={defaultAppState}
 />, document.getElementById("root"));

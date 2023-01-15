@@ -10,6 +10,7 @@ import { initSalesCache, evaluateTree, addSale, AggregateUnit, GenericSalesCache
 import { Card, CardBody, Col, Row } from 'reactstrap';
 import months from 'models/months';
 import { padWithZero } from 'util/dateUtil';
+import { AppStateContext } from 'app/state/AppStateContext';
 
 export type ActiveMembershipTypes = {
 	[K: number]: true
@@ -145,11 +146,13 @@ export const SalesDasboard = (props: {
 		: months
 	)
 
+	const asc = React.useContext(AppStateContext);
+
 	React.useEffect(() => {
 		const neededYears = getNeededYearsPreCacheCheck().filter(y => sales.salesByPurchaseDate.values[y] == undefined);
 		if (neededYears.length == 0) return;
 		setNotReady();
-		Promise.all(neededYears.map(y => getWrapper(y).send())).then((yearsResults) => {
+		Promise.all(neededYears.map(y => getWrapper(y).send(asc))).then((yearsResults) => {
 			console.log(p.lap("finished async call"));
 			const data = yearsResults.map(result => {
 				if (result.type == "Success") return result.success;

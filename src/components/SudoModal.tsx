@@ -1,4 +1,3 @@
-import asc from 'app/AppStateContainer';
 import detectEnter from 'util/detectEnterPress';
 import { formUpdateStateHooks } from 'util/form-update-state';
 import { none, Option } from 'fp-ts/lib/Option';
@@ -8,12 +7,15 @@ import * as React from 'react';
 import { ErrorPopup } from './ErrorPopup';
 import Modal, { ModalHeader } from './wrapped/Modal';
 import Button from './wrapped/Button';
-import { Input } from './wrapped/Input';
+import { CustomInput as Input } from './wrapped/Input';
+import { AppStateContext } from 'app/state/AppStateContext';
 
 export default function () {
 	const [isOpen, setOpen] = React.useState(false);
 	const [loginProcessing, setLoginProcessing] = React.useState(false);
 	const [validationErrors, setValidationErrors] = React.useState([] as string[]);
+	
+	const asc = React.useContext(AppStateContext);
 
 	const blankForm = {
 		username: none as Option<string>,
@@ -22,18 +24,19 @@ export default function () {
 	const [formData, setFormData] = React.useState(blankForm);
 	
 	const updateState = formUpdateStateHooks(formData, setFormData);
-
-	asc.setSudoModalOpener(function () {
-		setOpen(true);
-		setTimeout(() => {
-			setFormData({
-				username: asc.state.login.authenticatedUserName,
-				password: none
-			});
-			const node = document.getElementById("sudoPassword");
-			node && node.focus();
-		}, 50)
-	});
+	React.useEffect(() => {
+		asc.stateAction.setSudoModalOpener(() => {
+			setOpen(true);
+			setTimeout(() => {
+				setFormData({
+					username: asc.state.login.authenticatedUserName,
+					password: none
+				});
+				const node = document.getElementById("sudoPassword");
+				node && node.focus();
+			}, 50)
+		});
+	}, []);
 
 	const abort = () => {
 		setOpen(false);
@@ -41,7 +44,7 @@ export default function () {
 
 	const success = () => {
 		setOpen(false);
-		asc.updateState.setSudo(true);
+		asc.stateAction.setSudo(true);
 		return Promise.resolve();
 	}
 
@@ -50,7 +53,7 @@ export default function () {
 			setLoginProcessing(true);
 			setValidationErrors([]);
 			const username = formData.username.getOrElse("");
-			return asc.updateState.login.attemptLogin(username, formData.password.getOrElse(""))
+			return asc.stateAction.login.attemptLogin(username, formData.password.getOrElse(""))
 			.then(loginSuccessful => {
 				updateState("password", "");
 				setLoginProcessing(false);

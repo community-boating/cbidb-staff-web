@@ -2,13 +2,13 @@ import * as React from "react";
 
 import { none, Option, some } from "fp-ts/lib/Option";
 import {formUpdateState} from "../util/form-update-state";
-import asc from "../app/AppStateContainer";
 import detectEnter from "../util/detectEnterPress";
 
 import cbiLogo from "../assets/img/icons/boat.svg"
 import { ErrorPopup } from "components/ErrorPopup";
-import { Input } from "components/wrapped/Input";
+import { CustomInput as Input } from "components/wrapped/Input";
 import Button from "components/wrapped/Button";
+import { AppStateContext } from "app/state/AppStateContext";
 
 export const formDefault = {
 	username: none as Option<string>,
@@ -43,7 +43,7 @@ class SignIn extends React.PureComponent<{}, State> {
 					loginProcessing: true,
 					validationErrors: []
 				})
-				return asc.updateState.login.attemptLogin(self.state.formData.username.getOrElse(""), self.state.formData.password.getOrElse(""))
+				return this.context.stateAction.login.attemptLogin(self.state.formData.username.getOrElse(""), self.state.formData.password.getOrElse(""))
 				.then(x => {
 					if (!x) {
 						self.setState({
@@ -128,5 +128,7 @@ class SignIn extends React.PureComponent<{}, State> {
 		);
 	}
 }
+
+SignIn.contextType=AppStateContext;
 
 export default SignIn;

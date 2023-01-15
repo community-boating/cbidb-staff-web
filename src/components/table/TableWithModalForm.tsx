@@ -14,7 +14,7 @@ import Modal, { ModalFoooter, ModalHeader } from "../wrapped/Modal";
 import { option } from "fp-ts";
 import * as moment from 'moment';
 import Form from "../wrapped/Form";
-import { Injectable } from "../Injector";
+import { AppStateContext } from "app/state/AppStateContext";
 
 export type UpdateStateType = ((id: string, value: string | boolean) => void) & ((id: string[], value: string[] | boolean[]) => void);
 
@@ -157,6 +157,7 @@ export function TableWithModalFormStringified<T_Row extends t.TypeOf<T_Validator
 }
 
 export function TableWithModalFormAsync<T_Row, T_Validator extends t.TypeC<any>, T_Filter = any, T_RowEdit = T_Row>(props: TableWithModalFormAsyncProps<T_Row, T_Validator, T_Filter, T_RowEdit>){
+	const asc = React.useContext(AppStateContext);
 	const {validator, action, validate, submit, ...other} = props;
 	return <TableWithModalForm {...other} validate={(row) => {
 		const resultOne = validate ? validate(row) : [];
@@ -168,7 +169,7 @@ export function TableWithModalFormAsync<T_Row, T_Validator extends t.TypeC<any>,
 		}
 		return result.swap().getOrElse(null).map((a) => a.message);
 	}} submit={(row) => {
-		action.sendJson(row).then((a) => {
+		action.sendJson(asc, row).then((a) => {
 			if(a.type == "Success"){
 				return Promise.resolve(row)
 			}

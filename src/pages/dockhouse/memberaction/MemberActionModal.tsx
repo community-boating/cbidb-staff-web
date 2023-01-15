@@ -10,7 +10,7 @@ import person from 'assets/img/icons/person.svg';
 import { option } from 'fp-ts';
 import { programsHR } from '../signouts/Constants';
 import Button from 'components/wrapped/Button';
-import { Input, SelectInput } from 'components/wrapped/Input';
+import { CustomInput as Input, SelectInput } from 'components/wrapped/Input';
 
 import swap from 'assets/img/icons/buttons/swap.svg';
 import x from 'assets/img/icons/buttons/x.svg';

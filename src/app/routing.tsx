@@ -12,14 +12,16 @@ import { Option } from "fp-ts/lib/Option";
 import { History } from 'history'
 
 import SignIn from "../pages/SignIn";
-import asc from "./AppStateContainer";
 import { BorderlessLayout } from "../layouts/BorderlessLayout";
+import { AppStateCombined } from "./state/AppState";
+import { AppStateContext } from "./state/AppStateContext";
 
-const authenticatedRoutes = (history: History<any>) => {
+const authenticatedRoutes = (asc: AppStateCombined,history: History<any>) => {
+
 	const borderless = asc.state.borderless;
 	const Layout = borderless ? BorderlessLayout : StandardLayout;
 	const routes = dhRoutes.filter(r => !r.requireSudo || asc.state.sudo)
-	.map(r => r.asRoute(history));
+	.map(r => r.asRoute(asc, history));
 	return (
 		<Route
 			path="/*"
@@ -36,19 +38,20 @@ const authenticatedRoutes = (history: History<any>) => {
 	);
 }
 
-const Routes = (props: { authenticatedUserName: Option<string>, history: History<any> }) => (
-	<Router history={props.history}>
+const Routes = (props: { authenticatedUserName: Option<string>, history: History<any> }) => {
+	const asc = React.useContext(AppStateContext);
+	return <Router history={props.history}>
 		<ScrollToTop>
 			<Switch>
 				<Route path="/borderless" component={() => {
 					const path = props.history.location.pathname;
 					const regex = /^\/borderless\/(.*)$/;
 					const result = regex.exec(path);
-					asc.updateState.setBorderless();
+					asc.stateAction.setBorderless();
 					return <Redirect to={'/' + result[1]} />
 				}} />
 				{props.authenticatedUserName.isSome()
-					? authenticatedRoutes(props.history)
+					? authenticatedRoutes(asc, props.history)
 					: <Route component={() => (
 						<AuthLayout>
 							<SignIn />
@@ -58,6 +61,6 @@ const Routes = (props: { authenticatedUserName: Option<string>, history: History
 			</Switch>
 		</ScrollToTop>
 	</Router>
-);
+};
 
 export default Routes;

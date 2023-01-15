@@ -1,4 +1,4 @@
-import asc from 'app/AppStateContainer';
+import { AppStateContext } from 'app/state/AppStateContext';
 import { ValidatedCheckboxInput, SelectInput } from 'components/wrapped/Input';
 import { option } from 'fp-ts';
 import * as React from 'react';
@@ -14,7 +14,7 @@ export type RatingsGridProps = {
 
 function makeRatingsById(ratings: RatingsType){
     const ratingsById: {[key: number]: RatingsType} = {};
-    asc.state.ratings.forEach((a) => {
+    ratings.forEach((a) => {
         a.$$programs.forEach((p) => {
             if(!ratingsById[p.programId])
                 ratingsById[p.programId] = [];
@@ -25,6 +25,7 @@ function makeRatingsById(ratings: RatingsType){
 }
 
 export default function RatingsGrid(props: RatingsGridProps){
+    const asc = React.useContext(AppStateContext);
     const ratingsById = React.useMemo(() => makeRatingsById(asc.state.ratings), [asc.state.ratings])
     return <>
         <div className="grid grid-cols-4 gap-4">

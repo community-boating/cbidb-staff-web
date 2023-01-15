@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Input, SelectOption } from 'components/wrapped/Input';
+import { CustomInput as Input, SelectOption } from 'components/wrapped/Input';
 import { none, Option } from 'fp-ts/lib/Option';
 import { option } from 'fp-ts';
 import * as moment from "moment";

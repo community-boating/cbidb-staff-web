@@ -1,7 +1,6 @@
 import * as React from 'react';
 import * as t from 'io-ts';
-import { Injectable, Injector } from 'components/Injector';
-
+import { ValidationGroup } from './Input';
 
 export type ValidatedFormProps<T extends t.TypeC<any>, U extends object = t.TypeOf<T>> = {
     formData: U
@@ -23,8 +22,8 @@ export default function ValidatedForm<T extends t.TypeC<any>, U extends object =
     };
     return (
     <form onSubmit={(e) => {e.preventDefault(); handleSubmit();}}>
-        <Injector item={formData}>
+        <ValidationGroup validations={{validationsById: {}, globalValidations: ["yolo"]}}>
             {props.children}
-        </Injector>
+        </ValidationGroup>
     </form>);
 }

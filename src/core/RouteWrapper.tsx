@@ -4,6 +4,7 @@ import PathWrapper, { StringObject } from './PathWrapper';
 import { Redirect, Route } from 'react-router';
 import { PageName } from 'pages/pageNames';
 import { canAccessPage } from 'pages/accessControl';
+import { AppStateCombined } from 'app/state/AppState';
 
 export type RouteWrapperConfig<T extends StringObject> = {
 	navTitle?: string,
@@ -28,8 +29,8 @@ export default class RouteWrapper<T extends StringObject>{
 	public pageName = this.config.pageName;
 	public requireSudo = this.config.requireSudo;
 
-	asRoute(history: History<any>) {
-		if (!canAccessPage(this.config.pageName)) {
+	asRoute(asc: AppStateCombined, history: History<any>) {
+		if (!canAccessPage(asc, this.config.pageName)) {
 			return <Redirect key={"redirect-" + this.config.pageName} to={'/'}  />
 		} else {
 			return <Route key={this.pathWrapper.path} path={this.pathWrapper.path} exact={this.config.exact} render={() => this.render(history)} />;

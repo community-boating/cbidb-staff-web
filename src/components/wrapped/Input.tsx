@@ -18,11 +18,31 @@ export type InputProps = {
 
 const inputClassName = "rounded-md border border-gray-700"
 
+const ValidationContext = React.createContext<ValidationType>({validationsById: {}, globalValidations: []});
+
+type ValidationType = {
+	validationsById: {
+		[key: string]: React.ReactNode[]
+	}
+	globalValidations: React.ReactNode[]
+};
+
+export type ValidationGroupProps = {
+	children?: React.ReactNode;
+	validations: ValidationType;
+};
+
+export function ValidationGroup(props: ValidationGroupProps){
+	return <ValidationContext.Provider value={props.validations}>
+		{props.children}
+	</ValidationContext.Provider>;
+}
+
 export type SelectInputProps = {
     options: React.ReactNode[];
 }
 
-export function Input(props: InputProps){
+export function CustomInput(props: InputProps){
     const {isEnd, label, end, groupClassName, onEnter, ...inputProps} = props;
     return <div className={"flex gap-2 whitespace-nowrap " + (isEnd ? " self-end " : "") + groupClassName}><label>{label}</label><input className={inputClassName} {...inputProps} onKeyDown={(e) => {
         if(props.onEnter && e.key == "Enter"){
@@ -31,7 +51,7 @@ export function Input(props: InputProps){
     }}/>{end}</div>;
 }
 
-export type ValidatedInputProps<T> = {
+export type CustomInputProps<T> = {
 	initValue: T,
 	updateValue: (value: T) => void,
 	validationResults?: string[]
@@ -41,12 +61,12 @@ type StateType<T> = {
 	showErrors: boolean
 };
 
-type ValidatedInputAdapterProps<T> = {
+type InputAdapterProps<T> = {
 	convertChange: (e: React.ChangeEvent<HTMLInputElement>) => T,
 	makeInputProps : (value: T) => any,
 }
 
-export class ValidatedInput<T> extends React.PureComponent<(ValidatedInputProps<T> & ValidatedInputAdapterProps<T> & InputProps), StateType<T>, any>  {
+class Input<T> extends React.PureComponent<(CustomInputProps<T> & InputAdapterProps<T> & InputProps), StateType<T>, any>  {
 	constructor(props){
 		super(props);
 		this.state = { showErrors:false };
@@ -59,7 +79,7 @@ export class ValidatedInput<T> extends React.PureComponent<(ValidatedInputProps<
 		}
 		return (
 			<>
-			<Input {...other} {...makeInputProps(this.props.initValue)} 
+			<input {...other} {...makeInputProps(this.props.initValue)} 
 			onChange={(e) => {updateValue(convertChange(e))}}
 			onBlur={() => {
 				this.setState({...this.state,showErrors:false})
@@ -74,8 +94,8 @@ export class ValidatedInput<T> extends React.PureComponent<(ValidatedInputProps<
 	}
 }
 
-export const ValidatedTextInput = (props: (ValidatedInputProps<any> & InputProps)) => {
-	return (<ValidatedInput {...props} 
+export const ValidatedTextInput = (props: (CustomInputProps<any> & InputProps)) => {
+	return (<Input {...props} 
 	makeInputProps={(v) => {
 		return {value:v.getOrElse("")} }}
 	convertChange={(e) => e.target.value.trim().length === 0 ? option.none : option.some(e.target.value)
@@ -84,7 +104,10 @@ export const ValidatedTextInput = (props: (ValidatedInputProps<any> & InputProps
 
 export type SelectOption<T_SelectOption> = {value: T_SelectOption, display: ReactNode};
 
-export function SelectInput<T_SelectOption extends string | number> (props: ValidatedInputProps<Option<T_SelectOption>> & InputProps & {selectOptions : SelectOption<T_SelectOption>[], showNone?: SelectOption<T_SelectOption>, selectNone?: boolean, isNumber?: boolean}) {
+export function SelectInput<T_SelectOption extends string | number> (props: CustomInputProps<Option<T_SelectOption>> & InputProps & {selectOptions : SelectOption<T_SelectOption>[], showNone?: SelectOption<T_SelectOption>, selectNone?: boolean, isNumber?: boolean}) {
+	console.log("dooping");
+	const value = React.useContext(ValidationContext);
+	console.log(value);
 	const {selectOptions,showNone,selectNone,isNumber,initValue,updateValue,...other} = props;
 	const showNonePadded = showNone === undefined ? {value: undefined, display: "None"} : showNone;
 	const selectOptionsWithNone = [showNonePadded].concat(selectOptions);
@@ -104,8 +127,8 @@ export function SelectInput<T_SelectOption extends string | number> (props: Vali
     );
 }
 
-export const ValidatedCheckboxInput = (props: ValidatedInputProps<Option<boolean>> & InputProps) => {
-	return <ValidatedInput {...props} 
+export const ValidatedCheckboxInput = (props: CustomInputProps<Option<boolean>> & InputProps) => {
+	return <Input {...props} 
 	makeInputProps={(v) => {return {checked:v.getOrElse(false) == true} }}
 	convertChange={(e) => option.some(e.target.checked)}
 	type="checkbox"/>;
@@ -129,7 +152,7 @@ function stringToMoment(s: Option<string>, timeVar: moment.unitOfTime.All, initV
 
 var lastMoment;
 
-export const ValidatedMomentInput = (props: ValidatedInputProps<Option<moment.Moment>> & InputProps & {format : string, start:moment.Moment,end:moment.Moment, lower?:moment.Moment, upper?:moment.Moment, inc: any, timeVar: moment.unitOfTime.All, sToM? : typeof stringToMoment, mToS?: typeof momentToString}) => {
+export const MomentInput = (props: CustomInputProps<Option<moment.Moment>> & InputProps & {format : string, start:moment.Moment,end:moment.Moment, lower?:moment.Moment, upper?:moment.Moment, inc: any, timeVar: moment.unitOfTime.All, sToM? : typeof stringToMoment, mToS?: typeof momentToString}) => {
 	const {format,start,end,inc,timeVar,sToM,mToS,updateValue,upper,lower,...others} = props;
 	const selectOptions: {value: string | number, display: ReactNode} [] = [];
 	const initValue = props.initValue;
@@ -177,7 +200,7 @@ export const ValidatedMomentInput = (props: ValidatedInputProps<Option<moment.Mo
 
 export type MomentInputBoundary = {lower:moment.Moment,upper:moment.Moment};
 
-function makeValidatedInputBounded (props: ValidatedInputProps<Option<moment.Moment>> & InputProps & MomentInputBoundary &
+function makeInputBounded (props: CustomInputProps<Option<moment.Moment>> & InputProps & MomentInputBoundary &
 	{format: string, inc: any, boundVar: moment.unitOfTime.StartOf, timeVar: moment.unitOfTime.All}) : JSX.Element {
 	const {lower,upper,format,inc,boundVar,timeVar,updateValue,...other} = props;
 	const initialValue = props.initValue.getOrElse(moment());
@@ -193,7 +216,7 @@ function makeValidatedInputBounded (props: ValidatedInputProps<Option<moment.Mom
 		}
 	};
 	return (
-		<ValidatedMomentInput {...other}
+		<MomentInput {...other}
 		updateValue={updateValue}
 		upper={upper}
 		lower={lower}
@@ -206,18 +229,18 @@ function makeValidatedInputBounded (props: ValidatedInputProps<Option<moment.Mom
 	);
 }
 
-export const ValidatedSecondInput = (props: ValidatedInputProps<Option<moment.Moment>> & InputProps & MomentInputBoundary) => {
+export const SecondInput = (props: CustomInputProps<Option<moment.Moment>> & InputProps & MomentInputBoundary) => {
 	const boundVar : moment.unitOfTime.StartOf = "minute";
 	const timeVar : moment.unitOfTime.All = "second";
 	const moreProps = {...props,format:"ss",inc:{seconds:1},boundVar:boundVar,timeVar:timeVar};
-	return makeValidatedInputBounded(moreProps);
+	return makeInputBounded(moreProps);
 }
 
-export const ValidatedMinuteInput = (props: ValidatedInputProps<Option<moment.Moment>> & InputProps & MomentInputBoundary) => {
+export const MinuteInput = (props: CustomInputProps<Option<moment.Moment>> & InputProps & MomentInputBoundary) => {
 	const boundVar : moment.unitOfTime.StartOf = "hour";
 	const timeVar : moment.unitOfTime.All = "minute";
 	const moreProps = {...props,format:"mm",inc:{minutes:1},boundVar:boundVar,timeVar:timeVar};
-	return makeValidatedInputBounded(moreProps);
+	return makeInputBounded(moreProps);
 }
 
 function hourStart (initTime: moment.Moment){
@@ -228,12 +251,12 @@ function hourStart (initTime: moment.Moment){
 	return nextTime;
 }
 
-export const ValidatedHourInput = (props: ValidatedInputProps<Option<moment.Moment>> & InputProps & MomentInputBoundary) => {
+export const HourInput = (props: CustomInputProps<Option<moment.Moment>> & InputProps & MomentInputBoundary) => {
 	const {lower,upper,...other} = props;
 	const initialValue = props.initValue.getOrElse(moment());
 	const valueStart = hourStart(initialValue);
 	return (
-		<ValidatedMomentInput {...other}
+		<MomentInput {...other}
 		format="hh"
 		inc={{hour:1}}
 		start={moment.max(valueStart,lower.clone().startOf("hour"))}
@@ -260,11 +283,11 @@ export const ValidatedHourInput = (props: ValidatedInputProps<Option<moment.Mome
 const PM = "PM";
 const AM = "AM";
 
-export const ValidatedAmPmInput = (props: ValidatedInputProps<Option<moment.Moment>> & InputProps & MomentInputBoundary) => {
+export const AmPmInput = (props: CustomInputProps<Option<moment.Moment>> & InputProps & MomentInputBoundary) => {
 	const {lower,upper,...other} = props;
 	const initialValue = props.initValue.getOrElse(moment());
 	return (
-		<ValidatedMomentInput {...other}
+		<MomentInput {...other}
 		format="A"
 		inc={{hour:12}}
 		start={moment.max(initialValue.clone().startOf("day"),lower)}
@@ -296,24 +319,24 @@ export const ValidatedAmPmInput = (props: ValidatedInputProps<Option<moment.Mome
 		/>);
 }
 
-export const ValidatedDateInput = (props: ValidatedInputProps<Option<moment.Moment>> & InputProps & MomentInputBoundary) => {
+export const DateInput = (props: CustomInputProps<Option<moment.Moment>> & InputProps & MomentInputBoundary) => {
 	const boundVar : moment.unitOfTime.StartOf = "month";
 	const timeVar : moment.unitOfTime.All = "date";
 	const moreProps = {...props,format:"DD",inc:{days:1},boundVar:boundVar,timeVar:timeVar};
-	return makeValidatedInputBounded(moreProps);
+	return makeInputBounded(moreProps);
 }
 
-export const ValidatedMonthInput = (props: ValidatedInputProps<Option<moment.Moment>> & InputProps & MomentInputBoundary) => {
+export const MonthInput = (props: CustomInputProps<Option<moment.Moment>> & InputProps & MomentInputBoundary) => {
 	const boundVar : moment.unitOfTime.StartOf = "year";
 	const timeVar : moment.unitOfTime.All = "month";
 	const moreProps = {...props,format:"MMMM",inc:{months:1},boundVar:boundVar,timeVar:timeVar};
-	return makeValidatedInputBounded(moreProps);
+	return makeInputBounded(moreProps);
 }
 
-export const ValidatedYearInput = (props: ValidatedInputProps<Option<moment.Moment>> & InputProps & MomentInputBoundary) => {
+export const YearInput = (props: CustomInputProps<Option<moment.Moment>> & InputProps & MomentInputBoundary) => {
 	const {lower,upper,...other} = props;
 	return (
-		<ValidatedMomentInput {...other}
+		<MomentInput {...other}
 		format="yyyy"
 		inc={{years:1}}
 		start={lower}

@@ -22,8 +22,8 @@ export const routeDockReportPage = new RouteWrapper({
 		dockReportInitState={async}
 	/>}
 	urlProps={{}}
-	getAsyncProps={() => {
-		return getDockReport.send()
+	getAsyncProps={(urlProps, asc) => {
+		return getDockReport.send(asc)
 	}}
 	shadowComponent={<Loader />}
 />);

@@ -9,6 +9,7 @@ import {postWrapper as finishOrder} from "async/staff/finish-open-order"
 import { ErrorPopup } from 'components/ErrorPopup';
 import { Table } from 'components/table/Table';
 import { ColumnDef } from '@tanstack/react-table';
+import { AppStateContext } from 'app/state/AppStateContext';
 
 type PaymentList = t.TypeOf<typeof validator>
 
@@ -68,17 +69,21 @@ export default function StaggeredOrder(props: { history: History<any>, personId:
 			<Button color="secondary" outline onClick={abort}>
 				Cancel
 			</Button>{" "}
-			<Button spinnerOnClick onClick={() => {
-				return finishOrder(props.personId).sendJson({}).then(ret => {
-					if (ret.type == "Success") {
-						props.history.push("/redirect" + window.location.pathname)
-					} else {
-						setValidationErrors([ret.message])
-					}
-				})
-			}} >
-				Finish Order
-			</Button>
+			<AppStateContext.Consumer>
+				{ asc => 
+					<Button spinnerOnClick onClick={() => {
+						return finishOrder(props.personId).sendJson(asc, {}).then(ret => {
+							if (ret.type == "Success") {
+								props.history.push("/redirect" + window.location.pathname)
+							} else {
+								setValidationErrors([ret.message])
+							}
+						})
+					}} >
+						Finish Order
+					</Button>
+				}
+			</AppStateContext.Consumer>
 		</ModalFooter>
 	</Modal>;
 	
