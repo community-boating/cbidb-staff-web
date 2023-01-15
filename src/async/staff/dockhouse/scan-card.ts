@@ -15,13 +15,10 @@ const scanCardMembershipValidator = t.type({
 })
 
 const scanCardRatingValidator = t.type({
-	assignId: t.number,
-	membershipTypeId: t.number,
-	startDate: OptionalString,
-	expirationDate: OptionalString,
-	discountName: OptionalString,
-	isDiscountFrozen: t.boolean,
-	hasGuestPrivs: t.boolean
+	ratingId: t.number,
+	programId: t.number,
+	ratingName: t.string,
+	status: t.string // Y | F
 })
 
 export const scanCardValidator = t.type({
@@ -32,13 +29,13 @@ export const scanCardValidator = t.type({
 	bannerComment: OptionalString,
 	specialNeeds: OptionalString,
 	activeMemberships: t.array(scanCardMembershipValidator),
-	personsRatings: t.array(scanCardRatingValidator)
+	personRatings: t.array(scanCardRatingValidator)
 })
 
 const path = "/staff/dockhouse/scan-card"
 
-export const getWrapper = new APIWrapper({
-	path: path,
+export const getWrapper = (cardNumber: string) => new APIWrapper({
+	path: path + "?cardNumber=" + cardNumber,
 	type: HttpMethod.GET,
 	resultValidator: scanCardValidator
 })
