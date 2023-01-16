@@ -69,7 +69,7 @@ const MakeLinks = (props: { row: SignoutTablesState; isActive: boolean; extraSta
 };
 const StopwatchIcon = (props: { row: SignoutTablesState; }) => {
 	//2 hours
-	if (moment().diff(moment(props.row.signoutDatetime.getOrElse(""))) > 2 * 60 * 60 * 1000) {
+	if (moment().diff(moment(props.row.signoutDatetime.getOrElse(moment()))) > 2 * 60 * 60 * 1000) {
 		return <img className={iconClass} src={stopwatchIcon} />;
 	}
 	return <></>;

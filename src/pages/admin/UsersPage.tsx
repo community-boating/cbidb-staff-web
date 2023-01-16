@@ -10,7 +10,7 @@ import {
 	MoreHorizontal,
 } from 'react-feather'
 import { pathUsersEdit } from "app/paths";
-import TableWithModalForm, { TableWithModalFormStringified } from "components/table/TableWithModalForm";
+import TableWithModalForm, { TableWithModalFormAsyncStringified } from "components/table/TableWithModalForm";
 import {  StringifiedProps } from "util/StringifyObjectProps";
 import { none, Option, some } from "fp-ts/lib/Option";
 import optionify from "util/optionify";
@@ -329,7 +329,7 @@ export default function UsersPage(props: { users: User[], accessState: AccessSta
 			<CardTitle tag="h5" className="mb-0">Add/Edit Staff</CardTitle>
 		</CardHeader>
 		<CardBody>
-			<TableWithModalFormStringified
+			<TableWithModalFormAsyncStringified
 				validator={userValidator}
 				rows={props.users.map(decorateRow)}
 				keyField="userId"

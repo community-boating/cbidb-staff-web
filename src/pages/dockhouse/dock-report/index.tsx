@@ -123,8 +123,9 @@ export const DockReportPage = (props: {
 						Cancel
 					</Button>
 					{" "}
-					<Button className="ml-auto mr-0" spinnerOnClick onSubmit={() => {
+					<Button className="ml-auto mr-0" spinnerOnClick submit={() => {
 						setModalErrors(null)
+						console.log(submitAction);
 						return submitAction().then(additionalState => {
 							const newState = {
 								...dockReportState, ...{

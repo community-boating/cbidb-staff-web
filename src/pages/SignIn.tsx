@@ -9,6 +9,7 @@ import { ErrorPopup } from "components/ErrorPopup";
 import { CustomInput as Input } from "components/wrapped/Input";
 import Button from "components/wrapped/Button";
 import { AppStateContext } from "app/state/AppStateContext";
+import { AppStateCombined } from "app/state/AppState";
 
 export const formDefault = {
 	username: none as Option<string>,
@@ -21,7 +22,8 @@ type State = {
 	loginProcessing: boolean
 };
 
-class SignIn extends React.PureComponent<{}, State> {
+class SignIn extends React.PureComponent<{}, State, string> {
+	context: AppStateCombined;
 	constructor(props) {
 		super(props)
 		this.state = {
@@ -67,7 +69,7 @@ class SignIn extends React.PureComponent<{}, State> {
 					}
 				})
 			}
-			else return Promise.resolve();
+			return Promise.resolve();
 		};
 
 		const updateState = formUpdateState(this.state, this.setState.bind(this), "formData");
@@ -116,7 +118,7 @@ class SignIn extends React.PureComponent<{}, State> {
 					/>
 					<div className="text-center mt-3">
 						<Button
-							onClick={loginFunction}
+							submit={loginFunction}
 							spinnerOnClick
 							forceSpinner={(this.state || {}).loginProcessing}
 						>

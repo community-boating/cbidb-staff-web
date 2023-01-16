@@ -11,7 +11,7 @@ import { classLocationValidator } from "async/rest/class-locations";
 import { putWrapper as putClassLocation } from "async/rest/class-locations";
 
 // The common display structure which is a table editable via modal
-import TableWithModalForm, { TableWithModalFormStringified } from "components/table/TableWithModalForm";
+import TableWithModalForm, { TableWithModalFormAsyncStringified } from "components/table/TableWithModalForm";
 import { CellBooleanIcon, SortTypeBoolean } from "util/tableUtil";
 import { ColumnDef } from "@tanstack/react-table";
 
@@ -88,7 +88,7 @@ export default function ManageClassLocationsPage(props: {
 	);
 
 	return (
-		<TableWithModalFormStringified
+		<TableWithModalFormAsyncStringified
 			validator={classLocationValidator}
 			rows={props.locations}
 			keyField="LOCATION_ID"

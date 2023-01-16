@@ -7,13 +7,13 @@ import { decoratedInstanceValidator, signupValidator, weekValidator, staggerVali
 import { sortOnMoment, toMomentFromLocalDateTime } from 'util/dateUtil';
 import * as moment from 'moment';
 import { none, Option } from 'fp-ts/lib/Option';
-import FormElementSelect from 'components/form/FormElementSelect';
 import {formUpdateStateHooks} from 'util/form-update-state';
 import { tableColWidth } from 'util/tableUtil';
 import JpClassSignupsRegion from './JpClassSignupsRegion';
 import {faUsers} from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {Printer} from 'react-feather'
+import { SelectInput } from "components/wrapped/Input";
 
 type DecoratedInstance = t.TypeOf<typeof decoratedInstanceValidator>
 type Stagger = t.TypeOf<typeof staggerValidator>;
@@ -33,7 +33,9 @@ const formDefault = {
 
 type FormType = typeof formDefault;
 
-class FormSelect extends FormElementSelect<FormType> { }
+function FormSelect (props){
+	return <SelectInput {...props}></SelectInput>;
+}
 
 export default function JpClassesPage(props: Props) {
 	const [formData, setFormData] = React.useState(formDefault);

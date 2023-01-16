@@ -23,11 +23,10 @@ class App extends React.Component<Props, AppState> {
 		this.setState = this.setState.bind(this);
 	}
 	componentDidMount(): void {
-		this.makeAppStateCombined();
-		this.appStateCombined.stateAction.init();
 		isLoggedInAsStaff.send(this.appStateCombined).then(usernameResult => {
 			if (usernameResult.type == "Success") {
 				this.appStateCombined.stateAction.login.setLoggedIn(usernameResult.success.value)
+				console.log("doing it");
 			}
 		}, () => {
 			// not logged in
@@ -36,8 +35,15 @@ class App extends React.Component<Props, AppState> {
 	makeAppStateCombined(){
 		this.appStateCombined = getAppStateCombined(this.state, this.setState);
 	}
+	initAfterLogin(){
+		if(!this.state.hasInit && this.state.login.authenticatedUserName.isSome()){
+			this.appStateCombined.stateAction.initAfterLogin();
+			this.setState((s) => ({...s, hasInit: true}));
+		}
+	}
 	render() {
-		this.makeAppStateCombined()
+		this.makeAppStateCombined();
+		this.initAfterLogin();
 		return (
 			<Provider store={store}>
 				<AppStateContext.Provider value={this.appStateCombined}>

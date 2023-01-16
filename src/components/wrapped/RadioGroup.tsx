@@ -12,7 +12,6 @@ export type RadioGroupProps<T_Value> = {
 }
 
 export default function RadioGroup<T_Value>(props: RadioGroupProps<T_Value>){
-    console.log("rendering radio group" + props.value);
     const ref = React.useRef<HTMLDivElement>();
     if(props.keyListener){
         React.useEffect(() => {

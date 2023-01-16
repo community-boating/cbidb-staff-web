@@ -23,8 +23,8 @@ type UpdateCrewType = (crew: SignoutCrewStateOptional, active: boolean) => Promi
 const optionToMoment = (value: Option<string>) => option.isSome(value) ? moment(value.value) : moment();
 
 const updateCrewDates = (crew: SignoutCrewState | SignoutCrewStateOptional, active: boolean) => {
-    crew.endActive = active ? option.none : option.some(moment().format(DefaultDateTimeFormat));
-    crew.startActive = option.some(optionToMoment(!active ? crew.startActive : option.none).format(DefaultDateTimeFormat));
+    crew.endActive = active ? option.none : option.some(moment());
+    crew.startActive = !active ? option.none : option.some(moment());
 }
 
 export function isCrewValid(crew: SignoutCrewState[], boatId: number, boatTypes: BoatTypesValidatorState, active: boolean) {

@@ -43,112 +43,14 @@ export type TableWithModalFormProps<T_Row, T_Filter, T_RowEdit> = {
 export type TableWithModalFormAsyncProps<T_Row extends t.TypeOf<T_Validator>, T_Validator extends t.TypeC<any>, T_Filter, T_RowEdit> = {
 	validator: T_Validator
 	action: APIWrapper<any, any, any>
+	useRowFromAPIResponse?: boolean
 } & TableWithModalFormProps<T_Row, T_Filter, T_RowEdit>
 
 export type TableWithModalFormStringifiedProps<T_Row extends t.TypeOf<T_Validator>, T_Validator extends t.TypeC<any>, T_Filter> = {
 	keyField: string & keyof T_Row
 } & Omit<TableWithModalFormAsyncProps<T_Row, T_Validator, T_Filter, StringifiedProps<T_Row>>, 'keyField' | 'processEditRowForValidator' | 'processEditRowForSubmit' | 'defaultRowEdit'>
 
-/*if (props.validateSubmit) {
-					const errors = props.validateSubmit(formData.rowForEdit);
-					if (errors.length > 0) {
-						setValidationErrors(errors);
-						resolve(null);
-						return;
-					}
-				}
-
-				// Turn empty strings to nulls, then turn strings back to numbers/booleans
-				// HOWEVER, do not turn optional values back into options.  The validator is expecting the same shape as what would have come from the server,
-				// ie either a value or null.
-
-				//destringify(props.rowValidator, nullifyEmptyStrings(formData.rowForEdit), false, props.keyField);
-				const candidateForValidation = props.editRowToRow(formData);
-				// On a create, ID will be null which is not ok per the validator.  Shove some crap in there to make it happy
-				const pkValue = candidateForValidation[props.keyField] == null ? -1 : candidateForValidation[props.keyField];
-
-
-
-				//const validateResult
-				/*props.rowValidator.decode({
-					...candidateForValidation,
-					[props.keyField]: pkValue
-				});
-
-
-
-				const validationResults = validateResult.isLeft() ? validateResult.value.filter((a) => {return !props.columnsNonEditable.includes(a.context[1].key as K)}) : [];
-				const isValid = validateResult.isRight() || validationResults.length == 0;
-				const result = props.validateAndSubmit(candidateForValidation);
-				const rowMatches: (r: U) => boolean = r => {
-					const pk = r[props.keyField];
-					if (pk["_tag"]) {
-						return (pk as unknown as Option<any>).map(p => String(p)).getOrElse("") == formData.rowForEdit[props.keyField]
-					} else {
-						return String(pk) == formData.rowForEdit[props.keyField]
-					}
-				}
-				if (isValid) {
-					// Destringify again, this time turning optional values back into options. It's a bit pointless since
-					// they will be stripped out again before sending to the server, but ApiWrapper expects actual option values
-					// Besides, we need to give that value back to the table anyway.
-					const toSend = destringify(props.rowValidator, nullifyEmptyStrings(formData.rowForEdit), true, props.keyField);
-					var toSendEditable = toSend;
-					if(props.columnsNonEditable !== undefined){
-						toSendEditable = Object.assign({}, toSend);
-						props.columnsNonEditable.forEach((a) => {
-							const v = a as keyof typeof toSend;
-							toSendEditable[v] = undefined;
-						});
-					}
-					props.submitRow.sendJson(toSendEditable).then(ret => {
-						if (ret.type == "Success") {
-							closeModal();
-							const isUpdate = rowData.find(rowMatches) != null;
-							const toAdd = (
-								props.postSubmit
-								? props.postSubmit(toSend)
-								: toSend
-							)
-							if (isUpdate) {
-								// was an update.  Find the row and update it
-								console.log(updateRowData);
-								updateRowData(rowData.map(row => {
-									if (rowMatches(row)) {
-										if(props.columnsNonEditable !== undefined){
-											return {...ret.success, ...getOnlyNonEditableFields(formData)};
-										}else{
-											return { ...toAdd, [props.keyField]:( toAdd[props.keyField])};
-										}
-									} else {
-										return row;
-									}
-								}))
-							} else {
-								// was a create.  Add the new row after injecting the PK from the server
-								const newPkRaw = ret.success[props.keyField];
-								const newPk = (
-									newPkRaw["_tag"]
-									? (newPkRaw as Option<number>).getOrElse(null)
-									: newPkRaw
-								)
-								updateRowData(rowData.concat([{
-									...toAdd,
-									[props.keyField]: newPk
-								}]))
-							}
-						} else {
-							//setValidationErrors([{key: undefined, display: ret.message}]);
-						}
-						resolve(null);
-					})
-				} else {
-					//setValidationErrors(validationResults.map((b) => ({key:(((b || {}).context || [])[1] || {}).key, display: b.message})).filter((b) => b != undefined));
-					console.log(validateResult.swap().getOrElse(null));
-				}
-*/
-
-export function TableWithModalFormStringified<T_Row extends t.TypeOf<T_Validator>, T_Validator extends t.TypeC<any>, T_Filter = any>(props: TableWithModalFormStringifiedProps<T_Row, T_Validator, T_Filter>){
+export function TableWithModalFormAsyncStringified<T_Row extends t.TypeOf<T_Validator>, T_Validator extends t.TypeC<any>, T_Filter = any>(props: TableWithModalFormStringifiedProps<T_Row, T_Validator, T_Filter>){
 	return <TableWithModalFormAsync {...props} defaultRowEdit={stringifyAndMakeBlank(props.validator)}processEditRowForSubmit={(editRow) => {
 		return destringify(props.validator, nullifyEmptyStrings(editRow), true, props.keyField);
 	}} processEditRowForValidator={(editRow) => {
@@ -158,30 +60,44 @@ export function TableWithModalFormStringified<T_Row extends t.TypeOf<T_Validator
 
 export function TableWithModalFormAsync<T_Row, T_Validator extends t.TypeC<any>, T_Filter = any, T_RowEdit = T_Row>(props: TableWithModalFormAsyncProps<T_Row, T_Validator, T_Filter, T_RowEdit>){
 	const asc = React.useContext(AppStateContext);
-	const {validator, action, validate, submit, ...other} = props;
+	const {validator, action, useRowFromAPIResponse, validate, submit, ...other} = props;
 	return <TableWithModalForm {...other} validate={(row) => {
+		console.log("derp");
 		const resultOne = validate ? validate(row) : [];
 		if(resultOne.length > 0)
 			return resultOne;
+		const {jpAttendanceId,personId,updatedOn,updatedBy,testResult,testRatingId,signoutDatetime,signinDatetime,sailNumber,hullNumber,didCapsize,createdOn,createdBy,cardNum,comments, ...other} = row as any;
 		const result = validator.decode(row);
+		console.log("derp");
 		if(result.isRight()){
 			return [];
 		}
 		return result.swap().getOrElse(null).map((a) => a.message);
 	}} submit={(row) => {
-		action.sendJson(asc, row).then((a) => {
+		return action.sendJson(asc, row).then((a) => {
+			console.log("starting");
 			if(a.type == "Success"){
+				console.log("hello");
+				if(useRowFromAPIResponse){
+					const apiResponseRowValidation = validator.decode(a.success);
+					if(apiResponseRowValidation.isRight()){
+						return Promise.resolve(apiResponseRowValidation.value)
+					}
+					console.log("Failed to parse row from api response", apiResponseRowValidation.value);
+				}
 				return Promise.resolve(row)
 			}
 		})
-		return Promise.resolve(row);
 	}}/>
 }
 
-export default function TableWithModalForm<T_Row, T_Filter, T_RowEdit = T_Row>(props: TableWithModalFormProps<T_Row, T_Filter, T_RowEdit>) {
+export function TableWithModalFormAsyncRaw<T_Row, T_Validator extends t.TypeC<any>, T_Filter>(props: TableWithModalFormAsyncProps<T_Row, T_Validator, T_Filter, T_Row>){
+	return <TableWithModalFormAsync {...props} processEditRowForSubmit={(a) => a} processRowForEdit={(a) => a} processEditRowForValidator={(a) => a}></TableWithModalFormAsync>;
+}
+
+export default function TableWithModalForm<T_Row, T_Filter, T_RowEdit>(props: TableWithModalFormProps<T_Row, T_Filter, T_RowEdit>) {
 
 	const [modalIsOpen, setModalIsOpen] = React.useState(false);
-	//const [validationErrors, setValidationErrors] = React.useState([] as validationError[]);
 	const [formData, setFormData] = React.useState(props.defaultRowEdit);
 
 	var rowData = props.rows;
@@ -221,6 +137,7 @@ export default function TableWithModalForm<T_Row, T_Filter, T_RowEdit = T_Row>(p
 		//setValidationErrors([]);
 		if (id.isSome()) {
 			const row = rowData.find(i => i[props.keyField] as unknown as number == id.getOrElse(null))
+			//setFormData(row);
 			setFormData(props.processRowForEdit(row));
 		} else {
 			setFormData(props.defaultRowEdit)
@@ -278,13 +195,17 @@ export default function TableWithModalForm<T_Row, T_Filter, T_RowEdit = T_Row>(p
 
 		const validationErrors = props.validate(rowToValidate);
 
+		console.log("running validate");
+
 		if(validationErrors.length == 0){
 			const rowToSubmit = props.processEditRowForSubmit(formData);
-			props.submit(rowToSubmit).then((a) => {
-				
-			})
+			console.log("submitting");
+			console.log(props.submit);
+			return props.submit(rowToSubmit).then((a) => {
+				props.setRowData(props.rows.map((b) => b[props.keyField] == a[props.keyField] ? b : a));
+			});
 		}else{
-
+			return Promise.resolve();
 		}
 		
 	}
@@ -302,7 +223,6 @@ export default function TableWithModalForm<T_Row, T_Filter, T_RowEdit = T_Row>(p
 		>
 			{!props.customHeader ? <ModalHeader><h1>Add/Edit</h1></ModalHeader> : <></>}
 			<Form formData={{derp: false}} formValidator={t.type({derp: t.boolean})} submit={e => {
-				console.log("submitted");
 				submit();
 				return undefined;
 			}}>
@@ -313,8 +233,8 @@ export default function TableWithModalForm<T_Row, T_Filter, T_RowEdit = T_Row>(p
 					<Button color="secondary" onClick={closeModal}>
 						Cancel
 					</Button>{" "}
-					<Button spinnerOnClick onSubmit={() => {submit(); return Promise.resolve()}} >
-						Save
+					<Button spinnerOnClick submit={submit} >
+						SaveC
 					</Button>
 				</div>
 			</ModalFoooter> : props.customFooter(submit, closeModal) }

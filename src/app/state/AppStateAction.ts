@@ -2,7 +2,8 @@ import { none, some } from "fp-ts/lib/Option"
 
 import { showSudoToastr } from 'components/wrapped/Toast';
 
-import { apiw, apiw as getPermissions } from "async/staff/user-permissions"
+import { apiw as getPermissions } from "async/staff/user-permissions"
+import { apiw as login } from "async/authenticate-staff";
 import { getBoatTypes, getRatings } from "async/staff/dockhouse/signouts-tables";
 import { AppState, AppStateAction, AppStateCombined } from "./AppState";
 
@@ -17,7 +18,7 @@ export function getAppStateCombined(state: AppState, setState: React.Dispatch<Re
             logout: undefined
         },
         setSudoModalOpener: undefined,
-        init: undefined
+        initAfterLogin: undefined
     };
 
     const asc: AppStateCombined = {
@@ -72,7 +73,7 @@ export function getAppStateCombined(state: AppState, setState: React.Dispatch<Re
         stateAction.login = {
             setLoggedIn,
             attemptLogin: (function(userName: string, password: string): Promise<boolean> {
-                return apiw().sendFormUrlEncoded(asc, {username: userName, password}).then(res => {
+                return login().sendFormUrlEncoded(asc, {username: userName, password}).then(res => {
                     if (res.type == "Success" && res.success) {
                         setLoggedIn(userName);
                         return true;
@@ -91,11 +92,10 @@ export function getAppStateCombined(state: AppState, setState: React.Dispatch<Re
         stateAction.setSudoModalOpener = (sudoModalOpener: () => void) => {
             setStateP({sudoModalOpener: sudoModalOpener});
         },
-        stateAction.init = () => {
+        stateAction.initAfterLogin = () => {
             getRatings.send(asc).then((a) => {
                 if(a.type == "Success"){
                     setStateP({ratings: a.success});
-                    console.log("gotem");
                 }else{
                     console.log("error loading ratings");
                 }
@@ -113,6 +113,5 @@ export function getAppStateCombined(state: AppState, setState: React.Dispatch<Re
                 appProps: appProps
             })
         }*/
-        console.log(asc);
     return asc;
 }

@@ -44,7 +44,7 @@ export function filterRows(row: Row<SignoutTablesState>, columnId: string, filte
 }
 
 function getPropsMemoDep(state: SignoutsTablesState){
-	return state.map((a) => a.updatedOn.getOrElse("")).join();
+	return state.map((a) => a.updatedOn.getOrElse(moment())).join();
 }
 
 export const SignoutsTablesPage = (props: {

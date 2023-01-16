@@ -1,5 +1,5 @@
 import { Tab } from '@headlessui/react';
-import Modal, { ModalHeader } from 'components/wrapped/Modal';
+import Modal, { ModalFoooter, ModalHeader } from 'components/wrapped/Modal';
 import * as React from 'react';
 
 import * as t from "io-ts";
@@ -24,15 +24,16 @@ type ScannedPersonsType = t.TypeOf<typeof scanCardValidator>;
 
 export type ScannedCrewType = ScannedPersonsType[];
 
-type SignoutState = {
-    crew: ScannedCrewType;
-    currentSkipper: number;
-    boatId: option.Option<number>;
+type MemberActionState = {
+    crew: ScannedCrewType
+    currentSkipper: number
+    currentTesting: number[]
+    boatId: option.Option<number>
 }
 
 export type SignoutProps = {
-    state: SignoutState;
-    setState: React.Dispatch<React.SetStateAction<SignoutState>>;
+    state: MemberActionState
+    setState: React.Dispatch<React.SetStateAction<MemberActionState>>
 }
 
 function getProgramHR(programId: number){
@@ -40,20 +41,26 @@ function getProgramHR(programId: number){
 }
 
 function isHold(crew: ScannedPersonsType){
-    return true;
+    return false;
+}
+
+function CrewIcons(props: {skipper: ScannedPersonsType}){
+    return <div className="flex flex-row">
+            {props.skipper.bannerComment.isSome() ? <img src={hold} width={50}/> : <></>}
+            {isHold(props.skipper) ? <img src={comments} width={50}/> : <></>}
+        </div>;
 }
 
 export function SkipperInfo(props: SignoutProps){
     const skipper = props.state.crew[props.state.currentSkipper];
+    if(!skipper)
+        return <></>;
     const currentMembership = skipper.activeMemberships[0];
     const programHR = getProgramHR(currentMembership.programId);
     return <div className="flex flex-row grow-0 gap-5">
         <div className="flex flex-col">
             <h3 className="font-bold">Skipper:</h3>
-            <div className="flex flex-row">
-                {skipper.bannerComment.isSome() ? <img src={hold} width={50}/> : <></>}
-                {isHold(skipper) ? <img src={comments} width={50}/> : <></>}
-            </div>
+                <CrewIcons skipper={skipper}/>
             <h3 className="text-2xl font-bold">{skipper.nameFirst} {skipper.nameLast}</h3>
             <h3 className="text-xl">{programHR}</h3>
             <h3 className="text-xl">{currentMembership.membershipTypeId} TODO make this HR</h3>
@@ -119,7 +126,7 @@ export function EditCrew(props: SignoutProps & {mode: MemberActionMode}){
     return (<div className={"grid grow-[1] gap-5 " + (props.mode != MemberActionMode.TESTING ? "grid-cols-4 grid-rows-2" : "grid-cols-2 grid-rows-2")}>{crew}</div>)
 }
 
-const testMemberships: ScannedPersonsType["activeMemberships"] = [{
+export const testMemberships: ScannedPersonsType["activeMemberships"] = [{
     startDate: option.some("1992"),
     expirationDate: option.some("12/20/2022"),
     membershipTypeId: 0,
@@ -138,7 +145,7 @@ const testSkipper: ScannedPersonsType = {
     activeMemberships:testMemberships,
     bannerComment: option.some("Comment Here"),
     specialNeeds: option.none,
-    personsRatings: []
+    personRatings: []
 };
 
 const b = {
@@ -149,7 +156,7 @@ const b = {
     activeMemberships:testMemberships,
     bannerComment: option.some("Comment Here"),
     specialNeeds: option.none,
-    personsRatings: []
+    personRatings: []
 }
 
 const c = {
@@ -160,7 +167,7 @@ const c = {
     activeMemberships:testMemberships,
     bannerComment: option.some("Comment Here"),
     specialNeeds: option.none,
-    personsRatings: []
+    personRatings: []
 }
 
 const d = {
@@ -171,7 +178,7 @@ const d = {
     activeMemberships:testMemberships,
     bannerComment: option.some("Comment Here"),
     specialNeeds: option.none,
-    personsRatings: []
+    personRatings: []
 }
 
 const testCrew = [testSkipper, b, c, d]
@@ -186,37 +193,44 @@ export function DialogOutput(props: {children: React.ReactNode}){
     return <div className="bg-card w-full">{props.children}</div>;
 }
 
-const memberActionTypes: {title: React.ReactNode, getContent: (state: SignoutState, setState: React.Dispatch<React.SetStateAction<SignoutState>>) => React.ReactNode}[] = [{
+export function EditSignoutNormal(props: {state: MemberActionState, setState: React.Dispatch<React.SetStateAction<MemberActionState>>}){
+    const setBoatId = (boatId: option.Option<number>) => {
+        props.setState({...props.state, boatId: boatId})
+    };
+    return (
+    <div className="flex flex-col h-full grow-[1] gap-5">
+        <div className="flex flex-row grow-[0] gap-5">
+            <SkipperInfo {...props}></SkipperInfo>
+            <AddEditCrew {...props} mode={MemberActionMode.SIGNOUT}></AddEditCrew>
+        </div>
+        <div className="flex flex-row grow-[1]">
+            <DialogOutput>
+                <p>Dialog Output</p>
+            </DialogOutput>
+        </div>
+        <div className="flex flex-row grow-[3]">
+            <div className="w-full flex flex-col">
+                <p>Boat Type</p>
+                <BoatIcon boatId={props.state.boatId} setBoatId={setBoatId}/>
+                <DotBox className="grow-[1]">
+                    <BoatSelect boatId={props.state.boatId} setBoatId={setBoatId}></BoatSelect>
+                </DotBox>
+            </div>
+        </div>
+    </div>);
+}
+
+const memberActionTypes: {title: React.ReactNode, getContent: (state: MemberActionState, setState: React.Dispatch<React.SetStateAction<MemberActionState>>) => React.ReactNode}[] = [{
     title: "Sign Out",
-    getContent: (state, setState) => { 
-        const setBoatId = (boatId: option.Option<number>) => {
-            setState({...state, boatId: boatId})
-        };
-        return (
-        <div className="flex flex-col h-full grow-[1] gap-5">
-            <div className="flex flex-row grow-[0] gap-5">
-                <SkipperInfo state={state} setState={setState}></SkipperInfo>
-                <AddEditCrew state={state} setState={setState} mode={MemberActionMode.SIGNOUT}></AddEditCrew>
+    getContent: (state, setState) => <>
+        <EditSignoutNormal state={state} setState={setState}/>
+        <ModalFoooter>
+            <div className="flex flex-row gap-2 mr-0 ml-auto">
+                <Button className="bg-gray-300 px-5 py-2">Queue Signout</Button>
+                <Button className="bg-gray-300 px-5 py-2">Queue Signout</Button>
             </div>
-            <div className="flex flex-row grow-[1]">
-                <DialogOutput>
-                    <p>Dialog Output</p>
-                </DialogOutput>
-            </div>
-            <div className="flex flex-row grow-[3]">
-                <div className="w-full flex flex-col">
-                    <p>Boat Type</p>
-                    <BoatIcon boatId={state.boatId} setBoatId={setBoatId}/>
-                    <DotBox className="grow-[1]">
-                        <BoatSelect boatId={state.boatId} setBoatId={setBoatId}></BoatSelect>
-                    </DotBox>
-                    <div className="flex flex-row gap-2 mr-0 ml-auto">
-                        <Button className="bg-gray-300 px-5 py-2">Queue Signout</Button>
-                        <Button className="bg-gray-300 px-5 py-2">Queue Signout</Button>
-                    </div>
-                </div>
-            </div>
-        </div>)}
+        </ModalFoooter>
+    </>
 },
 {
     title: "Testing",
@@ -276,7 +290,7 @@ const memberActionTypes: {title: React.ReactNode, getContent: (state: SignoutSta
         </div>)
 }]
 
-function MemberActionRatings(props: {state: SignoutState, setState: React.Dispatch<React.SetStateAction<SignoutState>>}){
+function MemberActionRatings(props: {state: MemberActionState, setState: React.Dispatch<React.SetStateAction<MemberActionState>>}){
     const availablePrograms = {};
     props.state.crew.forEach((a) => availablePrograms[a.activeMemberships[0].programId] = true);
     const [programId, setProgramId] = React.useState<option.Option<number>>(option.none);
@@ -294,7 +308,7 @@ export type MemberActionModalProps = {
 }
 
 export default function MemberActionModal(props: MemberActionModalProps){
-    const [state, setState] = React.useState({crew: testCrew, currentSkipper: 0, boatId: option.none});
+    const [state, setState] = React.useState({crew: testCrew, currentSkipper: 0, currentTesting: [], boatId: option.none});
     const header = (
         <Tab.List className="flex flex-row gap-primary">
             <h1 className="text-2xl font-bold">Member Actions:</h1>
@@ -324,8 +338,4 @@ type GeneralPersonInfo = {
     personId: number
     cardNumber: string
     [key: string | number | symbol]: any
-}
-
-export function adaptPerson(partialCrew: Partial<GeneralPersonInfo>): ScannedPersonsType{
-	return testSkipper;
 }

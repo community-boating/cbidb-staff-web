@@ -20,7 +20,7 @@ const inputClassName = "rounded-md border border-gray-700"
 
 const ValidationContext = React.createContext<ValidationType>({validationsById: {}, globalValidations: []});
 
-type ValidationType = {
+export type ValidationType = {
 	validationsById: {
 		[key: string]: React.ReactNode[]
 	}
@@ -105,9 +105,7 @@ export const ValidatedTextInput = (props: (CustomInputProps<any> & InputProps)) 
 export type SelectOption<T_SelectOption> = {value: T_SelectOption, display: ReactNode};
 
 export function SelectInput<T_SelectOption extends string | number> (props: CustomInputProps<Option<T_SelectOption>> & InputProps & {selectOptions : SelectOption<T_SelectOption>[], showNone?: SelectOption<T_SelectOption>, selectNone?: boolean, isNumber?: boolean}) {
-	console.log("dooping");
 	const value = React.useContext(ValidationContext);
-	console.log(value);
 	const {selectOptions,showNone,selectNone,isNumber,initValue,updateValue,...other} = props;
 	const showNonePadded = showNone === undefined ? {value: undefined, display: "None"} : showNone;
 	const selectOptionsWithNone = [showNonePadded].concat(selectOptions);

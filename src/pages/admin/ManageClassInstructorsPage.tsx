@@ -1,7 +1,7 @@
 import * as React from "react";
 import * as t from 'io-ts';
 import {classInstructorValidator} from 'async/rest/class-instructor'
-import TableWithModalForm, { TableWithModalFormStringified } from "components/table/TableWithModalForm";
+import TableWithModalForm, { TableWithModalFormAsyncStringified } from "components/table/TableWithModalForm";
 import {putWrapper as putInstructor} from "async/rest/class-instructor"
 import { FormGroup, Label, Col, Input } from 'reactstrap';
 import { StringifiedProps } from "util/StringifyObjectProps";
@@ -66,7 +66,7 @@ export default function ManageClassInstructorsPage(props: { instructors: ClassIn
 		</FormGroup>
 	</React.Fragment>;
 
-	return <TableWithModalFormStringified
+	return <TableWithModalFormAsyncStringified
 		validator={classInstructorValidator}
 		rows={props.instructors}
 		keyField="INSTRUCTOR_ID"

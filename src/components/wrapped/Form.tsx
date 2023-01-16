@@ -1,6 +1,6 @@
 import * as React from 'react';
 import * as t from 'io-ts';
-import { ValidationGroup } from './Input';
+import { ValidationGroup, ValidationType } from './Input';
 
 export type ValidatedFormProps<T extends t.TypeC<any>, U extends object = t.TypeOf<T>> = {
     formData: U
@@ -12,17 +12,23 @@ export type ValidatedFormProps<T extends t.TypeC<any>, U extends object = t.Type
 
 export default function ValidatedForm<T extends t.TypeC<any>, U extends object = t.TypeOf<T>>(props: ValidatedFormProps<T, U> & React.DetailedHTMLProps<React.FormHTMLAttributes<HTMLFormElement>, HTMLFormElement>){
     const [formData, setFormData] = props.setFormData ? [props.formData, props.setFormData] : React.useState(props.formData);
-    const [validationErrors, setValidationErrors] = React.useState([]);
+    const [validationErrors, setValidationErrors] = React.useState<ValidationType>({
+        validationsById: {},
+        globalValidations: []
+    });
     const handleSubmit = () => {
-        if(props.formValidator.decode(formData).isRight()){
+        console.log("submitting");
+        const result = props.formValidator.decode(formData)
+        if(result.isRight()){
             props.submit(formData);
         }else{
-            setValidationErrors([]);
+            console.log("error");
+            setValidationErrors((v) => ({...v,globalValidations: []}));
         }
     };
     return (
     <form onSubmit={(e) => {e.preventDefault(); handleSubmit();}}>
-        <ValidationGroup validations={{validationsById: {}, globalValidations: ["yolo"]}}>
+        <ValidationGroup validations={validationErrors}>
             {props.children}
         </ValidationGroup>
     </form>);

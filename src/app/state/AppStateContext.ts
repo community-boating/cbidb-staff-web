@@ -31,6 +31,7 @@ export const defaultAppState: AppState = {
 		boatTypes: [],
 		ratings: [],
 		sudoModalOpener: () => {},
+		hasInit: false
 };
 
 export const AppStateContext = React.createContext<AppStateCombined>({

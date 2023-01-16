@@ -17,6 +17,7 @@ export type AppState = {
 	boatTypes: BoatTypesType
     ratings: RatingsType
     sudoModalOpener: () => void
+    hasInit: boolean
 }
 
 export type AppStateDerived = {
@@ -32,7 +33,7 @@ export type AppStateAction = {
         logout: () => void
     }
     setSudoModalOpener: (sudoModalOpener: () => void) => void
-    init: () => void
+    initAfterLogin: () => void
 }
 
 export type AppStateCombined = {
