@@ -1,13 +1,14 @@
 import { option } from 'fp-ts';
 import * as React from 'react';
-import { ScannedCrewType } from './ActionModal';
+import { ScannedCrewType, ScannedPersonsType } from './ActionModal';
 import { getWrapper } from 'async/staff/dockhouse/scan-card';
 import { AppStateContext } from 'app/state/AppStateContext';
+import { ApiResult } from 'core/APIWrapperTypes';
 
 export const ScannedPersonsCacheContext = React.createContext<ScannedPersonsCacheGet>({getCached: undefined})
 
 export type CachedScans = {
-    [key: string]: ScannedCrewType[number]
+    [key: string]: option.Option<ScannedCrewType[number]>
 }
 
 export type ScannedPersonsCacheProps = {
@@ -15,7 +16,7 @@ export type ScannedPersonsCacheProps = {
 }
 
 export type ScannedPersonsCacheGet = {
-    getCached: (cardNum: string) => option.Option<ScannedCrewType[number]>
+    getCached: (cardNum: string, onResponse?: (result: option.Option<ScannedCrewType[number]>) => void) => option.Option<ScannedCrewType[number]>
 }
 
 export default function ScannedPersonsCache(props){
@@ -23,19 +24,22 @@ export default function ScannedPersonsCache(props){
     const asc = React.useContext(AppStateContext);
     const scanning = React.useRef({});
     const cacheGet = {
-        getCached: (cardNum: string) => {
+        getCached: (cardNum: string, onResponse?: (result: option.Option<ScannedCrewType[number]>) => void) => {
             const cached = cachedScans[cardNum];
             if(cached){
-                return option.some(cached);
+                onResponse && onResponse(cached);
+                return cached;
             }else{
                 if(!scanning.current[cardNum]){
-                    scanning.current[cardNum] = true;
-                    getWrapper(cardNum).send(asc).then((a) => {
-                        if(a.type == "Success"){
-                            setCachedScans((s) => ({...s, ...{[cardNum]: a.success}}));
-                        }else{
-                            console.log(a);
-                        }
+                    scanning.current[cardNum] = getWrapper(cardNum).send(asc).then((a) => {
+                        const result: option.Option<ScannedCrewType[number]> = a.type == "Success" ? option.some(a.success) : option.none;
+                        setCachedScans((s) => ({...s, ...{[cardNum]: result}}));
+                        onResponse && onResponse(result);
+                    })
+                }else{
+                    scanning.current[cardNum].then((a) => {
+                        const result: option.Option<ScannedCrewType[number]> = a.type == "Success" ? option.some(a.success) : option.none;
+                        onResponse && onResponse(result);
                     })
                 }
             }

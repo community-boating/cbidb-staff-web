@@ -15,7 +15,7 @@ import { CustomInput as Input, SelectInput } from 'components/wrapped/Input';
 import swap from 'assets/img/icons/buttons/swap.svg';
 import x from 'assets/img/icons/buttons/x.svg';
 import add from 'assets/img/icons/buttons/add.svg';
-import IconButton from 'components/wrapped/IconButton';
+import IconButton, { GoButton } from 'components/wrapped/IconButton';
 import BoatIcon, { BoatSelect } from './BoatIcon';
 import { scanCardValidator } from 'async/staff/dockhouse/scan-card';
 import RatingsGrid from './RatingsGrid';
@@ -28,7 +28,7 @@ export type ScannedPersonsType = t.TypeOf<typeof scanCardValidator>;
 export type ScannedCrewType = ScannedPersonsType[];
 
 export type MemberActionState = {
-    currentPeopleCardNum: string[]
+    currentPeopleCardNums: string[]
     currentSkipper: number
     currentTesting: number[]
     boatId: option.Option<number>
@@ -62,7 +62,7 @@ export function SkipperInfo(props: SignoutProps){
     const scannedPersonsCache = React.useContext(ScannedPersonsCacheContext);
     if(props.state.currentSkipper == undefined)
         return <></>;
-    const skipper = scannedPersonsCache.getCached(props.state.currentPeopleCardNum[props.state.currentSkipper]);
+    const skipper = scannedPersonsCache.getCached(props.state.currentPeopleCardNums[props.state.currentSkipper]);
     if(skipper.isNone())
         return <></>;
     const currentMembership = skipper.value.activeMemberships[0];
@@ -98,15 +98,52 @@ export function AddEditCrew(props: SignoutProps & {mode: MemberActionMode}){
         </div>);
 }
 
-function CardNumberScanner(props: (SignoutProps & {label: string})){
-    const [cardNum, setCardNum] = React.useState("");
-    const addCardNumToCrew = () => {
-        props.setState((s) => ({...s, currentPeopleCardNum: s.currentPeopleCardNum.concat([cardNum])}));
+export function CardNumberScanner(props: ({label: string, onAction: (result: ScannedCrewType[number]) => void})){
+    const [cardNum, setCardNum] = React.useState<option.Option<string>>(option.none);
+    const [foundPerson, setFoundPerson] = React.useState<option.Option<ScannedCrewType[number]>>(option.none);
+    const [error, setError] = React.useState<option.Option<string>>(option.none);
+    const [actionQueued, setActionQueued] = React.useState<option.Option<string>>(option.none);
+    const timeoutID = React.useRef<NodeJS.Timeout>(undefined);
+    const context = React.useContext(ScannedPersonsCacheContext);
+    const findCardNum = (cardNum: string) => {
+        setCardNum(cardNum == "" ? option.none : option.some(cardNum));
+        if(timeoutID.current){
+            clearTimeout(timeoutID.current);
+        }
+        timeoutID.current = setTimeout(() => {
+            console.log("trying");
+            context.getCached(cardNum, (result) => {
+                console.log("resulting");
+                if(result.isSome()){
+                    setFoundPerson(option.some(result.value));
+                    setError(option.none);
+                }else{
+                    setFoundPerson(option.none);
+                    setError(option.some("Couldn't find person"));
+                }
+                timeoutID.current = undefined;
+            });
+        }, 200);
     }
-    return <Input label={props.label} value={cardNum} onChange={(e) => {e.preventDefault(); setCardNum(e.target.value)}} onEnter={() => {
+    const addCardNumToCrew = () => {
+        if(foundPerson.isSome() && actionQueued.isSome() && actionQueued.value == foundPerson.value.cardNumber){
+            props.onAction(foundPerson.value);
+            setActionQueued(option.none);
+        }
+    }
+    React.useEffect(() => {
         addCardNumToCrew();
-        //props.setState((state) => ({...state, crew: ([testCrew[rand]].concat(state.crew.concat())), currentSkipper: state.currentSkipper + 1}));
-    }}></Input>
+    }, [foundPerson, actionQueued]);
+    const doQueue = () => {
+        setActionQueued(cardNum);
+    }
+    return <div>
+        <Input label={props.label} value={cardNum.getOrElse("")} end={<GoButton onClick={() => {doQueue();}}/>} onChange={(e) => {e.preventDefault(); findCardNum(e.target.value);}} onEnter={() => {
+        doQueue();
+        }}></Input>
+        {foundPerson.isSome() ? (foundPerson.value.nameFirst + " " + foundPerson.value.nameLast) : ""}
+        {error.isSome() ? error.value : ""}
+    </div>
 }
 
 export function AddCrew(props: SignoutProps & {mode: MemberActionMode}){
@@ -118,7 +155,9 @@ export function AddCrew(props: SignoutProps & {mode: MemberActionMode}){
                 <Button className="bg-gray-200 p-card">Search Phone</Button>
                 <Button className="bg-gray-200 p-card">Search Name</Button>
             </div> : <></>}
-            <CardNumberScanner {...props} label="Add person..."></CardNumberScanner>
+            <CardNumberScanner label="Add person..." onAction={(a) => {
+                props.setState((s) => ({...s, currentPeopleCardNums: s.currentPeopleCardNums.concat(a.cardNumber)}));
+            }}></CardNumberScanner>
             {props.mode == MemberActionMode.SIGNOUT ? <><Button className="bg-gray-200 p-card" onClick={setRandom}>Find Highest Ratings</Button>
             <Button className="bg-gray-200 p-card" onClick={setRandom}>Find Highest Privileges</Button></> : <></>}
         </div>);
@@ -131,7 +170,7 @@ function EditCrewButton(props: {src: string, onClick: (e) => void, mode: MemberA
 export function EditCrew(props: SignoutProps & {mode: MemberActionMode}){
     const iconTwo = props.mode == MemberActionMode.SIGNOUT ? swap : add;
     const cache = React.useContext(ScannedPersonsCacheContext);
-    const crew = <>{props.state.currentPeopleCardNum.map((a, i) => {
+    const crew = <>{props.state.currentPeopleCardNums.map((a, i) => {
         if(i == props.state.currentSkipper){
             return <></>;
         }
@@ -141,7 +180,7 @@ export function EditCrew(props: SignoutProps & {mode: MemberActionMode}){
         }
         return (<div key={i} className="whitespace-nowrap">        
             <div className="flex flex-row">
-                <EditCrewButton src={x} onClick={() => {props.setState((state) => ({...state, currentPeopleCardNum: state.currentPeopleCardNum.filter((a, i2) => i2 != i), currentSkipper: Math.min(state.currentSkipper, state.currentPeopleCardNum.length - 2)}))}} mode={props.mode}/>
+                <EditCrewButton src={x} onClick={() => {props.setState((state) => ({...state, currentPeopleCardNums: state.currentPeopleCardNums.filter((a, i2) => i2 != i), currentSkipper: Math.min(state.currentSkipper, state.currentPeopleCardNums.length - 2)}))}} mode={props.mode}/>
                 <h3 className="font-medium">{b.value.nameFirst} {b.value.nameLast}</h3>
             </div>
             <div className="flex flex-row">
@@ -339,7 +378,7 @@ export class NoneAction extends Action<undefined>{
 
 
 function MemberActionModal(props: MemberActionType){
-    const [state, setState] = React.useState({currentPeopleCardNum: [props.scannedCard], currentSkipper: 0, currentTesting: [], boatId: option.none});
+    const [state, setState] = React.useState({currentPeopleCardNums: [props.scannedCard], currentSkipper: 0, currentTesting: [], boatId: option.none});
     return <Tab.Group>
         <ModalHeader className="text-2xl font-bold">
             <Tab.List className="flex flex-row gap-primary">
@@ -370,7 +409,7 @@ function MemberActionModal(props: MemberActionType){
 
 function adaptSignoutState(state: SignoutTablesState): EditSignoutState{
 	return {
-		currentPeopleCardNum: [state.cardNum.getOrElse(undefined)].concat(state.$$crew.map((a) => a.cardNum.getOrElse(undefined))),
+		currentPeopleCardNums: [state.cardNum.getOrElse(undefined)].concat(state.$$crew.map((a) => a.cardNum.getOrElse(undefined))),
 		currentSkipper: 0,
 		currentTesting: [],
 		boatId: option.some(state.boatId),

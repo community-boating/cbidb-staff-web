@@ -2,7 +2,7 @@ import * as React from 'react';
 import { CardLayout, Card, LayoutDirection, FlexSize, CardOrButton } from '../../../components/dockhouse/Card';
 import { CustomInput as Input } from 'components/wrapped/Input';
 import { GoButton } from 'components/wrapped/IconButton';
-import ActionModal, { Action, EditSignoutAction, MemberAction, NoneAction } from '../memberaction/ActionModal';
+import ActionModal, { Action, CardNumberScanner, EditSignoutAction, MemberAction, NoneAction } from '../memberaction/ActionModal';
 import AsyncStateProvider, { ProviderState } from 'core/AsyncStateProvider';
 import { getSignoutsToday } from 'async/staff/dockhouse/signouts-tables';
 import { filterActive, SignoutsTable } from '../signouts/SignoutsTable';
@@ -32,7 +32,9 @@ export default function DockHousePage (props) {
             <CardLayout direction={LayoutDirection.HORIZONTAL}>
                 <CardLayout direction={LayoutDirection.VERTICAL}>
                     <CardOrButton title="Member Actions" button={<div><input className="object-fill" type="image" src={""}/></div>}>
-                        <Input label={"Card Number:"} end={<GoButton onClick={() => {setAction(new MemberAction(inputState));}}/>} isEnd={true} groupClassName="mt-auto" value={inputState} onChange={(e) => {setInputState(e.target.value)}} onEnter={() => {setAction(new MemberAction(inputState));}}/>
+                        <CardNumberScanner label="Card Number:" onAction={(a) => {
+                            setAction(new MemberAction(a.cardNumber));
+                        }}></CardNumberScanner>
                     </CardOrButton>
                     <Card title="One Day Rentals"></Card>
                     <Card title="Testing"></Card>
