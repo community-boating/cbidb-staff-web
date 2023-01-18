@@ -19,7 +19,7 @@ export default function HeaderNavbarFull(props: {history: History<any>}){
     .sort((a, b) => orElse(a.navOrder, 1) - orElse(b.navOrder, 1))
     .map((a, i) => (<span key={i}>
     <h1 className="inline text-xl font-black">{(i > 0 ? " | " : "")}</h1>
-    <NavLink className="underline" to={a.pathWrapper.path || a.getPathFromArgs({})} activeClassName="no-underline text-boathouseblue font-bold" exact={true} onClick={e => {
+    <NavLink className="underline font-bold" to={a.pathWrapper.path || a.getPathFromArgs({})} activeClassName="no-underline text-boathouseblue" exact={true} onClick={e => {
         e.preventDefault();
         linkWithAccessControl(props.history, a, {}, asc, (a && a.requireSudo), a.pathWrapper.path);
     }}><h1 className="inline text-2xl">{a.navTitle}</h1></NavLink></span>));

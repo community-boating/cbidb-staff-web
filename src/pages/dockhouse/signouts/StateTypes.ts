@@ -17,6 +17,11 @@ export type SkipperType = t.TypeOf<typeof skipperValidator>;
 
 export type ReassignedMapType = { [key: string]: { [key: number]: number[] } };
 
+export type EditSignoutType = {
+    currentSignout: SignoutTablesState
+    onSubmit: (updatedSignout: SignoutTablesState) => Promise<any>
+}
+
 export type SignoutsTablesExtraState = {
 	multiSignInSelected: number[]
 	setUpdateCrewModal?: (signoutId: number) => void

@@ -2,7 +2,7 @@ import * as React from 'react';
 import { CardLayout, Card, LayoutDirection, FlexSize, CardOrButton } from '../../../components/dockhouse/Card';
 import { CustomInput as Input } from 'components/wrapped/Input';
 import { GoButton } from 'components/wrapped/IconButton';
-import ActionModal from '../memberaction/ActionModal';
+import ActionModal, { Action, EditSignoutAction, MemberAction, NoneAction } from '../memberaction/ActionModal';
 import AsyncStateProvider, { ProviderState } from 'core/AsyncStateProvider';
 import { getSignoutsToday } from 'async/staff/dockhouse/signouts-tables';
 import { filterActive, SignoutsTable } from '../signouts/SignoutsTable';
@@ -19,7 +19,7 @@ import ScannedPersonsCache from '../memberaction/ScannedPersonsCache';
 export default function DockHousePage (props) {
     const [inputState, setInputState] = React.useState("");
     const asc = React.useContext(AppStateContext);
-    const [open, setOpen] = React.useState(false);
+    const [action, setAction] = React.useState<Action<any>>(new NoneAction());
     const v = t.type({derp: t.boolean});
     const extraStateAsync: SignoutsTablesExtraStateDepOnAsync = React.useMemo(() => ({
         ratings: asc.state.ratings,
@@ -32,7 +32,7 @@ export default function DockHousePage (props) {
             <CardLayout direction={LayoutDirection.HORIZONTAL}>
                 <CardLayout direction={LayoutDirection.VERTICAL}>
                     <CardOrButton title="Member Actions" button={<div><input className="object-fill" type="image" src={""}/></div>}>
-                        <Input label={"Card Number:"} end={<GoButton onClick={() => {setOpen(true);}}/>} isEnd={true} groupClassName="mt-auto" value={inputState} onChange={(e) => {setInputState(e.target.value)}} onEnter={() => {setOpen(true);}}/>
+                        <Input label={"Card Number:"} end={<GoButton onClick={() => {setAction(new MemberAction(inputState));}}/>} isEnd={true} groupClassName="mt-auto" value={inputState} onChange={(e) => {setInputState(e.target.value)}} onEnter={() => {setAction(new MemberAction(inputState));}}/>
                     </CardOrButton>
                     <Card title="One Day Rentals"></Card>
                     <Card title="Testing"></Card>
@@ -54,7 +54,7 @@ export default function DockHousePage (props) {
                 const extraState: SignoutsTablesExtraState = {...extraStateAsync, multiSignInSelected: [], reassignedHullsMap, reassignedSailsMap} ;
                 return <>
                     <Card title="Active Signouts">
-                        {providerState == ProviderState.SUCCESS ? <SignoutsTable state={state} setState={setState} extraState={extraState} isActive={true} filterValue={makeInitFilter()} globalFilter={{} as any}></SignoutsTable> : <>Loading...</>}
+                        {providerState == ProviderState.SUCCESS ? <SignoutsTable state={state} setState={setState} extraState={extraState} isActive={true} filterValue={makeInitFilter()} globalFilter={{} as any} openEditRow={(row) => {setAction(new EditSignoutAction(row, ((row) => {return Promise.resolve();})))}}></SignoutsTable> : <>Loading...</>}
                     </Card>
                     <Card title="Completed Signouts">
                         {providerState == ProviderState.SUCCESS ? state.length : "Loading..."}
@@ -62,6 +62,6 @@ export default function DockHousePage (props) {
                 </>
             }}></AsyncStateProvider>
         </CardLayout>
-        <ActionModal open={open} setOpen={setOpen}/>
+        <ActionModal action={action} setAction={setAction}/>
      </ScannedPersonsCache>);
 };

@@ -8,7 +8,7 @@ import hold from 'assets/img/icons/hold.svg';
 import comments from 'assets/img/icons/comments.svg';
 import person from 'assets/img/icons/person.svg';
 import { option } from 'fp-ts';
-import { programsHR } from '../signouts/Constants';
+import { programsHR, SignoutTypes, signoutTypesHR } from '../signouts/Constants';
 import Button from 'components/wrapped/Button';
 import { CustomInput as Input, SelectInput } from 'components/wrapped/Input';
 
@@ -20,16 +20,22 @@ import BoatIcon, { BoatSelect } from './BoatIcon';
 import { scanCardValidator } from 'async/staff/dockhouse/scan-card';
 import RatingsGrid from './RatingsGrid';
 import { ScannedPersonsCacheContext } from './ScannedPersonsCache';
+import { EditSignoutType, SignoutTablesState } from '../signouts/StateTypes';
+import RadioGroup from 'components/wrapped/RadioGroup';
 
 export type ScannedPersonsType = t.TypeOf<typeof scanCardValidator>;
 
 export type ScannedCrewType = ScannedPersonsType[];
 
 export type MemberActionState = {
-    crewCardNums: string[]
-    currentSkipperCardNum: string
-    currentTestingCardNums: string[]
+    currentPeopleCardNum: string[]
+    currentSkipper: number
+    currentTesting: number[]
     boatId: option.Option<number>
+}
+
+export type EditSignoutState = MemberActionState & {
+    type: string
 }
 
 export type SignoutProps = {
@@ -54,7 +60,9 @@ function CrewIcons(props: {skipper: ScannedPersonsType}){
 
 export function SkipperInfo(props: SignoutProps){
     const scannedPersonsCache = React.useContext(ScannedPersonsCacheContext);
-    const skipper = scannedPersonsCache.getCached(props.state.currentSkipperCardNum);
+    if(props.state.currentSkipper == undefined)
+        return <></>;
+    const skipper = scannedPersonsCache.getCached(props.state.currentPeopleCardNum[props.state.currentSkipper]);
     if(skipper.isNone())
         return <></>;
     const currentMembership = skipper.value.activeMemberships[0];
@@ -90,19 +98,27 @@ export function AddEditCrew(props: SignoutProps & {mode: MemberActionMode}){
         </div>);
 }
 
+function CardNumberScanner(props: (SignoutProps & {label: string})){
+    const [cardNum, setCardNum] = React.useState("");
+    const addCardNumToCrew = () => {
+        props.setState((s) => ({...s, currentPeopleCardNum: s.currentPeopleCardNum.concat([cardNum])}));
+    }
+    return <Input label={props.label} value={cardNum} onChange={(e) => {e.preventDefault(); setCardNum(e.target.value)}} onEnter={() => {
+        addCardNumToCrew();
+        //props.setState((state) => ({...state, crew: ([testCrew[rand]].concat(state.crew.concat())), currentSkipper: state.currentSkipper + 1}));
+    }}></Input>
+}
+
 export function AddCrew(props: SignoutProps & {mode: MemberActionMode}){
     const setRandom = (e) => {
-        //props.setState((state) => ({...state, currentSkipper: Math.floor(Math.random()*state.crew.length)}));
+        //props.setState((state) => ({...state, currentSkipper: Math.floor(Math.random()*state.crewCardNums.length)}));
     }
     return (<div className="flex flex-col grow-0 gap-2">
             {props.mode == MemberActionMode.SIGNOUT ? <div className="flex flex-row gap-2">
                 <Button className="bg-gray-200 p-card">Search Phone</Button>
                 <Button className="bg-gray-200 p-card">Search Name</Button>
             </div> : <></>}
-            <Input label="add person..." onEnter={() => {
-                const rand = Math.floor(Math.random()*4);
-                //props.setState((state) => ({...state, crew: ([testCrew[rand]].concat(state.crew.concat())), currentSkipper: state.currentSkipper + 1}));
-            }}></Input>
+            <CardNumberScanner {...props} label="Add person..."></CardNumberScanner>
             {props.mode == MemberActionMode.SIGNOUT ? <><Button className="bg-gray-200 p-card" onClick={setRandom}>Find Highest Ratings</Button>
             <Button className="bg-gray-200 p-card" onClick={setRandom}>Find Highest Privileges</Button></> : <></>}
         </div>);
@@ -114,19 +130,26 @@ function EditCrewButton(props: {src: string, onClick: (e) => void, mode: MemberA
 
 export function EditCrew(props: SignoutProps & {mode: MemberActionMode}){
     const iconTwo = props.mode == MemberActionMode.SIGNOUT ? swap : add;
-    return <></>;
-    /*const crew = <>{props.state.crew.map((a, i) => (i != props.state.currentSkipper) ? (<div key={i} className="whitespace-nowrap">        
+    const cache = React.useContext(ScannedPersonsCacheContext);
+    const crew = <>{props.state.currentPeopleCardNum.map((a, i) => {
+        if(i == props.state.currentSkipper){
+            return <></>;
+        }
+        const b = cache.getCached(a);
+        if(b.isNone()){
+            return <></>;
+        }
+        return (<div key={i} className="whitespace-nowrap">        
             <div className="flex flex-row">
-                <EditCrewButton src={x} onClick={() => {props.setState((state) => ({...state, crew: state.crew.filter((a, i2) => i2 != i), currentSkipper: Math.min(state.currentSkipper, state.crew.length - 2)}))}} mode={props.mode}/>
-                <h3 className="font-medium">{a.nameFirst} {a.nameLast}</h3>
+                <EditCrewButton src={x} onClick={() => {props.setState((state) => ({...state, currentPeopleCardNum: state.currentPeopleCardNum.filter((a, i2) => i2 != i), currentSkipper: Math.min(state.currentSkipper, state.currentPeopleCardNum.length - 2)}))}} mode={props.mode}/>
+                <h3 className="font-medium">{b.value.nameFirst} {b.value.nameLast}</h3>
             </div>
             <div className="flex flex-row">
                 <EditCrewButton src={iconTwo} onClick={() => {props.setState((state) => ({...state, currentSkipper: i}))}} mode={props.mode}/>
-                <h3 className="font-light">{getProgramHR(a.activeMemberships[0].programId)}</h3>
+                <h3 className="font-light">{getProgramHR(b.value.activeMemberships[0].programId.getOrElse(undefined))}</h3>
             </div>
-        </div>)
-        : undefined)}</>;
-    return (<div className={"grid grow-[1] gap-5 " + (props.mode != MemberActionMode.TESTING ? "grid-cols-4 grid-rows-2" : "grid-cols-2 grid-rows-2")}>{crew}</div>)*/
+        </div>)})}</>;
+    return (<div className={"grid grow-[1] gap-5 " + ((props.mode != MemberActionMode.TESTING) ? "grid-cols-4 grid-rows-2" : "grid-cols-2 grid-rows-2")}>{crew}</div>)
 }
 
 export const testMemberships: ScannedPersonsType["activeMemberships"] = [{
@@ -274,27 +297,58 @@ function MemberActionRatings(props: {state: MemberActionState, setState: React.D
         </div>
 }
 
-export enum PrimaryActionModalMode{
-    MEMBER_ACTIONS,
-    EDIT_SIGNOUT
-}
-
 export type ActionModalProps = {
-    open: boolean;
-    setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+    action: Action<any>
+    setAction: (action: Action<any>) => void
 }
 
-function MemberActionModal(props){
-    const [state, setState] = React.useState({crewCardNums: [], currentSkipperCardNum: "1234567", currentTestingCardNums: [], boatId: option.none});
+export abstract class Action<T>{
+    modeInfo: T
+    createModalContent(info: T): React.ReactNode{return undefined}
+}
+
+type MemberActionType = {
+    scannedCard: string
+}
+
+export class MemberAction extends Action<MemberActionType>{
+    constructor(scannedCard: string){
+        super();
+        this.modeInfo = {scannedCard};
+    }
+    createModalContent(info: MemberActionType){
+        return <MemberActionModal {...info}></MemberActionModal>
+    } 
+}
+
+export class EditSignoutAction extends Action<EditSignoutType>{
+    constructor(row: SignoutTablesState, onSubmit: (row: SignoutTablesState) => Promise<any>){
+        super();
+        this.modeInfo = {
+            currentSignout: row,
+            onSubmit: onSubmit
+        }
+    }
+    createModalContent(info: EditSignoutType){
+        return <EditSignoutModal {...info}></EditSignoutModal>
+    }
+}
+
+export class NoneAction extends Action<undefined>{
+}
+
+
+function MemberActionModal(props: MemberActionType){
+    const [state, setState] = React.useState({currentPeopleCardNum: [props.scannedCard], currentSkipper: 0, currentTesting: [], boatId: option.none});
     return <Tab.Group>
-        <ModalHeader>
+        <ModalHeader className="text-2xl font-bold">
             <Tab.List className="flex flex-row gap-primary">
-                <h1 className="text-2xl font-bold">Member Actions:</h1>
+                <h1>Member Actions:</h1>
                 {memberActionTypes.map((a, i) => <Tab key={i} as={React.Fragment}>
                     {({selected}) => (
                         <div className="flex flex-row gap-primary">
-                            {(i > 0 ? <span onClick={(e) => {e.preventDefault()}}><h1 className="text-2xl">|</h1></span> : "")}
-                            <button className={"text-2xl inline" + (selected ? " text-boathouseblue font-bold" : " underline")}>{a.title}</button>
+                            {(i > 0 ? <span onClick={(e) => {e.preventDefault()}}><h1>|</h1></span> : "")}
+                            <button className={"inline" + (selected ? " text-boathouseblue font-bold" : " underline")}>{a.title}</button>
                         </div>
                     )}
                 </Tab>)
@@ -303,7 +357,7 @@ function MemberActionModal(props){
         </ModalHeader>
         <hr className="border-t-1 border-black"/>
         <Tab.Panels className="h-[80vh] min-w-[80vw] flex flex-col">
-            {memberActionTypes.map((a, i) => <Tab.Panel className="grow-[1]" key={i}>{a.getContent(state, setState)}</Tab.Panel>)}
+            {memberActionTypes.map((a, i) => <Tab.Panel className="grow-[1]" key={i}>{a.getContent(state, setState, )}</Tab.Panel>)}
         </Tab.Panels>
         <>
             <div className="flex flex-row gap-2 mr-0 ml-auto">
@@ -314,11 +368,40 @@ function MemberActionModal(props){
     </Tab.Group>
 }
 
+function adaptSignoutState(state: SignoutTablesState): EditSignoutState{
+	return {
+		currentPeopleCardNum: [state.cardNum.getOrElse(undefined)].concat(state.$$crew.map((a) => a.cardNum.getOrElse(undefined))),
+		currentSkipper: 0,
+		currentTesting: [],
+		boatId: option.some(state.boatId),
+        type: state.signoutType
+	}
+}
+
+const makeNode = (index: number, display: React.ReactNode) => (checked: boolean, setValue) => {
+	return <h1 className={"flex " + (checked ? "text-boathouseblue" : "")} key={index}>{display}</h1>;
+}
+
+function EditSignoutModal(props: EditSignoutType){
+    const [state, setState] = React.useState(adaptSignoutState(props.currentSignout));
+    console.log(state.type);
+    console.log("changing");
+    const mode = state.type == SignoutTypes.TEST ? MemberActionMode.TESTING : MemberActionMode.SIGNOUT;
+        return <>
+			<ModalHeader className="font-bold text-2xl gap-1">
+				<RadioGroup className="flex flex-row" value={option.some(state.type)} setValue={(v) => setState((s) => ({...s, type: v.getOrElse("")}))} makeChildren={signoutTypesHR.map((a,i) => ({value: a.value, makeNode: (c, s) => {return makeNode(i, a.display)(c, s)}}))}/>
+			</ModalHeader>
+				<div className="w-[80vw] h-[80vh] p-5">
+					<EditSignout state={state} setState={setState} mode={mode}/>
+				</div>
+			</>
+}
+
 export default function ActionModal(props: ActionModalProps){
+    const modalContent = props.action.createModalContent(props.action.modeInfo);
     return (
-    
-        <Modal {...props} className="bg-gray-100 rounded-lg">
-            <MemberActionModal></MemberActionModal>
+        <Modal open={!(props.action instanceof NoneAction)} setOpen={(s) => {if(!s){props.setAction(new NoneAction())}}} className="bg-gray-100 rounded-lg">
+            {modalContent}
         </Modal>);
 }
 

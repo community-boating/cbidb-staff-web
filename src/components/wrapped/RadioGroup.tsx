@@ -25,7 +25,7 @@ export default function RadioGroup<T_Value>(props: RadioGroupProps<T_Value>){
         <RadioGroupHUI.Label>{props.label}</RadioGroupHUI.Label>
         <div ref={ref} className={props.className} tabIndex={0}>
             {props.makeChildren.map((a, i) => (<RadioGroupHUI.Option key={i} value={a.value} as={React.Fragment}>
-                {({active, checked}) => <div key={i} className="flex">{a.makeNode(checked, props.setValue)}</div>}
+                {({active, checked}) => <button key={i} className="flex">{a.makeNode(checked, props.setValue)}</button>}
             </RadioGroupHUI.Option>))}
         </div>
     </RadioGroupHUI>

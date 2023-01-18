@@ -17,30 +17,14 @@ import RadioGroup from 'components/wrapped/RadioGroup';
 import BoatIcon, { BoatSelect } from '../memberaction/BoatIcon';
 import { isCrewValid } from './input/EditCrewModal';
 import Button from 'components/wrapped/Button';
+import { Table } from 'components/table/Table';
 
 export const filterActive = (isActive) => isActive ? (a: SignoutTablesState) => option.isNone(a.signinDatetime) : (a: SignoutTablesState) => option.isSome(a.signinDatetime);
 
 const spanClassName = "text-left whitespace-nowrap";
 
-function adaptSignoutState(state: SignoutTablesState): SignoutProps["state"]{
-	return {
-		crewCardNums: state.$$crew.map((a) => a.cardNum.getOrElse(undefined)),
-		currentSkipperCardNum: (state.cardNum ? state.cardNum.getOrElse(undefined) : undefined),
-		currentTestingCardNums: [],
-		boatId: option.some(state.boatId)
-	}
-}
-
 function adaptMemberActionState(state: SignoutProps["state"], currentRow: SignoutTablesState): SignoutTablesState{
 	return {...currentRow, boatId: state.boatId.getOrElse(undefined), $$crew: []};
-}
-
-const makeNode = (index: number, display: React.ReactNode) => (checked: boolean, setValue) => {
-	return <h1 className="flex" key={index}>{display}</h1>;
-}
-
-function BasicInput(props: {label: string}){
-	return <Input groupClassName="mt-0 mb-auto ml-auto mr-0 whitespace-nowrap grow-[0]" label={props.label}></Input>
 }
 
 /*
@@ -77,12 +61,13 @@ function BasicInput(props: {label: string}){
 					*/
 
 export const SignoutsTable = (props: {
-	state: SignoutsTablesState;
-	setState: React.Dispatch<React.SetStateAction<SignoutsTablesState>>;
-	extraState: SignoutsTablesExtraState;
-	isActive: boolean;
-	filterValue: SignoutsTableFilterState;
-	globalFilter: FilterFnOption<SignoutTablesState>;
+	state: SignoutsTablesState
+	setState: React.Dispatch<React.SetStateAction<SignoutsTablesState>>
+	extraState: SignoutsTablesExtraState
+	isActive: boolean
+	filterValue: SignoutsTableFilterState
+	globalFilter: FilterFnOption<SignoutTablesState>
+	openEditRow: (row: SignoutTablesState) => void
 }) => {
 	const ratingsHR = React.useMemo(() => props.extraState.ratings.sort((a, b) => a.ratingName.localeCompare(b.ratingName)).map((v) => ({ value: v.ratingId, display: v.ratingName, boats: v.$$boats })), [props.extraState.ratings]);
 	// Define edit/add form
@@ -95,14 +80,7 @@ export const SignoutsTable = (props: {
 		const upper = moment("2032", "yyyy").add(1, "days");
 		const boatId = option.none;//option.some(parseInt(rowForEdit.boatId));
 		const signoutType = rowForEdit.signoutType;
-		return <>
-			<ModalHeader>
-				<RadioGroup className="flex flex-row" value={option.some(currentRow.signoutType) } setValue={(v) => updateState((s) => ({...s, signoutType: v.getOrElse("")}))} makeChildren={signoutTypesHR.map((a,i) => ({value: a.value, makeNode: makeNode(i, a.display)}))}/>
-			</ModalHeader>
-				<div className="w-[80vw] h-[80vh] p-5">
-					<EditSignout state={adaptSignoutState(currentRow)} setState={(s: MemberActionState) => {updateState(adaptMemberActionState(s, currentRow))}} mode={MemberActionMode.SIGNOUT}/>
-				</div>
-			</>
+		return 
 			
 	};
 	const footer = (submit, closeModal) => <>
@@ -117,24 +95,14 @@ export const SignoutsTable = (props: {
 	var columns = React.useMemo(() => (provider.provideColumns(props.extraState)), [props.extraState]);
 	const filteredSignouts = props.state.filter(f);
 	return <>
-		<TableWithModalFormAsyncRaw<SignoutTablesState, typeof signoutValidator, SignoutsTableFilterState>
-			defaultRowEdit={{} as any}
+		<Table<SignoutTablesState, SignoutsTableFilterState>
 			globalFilter={props.globalFilter}
 			globalFilterState={props.filterValue}
-			validator={signoutValidator}
-			className="bg-white"
 			rows={filteredSignouts}
 			keyField="signoutId"
 			columns={columns}
-			formComponents={formComponents}
-			action={putSignout}
-			cardTitle={cardTitle}
-			columnsNonEditable={SignoutTablesNonEditableObject}
-			setRowData={props.setState}
 			hidableColumns
-			hideAdd
-			customFooter={footer}
-			customHeader
+			openEditRow={props.openEditRow}
 			/>
 	</>;
 };

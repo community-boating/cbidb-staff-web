@@ -21,17 +21,15 @@ export type ModalContextType = {
 
 export const ModalContext = React.createContext<ModalContextType>({open: false, setOpen: undefined})
 
-export function ModalHeader(props: {children?: React.ReactNode, custom?: boolean}){
+export function ModalHeader(props: {className?: string, children?: React.ReactNode, custom?: boolean}){
     if(!props.custom){
         const context = React.useContext(ModalContext);
-        return <Dialog.Title>
-                    <div className="flex flex-row">
-                        {props.children}
-                        <button className="ml-auto mr-0" onClick={(e) => {e.preventDefault();context.setOpen(false);}}>X</button>
-                    </div>
+        return <Dialog.Title className={"flex flex-row " + props.className}>
+                    {props.children}
+                    <button className="ml-auto mr-0" onClick={(e) => {e.preventDefault();context.setOpen(false);}}>X</button>
                 </Dialog.Title>
     }
-    return <Dialog.Title>{props.children}</Dialog.Title>;
+    return <Dialog.Title className={props.className}>{props.children}</Dialog.Title>;
 }
 
 export function ModalDescription(props: {children?: React.ReactNode}){
