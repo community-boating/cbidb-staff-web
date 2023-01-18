@@ -21,8 +21,10 @@ interface State<T> {
 
 export default class PageWrapper<T_URL, T_Async> extends React.Component<Props<T_URL, T_Async>, State<T_Async>> {
 	timerID;
+	mounted;
 	constructor(props: Props<T_URL, T_Async>) {
 		super(props);
+		this.mounted = false;
 		if (this.props.getAsyncProps != undefined) {
 			this.state = {
 				readyToRender: false,
@@ -45,12 +47,18 @@ export default class PageWrapper<T_URL, T_Async> extends React.Component<Props<T
 			if (asyncProps && asyncProps instanceof Array) {
 				const success = asyncProps.reduce((totalSuccess, e) => totalSuccess && e.type == "Success", true);
 				if (success) {
+					if(!self.mounted){
+						return;
+					}
 					self.setState({
 						readyToRender: true,
 						componentAsyncProps: asyncProps.map(e => e.success) as unknown as T_Async
 					});
 				}
 			} else if (asyncProps && asyncProps.type == "Success") {
+				if(!self.mounted){
+					return;
+				}
 				self.setState({
 					readyToRender: true,
 					componentAsyncProps: asyncProps.success
@@ -62,6 +70,7 @@ export default class PageWrapper<T_URL, T_Async> extends React.Component<Props<T
 		})
 	}
 	componentDidMount() {
+		this.mounted = true;
 		window.scrollTo(0, 0);
 		this.loadAsyncProps();
 		if(this.props.autoRefresh !== undefined && this.timerID === undefined){
@@ -71,6 +80,7 @@ export default class PageWrapper<T_URL, T_Async> extends React.Component<Props<T
 		}
 	}
 	componentWillUnmount() {
+		this.mounted = false;
 		if(this.timerID !== undefined){
 			clearInterval(this.timerID);
 			this.timerID = undefined;

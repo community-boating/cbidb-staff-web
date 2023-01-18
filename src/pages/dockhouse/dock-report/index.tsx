@@ -16,6 +16,7 @@ import Modal, { ModalHeader } from 'components/wrapped/Modal';
 import Button from 'components/wrapped/Button';
 import { AppStateCombined } from 'app/state/AppState';
 import { AppStateContext } from 'app/state/AppStateContext';
+import AsyncStateProvider from 'core/AsyncStateProvider';
 
 const POLL_FREQ_SEC = 10
 
@@ -44,15 +45,18 @@ export const DockReportPage = (props: {
 	const [modalWidth, setModalWidth] = React.useState(1200)
 	const [submitAction, setSubmitAction] = React.useState(() => defaultSubmitAction);
 	const [modalErrors, setModalErrors] = React.useState(null as string[])
-	const [refreshTimeout, setRefreshTimeout] = React.useState(null as NodeJS.Timeout)
+	const [refreshCleanup, setRefreshCleanup] = React.useState<() => void>(undefined)
 
 	function updateStateForever(asc: AppStateCombined) {
-		return getDockReport.send(asc).then(res => {
-			if (res.type == "Success") {
-				setDockReportState(res.success)
-			}
-			setRefreshTimeout(setTimeout(updateStateForever, 1000*POLL_FREQ_SEC))
-		})
+		const update = () => {
+			getDockReport.send(asc).then(res => {
+				if (res.type == "Success") {
+					setDockReportState(res.success)
+				}
+			})
+		}
+		const timerID = setInterval(update, 1000*POLL_FREQ_SEC);
+		setRefreshCleanup(() => {clearInterval(timerID);setRefreshCleanup(undefined)});
 	}
 
 	const asc = React.useContext(AppStateContext);
@@ -67,7 +71,7 @@ export const DockReportPage = (props: {
 		if (modalContent == null) {
 			updateStateForever(asc)
 		} else {
-			refreshTimeout && clearTimeout(refreshTimeout);
+			refreshCleanup && refreshCleanup();
 		}
 	}, [modalContent])
 

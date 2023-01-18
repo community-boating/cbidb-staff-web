@@ -116,7 +116,7 @@ export function SelectInput<T_SelectOption extends string | number> (props: Cust
 		</Listbox.Option>))), [selectOptions]);
 	return (<Listbox value={initValue} onChange={(e) => updateValue(e)}>
 				<div className="relative max-w-min">
-                <Listbox.Button className={"min-w-[180px] flex flex-col items-end bg-white " + inputClassName}><div className="flex flex-row">{current.display}<ChevronDown/></div></Listbox.Button>
+                <Listbox.Button className={"min-w-[180px] flex flex-col items-end bg-white whitespace-nowrap " + inputClassName}><div className="flex flex-row">{current.display}<ChevronDown/></div></Listbox.Button>
                 <Listbox.Options className="absolute bg-white w-full z-50">
                     {options}
                 </Listbox.Options>

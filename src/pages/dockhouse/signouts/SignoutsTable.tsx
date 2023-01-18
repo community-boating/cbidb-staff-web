@@ -11,8 +11,8 @@ import { FilterFnOption } from '@tanstack/react-table';
 import { formatSelection, formatOptional, columnsActive, columnsInactive } from "./SignoutsColumnDefs";
 import { InteractiveColumnProvider } from './InteractiveColumnProvider';
 import { SignoutTablesState, SignoutsTablesState, SignoutsTablesExtraState } from './StateTypes';
-import { EditCrew, DialogOutput, DotBox, AddCrew, SignoutProps, SkipperInfo, MemberActionMode, AddEditCrew, EditSignoutNormal, ScannedCrewType, testMemberships } from '../memberaction/MemberActionModal';
-import { ModalFoooter, ModalHeader } from 'components/wrapped/Modal';
+import { EditCrew, DialogOutput, DotBox, AddCrew, SignoutProps, SkipperInfo, MemberActionMode, AddEditCrew, EditSignout, ScannedCrewType, testMemberships, MemberActionState } from '../memberaction/ActionModal';
+import { ModalHeader } from 'components/wrapped/Modal';
 import RadioGroup from 'components/wrapped/RadioGroup';
 import BoatIcon, { BoatSelect } from '../memberaction/BoatIcon';
 import { isCrewValid } from './input/EditCrewModal';
@@ -22,50 +22,17 @@ export const filterActive = (isActive) => isActive ? (a: SignoutTablesState) => 
 
 const spanClassName = "text-left whitespace-nowrap";
 
-function adaptCrew(state: SignoutTablesState): ScannedCrewType {
-	const adaptedSkipper: ScannedCrewType[number] = state.$$skipper ? {
-		personId: state.$$skipper.personId,
-		cardNumber: state.cardNum.getOrElse(undefined),
-		nameFirst: state.$$skipper.nameFirst,
-		nameLast: state.$$skipper.nameLast,
-		bannerComment: state.comments,//TODO change this when the new comments structure is figured out
-		specialNeeds: option.none,    //TODO
-		activeMemberships: [{
-			assignId: 0,
-			membershipTypeId: 0,
-			startDate: option.none,
-			expirationDate: option.none,
-			discountName: option.none,
-			isDiscountFrozen: false,
-			hasGuestPrivs: false,
-			programId: state.programId
-		}],							  //TODO
-		personRatings: state.$$skipper.$$personRatings.map((a) => ({...a, status: "Y", ratingName: ""}))
-	} : undefined;
-	return [adaptedSkipper];
-}
-
 function adaptSignoutState(state: SignoutTablesState): SignoutProps["state"]{
-	const newCrew = adaptCrew(state);
 	return {
-		crew: newCrew,
-		currentSkipper: 0,
-		currentTesting: [],
+		crewCardNums: state.$$crew.map((a) => a.cardNum.getOrElse(undefined)),
+		currentSkipperCardNum: (state.cardNum ? state.cardNum.getOrElse(undefined) : undefined),
+		currentTestingCardNums: [],
 		boatId: option.some(state.boatId)
 	}
 }
 
-export function SignoutStateAdapter(props: {makeChildren: (props: SignoutProps) => React.ReactNode, state: SignoutTablesState, setState: UpdateStateType}){
-	const [adaptedState, setAdaptedStateR] = React.useState(adaptSignoutState(props.state));
-	const setAdaptedState = (s) => { setAdaptedStateR(s);}
-	React.useEffect(() => {
-		setAdaptedState(adaptSignoutState(props.state));
-	}, [props.state]);
-	//const setState = (scannedState: SignoutProps["state"]) => {
-	//	props.setState("boatId", scannedState.boatId.getOrElse(-1).toString());
-	//}
-	const children = React.useMemo(() => {return props.makeChildren({state: adaptedState, setState: setAdaptedState})}, [adaptedState]);
-	return <>{children}</>;
+function adaptMemberActionState(state: SignoutProps["state"], currentRow: SignoutTablesState): SignoutTablesState{
+	return {...currentRow, boatId: state.boatId.getOrElse(undefined), $$crew: []};
 }
 
 const makeNode = (index: number, display: React.ReactNode) => (checked: boolean, setValue) => {
@@ -121,33 +88,29 @@ export const SignoutsTable = (props: {
 	// Define edit/add form
 	const formComponents = (
 		rowForEdit: SignoutTablesState,
-		updateState: UpdateStateType,
+		updateState: React.Dispatch<React.SetStateAction<SignoutTablesState>>,
 	) => {
 		const currentRow = rowForEdit;
 		const lower = moment("2000", "yyyy");
 		const upper = moment("2032", "yyyy").add(1, "days");
 		const boatId = option.none;//option.some(parseInt(rowForEdit.boatId));
-		const setBoatId = (id: option.Option<number>) => {
-			updateState("boatId", id.getOrElse(-1).toString());
-		}
 		const signoutType = rowForEdit.signoutType;
 		return <>
 			<ModalHeader>
-				<RadioGroup className="flex flex-row" value={option.some(currentRow.signoutType) } setValue={(v) => updateState("signoutType", v.getOrElse(""))} makeChildren={signoutTypesHR.map((a,i) => ({value: a.value, makeNode: makeNode(i, a.display)}))}/>
+				<RadioGroup className="flex flex-row" value={option.some(currentRow.signoutType) } setValue={(v) => updateState((s) => ({...s, signoutType: v.getOrElse("")}))} makeChildren={signoutTypesHR.map((a,i) => ({value: a.value, makeNode: makeNode(i, a.display)}))}/>
 			</ModalHeader>
-			<SignoutStateAdapter state={currentRow} setState={updateState} makeChildren={
-				(props) => (<div className="w-[80vw] h-[80vh] p-5">
-					<EditSignoutNormal {...props}/>
-				</div>)}/>
+				<div className="w-[80vw] h-[80vh] p-5">
+					<EditSignout state={adaptSignoutState(currentRow)} setState={(s: MemberActionState) => {updateState(adaptMemberActionState(s, currentRow))}} mode={MemberActionMode.SIGNOUT}/>
+				</div>
 			</>
 			
 	};
-	const footer = (submit, closeModal) => <ModalFoooter>
+	const footer = (submit, closeModal) => <>
 		<div className="flex flex-row gap-2 mr-0 ml-auto">
 			<Button className="bg-gray-300 px-5 py-2" onClick={() => {closeModal()}}>Cancel</Button>
 			<Button className="bg-blue-300 px-5 py-2" spinnerOnClick submit={submit}>Save</Button>
 		</div>
-	</ModalFoooter>
+	</>
 	const cardTitle = props.isActive ? "Active Signouts" : "Completed Signouts";
 	const f = filterActive(props.isActive);
 	const provider = React.useMemo(() => (new InteractiveColumnProvider(props.isActive ? columnsActive : columnsInactive)), [])

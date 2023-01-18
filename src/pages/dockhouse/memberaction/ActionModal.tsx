@@ -1,5 +1,5 @@
 import { Tab } from '@headlessui/react';
-import Modal, { ModalFoooter, ModalHeader } from 'components/wrapped/Modal';
+import Modal, { ModalHeader } from 'components/wrapped/Modal';
 import * as React from 'react';
 
 import * as t from "io-ts";
@@ -19,15 +19,16 @@ import IconButton from 'components/wrapped/IconButton';
 import BoatIcon, { BoatSelect } from './BoatIcon';
 import { scanCardValidator } from 'async/staff/dockhouse/scan-card';
 import RatingsGrid from './RatingsGrid';
+import { ScannedPersonsCacheContext } from './ScannedPersonsCache';
 
-type ScannedPersonsType = t.TypeOf<typeof scanCardValidator>;
+export type ScannedPersonsType = t.TypeOf<typeof scanCardValidator>;
 
 export type ScannedCrewType = ScannedPersonsType[];
 
-type MemberActionState = {
-    crew: ScannedCrewType
-    currentSkipper: number
-    currentTesting: number[]
+export type MemberActionState = {
+    crewCardNums: string[]
+    currentSkipperCardNum: string
+    currentTestingCardNums: string[]
     boatId: option.Option<number>
 }
 
@@ -52,16 +53,17 @@ function CrewIcons(props: {skipper: ScannedPersonsType}){
 }
 
 export function SkipperInfo(props: SignoutProps){
-    const skipper = props.state.crew[props.state.currentSkipper];
-    if(!skipper)
+    const scannedPersonsCache = React.useContext(ScannedPersonsCacheContext);
+    const skipper = scannedPersonsCache.getCached(props.state.currentSkipperCardNum);
+    if(skipper.isNone())
         return <></>;
-    const currentMembership = skipper.activeMemberships[0];
-    const programHR = getProgramHR(currentMembership.programId);
+    const currentMembership = skipper.value.activeMemberships[0];
+    const programHR = getProgramHR(currentMembership.programId.getOrElse(-1));
     return <div className="flex flex-row grow-0 gap-5">
         <div className="flex flex-col">
             <h3 className="font-bold">Skipper:</h3>
-                <CrewIcons skipper={skipper}/>
-            <h3 className="text-2xl font-bold">{skipper.nameFirst} {skipper.nameLast}</h3>
+                <CrewIcons skipper={skipper.value}/>
+            <h3 className="text-2xl font-bold">{skipper.value.nameFirst} {skipper.value.nameLast}</h3>
             <h3 className="text-xl">{programHR}</h3>
             <h3 className="text-xl">{currentMembership.membershipTypeId} TODO make this HR</h3>
             <h3 className="text-xl">{currentMembership.expirationDate.getOrElse("")}</h3>
@@ -90,7 +92,7 @@ export function AddEditCrew(props: SignoutProps & {mode: MemberActionMode}){
 
 export function AddCrew(props: SignoutProps & {mode: MemberActionMode}){
     const setRandom = (e) => {
-        props.setState((state) => ({...state, currentSkipper: Math.floor(Math.random()*state.crew.length)}));
+        //props.setState((state) => ({...state, currentSkipper: Math.floor(Math.random()*state.crew.length)}));
     }
     return (<div className="flex flex-col grow-0 gap-2">
             {props.mode == MemberActionMode.SIGNOUT ? <div className="flex flex-row gap-2">
@@ -99,7 +101,7 @@ export function AddCrew(props: SignoutProps & {mode: MemberActionMode}){
             </div> : <></>}
             <Input label="add person..." onEnter={() => {
                 const rand = Math.floor(Math.random()*4);
-                props.setState((state) => ({...state, crew: ([testCrew[rand]].concat(state.crew.concat())), currentSkipper: state.currentSkipper + 1}));
+                //props.setState((state) => ({...state, crew: ([testCrew[rand]].concat(state.crew.concat())), currentSkipper: state.currentSkipper + 1}));
             }}></Input>
             {props.mode == MemberActionMode.SIGNOUT ? <><Button className="bg-gray-200 p-card" onClick={setRandom}>Find Highest Ratings</Button>
             <Button className="bg-gray-200 p-card" onClick={setRandom}>Find Highest Privileges</Button></> : <></>}
@@ -112,7 +114,8 @@ function EditCrewButton(props: {src: string, onClick: (e) => void, mode: MemberA
 
 export function EditCrew(props: SignoutProps & {mode: MemberActionMode}){
     const iconTwo = props.mode == MemberActionMode.SIGNOUT ? swap : add;
-    const crew = <>{props.state.crew.map((a, i) => (i != props.state.currentSkipper) ? (<div key={i} className="whitespace-nowrap">        
+    return <></>;
+    /*const crew = <>{props.state.crew.map((a, i) => (i != props.state.currentSkipper) ? (<div key={i} className="whitespace-nowrap">        
             <div className="flex flex-row">
                 <EditCrewButton src={x} onClick={() => {props.setState((state) => ({...state, crew: state.crew.filter((a, i2) => i2 != i), currentSkipper: Math.min(state.currentSkipper, state.crew.length - 2)}))}} mode={props.mode}/>
                 <h3 className="font-medium">{a.nameFirst} {a.nameLast}</h3>
@@ -123,14 +126,14 @@ export function EditCrew(props: SignoutProps & {mode: MemberActionMode}){
             </div>
         </div>)
         : undefined)}</>;
-    return (<div className={"grid grow-[1] gap-5 " + (props.mode != MemberActionMode.TESTING ? "grid-cols-4 grid-rows-2" : "grid-cols-2 grid-rows-2")}>{crew}</div>)
+    return (<div className={"grid grow-[1] gap-5 " + (props.mode != MemberActionMode.TESTING ? "grid-cols-4 grid-rows-2" : "grid-cols-2 grid-rows-2")}>{crew}</div>)*/
 }
 
 export const testMemberships: ScannedPersonsType["activeMemberships"] = [{
     startDate: option.some("1992"),
     expirationDate: option.some("12/20/2022"),
     membershipTypeId: 0,
-    programId: 1,
+    programId: option.some(1),
     isDiscountFrozen: false,
     hasGuestPrivs: true,
     assignId: 0,
@@ -193,15 +196,17 @@ export function DialogOutput(props: {children: React.ReactNode}){
     return <div className="bg-card w-full">{props.children}</div>;
 }
 
-export function EditSignoutNormal(props: {state: MemberActionState, setState: React.Dispatch<React.SetStateAction<MemberActionState>>}){
+export function EditSignout(props: {state: MemberActionState, setState: React.Dispatch<React.SetStateAction<MemberActionState>>, mode: MemberActionMode}){
     const setBoatId = (boatId: option.Option<number>) => {
         props.setState({...props.state, boatId: boatId})
     };
+    const {mode, ...other} = props;
     return (
     <div className="flex flex-col h-full grow-[1] gap-5">
         <div className="flex flex-row grow-[0] gap-5">
-            <SkipperInfo {...props}></SkipperInfo>
-            <AddEditCrew {...props} mode={MemberActionMode.SIGNOUT}></AddEditCrew>
+            <SkipperInfo {...other}></SkipperInfo>
+            {props.mode == MemberActionMode.TESTING ? <SkipperInfo {...other}></SkipperInfo> : <></>}
+            <AddEditCrew {...props}></AddEditCrew>
         </div>
         <div className="flex flex-row grow-[1]">
             <DialogOutput>
@@ -223,63 +228,30 @@ export function EditSignoutNormal(props: {state: MemberActionState, setState: Re
 const memberActionTypes: {title: React.ReactNode, getContent: (state: MemberActionState, setState: React.Dispatch<React.SetStateAction<MemberActionState>>) => React.ReactNode}[] = [{
     title: "Sign Out",
     getContent: (state, setState) => <>
-        <EditSignoutNormal state={state} setState={setState}/>
-        <ModalFoooter>
-            <div className="flex flex-row gap-2 mr-0 ml-auto">
-                <Button className="bg-gray-300 px-5 py-2">Queue Signout</Button>
-                <Button className="bg-gray-300 px-5 py-2">Queue Signout</Button>
-            </div>
-        </ModalFoooter>
+        <EditSignout state={state} setState={setState} mode={MemberActionMode.SIGNOUT}/>
     </>
 },
 {
     title: "Testing",
-    getContent: (state, setState) => { 
-        const setBoatId = (boatId: option.Option<number>) => {
-            setState({...state, boatId: boatId})
-        };
-        return (
-        <div className="flex flex-col h-full grow-[1] gap-5">
-            <div className="flex flex-row grow-[0] gap-5">
-                <SkipperInfo state={state} setState={setState}></SkipperInfo>
-                <SkipperInfo state={state} setState={setState}></SkipperInfo>
-                <AddEditCrew state={state} setState={setState} mode={MemberActionMode.TESTING}></AddEditCrew>
-            </div>
-            <div className="flex flex-row grow-[1]">
-                <DialogOutput>
-                    <p>Dialog Output</p>
-                </DialogOutput>
-                <DialogOutput>
-                    <p>Dialog Output</p>
-                </DialogOutput>
-                <DialogOutput>
-                    <p>Dialog Output</p>
-                </DialogOutput>
-            </div>
-            <div className="flex flex-row grow-[3]">
-                <div className="w-full flex flex-col">
-                    <p>Boat Type</p>
-                    <BoatIcon boatId={state.boatId} setBoatId={setBoatId}/>
-                    <DotBox>
-                        <BoatSelect boatId={state.boatId} setBoatId={setBoatId}></BoatSelect>
-                    </DotBox>
-                    <div className="flex flex-row gap-2 mr-0 ml-auto">
-                        <Button className="bg-gray-300 px-5 py-2">Queue Signout</Button>
-                        <Button className="bg-gray-300 px-5 py-2">Queue Signout</Button>
-                    </div>
-                </div>
-            </div>
-        </div>)}
+    getContent: (state, setState) => <>
+        <EditSignout state={state} setState={setState} mode={MemberActionMode.TESTING}/>
+    </>
+},
+{
+    title: "Classes",
+    getContent: () => (<div>View ap class management for scanned person</div>)
+},
+{
+    title: "Racing",
+    getContent: (state, setState) => <>
+        <EditSignout state={state} setState={setState} mode={MemberActionMode.SIGNOUT}/>
+    </>
 },
 {
     title: "Ratings",
     getContent: (state, setState) => (<div>
         <MemberActionRatings state={state} setState={setState}></MemberActionRatings>
     </div>)
-},
-{
-    title: "Classes",
-    getContent: () => (<div>View ap class management for scanned person</div>)
 },
 {
     title: "Comments",
@@ -292,46 +264,62 @@ const memberActionTypes: {title: React.ReactNode, getContent: (state: MemberActi
 
 function MemberActionRatings(props: {state: MemberActionState, setState: React.Dispatch<React.SetStateAction<MemberActionState>>}){
     const availablePrograms = {};
-    props.state.crew.forEach((a) => availablePrograms[a.activeMemberships[0].programId] = true);
+    //props.state.crew.forEach((a) => availablePrograms[a.activeMemberships[0].programId] = true);
     const [programId, setProgramId] = React.useState<option.Option<number>>(option.none);
     const [selectedRatings, setSelectedRatings] = React.useState<{[key: number]: boolean}>({});
     return <div>
             <AddEditCrew state={props.state} setState={props.setState} mode={MemberActionMode.OTHER}></AddEditCrew>
             <SelectInput initValue={programId} updateValue={setProgramId} selectOptions={programsHR.filter((a) => availablePrograms[a.value])} validationResults={[]}></SelectInput>
-           <RatingsGrid selectedProgram={programId} selectedRatings={selectedRatings} setSelectedRatings={setSelectedRatings}></RatingsGrid>
+            <RatingsGrid selectedProgram={programId} selectedRatings={selectedRatings} setSelectedRatings={setSelectedRatings}></RatingsGrid>
         </div>
 }
 
-export type MemberActionModalProps = {
+export enum PrimaryActionModalMode{
+    MEMBER_ACTIONS,
+    EDIT_SIGNOUT
+}
+
+export type ActionModalProps = {
     open: boolean;
     setOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-export default function MemberActionModal(props: MemberActionModalProps){
-    const [state, setState] = React.useState({crew: testCrew, currentSkipper: 0, currentTesting: [], boatId: option.none});
-    const header = (
-        <Tab.List className="flex flex-row gap-primary">
-            <h1 className="text-2xl font-bold">Member Actions:</h1>
-            {memberActionTypes.map((a, i) => <Tab key={i} as={React.Fragment}>
-                {({selected}) => (
-                    <div className="flex flex-row gap-primary">
-                        {(i > 0 ? <a><h1 className="text-2xl">|</h1></a> : "")}
-                        <a className={"text-2xl inline" + (selected ? " text-blue-500" : "")}>{a.title}</a>
-                    </div>
-                )}
-            </Tab>)
-            }
-        </Tab.List>);
+function MemberActionModal(props){
+    const [state, setState] = React.useState({crewCardNums: [], currentSkipperCardNum: "1234567", currentTestingCardNums: [], boatId: option.none});
+    return <Tab.Group>
+        <ModalHeader>
+            <Tab.List className="flex flex-row gap-primary">
+                <h1 className="text-2xl font-bold">Member Actions:</h1>
+                {memberActionTypes.map((a, i) => <Tab key={i} as={React.Fragment}>
+                    {({selected}) => (
+                        <div className="flex flex-row gap-primary">
+                            {(i > 0 ? <span onClick={(e) => {e.preventDefault()}}><h1 className="text-2xl">|</h1></span> : "")}
+                            <button className={"text-2xl inline" + (selected ? " text-boathouseblue font-bold" : " underline")}>{a.title}</button>
+                        </div>
+                    )}
+                </Tab>)
+                }
+            </Tab.List>
+        </ModalHeader>
+        <hr className="border-t-1 border-black"/>
+        <Tab.Panels className="h-[80vh] min-w-[80vw] flex flex-col">
+            {memberActionTypes.map((a, i) => <Tab.Panel className="grow-[1]" key={i}>{a.getContent(state, setState)}</Tab.Panel>)}
+        </Tab.Panels>
+        <>
+            <div className="flex flex-row gap-2 mr-0 ml-auto">
+                <Button className="bg-gray-300 px-5 py-2">Queue Signout</Button>
+                <Button className="bg-gray-300 px-5 py-2">Queue Signout</Button>
+            </div>
+        </>
+    </Tab.Group>
+}
+
+export default function ActionModal(props: ActionModalProps){
     return (
-    <Tab.Group>
+    
         <Modal {...props} className="bg-gray-100 rounded-lg">
-            <ModalHeader>{header}</ModalHeader>
-            <hr className="border-t-1 border-black"/>
-            <Tab.Panels className="h-[80vh] w-min-[80vw] flex flex-col">
-                {memberActionTypes.map((a, i) => <Tab.Panel className="grow-[1]" key={i}>{a.getContent(state, setState)}</Tab.Panel>)}
-            </Tab.Panels>
-        </Modal>
-    </Tab.Group>);
+            <MemberActionModal></MemberActionModal>
+        </Modal>);
 }
 
 type GeneralPersonInfo = {

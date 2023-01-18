@@ -31,6 +31,7 @@ module.exports = {
           // colors is used here for demonstration purposes
           colors: {
             primary: 'red',
+            boathouseblue: '#00507D',
             card: '#C4C4C4',
             background: 'white'
           },

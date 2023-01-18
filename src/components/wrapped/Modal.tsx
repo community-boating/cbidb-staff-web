@@ -14,67 +14,40 @@ type ModalProps = {
     className?: string;
 }
 
-type ModalWrapperProps = {
-    children?: React.ReactNode
+export type ModalContextType = {
+    open: boolean,
+    setOpen: (open: boolean) => void,
 }
 
-export function ModalHeader(props: ModalWrapperProps){
-    return <ModalWrapper {...props}/>;
-}
+export const ModalContext = React.createContext<ModalContextType>({open: false, setOpen: undefined})
 
-export function ModalDescription(props: ModalWrapperProps){
-    return <ModalWrapper {...props}/>;
-}
-
-export function ModalFoooter(props: ModalWrapperProps){
-    return <ModalWrapper {...props}/>;
-}
-
-function ModalWrapper(props: ModalWrapperProps){
-    return <></>
-}
-
-function modalWrapRecurse(store: {headers: React.ReactNode[], descriptions: React.ReactNode[], footers: React.ReactNode[]}, children: React.ReactNode, depth: number){
-    if(depth > 5){
-        return;
+export function ModalHeader(props: {children?: React.ReactNode, custom?: boolean}){
+    if(!props.custom){
+        const context = React.useContext(ModalContext);
+        return <Dialog.Title>
+                    <div className="flex flex-row">
+                        {props.children}
+                        <button className="ml-auto mr-0" onClick={(e) => {e.preventDefault();context.setOpen(false);}}>X</button>
+                    </div>
+                </Dialog.Title>
     }
-    React.Children.forEach(React.Children.toArray(children), (a, i) => {
-        if(React.isValidElement(a)){
-            switch(a.type){
-                case ModalHeader:
-                    store.headers.push(a.props.children);
-                    break;
-                case ModalDescription:
-                    store.descriptions.push(a.props.children);
-                    break;
-                case ModalFoooter:
-                    store.footers.push(a.props.children);
-                    break;
-                default:
-                    modalWrapRecurse(store, a.props.children, depth+1);
-            }
-        }
-    });
-    
+    return <Dialog.Title>{props.children}</Dialog.Title>;
+}
+
+export function ModalDescription(props: {children?: React.ReactNode}){
+    return <Dialog.Description>{props.children}</Dialog.Description>;
 }
 
 export default function Modal(props: ModalProps){
-    const store = {
-        headers: [] as React.ReactNode[],
-        descriptions: [] as React.ReactNode[],
-        footers: [] as React.ReactNode[]
-    }
-    modalWrapRecurse(store, props.children, 0);
     return (
         <Dialog className="fixed h-full w-full top-0 left-0 flex items-center justify-center z-10" open={props.open} onClose={() => props.setOpen(false)}>
                 <Dialog.Panel className={props.className}>
                     <Theme>
-                        <div className="flex flex-col p-5 h-full">
-                            <Dialog.Title><div className="flex flex-row">{store.headers}<button className="ml-auto mr-0" onClick={() => props.setOpen(false)}>X</button></div></Dialog.Title>
-                            <Dialog.Description>{store.descriptions}</Dialog.Description>
-                            {props.children}
-                            {store.footers}
-                        </div>
+                        <ModalContext.Provider value={props}>
+                            <div className="flex flex-col p-5 h-full">
+                                {props.children}
+                            </div>
+                        </ModalContext.Provider>
                     </Theme>
                 </Dialog.Panel>
         </Dialog>);

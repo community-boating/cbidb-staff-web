@@ -41,9 +41,11 @@ class App extends React.Component<Props, AppState> {
 			this.setState((s) => ({...s, hasInit: true}));
 		}
 	}
+	componentDidUpdate(prevProps: Readonly<Props>, prevState: Readonly<AppState>, snapshot?: any): void {
+		this.initAfterLogin();
+	}
 	render() {
 		this.makeAppStateCombined();
-		this.initAfterLogin();
 		return (
 			<Provider store={store}>
 				<AppStateContext.Provider value={this.appStateCombined}>

@@ -4,7 +4,7 @@ import { option } from 'fp-ts';
 import * as React from 'react';
 import { programsHR } from '../signouts/Constants';
 import { RatingsType } from '../signouts/StateTypes';
-import { ScannedCrewType } from './MemberActionModal';
+import { ScannedCrewType } from './ActionModal';
 
 export type RatingsGridProps = {
     selectedProgram: option.Option<number>

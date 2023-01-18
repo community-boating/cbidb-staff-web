@@ -10,7 +10,7 @@ import APIWrapper from "core/APIWrapper";
 import { destringify, nullifyEmptyStrings, StringifiedProps, stringify, stringifyAndMakeBlank } from "util/StringifyObjectProps";
 import { SortingState, FilterFnOption, ColumnDef } from "@tanstack/react-table";
 import Button from "../wrapped/Button";
-import Modal, { ModalFoooter, ModalHeader } from "../wrapped/Modal";
+import Modal, { ModalHeader } from "../wrapped/Modal";
 import { option } from "fp-ts";
 import * as moment from 'moment';
 import Form from "../wrapped/Form";
@@ -20,7 +20,7 @@ export type UpdateStateType = ((id: string, value: string | boolean) => void) & 
 
 export type TableWithModalFormProps<T_Row, T_Filter, T_RowEdit> = {
 	columns: ColumnDef<T_Row>[]
-	formComponents: (rowForEdit: T_RowEdit, updateState: UpdateStateType) => JSX.Element
+	formComponents: (rowForEdit: T_RowEdit, updateState: React.Dispatch<React.SetStateAction<T_RowEdit>>) => JSX.Element
 	cardTitle?: string
 	columnsNonEditable?: (keyof T_Row)[]
 	setRowData?: (rows: T_Row[]) => void
@@ -48,10 +48,42 @@ export type TableWithModalFormAsyncProps<T_Row extends t.TypeOf<T_Validator>, T_
 
 export type TableWithModalFormStringifiedProps<T_Row extends t.TypeOf<T_Validator>, T_Validator extends t.TypeC<any>, T_Filter> = {
 	keyField: string & keyof T_Row
-} & Omit<TableWithModalFormAsyncProps<T_Row, T_Validator, T_Filter, StringifiedProps<T_Row>>, 'keyField' | 'processEditRowForValidator' | 'processEditRowForSubmit' | 'defaultRowEdit'>
+	formComponents: (rowForEdit: StringifiedProps<T_Row>, updateState: UpdateStateType) => JSX.Element
+} & Omit<TableWithModalFormAsyncProps<T_Row, T_Validator, T_Filter, StringifiedProps<T_Row>>, 'formComponents' | 'keyField' | 'processEditRowForValidator' | 'processEditRowForSubmit' | 'defaultRowEdit'>
 
 export function TableWithModalFormAsyncStringified<T_Row extends t.TypeOf<T_Validator>, T_Validator extends t.TypeC<any>, T_Filter = any>(props: TableWithModalFormStringifiedProps<T_Row, T_Validator, T_Filter>){
-	return <TableWithModalFormAsync {...props} defaultRowEdit={stringifyAndMakeBlank(props.validator)}processEditRowForSubmit={(editRow) => {
+	const {formComponents, ...other} = props;
+	return <TableWithModalFormAsync {...other} formComponents={(formData, setFormData) => {
+
+		const updateState = (id: string, value: string | boolean) => {
+			const valToSet = (() => {
+				if (value === true) return "Y";
+				else if (value === false) return "N";
+				else return value;
+			})();
+			setFormData({
+					...formData,
+					[id]: valToSet
+			})
+		}
+
+		const updateStates = (id: string[], value: string[] | boolean[]) => {
+			const newRowForEdit = Object.assign({}, formData);
+			id.forEach((a, i) => {
+				(newRowForEdit as any)[a] = String(value[i]);
+			});
+			setFormData(newRowForEdit);
+		}
+	
+		const updateStatesCombined = (id, value) => {
+			if(id instanceof Array<string>){
+				updateStates(id, value);
+			}else{
+				updateState(id, value);
+			}
+		}
+		return formComponents(formData, updateStatesCombined);
+	}} defaultRowEdit={stringifyAndMakeBlank(props.validator)}processEditRowForSubmit={(editRow) => {
 		return destringify(props.validator, nullifyEmptyStrings(editRow), true, props.keyField);
 	}} processEditRowForValidator={(editRow) => {
 		return destringify(props.validator, nullifyEmptyStrings(editRow), false, props.keyField);
@@ -62,22 +94,18 @@ export function TableWithModalFormAsync<T_Row, T_Validator extends t.TypeC<any>,
 	const asc = React.useContext(AppStateContext);
 	const {validator, action, useRowFromAPIResponse, validate, submit, ...other} = props;
 	return <TableWithModalForm {...other} validate={(row) => {
-		console.log("derp");
 		const resultOne = validate ? validate(row) : [];
 		if(resultOne.length > 0)
 			return resultOne;
 		const {jpAttendanceId,personId,updatedOn,updatedBy,testResult,testRatingId,signoutDatetime,signinDatetime,sailNumber,hullNumber,didCapsize,createdOn,createdBy,cardNum,comments, ...other} = row as any;
 		const result = validator.decode(row);
-		console.log("derp");
 		if(result.isRight()){
 			return [];
 		}
 		return result.swap().getOrElse(null).map((a) => a.message);
 	}} submit={(row) => {
 		return action.sendJson(asc, row).then((a) => {
-			console.log("starting");
 			if(a.type == "Success"){
-				console.log("hello");
 				if(useRowFromAPIResponse){
 					const apiResponseRowValidation = validator.decode(a.success);
 					if(apiResponseRowValidation.isRight()){
@@ -106,15 +134,6 @@ export default function TableWithModalForm<T_Row, T_Filter, T_RowEdit>(props: Ta
 		[rowData, updateRowData] = React.useState(props.rows);
 	}
 
-	const editColumn: ColumnDef<T_Row, any> = {
-		id: "edit",
-		size: 45,
-		cell: ({row}) => <a href="" onClick={e => {
-			e.preventDefault();
-			openForEdit(some(row.original[props.keyField] as unknown as number));
-		}}><EditIcon color="#777" size="1.4em" /></a>
-	}
-
 	const data = React.useMemo(() => rowData.map(r => {
 		const pk = r[props.keyField];
 		if (pk["_tag"]) throw "Option PK Found"
@@ -123,7 +142,10 @@ export default function TableWithModalForm<T_Row, T_Filter, T_RowEdit>(props: Ta
 	const report = <Table 
 		keyField={props.keyField}
 		rows={data}
-		columns={[editColumn, ...props.columns]}
+		columns={props.columns}
+		openEditRow={(row) => {
+			openForEdit(some(row[props.keyField] as number));
+		}}
 		sizePerPage={12}
 		sizePerPageList={[12, 25, 50, 1000]}
 		globalFilterState={props.globalFilterState}
@@ -141,34 +163,6 @@ export default function TableWithModalForm<T_Row, T_Filter, T_RowEdit>(props: Ta
 			setFormData(props.processRowForEdit(row));
 		} else {
 			setFormData(props.defaultRowEdit)
-		}
-	}
-
-	const updateState = (id: string, value: string | boolean) => {
-		const valToSet = (() => {
-			if (value === true) return "Y";
-			else if (value === false) return "N";
-			else return value;
-		})();
-		setFormData({
-				...formData,
-				[id]: valToSet
-		})
-	}
-
-	const updateStates = (id: string[], value: string[] | boolean[]) => {
-		const newRowForEdit = Object.assign({}, formData);
-		id.forEach((a, i) => {
-			(newRowForEdit as any)[a] = String(value[i]);
-		});
-		setFormData(newRowForEdit);
-	}
-
-	const updateStatesCombined = (id, value) => {
-		if(id instanceof Array<string>){
-			updateStates(id, value);
-		}else{
-			updateState(id, value);
 		}
 	}
 
@@ -226,9 +220,9 @@ export default function TableWithModalForm<T_Row, T_Filter, T_RowEdit>(props: Ta
 				submit();
 				return undefined;
 			}}>
-				{props.formComponents(formData, updateStatesCombined)}
+				{modalIsOpen ? props.formComponents(formData, setFormData) : <></>}
 			</Form>
-			{!props.customFooter ? <ModalFoooter>
+			{!props.customFooter ? <>
 				<div>
 					<Button color="secondary" onClick={closeModal}>
 						Cancel
@@ -237,7 +231,7 @@ export default function TableWithModalForm<T_Row, T_Filter, T_RowEdit>(props: Ta
 						SaveC
 					</Button>
 				</div>
-			</ModalFoooter> : props.customFooter(submit, closeModal) }
+			</> : props.customFooter(submit, closeModal) }
 		</Modal>
 		{props.noCard ? toRender : <div>
 			<div>

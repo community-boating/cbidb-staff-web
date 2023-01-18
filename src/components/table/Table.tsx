@@ -7,6 +7,10 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 
 import {
+	Edit as EditIcon,
+} from 'react-feather';
+
+import {
 	ColumnDef,
 	FilterFnOption,
 	flexRender,
@@ -33,6 +37,7 @@ export type TableProps<T_Data, T_Filter = any> = {
 	hidableColumns?: boolean
 	showFooter?: boolean
 	initialSortBy?: SortingState
+	openEditRow?: (row: T_Data) => void
 }
 
 const handleColumnClick: <T_Data>(header: Header<T_Data, any>) => React.MouseEventHandler<HTMLSpanElement> = (header) => (e) => {
@@ -46,11 +51,20 @@ const handleColumnClick: <T_Data>(header: Header<T_Data, any>) => React.MouseEve
 	}
 };
 
-export const Table: <T_Data, T_Filter>(props: TableProps<T_Data, T_Filter>) => JSX.Element = ({ columns, rows: dataProp, sizePerPage, sizePerPageList, keyField, globalFilterState, globalFilter, hidableColumns, showFooter, initialSortBy }) => {
+export const Table: <T_Data, T_Filter>(props: TableProps<T_Data, T_Filter>) => JSX.Element = ({ columns, rows: dataProp, sizePerPage, sizePerPageList, keyField, globalFilterState, globalFilter, hidableColumns, showFooter, initialSortBy, openEditRow }) => {
 	const usingPagination = sizePerPage !== undefined && sizePerPageList !== undefined;
+	const editColumn: typeof columns = [{
+		id: "edit",
+		size: 45,
+		cell: ({row}) => <a href="" onClick={e => {
+			e.preventDefault();
+			openEditRow(row.original);
+			//openForEdit(some(row.original[props.keyField] as unknown as number));
+		}}><EditIcon color="#777" size="1.4em" /></a>
+	}]
 	const table = useReactTable({
 		data: dataProp,
-		columns,
+		columns: openEditRow? editColumn.concat(columns) : columns,
 		globalFilterFn: globalFilter, 
 		getCoreRowModel: getCoreRowModel(),
 		getFilteredRowModel: getFilteredRowModel(),

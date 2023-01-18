@@ -1,7 +1,7 @@
 import * as t from 'io-ts';
 import APIWrapper from 'core/APIWrapper';
 import { HttpMethod } from "core/HttpMethod";
-import { OptionalString } from 'util/OptionalTypeValidators';
+import { OptionalNumber, OptionalString } from 'util/OptionalTypeValidators';
 
 const scanCardMembershipValidator = t.type({
 	assignId: t.number,
@@ -11,7 +11,7 @@ const scanCardMembershipValidator = t.type({
 	discountName: OptionalString,
 	isDiscountFrozen: t.boolean,
 	hasGuestPrivs: t.boolean,
-	programId: t.number
+	programId: OptionalNumber
 })
 
 const scanCardRatingValidator = t.type({

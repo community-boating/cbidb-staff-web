@@ -1,7 +1,6 @@
 import * as React from 'react';
 import APIWrapper from './APIWrapper';
 import * as t from 'io-ts';
-import Spinner from 'components/wrapped/Spinner';
 import { AppStateContext } from 'app/state/AppStateContext';
 
 export type AsyncStateProviderProps<T_Validator extends t.Any> = {
@@ -21,8 +20,10 @@ type AsyncStateProviderState<T_Validator extends t.Any> = {
 }
 
 export default class AsyncStateProvider<T_Validator extends t.Any> extends React.Component<AsyncStateProviderProps<T_Validator>, AsyncStateProviderState<T_Validator>> {
+    mounted
     constructor(props){
         super(props);
+        this.mounted = false;
         this.state = {mainState:props.initState, providerState: ProviderState.INITIAL};
         this.setState = this.setState.bind(this);
         this.loadAsync();
@@ -30,12 +31,21 @@ export default class AsyncStateProvider<T_Validator extends t.Any> extends React
     }
     loadAsync(){
         this.props.apiWrapper.send(this.context).then((a) => {
+            if(!this.mounted){
+                return;
+            }
             if(a.type == "Success"){
                 this.setState({mainState: a.success, providerState: ProviderState.SUCCESS});
             }else{
                 this.setState((s) => ({...s, providerState: ProviderState.ERROR}));
             }
         });
+    }
+    componentDidMount(): void {
+        this.mounted = true;
+    }
+    componentWillUnmount(): void {
+        this.mounted = false;
     }
     render(): React.ReactNode {
         if(this.state.providerState == ProviderState.ERROR){
