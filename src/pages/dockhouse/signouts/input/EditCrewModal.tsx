@@ -212,7 +212,7 @@ const AddCrew = (props: { row: SignoutTablesState, updateCrew: UpdateCrewType, s
     const state = personGetState.state;
 
     return <>
-        <ValidatedTextInput type={"text"} initValue={cardNum} updateValue={(val) => {setCardNum(val); setPersonGetState((s) => ({...s, state: PERSON_GET_STATE_WAITING}))}} validationResults={[]} placeholder={"Card #"} />
+        <ValidatedTextInput type={"text"} controlledValue={cardNum} updateValue={(val) => {setCardNum(val); setPersonGetState((s) => ({...s, state: PERSON_GET_STATE_WAITING}))}} validationResults={[]} placeholder={"Card #"} />
         {state === PERSON_GET_STATE_SUCCESSFUL ? <><Table><tbody><CrewRow crew={{ $$person: person, cardNum: cardNum, crewId: -1, personId: option.some(person.personId), signoutId: undefined, startActive: undefined, endActive: undefined }} updateCrew={undefined} /></tbody></Table>
         <Button spinnerOnClick onClick={(e) => {
             e.preventDefault();

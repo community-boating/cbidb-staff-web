@@ -18,9 +18,9 @@ type HeaderSunsetProps = {sunset: moment.Moment};
 
 type HeaderWindProps = {speed: number, direction: string};
 
-type Announcement = {title: string, message: string};
+type Announcement = {priority: string, message: string};
 
-type HeaderAnnouncementsProps = {high: Announcement, medium: Announcement, low: Announcement[]};
+type HeaderAnnouncementsProps = {announcements: Announcement[]};
 
 type HeaderAnnouncementProps = Announcement & { className: string};
 
@@ -97,20 +97,20 @@ function HeaderButton(props: HeaderButtonProps){
 }
 
 function HeaderAccountment(props: HeaderAnnouncementProps){
-    return <h1 className={"leading-none text-status_banner_height_half " + props.className}>{props.title} : {props.message}</h1>
+    return <h1 className={"leading-none text-status_banner_height_half " + props.className}>{props.message}</h1>
 }
 
 function HeaderAnnouncements(props: HeaderAnnouncementsProps){
     return (<div className="grow-[1] shrink-[10] overflow-x-hidden overflow-y-hidden">
         <div className="overflow-x-scroll overflow-y-hidden hidden-scrollbar">
             <div className="whitespace-nowrap">
-                <HeaderAccountment {...props.high} className="text-red-500 font-medium"/>
+                <HeaderAccountment {...props.announcements.filter((a) => a.priority == "high")[0]} className="text-red-500 font-medium"/>
             </div>
         </div>
         <div className="overflow-x-scroll overflow-y-hidden hidden-scrollbar">
             <div className="flex flex-row whitespace-nowrap">
-                <HeaderAccountment {...props.medium} className="text-yellow-500 font-medium"/>
-                {props.low.map((a, i) => <HeaderAccountment {...a} key={i} className="text-green-500 font-medium"/>)}
+                <HeaderAccountment {...props.announcements.filter((a) => a.priority == "medium")[0]} className="text-yellow-500 font-medium"/>
+                {props.announcements.filter((a) => a.priority == "low").map((a, i) => <HeaderAccountment {...a} key={i} className="text-green-500 font-medium"/>)}
             </div>
         </div>
     </div>);
@@ -147,7 +147,7 @@ function HeaderTime(props: HeaderTimeProps){
             clearInterval(timerID);
         }
     }, []);
-    return <h1 className="text-status_banner_height leading-none font-bold">{time.format(TIME_FORMAT)}</h1>;
+    return <h1 className="text-status_banner_height leading-[1] font-bold">{time.format(TIME_FORMAT)}</h1>;
 }
 
 function CBIBoatIcon(props: HeaderProps){

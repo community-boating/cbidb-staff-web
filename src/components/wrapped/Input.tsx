@@ -16,7 +16,7 @@ export type InputProps = {
     ref?: any
 } & React.DetailedHTMLProps<React.InputHTMLAttributes<HTMLInputElement>, HTMLInputElement>;
 
-const inputClassName = "rounded-md border border-gray-700"
+const inputClassName = "rounded-md border border-gray-700 p-1"
 
 const ValidationContext = React.createContext<ValidationType>({validationsById: {}, globalValidations: []});
 
@@ -42,20 +42,14 @@ export type SelectInputProps = {
     options: React.ReactNode[];
 }
 
-export function CustomInput(props: InputProps){
-    const {isEnd, label, end, groupClassName, onEnter, ...inputProps} = props;
-    return <div className={"flex gap-2 whitespace-nowrap " + (isEnd ? " self-end " : "") + groupClassName}><label>{label}</label><input className={inputClassName} {...inputProps} onKeyDown={(e) => {
-        if(props.onEnter && e.key == "Enter"){
-            props.onEnter();
-        }
-    }}/>{end}</div>;
-}
-
 export type CustomInputProps<T> = {
-	initValue: T,
-	updateValue: (value: T) => void,
+	label?: React.ReactNode
+	end?: React.ReactNode
+	onEnter?: () => void
+	controlledValue: T
+	updateValue: (value: T) => void
 	validationResults?: string[]
-}
+} & InputProps
 
 type StateType<T> = {
 	showErrors: boolean
@@ -66,20 +60,38 @@ type InputAdapterProps<T> = {
 	makeInputProps : (value: T) => any,
 }
 
+export function SimpleInput(props: CustomInputProps<string>){
+	return <Input {...props} convertChange={(e) => e.target.value} makeInputProps={(v) => ({value: v})}></Input>
+}
+
+export function OptionalNumberInput(props: CustomInputProps<option.Option<number>>){
+	return <OptionalInput<number> {...props} convert={(v) => parseInt(v)}></OptionalInput>
+}
+
+export function OptionalStringInput(props: CustomInputProps<option.Option<string>>){
+	return <OptionalInput<string> {...props} convert={(v) => v}></OptionalInput>
+}
+
+export function OptionalInput<T>(props: CustomInputProps<option.Option<T>> & {convert: (v: string) => T}){
+	const {convert, ...other} = props;
+	return <Input {...other} convertChange={(e) => ((e.target.value == "") ? option.none : option.some(convert(e.target.value)))} makeInputProps={(value) => ({value: (value.isSome() ? value.value : "")})}></Input>
+}
+
 class Input<T> extends React.PureComponent<(CustomInputProps<T> & InputAdapterProps<T> & InputProps), StateType<T>, any>  {
 	constructor(props){
 		super(props);
 		this.state = { showErrors:false };
 	}
 	render() {
-		var {initValue,updateValue,children,makeInputProps,convertChange,validationResults,...other}=this.props;
+		var {controlledValue: initValue,className,updateValue,children,makeInputProps,convertChange,onEnter,validationResults,label,end,...other}=this.props;
 		var errorTooltip = <></>;
-		if(validationResults.length > 0){
+		if(validationResults && validationResults.length > 0){
 			errorTooltip=<div>{validationResults.map((a) => a["display"] || a)}</div>;
 		}
 		return (
-			<>
-			<input {...other} {...makeInputProps(this.props.initValue)} 
+			<div className="flex flex-row">
+			{this.props.label}
+			<input {...other} className={className + " " + inputClassName} {...makeInputProps(this.props.controlledValue)} 
 			onChange={(e) => {updateValue(convertChange(e))}}
 			onBlur={() => {
 				this.setState({...this.state,showErrors:false})
@@ -87,9 +99,15 @@ class Input<T> extends React.PureComponent<(CustomInputProps<T> & InputAdapterPr
 			onFocus={() => {
 				this.setState({...this.state,showErrors:true})
 			}}
+			onKeyDown={(e) => {
+				if(onEnter && e.key == "Enter"){
+					onEnter();
+				}
+			}}
 			/>
 			{errorTooltip}
-			</>
+			{this.props.end}
+			</div>
 		);
 	}
 }
@@ -104,28 +122,53 @@ export const ValidatedTextInput = (props: (CustomInputProps<any> & InputProps)) 
 
 export type SelectOption<T_SelectOption> = {value: T_SelectOption, display: ReactNode};
 
-export function SelectInput<T_SelectOption extends string | number> (props: CustomInputProps<Option<T_SelectOption>> & InputProps & {selectOptions : SelectOption<T_SelectOption>[], showNone?: SelectOption<T_SelectOption>, selectNone?: boolean, isNumber?: boolean}) {
+export function SelectInput<T_Value extends string | number> (props: CustomInputProps<option.Option<T_Value>> & InputProps & {selectOptions : SelectOption<T_Value>[], showNone?: SelectOption<T_Value>, selectNone?: boolean, isNumber?: boolean, autoWidth?: boolean}) {
 	const value = React.useContext(ValidationContext);
-	const {selectOptions,showNone,selectNone,isNumber,initValue,updateValue,...other} = props;
-	const showNonePadded = showNone === undefined ? {value: undefined, display: "None"} : showNone;
-	const selectOptionsWithNone = [showNonePadded].concat(selectOptions);
-    const current = selectOptionsWithNone.filter((a) => a.value == initValue.getOrElse(undefined))[0];
-	const useOptions = (selectNone || props.initValue.isNone() ? selectOptionsWithNone : selectOptions);
-    const options = React.useMemo(() => (useOptions.map((a, i) => (<Listbox.Option key={i} value={option.some(a.value)} as={React.Fragment}>
-		{({active, selected}) => (<div className={active ? "bg-gray-100" : ""}>{a.display}</div>)}
-		</Listbox.Option>))), [selectOptions]);
-	return (<Listbox value={initValue} onChange={(e) => updateValue(e)}>
-				<div className="relative max-w-min">
-                <Listbox.Button className={"min-w-[180px] flex flex-col items-end bg-white whitespace-nowrap " + inputClassName}><div className="flex flex-row">{current.display}<ChevronDown/></div></Listbox.Button>
-                <Listbox.Options className="absolute bg-white w-full z-50">
-                    {options}
-                </Listbox.Options>
-				</div>
-            </Listbox>
+	const {selectOptions,showNone,selectNone,isNumber,autoWidth,controlledValue,updateValue} = props;
+	const selectOptionsOptionified = React.useMemo(() => selectOptions.map((a) => ({value: option.some(a.value), display: a.display})), [selectOptions]);
+	const showNonePadded: SelectOption<option.Option<T_Value>> = ((showNone === undefined ) ? {value: option.none, display: "None"} : {value: option.none, display: showNone.display})
+	const selectOptionsWithNone = React.useMemo(() => [showNonePadded].concat(selectOptionsOptionified), [showNone, selectOptionsOptionified]);
+	const useOptions = (selectNone || props.controlledValue.isNone() ? selectOptionsWithNone : selectOptionsOptionified);
+	const [minWidth, setMinWidth] = React.useState(0);
+	const testRef = React.createRef<HTMLDivElement>();
+	const current = (controlledValue.isSome() ? (selectOptions.filter((a) => a.value == controlledValue.value)[0]) : showNonePadded);
+
+	React.useEffect(() => {
+		testRef.current.style.display = "";
+		setMinWidth(testRef.current.clientWidth);
+		testRef.current.style.display = "none";
+	}, [selectOptions]);
+    const options = React.useMemo(() => (useOptions.map((a, i) => (<Listbox.Option key={i} value={a.value} as={React.Fragment}>
+		{({active, selected}) => (<div className={(active ? "bg-gray-100" : "") + " whitespace-nowrap"}><button>{a.display}</button></div>)}
+		</Listbox.Option>))), [useOptions]);
+	return (<>
+			<div className="flex flex-row">
+				{props.label}
+				<Listbox value={controlledValue} onChange={(v) => {updateValue(v);}}>
+					<div className="relative max-w-min">
+					<Listbox.Button className={"flex flex-col items-end bg-white whitespace-nowrap " + inputClassName + " " + (props.className ? props.className : "")}>
+						<div className="flex flex-row w-full">
+							<div className={"text-left grow"} style={{minWidth: minWidth}}>
+								{current && current.display}
+							</div>
+							<ChevronDown className="flex-none"/>
+						</div>
+					</Listbox.Button>
+					<Listbox.Options className="absolute bg-white w-full z-50">
+						{options}
+					</Listbox.Options>
+					</div>
+				</Listbox>
+				{props.end}
+			</div>
+			<div ref={testRef} className=" whitespace-nowrap fixed" style={{display: "none"}}>
+				{selectOptions.map((a, i) => <div key={i} className="whitespace-nowrap">{a.display}</div>)}
+			</div>
+		</>
     );
 }
 
-export const ValidatedCheckboxInput = (props: CustomInputProps<Option<boolean>> & InputProps) => {
+export const CheckboxInput = (props: CustomInputProps<Option<boolean>> & InputProps) => {
 	return <Input {...props} 
 	makeInputProps={(v) => {return {checked:v.getOrElse(false) == true} }}
 	convertChange={(e) => option.some(e.target.checked)}
@@ -153,7 +196,7 @@ var lastMoment;
 export const MomentInput = (props: CustomInputProps<Option<moment.Moment>> & InputProps & {format : string, start:moment.Moment,end:moment.Moment, lower?:moment.Moment, upper?:moment.Moment, inc: any, timeVar: moment.unitOfTime.All, sToM? : typeof stringToMoment, mToS?: typeof momentToString}) => {
 	const {format,start,end,inc,timeVar,sToM,mToS,updateValue,upper,lower,...others} = props;
 	const selectOptions: {value: string | number, display: ReactNode} [] = [];
-	const initValue = props.initValue;
+	const initValue = props.controlledValue;
 	const valval = lower === undefined ? undefined : lower.toJSON();
 	React.useEffect(() => {
 		if(upper == undefined || lower == undefined){
@@ -192,7 +235,7 @@ export const MomentInput = (props: CustomInputProps<Option<moment.Moment>> & Inp
 		}
 	}
 	return (<SelectInput {...others}
-		initValue={paddedInitValue} updateValue={paddedUpdateValue} selectOptions={selectOptions}
+		controlledValue={paddedInitValue} updateValue={paddedUpdateValue} selectOptions={selectOptions}
 	/>);
 }
 
@@ -201,7 +244,7 @@ export type MomentInputBoundary = {lower:moment.Moment,upper:moment.Moment};
 function makeInputBounded (props: CustomInputProps<Option<moment.Moment>> & InputProps & MomentInputBoundary &
 	{format: string, inc: any, boundVar: moment.unitOfTime.StartOf, timeVar: moment.unitOfTime.All}) : JSX.Element {
 	const {lower,upper,format,inc,boundVar,timeVar,updateValue,...other} = props;
-	const initialValue = props.initValue.getOrElse(moment());
+	const initialValue = props.controlledValue.getOrElse(moment());
 	const updateValueBounded = (v) => {
 		if(v.isNone()){
 			updateValue(option.none);
@@ -251,7 +294,7 @@ function hourStart (initTime: moment.Moment){
 
 export const HourInput = (props: CustomInputProps<Option<moment.Moment>> & InputProps & MomentInputBoundary) => {
 	const {lower,upper,...other} = props;
-	const initialValue = props.initValue.getOrElse(moment());
+	const initialValue = props.controlledValue.getOrElse(moment());
 	const valueStart = hourStart(initialValue);
 	return (
 		<MomentInput {...other}
@@ -283,7 +326,7 @@ const AM = "AM";
 
 export const AmPmInput = (props: CustomInputProps<Option<moment.Moment>> & InputProps & MomentInputBoundary) => {
 	const {lower,upper,...other} = props;
-	const initialValue = props.initValue.getOrElse(moment());
+	const initialValue = props.controlledValue.getOrElse(moment());
 	return (
 		<MomentInput {...other}
 		format="A"

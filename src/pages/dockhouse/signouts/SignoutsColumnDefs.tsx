@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { CustomInput as Input, SelectOption } from 'components/wrapped/Input';
+import { CheckboxInput, SelectOption, SimpleInput } from 'components/wrapped/Input';
 import { none, Option } from 'fp-ts/lib/Option';
 import { option } from 'fp-ts';
 import * as moment from "moment";
@@ -22,7 +22,7 @@ export const CommentsHover = (props: { row: SignoutTablesState, extraState: Sign
 }
 
 export const MultiSigninCheckbox = (props: { row: SignoutTablesState, extraState: SignoutsTablesExtraState }) => {
-	return <Input type="checkbox" className="m-auto" checked={props.extraState.multiSignInSelected.contains(props.row.signoutId)} onChange={(e) => { if (e.target.checked) { props.extraState.setMultiSignInSelected(props.extraState.multiSignInSelected.concat(props.row.signoutId)) } else { props.extraState.setMultiSignInSelected(props.extraState.multiSignInSelected.filter((a) => a != props.row.signoutId)) } }} />;
+	return <CheckboxInput className="m-auto" controlledValue={option.some(props.extraState.multiSignInSelected.contains(props.row.signoutId))} updateValue={(v) => { if (v.isSome() && v.value) { props.extraState.setMultiSignInSelected(props.extraState.multiSignInSelected.concat(props.row.signoutId)) } else { props.extraState.setMultiSignInSelected(props.extraState.multiSignInSelected.filter((a) => a != props.row.signoutId)) } }} />;
 }
 
 function isMax(n: number, a: number[]) {

@@ -9,7 +9,9 @@ import ims from 'assets/img/icons/header/ims.svg';
 import runaground from 'assets/img/icons/header/runaground.svg';
 import capsize from 'assets/img/icons/header/capsize.svg';
 import assist from 'assets/img/icons/header/assist.svg';
-import { FlagStatusIcons } from "./FlagStatusIcons";
+import { FlagStatusIcon, FlagStatusIcons } from "./FlagStatusIcons";
+import { DHGlobalContext } from "./DHGlobalProvider";
+import { DHGlobals } from "async/staff/dockhouse/dh-globals";
 
 /*
 Flag Banner (close, GYRB, right)
@@ -20,11 +22,24 @@ Signout Table:
 Boat order (Merc, Keel Merc, Sonar, Ideal, Laser, 420, Kayak, Paddleboard, Windsurf)
 */
 
+function getLatestFlag(dhGlobal: DHGlobals){
+	const latestChange = dhGlobal.flagChanges.sort((a, b) => a.changeDatetime.diff(b.changeDatetime))[0];
+	if(latestChange){
+		return FlagStatusIcons[latestChange.flag];
+	}
+	return FlagStatusIcons.B;
+}
+
 const Header = (props: { history, dispatch }) => {
-	const [headerState, setHeaderState] = React.useState({flag:FlagStatusIcons.R, time:moment(), sunset:moment("2022-11-16T00:43:00Z"), speed:13, direction:"W",
-	high:{title: "Announcement Title Here", message: "Click for announcement modal blah blah"},
-	medium:{title: "", message: "Medium priority announcement"},
-	low:[{title: "", message: "low priority announcement"}, {title: "", message: "scroll blah blah"}]})
+	const dhGlobal = React.useContext(DHGlobalContext);
+	const headerState = {
+		flag: getLatestFlag(dhGlobal),
+		time: dhGlobal.serverDateTime,
+		sunset: dhGlobal.sunsetTime,
+		speed: dhGlobal.windSpeedAvg,
+		direction: dhGlobal.winDir,
+		announcements: dhGlobal.announcements
+	}
 	const buttons = [
         {src: ims, onClick: (a) => {alert("clicked IMS")}},
 		{src: capsize, onClick: (a) => {alert("clicked CAP")}},
@@ -34,7 +49,7 @@ const Header = (props: { history, dispatch }) => {
 		<div className="grow-0 relative">
 			<StatusHeader
 			{...headerState}
-			setFlag={(flag) => {setHeaderState((s) => ({...s, flag: flag}))}}
+			setFlag={(flag) => {}}
 			buttons={buttons}
 			dropdownNavbar={<HeaderNavbarDropdown history={props.history}/>}
 			></StatusHeader>

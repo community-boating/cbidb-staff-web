@@ -3,7 +3,7 @@ import APIWrapper from 'core/APIWrapper';
 import { HttpMethod } from "core/HttpMethod";
 import { OptionalNumber, OptionalString } from 'util/OptionalTypeValidators';
 
-const grantRatingsValidator = t.type({
+export const grantRatingsValidator = t.type({
 	instructor: t.string,
 	programId: t.number,
 	personIds: t.array(t.number),

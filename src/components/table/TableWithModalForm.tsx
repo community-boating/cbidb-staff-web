@@ -248,7 +248,7 @@ export default function TableWithModalForm<T_Row, T_Filter, T_RowEdit>(props: Ta
 export function wrapForFormComponentsMoment(rowForEdit: any, updateState: UpdateStateType, rowId: string, validationResults: string[]){
 	const initMoment = moment(rowForEdit[rowId]);
 	return {
-		initValue:initMoment.isValid() ? option.some(initMoment) : option.none,
+		controlledValue:initMoment.isValid() ? option.some(initMoment) : option.none,
 		updateValue:(v) => {
 			updateState(rowId, v.getOrElse(moment()).format())
 		},
@@ -259,7 +259,7 @@ export function wrapForFormComponentsMoment(rowForEdit: any, updateState: Update
 
 export function wrapForFormComponents (rowForEdit: any, updateState: UpdateStateType, rowId: string, validationResults: string[], isNumerical: boolean = false){
 	return {
-		initValue:option.some(rowForEdit[rowId]),
+		controlledValue:option.some(rowForEdit[rowId]),
 		updateValue:(v) => {
 			updateState(rowId, v.getOrElse(isNumerical? -1: ""));
 		},

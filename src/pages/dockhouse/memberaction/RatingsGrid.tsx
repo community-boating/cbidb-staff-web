@@ -1,5 +1,5 @@
 import { AppStateContext } from 'app/state/AppStateContext';
-import { ValidatedCheckboxInput, SelectInput } from 'components/wrapped/Input';
+import { CheckboxInput, SelectInput } from 'components/wrapped/Input';
 import { option } from 'fp-ts';
 import * as React from 'react';
 import { programsHR } from '../signouts/Constants';
@@ -29,9 +29,8 @@ export default function RatingsGrid(props: RatingsGridProps){
     const ratingsById = React.useMemo(() => makeRatingsById(asc.state.ratings), [asc.state.ratings])
     return <>
         <div className="grid grid-cols-4 gap-4">
-            {props.selectedProgram.isSome() ? ratingsById[props.selectedProgram.value].map((a, i) => (<div key={a.ratingId}>
-                {a.ratingName}
-                <ValidatedCheckboxInput initValue={option.some(props.selectedRatings[a.ratingId])} updateValue={(v) => {props.setSelectedRatings((s) => ({...s, ...({[a.ratingId]: v.getOrElse(false)})}))}} validationResults={[]}></ValidatedCheckboxInput>
+            {props.selectedProgram.isSome() ? ratingsById[props.selectedProgram.value].map((a, i) => (<div key={a.ratingId} className="flex flex-col items-end">
+                <CheckboxInput className="" label={a.ratingName + ":"} controlledValue={option.some(props.selectedRatings[a.ratingId])} updateValue={(v) => {props.setSelectedRatings((s) => ({...s, ...({[a.ratingId]: v.getOrElse(false)})}))}} validationResults={[]}></CheckboxInput>
             </div>)) : <></>}
         </div>
     </>

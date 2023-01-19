@@ -7,7 +7,7 @@ import * as React from 'react';
 import { ErrorPopup } from './ErrorPopup';
 import Modal, { ModalHeader } from './wrapped/Modal';
 import Button from './wrapped/Button';
-import { CustomInput as Input } from './wrapped/Input';
+import { SimpleInput } from './wrapped/Input';
 import { AppStateContext } from 'app/state/AppStateContext';
 
 export default function () {
@@ -81,22 +81,22 @@ export default function () {
 			</p>
 			<br />
 			<div className="self-center my-auto">
-						<Input
+						<SimpleInput
 							label="Username:"
 							type="text"
 							name="username"
 							placeholder="Username"
-							value={formData.username.getOrElse("")}
-							onChange={event => updateState("username", event.target.value)}
+							controlledValue={formData.username.getOrElse("")}
+							updateValue={v => updateState("username", v)}
 						/>
-						<Input
+						<SimpleInput
 							label="Password:"
 							type="password"
 							name="password"
 							placeholder="Password"
 							id="sudoPassword"
-							value={formData.password.getOrElse("")}
-							onChange={event => updateState("password", event.target.value)}
+							controlledValue={formData.password.getOrElse("")}
+							updateValue={v => updateState("password", v)}
 							onKeyDown={detectEnter(loginFunction)}
 						/>
 		</div>

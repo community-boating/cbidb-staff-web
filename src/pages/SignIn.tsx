@@ -6,10 +6,10 @@ import detectEnter from "../util/detectEnterPress";
 
 import cbiLogo from "../assets/img/icons/boat.svg"
 import { ErrorPopup } from "components/ErrorPopup";
-import { CustomInput as Input } from "components/wrapped/Input";
 import Button from "components/wrapped/Button";
 import { AppStateContext } from "app/state/AppStateContext";
 import { AppStateCombined } from "app/state/AppState";
+import { SimpleInput } from "components/wrapped/Input";
 
 export const formDefault = {
 	username: none as Option<string>,
@@ -89,28 +89,28 @@ class SignIn extends React.PureComponent<{}, State, string> {
 							height="132"
 						/>
 					<ErrorPopup errors={self.state.validationErrors} />
-					<Input
+					<SimpleInput
 						label="Username"
 						type="text"
 						name="username"
 						id="username"
 						placeholder="Enter your username"
-						value={self.state.formData.username.getOrElse("")}
-						onChange={event => updateState("username", event.target.value)}
+						controlledValue={self.state.formData.username.getOrElse("")}
+						updateValue={v => updateState("username", v)}
 					/>
 					<br />
-					<Input
+					<SimpleInput
 						label="Password"
 						type="password"
 						name="password"
 						placeholder="Enter your password"
-						value={self.state.formData.password.getOrElse("")}
-						onChange={event => {
+						controlledValue={self.state.formData.password.getOrElse("")}
+						updateValue={v => {
 							self.setState({
 								...self.state,
 								formData: {
 									...self.state.formData,
-									password: event.target.value == "" ? none : some(event.target.value)
+									password: v == "" ? none : some(v)
 								}
 							})
 						}}

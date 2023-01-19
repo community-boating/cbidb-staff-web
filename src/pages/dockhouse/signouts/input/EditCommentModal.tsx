@@ -23,7 +23,7 @@ export const EditCommentsModal = (props: EditModalCommonProps & {updateComments:
                     Save
                 </Button>
             }>
-            <ValidatedTextInput type={"textarea"} initValue={commentsPadded} updateValue={setComments} validationResults={[]} />
+            <ValidatedTextInput type={"textarea"} controlledValue={commentsPadded} updateValue={setComments} validationResults={[]} />
         </EditModal>
     </>
 };

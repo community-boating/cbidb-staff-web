@@ -1,3 +1,4 @@
+import { DHGlobals } from 'async/staff/dockhouse/dh-globals';
 import { Option } from 'fp-ts/lib/Option';
 
 import { BoatTypesType, RatingsType } from 'pages/dockhouse/signouts/StateTypes';

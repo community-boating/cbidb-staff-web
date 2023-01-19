@@ -9,6 +9,7 @@ import { AppStateContext } from "./app/state/AppStateContext"
 import SudoModal from "components/SudoModal";
 import { getAppStateCombined } from "app/state/AppStateAction";
 import { AppState, AppStateCombined } from "app/state/AppState";
+import DHGlobalProvider from "components/dockhouse/DHGlobalProvider";
 
 interface Props {
 	history: any
@@ -48,19 +49,21 @@ class App extends React.Component<Props, AppState> {
 		this.makeAppStateCombined();
 		return (
 			<Provider store={store}>
-				<AppStateContext.Provider value={this.appStateCombined}>
-					<Routes authenticatedUserName={this.state.login.authenticatedUserName} history={this.props.history}/>
-					<ReduxToastr
-						timeOut={15000}
-						newestOnTop={true}
-						position="top-right"
-						transitionIn="fadeIn"
-						transitionOut="fadeOut"
-						progressBar
-						closeOnToastrClick
-					/>
-					<SudoModal />
-				</AppStateContext.Provider>
+					<AppStateContext.Provider value={this.appStateCombined}>
+						<DHGlobalProvider>
+							<Routes authenticatedUserName={this.state.login.authenticatedUserName} history={this.props.history}/>
+							<ReduxToastr
+								timeOut={15000}
+								newestOnTop={true}
+								position="top-right"
+								transitionIn="fadeIn"
+								transitionOut="fadeOut"
+								progressBar
+								closeOnToastrClick
+							/>
+							<SudoModal />
+						</DHGlobalProvider>
+					</AppStateContext.Provider>
 			</Provider>
 		)
 	}

@@ -18,7 +18,7 @@ export function getAppStateCombined(state: AppState, setState: React.Dispatch<Re
             logout: undefined
         },
         setSudoModalOpener: undefined,
-        initAfterLogin: undefined
+        initAfterLogin: undefined,
     };
 
     const asc: AppStateCombined = {
@@ -64,12 +64,12 @@ export function getAppStateCombined(state: AppState, setState: React.Dispatch<Re
     
         stateAction.setSudo = (on: boolean) => setStateP({
             sudo: on
-        }),
+        })
         stateAction.setBorderless = () => {
             setStateP({
                 borderless: true
             });
-        },
+        }
         stateAction.login = {
             setLoggedIn,
             attemptLogin: (function(userName: string, password: string): Promise<boolean> {
@@ -88,10 +88,10 @@ export function getAppStateCombined(state: AppState, setState: React.Dispatch<Re
                     }
                 })
             }
-        },
+        }
         stateAction.setSudoModalOpener = (sudoModalOpener: () => void) => {
             setStateP({sudoModalOpener: sudoModalOpener});
-        },
+        }
         stateAction.initAfterLogin = () => {
             getRatings.send(asc).then((a) => {
                 if(a.type == "Success"){

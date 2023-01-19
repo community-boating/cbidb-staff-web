@@ -2,7 +2,7 @@ import * as React from 'react';
 import { putSignout, signoutValidator } from 'async/staff/dockhouse/signouts-tables';
 import TableWithModalForm, { TableWithModalFormAsync, TableWithModalFormAsyncRaw, UpdateStateType, wrapForFormComponents, wrapForFormComponentsMoment } from 'components/table/TableWithModalForm';
 import { StringifiedProps } from 'util/StringifyObjectProps';
-import { CustomInput as Input, SelectOption, AmPmInput, HourInput, MinuteInput, SelectInput, ValidatedTextInput } from 'components/wrapped/Input';
+import { SelectOption, AmPmInput, HourInput, MinuteInput, SelectInput, ValidatedTextInput } from 'components/wrapped/Input';
 import { option, state } from 'fp-ts';
 import * as moment from "moment";
 import { SignoutsTableFilterState } from './input/SignoutsTableFilter';

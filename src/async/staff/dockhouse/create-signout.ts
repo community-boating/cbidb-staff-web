@@ -9,7 +9,7 @@ const createSignoutCrewValidator = t.type({
 	testRatingId: OptionalNumber
 });
 
-const createSignoutValidator = t.type({
+export const createSignoutValidator = t.type({
 	skipperPersonId: t.number,
 	skipperCardNumber: t.string,
 	skipperTestRatingId: OptionalNumber,

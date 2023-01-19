@@ -8,9 +8,9 @@ import hold from 'assets/img/icons/hold.svg';
 import comments from 'assets/img/icons/comments.svg';
 import person from 'assets/img/icons/person.svg';
 import { option } from 'fp-ts';
-import { programsHR, SignoutTypes, signoutTypesHR } from '../signouts/Constants';
+import { programsHR, SignoutTypes, signoutTypesHR, testResultsHR } from '../signouts/Constants';
 import Button from 'components/wrapped/Button';
-import { CustomInput as Input, SelectInput } from 'components/wrapped/Input';
+import { OptionalStringInput, SelectInput } from 'components/wrapped/Input';
 
 import swap from 'assets/img/icons/buttons/swap.svg';
 import x from 'assets/img/icons/buttons/x.svg';
@@ -19,9 +19,13 @@ import IconButton, { GoButton } from 'components/wrapped/IconButton';
 import BoatIcon, { BoatSelect } from './BoatIcon';
 import { scanCardValidator } from 'async/staff/dockhouse/scan-card';
 import RatingsGrid from './RatingsGrid';
-import { ScannedPersonsCacheContext } from './ScannedPersonsCache';
+import { ScannedPersonsCacheContext, ScannedPersonsCacheGet } from './ScannedPersonsCache';
 import { EditSignoutType, SignoutTablesState } from '../signouts/StateTypes';
 import RadioGroup from 'components/wrapped/RadioGroup';
+import { AppStateContext } from 'app/state/AppStateContext';
+import { sortRatings } from '../signouts/RatingSorter';
+import { createSignoutValidator, postWrapper as createSignout } from 'async/staff/dockhouse/create-signout';
+import { grantRatingsValidator, postWrapper as grantRatings } from 'async/staff/dockhouse/grant-ratings';
 
 export type ScannedPersonsType = t.TypeOf<typeof scanCardValidator>;
 
@@ -32,10 +36,15 @@ export type MemberActionState = {
     currentSkipper: number
     currentTesting: number[]
     boatId: option.Option<number>
+    boatNum: option.Option<string>
+    hullNum: option.Option<string>
+    sailNum: option.Option<string>
+    signoutType: option.Option<string>
+    testType: option.Option<string>
+    testRating: option.Option<number>
 }
 
 export type EditSignoutState = MemberActionState & {
-    type: string
 }
 
 export type SignoutProps = {
@@ -106,14 +115,11 @@ export function CardNumberScanner(props: ({label: string, onAction: (result: Sca
     const timeoutID = React.useRef<NodeJS.Timeout>(undefined);
     const context = React.useContext(ScannedPersonsCacheContext);
     const findCardNum = (cardNum: string) => {
-        setCardNum(cardNum == "" ? option.none : option.some(cardNum));
         if(timeoutID.current){
             clearTimeout(timeoutID.current);
         }
         timeoutID.current = setTimeout(() => {
-            console.log("trying");
             context.getCached(cardNum, (result) => {
-                console.log("resulting");
                 if(result.isSome()){
                     setFoundPerson(option.some(result.value));
                     setError(option.none);
@@ -132,15 +138,19 @@ export function CardNumberScanner(props: ({label: string, onAction: (result: Sca
         }
     }
     React.useEffect(() => {
+        if(cardNum.isSome())
+            findCardNum(cardNum.value);
+    }, [cardNum]);
+    React.useEffect(() => {
         addCardNumToCrew();
     }, [foundPerson, actionQueued]);
     const doQueue = () => {
         setActionQueued(cardNum);
     }
-    return <div>
-        <Input label={props.label} value={cardNum.getOrElse("")} end={<GoButton onClick={() => {doQueue();}}/>} onChange={(e) => {e.preventDefault(); findCardNum(e.target.value);}} onEnter={() => {
+    return <div className="">
+        <OptionalStringInput label={props.label} controlledValue={cardNum} end={<GoButton onClick={() => {doQueue();}}/>} updateValue={(value) => {setCardNum(value);}} onEnter={() => {
         doQueue();
-        }}></Input>
+        }}></OptionalStringInput>
         {foundPerson.isSome() ? (foundPerson.value.nameFirst + " " + foundPerson.value.nameLast) : ""}
         {error.isSome() ? error.value : ""}
     </div>
@@ -152,14 +162,14 @@ export function AddCrew(props: SignoutProps & {mode: MemberActionMode}){
     }
     return (<div className="flex flex-col grow-0 gap-2">
             {props.mode == MemberActionMode.SIGNOUT ? <div className="flex flex-row gap-2">
-                <Button className="bg-gray-200 p-card">Search Phone</Button>
-                <Button className="bg-gray-200 p-card">Search Name</Button>
+                <Button className="bg-gray-200">Search Phone</Button>
+                <Button className="bg-gray-200">Search Name</Button>
             </div> : <></>}
             <CardNumberScanner label="Add person..." onAction={(a) => {
                 props.setState((s) => ({...s, currentPeopleCardNums: s.currentPeopleCardNums.concat(a.cardNumber)}));
             }}></CardNumberScanner>
-            {props.mode == MemberActionMode.SIGNOUT ? <><Button className="bg-gray-200 p-card" onClick={setRandom}>Find Highest Ratings</Button>
-            <Button className="bg-gray-200 p-card" onClick={setRandom}>Find Highest Privileges</Button></> : <></>}
+            {props.mode == MemberActionMode.SIGNOUT ? <><Button className="bg-gray-200" onClick={setRandom}>Find Highest Ratings</Button>
+            <Button className="bg-gray-200" onClick={setRandom}>Find Highest Privileges</Button></> : <></>}
         </div>);
 }
 
@@ -172,11 +182,11 @@ export function EditCrew(props: SignoutProps & {mode: MemberActionMode}){
     const cache = React.useContext(ScannedPersonsCacheContext);
     const crew = <>{props.state.currentPeopleCardNums.map((a, i) => {
         if(i == props.state.currentSkipper){
-            return <></>;
+            return undefined;
         }
         const b = cache.getCached(a);
         if(b.isNone()){
-            return <></>;
+            return undefined;
         }
         return (<div key={i} className="whitespace-nowrap">        
             <div className="flex flex-row">
@@ -259,12 +269,14 @@ export function DialogOutput(props: {children: React.ReactNode}){
 }
 
 export function EditSignout(props: {state: MemberActionState, setState: React.Dispatch<React.SetStateAction<MemberActionState>>, mode: MemberActionMode}){
+    const asc = React.useContext(AppStateContext);
+    const ratingsHR = React.useMemo(() => asc.state.ratings.map((a) => ({value: a.ratingId, display: a.ratingName})), [asc.state.ratings]);
     const setBoatId = (boatId: option.Option<number>) => {
         props.setState({...props.state, boatId: boatId})
     };
     const {mode, ...other} = props;
     return (
-    <div className="flex flex-col h-full grow-[1] gap-5">
+    <div className="flex flex-col grow-[1] gap-5">
         <div className="flex flex-row grow-[0] gap-5">
             <SkipperInfo {...other}></SkipperInfo>
             {props.mode == MemberActionMode.TESTING ? <SkipperInfo {...other}></SkipperInfo> : <></>}
@@ -279,24 +291,88 @@ export function EditSignout(props: {state: MemberActionState, setState: React.Di
             <div className="w-full flex flex-col">
                 <p>Boat Type</p>
                 <BoatIcon boatId={props.state.boatId} setBoatId={setBoatId}/>
-                <DotBox className="grow-[1]">
-                    <BoatSelect boatId={props.state.boatId} setBoatId={setBoatId}></BoatSelect>
+                <DotBox className="grow-[1] p-5">
+                    <div className="flex flex-row gap-5">
+                        <div className="flex flex-col items-end gap-5">
+                            <BoatSelect boatId={props.state.boatId} setBoatId={setBoatId}></BoatSelect>
+                        </div>
+                        <div className="flex flex-col items-end gap-5">
+                            <OptionalStringInput label="Boat Number:" controlledValue={props.state.boatNum} updateValue={(v) => {props.setState((s) => ({...s, boatNum: v}))}}/>
+                            <OptionalStringInput label="Hull Number:" controlledValue={props.state.hullNum} updateValue={(v) => {props.setState((s) => ({...s, hullNum: v}))}}/>
+                            <OptionalStringInput label="Sail Number:" controlledValue={props.state.sailNum} updateValue={(v) => {props.setState((s) => ({...s, sailNum: v}))}}/>
+                        </div>
+                        <div className="flex flex-col items-end gap-5">
+                            <SelectInput label="Signout Type:" className="w-[200px]" controlledValue={props.state.signoutType} updateValue={(v) => {props.setState((s) => ({...s, signoutType: v}))}} selectOptions={signoutTypesHR}></SelectInput>
+                            <SelectInput label="Test Type:" className="w-[200px]" controlledValue={props.state.testType} updateValue={(v) => {props.setState((s) => ({...s, testType: v}))}} selectOptions={testResultsHR}></SelectInput>
+                            <SelectInput label="Test Rating:" className="w-[200px]" controlledValue={props.state.testRating} updateValue={(v) => {props.setState((s) => ({...s, testRating: v}))}} selectOptions={ratingsHR}></SelectInput>
+                        </div>
+                    </div>
                 </DotBox>
             </div>
         </div>
     </div>);
 }
 
+export type CreateSignoutType = t.TypeOf<typeof createSignoutValidator>
+
+function convertToCreateSignout(state: MemberActionState, cache: ScannedPersonsCacheGet): CreateSignoutType{
+    const skipper = cache.getCached(state.currentPeopleCardNums[state.currentSkipper]);
+    if(!skipper.isSome()){
+        throw "bad";
+    }
+    return {
+        skipperPersonId: skipper.value.personId,
+        skipperCardNumber: skipper.value.cardNumber,
+        skipperTestRatingId: state.testRating,
+        boatId: state.boatId.getOrElse(undefined),
+        sailNumber: state.sailNum,
+        hullNumber: state.hullNum,
+        classSessionId: option.none,
+        isRacing: false,
+        dockmasterOverride: false,
+        didInformKayakRules: true,
+        signoutCrew: state.currentPeopleCardNums.filter((a) => a != skipper.value.cardNumber).map((a) => {
+            const crewMember = cache.getCached(a);
+            if(!crewMember.isSome()){
+                throw "Tried signing out crew before scanning them in"
+            }
+            return ({
+                personId: crewMember.value.personId,
+                cardNumber: crewMember.value.cardNumber,
+                testRatingId: state.currentTesting.filter((b) => a == state.currentPeopleCardNums[b]).length > 0 ? state.testRating : option.none
+            });
+        })
+    }
+}
+
+function CreateQueueSignout(props: {state: MemberActionState, setState: React.Dispatch<React.SetStateAction<MemberActionState>>}){
+    const asc = React.useContext(AppStateContext);
+    const cache = React.useContext(ScannedPersonsCacheContext);
+    return <>
+        <div className="flex flex-row gap-2 mr-0 ml-auto">
+            <Button className="bg-gray-300 px-5 py-2">Queue Signout</Button>
+            <Button className="bg-gray-300 px-5 py-2 bg-boathouseblue text-gray-100" spinnerOnClick submit={(e) => {
+                console.log("happening");
+                return createSignout.sendJson(asc, convertToCreateSignout(props.state, cache)).then((a) => {
+                    console.log(a);
+                });
+            }}>Create Signout</Button>
+        </div>
+    </>
+}
+
 const memberActionTypes: {title: React.ReactNode, getContent: (state: MemberActionState, setState: React.Dispatch<React.SetStateAction<MemberActionState>>) => React.ReactNode}[] = [{
     title: "Sign Out",
     getContent: (state, setState) => <>
         <EditSignout state={state} setState={setState} mode={MemberActionMode.SIGNOUT}/>
+        <CreateQueueSignout state={state} setState={setState}/>
     </>
 },
 {
     title: "Testing",
     getContent: (state, setState) => <>
         <EditSignout state={state} setState={setState} mode={MemberActionMode.TESTING}/>
+        <CreateQueueSignout state={state} setState={setState}/>
     </>
 },
 {
@@ -307,13 +383,12 @@ const memberActionTypes: {title: React.ReactNode, getContent: (state: MemberActi
     title: "Racing",
     getContent: (state, setState) => <>
         <EditSignout state={state} setState={setState} mode={MemberActionMode.SIGNOUT}/>
+        <CreateQueueSignout state={state} setState={setState}/>
     </>
 },
 {
     title: "Ratings",
-    getContent: (state, setState) => (<div>
-        <MemberActionRatings state={state} setState={setState}></MemberActionRatings>
-    </div>)
+    getContent: (state, setState) => (<MemberActionRatings state={state} setState={setState}></MemberActionRatings>)
 },
 {
     title: "Comments",
@@ -324,15 +399,34 @@ const memberActionTypes: {title: React.ReactNode, getContent: (state: MemberActi
         </div>)
 }]
 
+export type GrantRatingsType = t.TypeOf<typeof grantRatingsValidator>
+
+function convertToGrantRatings(state: MemberActionState, programId: number, ratingIds: number[], cache: ScannedPersonsCacheGet): GrantRatingsType{
+    return {
+        instructor: "jon",
+        programId: programId,
+        ratingIds: ratingIds,
+        personIds: state.currentPeopleCardNums.map((a) => cache.getCached(a).getOrElse(d).personId)
+    }
+}
+
 function MemberActionRatings(props: {state: MemberActionState, setState: React.Dispatch<React.SetStateAction<MemberActionState>>}){
+    const cache = React.useContext(ScannedPersonsCacheContext);
+    const asc = React.useContext(AppStateContext);
     const availablePrograms = {};
-    //props.state.crew.forEach((a) => availablePrograms[a.activeMemberships[0].programId] = true);
+    props.state.currentPeopleCardNums.forEach((a) => availablePrograms[cache.getCached(a).getOrElse(d).activeMemberships[0].programId.getOrElse(1)] = true);
     const [programId, setProgramId] = React.useState<option.Option<number>>(option.none);
     const [selectedRatings, setSelectedRatings] = React.useState<{[key: number]: boolean}>({});
-    return <div>
+    return <div className="flex flex-col gap-5 grow-[1]">
             <AddEditCrew state={props.state} setState={props.setState} mode={MemberActionMode.OTHER}></AddEditCrew>
-            <SelectInput initValue={programId} updateValue={setProgramId} selectOptions={programsHR.filter((a) => availablePrograms[a.value])} validationResults={[]}></SelectInput>
+            <SelectInput controlledValue={programId} updateValue={setProgramId} selectOptions={programsHR.filter((a) => availablePrograms[a.value])} validationResults={[]}></SelectInput>
             <RatingsGrid selectedProgram={programId} selectedRatings={selectedRatings} setSelectedRatings={setSelectedRatings}></RatingsGrid>
+            <Button className="bg-gray-300 px-5 py-2 bg-boathouseblue text-gray-100 ml-auto mr-0 mt-auto mb-0" spinnerOnClick submit={(e) => {
+                console.log(convertToGrantRatings(props.state, programId.getOrElse(undefined), Object.keys(selectedRatings).map((a) => parseInt(a)), cache));
+                return grantRatings.sendJson(asc, convertToGrantRatings(props.state, programId.getOrElse(undefined), Object.keys(selectedRatings).map((a) => parseInt(a)), cache)).then((a) => {
+                    console.log(a);
+                });
+            }}>Grant Ratings</Button>
         </div>
 }
 
@@ -378,7 +472,17 @@ export class NoneAction extends Action<undefined>{
 
 
 function MemberActionModal(props: MemberActionType){
-    const [state, setState] = React.useState({currentPeopleCardNums: [props.scannedCard], currentSkipper: 0, currentTesting: [], boatId: option.none});
+    const [state, setState] = React.useState({
+        currentPeopleCardNums: [props.scannedCard],
+        currentSkipper: 0,
+        currentTesting: [],
+        boatId: option.none,
+        boatNum: option.none,
+        hullNum: option.none,
+        sailNum: option.none,
+        signoutType: option.none,
+        testType: option.none,
+        testRating: option.none});
     return <Tab.Group>
         <ModalHeader className="text-2xl font-bold">
             <Tab.List className="flex flex-row gap-primary">
@@ -396,14 +500,8 @@ function MemberActionModal(props: MemberActionType){
         </ModalHeader>
         <hr className="border-t-1 border-black"/>
         <Tab.Panels className="h-[80vh] min-w-[80vw] flex flex-col">
-            {memberActionTypes.map((a, i) => <Tab.Panel className="grow-[1]" key={i}>{a.getContent(state, setState, )}</Tab.Panel>)}
+            {memberActionTypes.map((a, i) => <Tab.Panel className="flex flex-col grow-[1]" key={i}>{a.getContent(state, setState, )}</Tab.Panel>)}
         </Tab.Panels>
-        <>
-            <div className="flex flex-row gap-2 mr-0 ml-auto">
-                <Button className="bg-gray-300 px-5 py-2">Queue Signout</Button>
-                <Button className="bg-gray-300 px-5 py-2">Queue Signout</Button>
-            </div>
-        </>
     </Tab.Group>
 }
 
@@ -413,7 +511,12 @@ function adaptSignoutState(state: SignoutTablesState): EditSignoutState{
 		currentSkipper: 0,
 		currentTesting: [],
 		boatId: option.some(state.boatId),
-        type: state.signoutType
+        signoutType: option.some(state.signoutType),
+        boatNum: option.none,
+        hullNum: state.hullNumber,
+        sailNum: state.sailNumber,
+        testType: state.testResult,
+        testRating: state.testRatingId
 	}
 }
 
@@ -423,12 +526,10 @@ const makeNode = (index: number, display: React.ReactNode) => (checked: boolean,
 
 function EditSignoutModal(props: EditSignoutType){
     const [state, setState] = React.useState(adaptSignoutState(props.currentSignout));
-    console.log(state.type);
-    console.log("changing");
-    const mode = state.type == SignoutTypes.TEST ? MemberActionMode.TESTING : MemberActionMode.SIGNOUT;
+    const mode = (state.signoutType.isSome() && state.signoutType.value == SignoutTypes.TEST) ? MemberActionMode.TESTING : MemberActionMode.SIGNOUT;
         return <>
 			<ModalHeader className="font-bold text-2xl gap-1">
-				<RadioGroup className="flex flex-row" value={option.some(state.type)} setValue={(v) => setState((s) => ({...s, type: v.getOrElse("")}))} makeChildren={signoutTypesHR.map((a,i) => ({value: a.value, makeNode: (c, s) => {return makeNode(i, a.display)(c, s)}}))}/>
+				<RadioGroup className="flex flex-row" value={state.signoutType} setValue={(v) => setState((s) => ({...s, signoutType: v}))} makeChildren={signoutTypesHR.map((a,i) => ({value: a.value, makeNode: (c, s) => {return makeNode(i, a.display)(c, s)}}))}/>
 			</ModalHeader>
 				<div className="w-[80vw] h-[80vh] p-5">
 					<EditSignout state={state} setState={setState} mode={mode}/>
@@ -439,13 +540,7 @@ function EditSignoutModal(props: EditSignoutType){
 export default function ActionModal(props: ActionModalProps){
     const modalContent = props.action.createModalContent(props.action.modeInfo);
     return (
-        <Modal open={!(props.action instanceof NoneAction)} setOpen={(s) => {if(!s){props.setAction(new NoneAction())}}} className="bg-gray-100 rounded-lg">
+        <Modal open={props.action && !(props.action instanceof NoneAction)} setOpen={(s) => {if(!s){props.setAction(new NoneAction())}}} className="bg-gray-100 rounded-lg">
             {modalContent}
         </Modal>);
-}
-
-type GeneralPersonInfo = {
-    personId: number
-    cardNumber: string
-    [key: string | number | symbol]: any
 }

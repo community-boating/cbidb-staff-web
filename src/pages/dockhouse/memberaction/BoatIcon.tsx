@@ -91,5 +91,5 @@ export default function(props: BoatIconProps){
 export function BoatSelect(props: BoatIconProps){
     const asc = React.useContext(AppStateContext);
     const boatTypesHR = React.useMemo(() => makeBoatTypesHR(asc.state.boatTypes), [asc.state.boatTypes]);
-    return <SelectInput initValue={props.boatId} updateValue={props.setBoatId} validationResults={[]} selectOptions={boatTypesHR} selectNone={false} label={"Boat Type:"}></SelectInput>
+    return <SelectInput controlledValue={props.boatId} updateValue={props.setBoatId} validationResults={[]} selectOptions={boatTypesHR} selectNone={false} label={"Boat Type:"}></SelectInput>
 }

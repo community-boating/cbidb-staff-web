@@ -7,6 +7,7 @@ export type AsyncStateProviderProps<T_Validator extends t.Any> = {
     apiWrapper: APIWrapper<T_Validator, any, any>
     spinnerOnInit?: boolean
     initState?: t.TypeOf<T_Validator>
+    refreshRate?: number
     makeChildren: (state: t.TypeOf<T_Validator>, setState: React.Dispatch<React.SetStateAction<t.TypeOf<T_Validator>>>, providerState?: ProviderState) => React.ReactNode
 }
 
@@ -21,6 +22,7 @@ type AsyncStateProviderState<T_Validator extends t.Any> = {
 
 export default class AsyncStateProvider<T_Validator extends t.Any> extends React.Component<AsyncStateProviderProps<T_Validator>, AsyncStateProviderState<T_Validator>> {
     mounted
+    intervalID
     constructor(props){
         super(props);
         this.mounted = false;
@@ -43,9 +45,18 @@ export default class AsyncStateProvider<T_Validator extends t.Any> extends React
     }
     componentDidMount(): void {
         this.mounted = true;
+        if(this.props.refreshRate) {
+            this.intervalID = setInterval(() => {
+                this.loadAsync();
+            }, this.props.refreshRate);
+        }
     }
     componentWillUnmount(): void {
         this.mounted = false;
+        if(this.intervalID){
+            clearInterval(this.intervalID);
+            this.intervalID = undefined;
+        }
     }
     render(): React.ReactNode {
         if(this.state.providerState == ProviderState.ERROR){
