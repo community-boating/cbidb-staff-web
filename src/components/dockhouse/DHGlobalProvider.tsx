@@ -1,9 +1,7 @@
-import { DHGlobals } from 'async/staff/dockhouse/dh-globals';
+import { DHGlobals, MessagePriority } from 'async/staff/dockhouse/dh-globals';
 import AsyncStateProvider from 'core/AsyncStateProvider';
 import * as moment from 'moment';
 import * as React from 'react';
-import { DefaultDateTimeFormat } from 'util/OptionalTypeValidators';
-
 import { getWrapper as getDHGlobals } from "async/staff/dockhouse/dh-globals";
 
 const defaultDHGlobal: DHGlobals = {
@@ -12,7 +10,7 @@ const defaultDHGlobal: DHGlobals = {
     windSpeedAvg: 13,
     winDir: "W",
     announcements: [{
-        priority: "low",
+        priority: MessagePriority.LOW,
         message: "A MESSAGE"
     }],
     flagChanges: [{
@@ -25,6 +23,5 @@ const defaultDHGlobal: DHGlobals = {
 export const DHGlobalContext = React.createContext(defaultDHGlobal);
 
 export default function DHGlobalProvider(props: {children?: React.ReactNode}){
-    
-    return <AsyncStateProvider apiWrapper={getDHGlobals} makeChildren={(state) => {console.log(state); return <DHGlobalContext.Provider value={state}>{props.children}</DHGlobalContext.Provider>}}/>
+    return <AsyncStateProvider apiWrapper={getDHGlobals} refreshRate={30*1000} makeChildren={(state) => {return <DHGlobalContext.Provider value={state}>{props.children}</DHGlobalContext.Provider>}}/>
 }

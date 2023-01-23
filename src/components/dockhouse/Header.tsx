@@ -23,8 +23,8 @@ Boat order (Merc, Keel Merc, Sonar, Ideal, Laser, 420, Kayak, Paddleboard, Winds
 */
 
 function getLatestFlag(dhGlobal: DHGlobals){
-	const latestChange = dhGlobal.flagChanges.sort((a, b) => a.changeDatetime.diff(b.changeDatetime))[0];
-	if(latestChange){
+	const latestChange = dhGlobal.flagChanges.sort((a, b) => b.changeDatetime.diff(a.changeDatetime))[0];
+	if(latestChange && FlagStatusIcons[latestChange.flag]){
 		return FlagStatusIcons[latestChange.flag];
 	}
 	return FlagStatusIcons.B;

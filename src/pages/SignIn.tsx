@@ -80,7 +80,7 @@ class SignIn extends React.PureComponent<{}, State, string> {
 					<h1 className="text-2xl">Community Boating, Inc.</h1>
 					<p className="lead">Dock House</p>
 				</div>
-				<div className="flex flex-col items-center justify-center my-auto bg-gray-100 p-card">
+				<div className="flex flex-col items-center justify-center my-auto bg-gray-100 gap-5 p-5 rounded aspect-square">
 						<img
 
 							src={cbiLogo}
@@ -89,20 +89,22 @@ class SignIn extends React.PureComponent<{}, State, string> {
 							height="132"
 						/>
 					<ErrorPopup errors={self.state.validationErrors} />
+					<div className="flex flex-col gap-5">
 					<SimpleInput
 						label="Username"
 						type="text"
 						name="username"
 						id="username"
+						className="mr-0 ml-auto"
 						placeholder="Enter your username"
 						controlledValue={self.state.formData.username.getOrElse("")}
 						updateValue={v => updateState("username", v)}
 					/>
-					<br />
 					<SimpleInput
 						label="Password"
 						type="password"
 						name="password"
+						className="mr-0 ml-auto"
 						placeholder="Enter your password"
 						controlledValue={self.state.formData.password.getOrElse("")}
 						updateValue={v => {
@@ -116,7 +118,8 @@ class SignIn extends React.PureComponent<{}, State, string> {
 						}}
 						onKeyDown={detectEnter(loginFunction)}
 					/>
-					<div className="text-center mt-3">
+					</div>
+					<div className="text-center mt-3 p-2 bg-boathouseblue rounded text-gray-100">
 						<Button
 							submit={loginFunction}
 							spinnerOnClick

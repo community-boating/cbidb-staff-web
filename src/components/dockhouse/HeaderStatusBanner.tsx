@@ -7,6 +7,7 @@ import Menu, { ButtonMenu, DirectionX } from 'components/wrapped/Menu';
 
 import settings from 'assets/img/icons/header/settings.svg';
 import { AppStateContext } from 'app/state/AppStateContext';
+import { DHGlobals, MessagePriority } from 'async/staff/dockhouse/dh-globals';
 
 type HeaderFlagProps = {flag: Flag, setFlag: (flag: Flag) => void};
 
@@ -18,7 +19,7 @@ type HeaderSunsetProps = {sunset: moment.Moment};
 
 type HeaderWindProps = {speed: number, direction: string};
 
-type Announcement = {priority: string, message: string};
+type Announcement = DHGlobals['announcements'][number]
 
 type HeaderAnnouncementsProps = {announcements: Announcement[]};
 
@@ -41,8 +42,6 @@ type HeaderGridProps = {
 type HeaderProps = HeaderFlagProps & HeaderTimeProps & HeaderSunsetProps & HeaderWindProps & HeaderAnnouncementsProps & HeaderButtonsProps & {
     dropdownNavbar: React.ReactNode
 };
-
-const TIME_FORMAT = "HH:mm";
 
 export default function HeaderStatusBanner(props: HeaderProps) {
     return (<div className="flex flex-row h-status_banner_height gap-1 mt-primary">
@@ -93,61 +92,175 @@ function HeaderButtons(props: HeaderButtonsProps){
 }
 
 function HeaderButton(props: HeaderButtonProps){
-    return <div className="object-cover"><input type="image" className="h-full w-full" src={props.src}/></div>;
+    return <div className="object-cover"><input type="image" className="h-full" src={props.src}/></div>;
 }
 
 function HeaderAccountment(props: HeaderAnnouncementProps){
     return <h1 className={"leading-none text-status_banner_height_half " + props.className}>{props.message}</h1>
 }
 
-function HeaderAnnouncements(props: HeaderAnnouncementsProps){
-    return (<div className="grow-[1] shrink-[10] overflow-x-hidden overflow-y-hidden">
-        <div className="overflow-x-scroll overflow-y-hidden hidden-scrollbar">
-            <div className="whitespace-nowrap">
-                <HeaderAccountment {...props.announcements.filter((a) => a.priority == "high")[0]} className="text-red-500 font-medium"/>
+function ScrollingDiv(props: {children?: React.ReactNode}){
+    const [scrolling, setScrolling] = React.useState(false);
+    const outerRef = React.createRef<HTMLDivElement>();
+    const innerRef = React.createRef<HTMLDivElement>();
+    const textMeasureRef = React.createRef<HTMLDivElement>();
+    const updateScrolling = () => {
+        setScrolling((textMeasureRef.current.clientWidth) >= ( outerRef.current.clientWidth));
+    }
+    const updateScrollClasses = () => {
+        innerRef.current.className = "inline-block"
+        if(!scrolling){
+            return;
+        }
+        innerRef.current.clientWidth.toString();
+        innerRef.current.className = "inline-block left-full transition transform ease-linear -translate-x-[50%] + duration-[5000ms]";
+    }
+    React.useEffect(() => {
+        updateScrollClasses();
+        if(scrolling){
+            const id = setInterval(() => {
+                updateScrollClasses();
+            }, 5000);
+            return () => {
+                clearInterval(id);
+            }
+        }
+    });
+    const eventListener = (ev) => {
+        updateScrolling();
+    }
+    React.useEffect(() => {
+        //console.log("running effect");
+        //console.log(innerRef, outerRef);
+        //updateScrolling();
+        window.addEventListener("resize", eventListener);
+        return () => {
+            //console.log("cleanup");
+            window.removeEventListener("resize", eventListener);
+        }
+    });
+    React.useEffect(() => {
+        updateScrolling();
+    }, []);
+    return <div ref={outerRef} className="relative hidden-scrollbar whitespace-nowrap">
+        <div ref={innerRef}>
+            <div ref={textMeasureRef} className="inline-block pr-5">
+                {props.children}
+            </div> 
+            <div className={"inline-block pr-5 " + (scrolling ? "" : "hidden")}>
+                {props.children}
             </div>
         </div>
-        <div className="overflow-x-scroll overflow-y-hidden hidden-scrollbar">
-            <div className="flex flex-row whitespace-nowrap">
-                <HeaderAccountment {...props.announcements.filter((a) => a.priority == "medium")[0]} className="text-yellow-500 font-medium"/>
-                {props.announcements.filter((a) => a.priority == "low").map((a, i) => <HeaderAccountment {...a} key={i} className="text-green-500 font-medium"/>)}
-            </div>
+    </div>
+}
+
+function HeaderAnnouncements(props: HeaderAnnouncementsProps){
+    return (<div className="grow-[1] shrink-[10] overflow-y-visible h-full min-w-[0] -z-20">
+        <div className="overflow-x-hidden">
+            <ScrollingDiv>
+                <div className="whitespace-nowrap">
+                    <HeaderAccountment {...props.announcements.filter((a) => a.priority == MessagePriority.HIGH)[0]} className="text-red-500 font-medium"/>
+                </div>
+            </ScrollingDiv>
+            <ScrollingDiv>
+                <div className="flex flex-row whitespace-nowrap" style={{overflowY: "visible !important" as any}}>
+                    <HeaderAccountment {...props.announcements.filter((a) => a.priority == MessagePriority.MEDIUM)[0]} className="text-yellow-500 font-medium"/>
+                    {props.announcements.filter((a) => a.priority == MessagePriority.LOW).map((a, i) => <HeaderAccountment {...a} key={i} className="text-green-500 font-medium pl-5"/>)}
+                </div>
+            </ScrollingDiv>
         </div>
     </div>);
 }
 
 function HeaderWindDirection(props: HeaderWindProps){
-    return (<span>
-        <h1 className="text-status_banner_height_quarter font-thin">KTS</h1>
-        <h1 className="text-status_banner_height_half font-bold">{props.direction}</h1>
-    </span>)
+    return (<div className="whitespace-nowrap">
+        <div className="h-status_banner_height_quarter font-light">
+            <PositionedTitle value="KTS" size={QUARTER}/>
+        </div>
+        <div className="h-status_banner_height_half mt-status_banner_height_quarter">
+            <PositionedTitle className="font-bold" sub={props.direction.substring(1)} subClass="font-light text-[10px]" value={props.direction.charAt(0)} size={WINDDIR}/>
+        </div>
+    </div>)
 }
 
+const TIME_FORMAT = "HH:mm";
+
 function HeaderWindSpeed(props: HeaderWindProps){
-    return (
-        <h1 className="text-status_banner_height leading-none font-bold">{props.speed}</h1>
-    );
+    return <PositionedTitle className="font-bold" value={"" + props.speed} size={FULL}/>;
 }
 
 function HeaderSunset(props: HeaderSunsetProps){
-    return (<span className="text-status_banner_height_half leading-none whitespace-nowrap font-medium text-right">
-        <h1>Sunset: {props.sunset.format(TIME_FORMAT)}</h1>
-        <h1>Call In: {props.sunset.subtract(30, "minutes").format(TIME_FORMAT)}</h1>
-    </span>);
+    return (<div className="whitespace-nowrap font-bold">
+        <div className="h-status_banner_height_half">
+            <PositionedTitle value={"Sunset: " +  props.sunset.format(TIME_FORMAT)} size={HALF}></PositionedTitle>
+        </div>
+        <div className="h-status_banner_height_half text-right">    
+            <PositionedTitle className="ml-auto" value={"Call In: " +  props.sunset.subtract(30, "minutes").format(TIME_FORMAT)} size={HALF}></PositionedTitle>
+        </div>
+    </div>);
+}
+
+const fontAlignHackClass = "inline-block align-text-top leading-none h-[0px]";
+
+type TitleSize = {
+    fontClass: string
+    heightClass: string
+    topClass: string
+}
+
+const FULL: TitleSize = {
+    fontClass: "text-status_banner_font",
+    heightClass: "height-status_banner_font",
+    topClass: "-top-status_banner_font"
+}
+
+const HALF: TitleSize = {
+    fontClass: "text-status_banner_font_half",
+    heightClass: "height-status_banner_font_half",
+    topClass: "-top-status_banner_font_half"
+}
+
+const QUARTER: TitleSize = {
+    fontClass: "text-status_banner_font_quarter",
+    heightClass: "height-status_banner_font_quarter",
+    topClass: "-top-status_banner_font_quarter"
+}
+
+const WINDDIR: TitleSize = {
+    fontClass: "text-status_banner_font_winddir",
+    heightClass: "height-status_banner_font_winddir",
+    topClass: "-top-status_banner_font_winddir"
+}
+
+function PositionedTitle(props: {value: string, size: TitleSize, className?: string, sub?: React.ReactNode, subClass?: string}){
+    const fontClass = props.size
+    return <div className="relative -z-10 top-full">
+        <div className={"relative " + fontClass.topClass + " " + fontClass.heightClass + " " + fontClass.fontClass}>
+            <h1 className={fontClass.fontClass + " " + fontAlignHackClass + (props.className ? (" " + props.className) : "")}>{props.value}</h1>
+            {props.sub ? <h1 className={"inline-block align-text-sub leading-none h-[0px]" + (props.subClass ? (" " + props.subClass) : "")}>{props.sub}</h1> : undefined}
+        </div>
+    </div>;
 }
 
 function HeaderTime(props: HeaderTimeProps){
     const [time, setTime] = React.useState(props.time);
+    const [blink, setBlink] = React.useState(false);
     React.useEffect(() => {
         const callback = () => {
             setTime(moment());
+            setBlink((s) => !s);
         }
         const timerID = setInterval(callback, 1000);
         return () => {
             clearInterval(timerID);
         }
     }, []);
-    return <h1 className="text-status_banner_height leading-[1] font-bold">{time.format(TIME_FORMAT)}</h1>;
+    return <div className="flex flex-row">
+        <PositionedTitle className="font-bold" value={time.format("HH")} size={FULL}/>
+        <PositionedTitle className={"font-bold" + (blink ? " invisible" : "")} value={":"} size={FULL}/>
+        <PositionedTitle className="font-bold" value={time.format("mm")} size={FULL}/>
+    </div>
+    //return <h1 className="inline-block align-text-top text-status_banner_height leading-[1] font-bold">{time.format(TIME_FORMAT)}</h1>;
 }
 
 function CBIBoatIcon(props: HeaderProps){
@@ -161,5 +274,5 @@ function FlagIcon(props: HeaderProps){
 }
 
 function HeaderImage(props: HeaderImageProps){
-    return <div className={(props.half ? "h-[50%]" : "h-full")}><img className="h-full w-full" src={props.src}/></div>;
+    return <div className={(props.half ? "h-[50%]" : "h-full")}><img className="h-full" src={props.src}/></div>;
 }

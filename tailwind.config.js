@@ -1,4 +1,30 @@
 /** @type {import('tailwindcss').Config} */
+
+function addPrefix(themeableItem, prefix){
+  const withPrefix = {};
+  Object.entries(themeableItem).forEach((a) => {
+    withPrefix[prefix + a[0]] = a[1];
+  })
+  return withPrefix;
+}
+
+const headerFontSizeFactor = "1.25";
+
+const winddirSizeFactor = ".62";
+
+function headerSizes(theme){
+  return {
+    status_banner_height: 'calc(' + theme('extra.status_banner_height') + ')',
+    status_banner_height_half: 'calc(' + theme('extra.status_banner_height') + ' / 2)',
+    status_banner_height_quarter: 'calc(' + theme('extra.status_banner_height') + ' / 4)',
+    status_banner_height_winddir: 'calc(' + theme('extra.status_banner_height') + ' * ' + winddirSizeFactor + ' )',
+    status_banner_font: 'calc(' + theme('extra.status_banner_height') + ' * ' + headerFontSizeFactor + ')',
+    status_banner_font_half: 'calc(' + theme('extra.status_banner_height') + ' * ' + headerFontSizeFactor + ' / 2.1)',
+    status_banner_font_quarter: 'calc(' + theme('extra.status_banner_height') + ' * ' + headerFontSizeFactor + ' / 4)',
+    status_banner_font_winddir: 'calc(' + theme('extra.status_banner_height') + ' * ' + headerFontSizeFactor + ' * ' + winddirSizeFactor + ')'
+  }
+}
+
 module.exports = {
   mode: 'jit',
   purge: [
@@ -13,12 +39,10 @@ module.exports = {
         '2': '1mm',
         'primary': '2mm',
         'card': '1mm',
-        status_banner_height: theme('extra.status_banner_height'),
+        ...headerSizes(theme)
       }),
       fontSize: ({theme}) => ({
-        status_banner_height: theme('extra.status_banner_height'),
-        status_banner_height_half: 'calc(' + theme('extra.status_banner_height') + ' / 2)',
-        status_banner_height_quarter: 'calc(' + theme('extra.status_banner_height') + ' / 4)'
+        ...headerSizes(theme)
       })
     },
   },

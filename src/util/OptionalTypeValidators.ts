@@ -59,6 +59,24 @@ function DateWithFormat(name: string, format: string){
 	)
 }
 
+export function EnumType<T>(name: string, e: T){
+	const revEnum = {};
+	Object.entries(e).forEach((a) => {
+		revEnum[a[1]] = e[a[0]];
+	});
+	return new t.Type<T[keyof T],string,unknown>(
+		name,
+		(u): u is T[keyof T] => true,
+		(u, c) => {
+			if(typeof u == 'string' && revEnum[u]){
+				return t.success(revEnum[u]);
+			}
+			return t.failure(u, c);
+		},
+		a => ("")
+	)
+}
+
 export const Date = DateWithFormat('Date', DefaultDateFormat);
 
 export const DateTime = DateWithFormat('DateTime', DefaultDateTimeFormat);

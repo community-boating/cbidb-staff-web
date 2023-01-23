@@ -59,8 +59,8 @@ export default class AsyncStateProvider<T_Validator extends t.Any> extends React
         }
     }
     render(): React.ReactNode {
-        if(this.state.providerState == ProviderState.ERROR){
-            return <p className="text-red-100">Error Loading</p>
+        if(this.state.providerState == ProviderState.ERROR && this.props.spinnerOnInit){
+            return <p className="text-red-900">Error Loading</p>
         }
         if(this.props.spinnerOnInit && this.state.providerState == ProviderState.INITIAL){
             return <p>derp</p>;
