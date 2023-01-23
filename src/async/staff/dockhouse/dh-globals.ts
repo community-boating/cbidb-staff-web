@@ -2,6 +2,7 @@ import * as t from 'io-ts';
 import APIWrapper from 'core/APIWrapper';
 import { HttpMethod } from "core/HttpMethod";
 import { DateTime, EnumType } from 'util/OptionalTypeValidators';
+import { PERMISSIONS } from 'models/permissions';
 
 export enum MessagePriority {
 	LOW = "L",
@@ -37,5 +38,6 @@ const path = "/staff/dockhouse/dh-globals"
 export const getWrapper = new APIWrapper({
 	path: path ,
 	type: HttpMethod.GET,
-	resultValidator: dhGlobalsValidator
+	resultValidator: dhGlobalsValidator,
+	permissions: []
 })

@@ -24,12 +24,10 @@ export const defaultAppState: AppState = {
 		appProps: null,
 		login: {
 			authenticatedUserName: none,
-			permissions: null
+			permissions: {}
 		},
 		borderless: false,
 		sudo: (process.env.config as any).instantSudo,
-		boatTypes: [],
-		ratings: [],
 		sudoModalOpener: () => {},
 		hasInit: false
 };

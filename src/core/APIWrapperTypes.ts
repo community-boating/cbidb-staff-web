@@ -21,6 +21,7 @@ export interface ConfigCommon<T_ResponseValidator extends t.Any> {
 	extraHeaders?: object, 
 	resultValidator: T_ResponseValidator,
 	jsconMap?: any
+	permissions?: number[]
 }
 
 export interface DeleteConfig<T_ResponseValidator extends t.Any, T_PostBodyValidator extends t.Any, T_FixedParams> extends ConfigCommon<T_ResponseValidator> {

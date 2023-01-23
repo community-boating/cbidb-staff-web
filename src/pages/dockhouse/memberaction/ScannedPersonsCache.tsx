@@ -1,9 +1,7 @@
 import { option } from 'fp-ts';
 import * as React from 'react';
-import { ScannedCrewType, ScannedPersonsType } from './ActionModal';
-import { getWrapper } from 'async/staff/dockhouse/scan-card';
+import { getWrapper, ScannedCrewType } from 'async/staff/dockhouse/scan-card';
 import { AppStateContext } from 'app/state/AppStateContext';
-import { ApiResult } from 'core/APIWrapperTypes';
 
 export const ScannedPersonsCacheContext = React.createContext<ScannedPersonsCacheGet>({getCached: undefined})
 

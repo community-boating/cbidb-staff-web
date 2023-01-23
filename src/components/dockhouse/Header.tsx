@@ -10,7 +10,7 @@ import runaground from 'assets/img/icons/header/runaground.svg';
 import capsize from 'assets/img/icons/header/capsize.svg';
 import assist from 'assets/img/icons/header/assist.svg';
 import { FlagStatusIcon, FlagStatusIcons } from "./FlagStatusIcons";
-import { DHGlobalContext } from "./DHGlobalProvider";
+import { DHGlobalContext } from "./providers/DHGlobalProvider";
 import { DHGlobals } from "async/staff/dockhouse/dh-globals";
 
 /*

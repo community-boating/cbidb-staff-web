@@ -32,6 +32,10 @@ export const scanCardValidator = t.type({
 	personRatings: t.array(scanCardRatingValidator)
 })
 
+export type ScannedPersonsType = t.TypeOf<typeof scanCardValidator>;
+
+export type ScannedCrewType = ScannedPersonsType[];
+
 const path = "/staff/dockhouse/scan-card"
 
 export const getWrapper = (cardNumber: string) => new APIWrapper({

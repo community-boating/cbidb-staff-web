@@ -2,13 +2,13 @@ import { OptionalBoolean, OptionalNumber, OptionalString, makeOptionalProps, Opt
 import * as t from "io-ts";
 import APIWrapper from "../../../core/APIWrapper";
 import { HttpMethod } from "../../../core/HttpMethod";
+import { boatTypesValidator } from "./boats";
 
 const pathGet = "/rest/signouts-today";
 const pathPost = "/rest/signout";
 const pathPostMulti = "/rest/signouts";
 const pathSignoutCrew = "/rest/signout-crew";
-const pathGetBoatTypes = "/rest/boat-types";
-const pathGetRatings = "/rest/ratings";
+export const pathGetRatings = "/rest/ratings";
 const pathRunagroundCapsize = "/rest/runaground-capsize";
 const pathPersonByCardNumber = "/rest/person/by-card";
 
@@ -80,45 +80,19 @@ export const programsValidator = t.type({
 	programId: t.number
 });
 
-export const ratingValidator = t.type({
-	ratingName: t.string,
-	$$boats: t.array(boatsValidator),
-	$$programs: t.array(programsValidator),
-	ratingId: t.number,
-	overriddenBy: OptionalNumber
-});
-
-export const ratingsValidator = t.array(ratingValidator);
-
-export const boatTypeValidator = t.type({
-	maxCrew: t.number,
-	boatName: t.string,
-	minCrew: t.number,
-	boatId: t.number,
-	displayOrder: t.number,
-	active: t.boolean
-});
-
-export const boatTypesValidator = t.array(boatTypeValidator);
-
 export const signoutsValidator = t.array(signoutValidator);
+
+export type SignoutTablesState = t.TypeOf<typeof signoutValidator>;
+export type SignoutsTablesState = (SignoutTablesState[]);
+export type SignoutsTablesStateRaw = t.TypeOf<typeof signoutsValidator>;
+export type BoatTypesValidatorState = t.TypeOf<typeof boatTypesValidator>;
+
+export type SkipperType = t.TypeOf<typeof skipperValidator>;
 
 export const getSignoutsToday = new APIWrapper({
 	path:pathGet,
 	type: HttpMethod.GET,
 	resultValidator: signoutsValidator,
-});
-
-export const getBoatTypes = new APIWrapper({
-	path:pathGetBoatTypes,
-	type: HttpMethod.GET,
-	resultValidator: boatTypesValidator,
-});
-
-export const getRatings = new APIWrapper({
-	path:pathGetRatings,
-	type: HttpMethod.GET,
-	resultValidator: ratingsValidator,
 });
 
 export const getPersonByCardNumber = new APIWrapper({

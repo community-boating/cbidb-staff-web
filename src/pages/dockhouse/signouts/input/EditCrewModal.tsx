@@ -5,15 +5,14 @@ import { SelectOption, ValidatedTextInput } from "components/wrapped/Input";
 import { option } from "fp-ts";
 import { Option } from "fp-ts/lib/Option";
 import * as t from "io-ts";
-import { getPersonByCardNumber, putSignoutCrew, signoutCrewValidator } from "async/staff/dockhouse/signouts-tables";
+import { BoatTypesValidatorState, getPersonByCardNumber, putSignoutCrew, signoutCrewValidator, SignoutTablesState } from "async/staff/dockhouse/signouts-tables";
 import { Plus, X } from "react-feather";
 import { MultiHover } from "../MultiHover";
 import { EditModal, EditModalCommonProps } from "./EditModal";
 import * as moment from "moment";
-import { DefaultDateTimeFormat } from "util/OptionalTypeValidators";
 import { deoptionifyProps, OptionifiedProps, optionifyProps } from "util/OptionifyObjectProps";
-import { BoatTypesValidatorState, SignoutsTablesExtraState, SignoutTablesState } from "../StateTypes";
 import { AppStateContext } from "app/state/AppStateContext";
+import { SignoutsTablesExtraState } from "../StateTypes";
 
 type SignoutCrewState = t.TypeOf<typeof signoutCrewValidator>;
 type SignoutCrewStateOptional = OptionifiedProps<SignoutCrewState>;

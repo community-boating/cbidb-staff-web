@@ -4,7 +4,8 @@ import { showSudoToastr } from 'components/wrapped/Toast';
 
 import { apiw as getPermissions } from "async/staff/user-permissions"
 import { apiw as login } from "async/authenticate-staff";
-import { getBoatTypes, getRatings } from "async/staff/dockhouse/signouts-tables";
+import { getBoatTypes } from "async/staff/dockhouse/boats";
+import { getRatings } from "async/staff/dockhouse/ratings";
 import { AppState, AppStateAction, AppStateCombined } from "./AppState";
 
 export function getAppStateCombined(state: AppState, setState: React.Dispatch<React.SetStateAction<AppState>>): AppStateCombined {
@@ -18,7 +19,6 @@ export function getAppStateCombined(state: AppState, setState: React.Dispatch<Re
             logout: undefined
         },
         setSudoModalOpener: undefined,
-        initAfterLogin: undefined,
     };
 
     const asc: AppStateCombined = {
@@ -91,22 +91,6 @@ export function getAppStateCombined(state: AppState, setState: React.Dispatch<Re
         }
         stateAction.setSudoModalOpener = (sudoModalOpener: () => void) => {
             setStateP({sudoModalOpener: sudoModalOpener});
-        }
-        stateAction.initAfterLogin = () => {
-            getRatings.send(asc).then((a) => {
-                if(a.type == "Success"){
-                    setStateP({ratings: a.success});
-                }else{
-                    console.log("error loading ratings");
-                }
-            });
-            getBoatTypes.send(asc).then((a) => {
-                if(a.type == "Success"){
-                    setStateP({boatTypes: a.success});
-                }else{
-                    console.log("error loading boat types");
-                }
-            });
         }
         /*appProps: (appProps: AppProps) => {
             asc.setState({

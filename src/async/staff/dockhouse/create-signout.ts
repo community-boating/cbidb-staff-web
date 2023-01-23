@@ -23,6 +23,8 @@ export const createSignoutValidator = t.type({
 	signoutCrew: t.array(createSignoutCrewValidator)
 })
 
+export type CreateSignoutType = t.TypeOf<typeof createSignoutValidator>
+
 const path = "/staff/dockhouse/create-signout"
 
 export const postWrapper = new APIWrapper({

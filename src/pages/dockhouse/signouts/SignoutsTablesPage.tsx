@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { putSignout, putSignouts } from 'async/staff/dockhouse/signouts-tables';
+import { BoatTypesValidatorState, putSignout, putSignouts, SignoutsTablesState, SignoutTablesState } from 'async/staff/dockhouse/signouts-tables';
 import { Option } from 'fp-ts/lib/Option';
 import { option } from 'fp-ts';
 import * as moment from "moment";
@@ -14,8 +14,10 @@ import { makeInitFilter, SignoutsTableFilter, SignoutsTableFilterState } from '.
 import { filterActive, SignoutsTable } from './SignoutsTable';
 import { getUsersHR } from './SignoutsColumnDefs';
 import { Row } from '@tanstack/react-table';
-import { BoatTypesValidatorState, ReassignedMapType, SignoutsTablesExtraState, SignoutsTablesExtraStateDepOnAsync, SignoutsTablesState, SignoutTablesState } from './StateTypes';
 import { AppStateContext } from 'app/state/AppStateContext';
+import { SignoutsTablesExtraStateDepOnAsync, SignoutsTablesExtraState, ReassignedMapType } from './StateTypes';
+import { RatingsContext } from 'components/dockhouse/providers/RatingsProvider';
+import { BoatsContext } from 'components/dockhouse/providers/BoatsProvider';
 
 function matchNameOrCard(row: SignoutTablesState, nameOrCard: string) {
 	if(nameOrCard.trim().length === 0){
@@ -51,6 +53,8 @@ export const SignoutsTablesPage = (props: {
 	initState: SignoutsTablesState,
 }) => {
 	const [state, setState] = React.useState(props.initState);
+	const ratings = React.useContext(RatingsContext);
+	const boatTypes = React.useContext(BoatsContext);
 	const asc = React.useContext(AppStateContext);
 	React.useEffect(() => {
 		setState(props.initState);
@@ -75,13 +79,11 @@ export const SignoutsTablesPage = (props: {
 	const [extraStateDepOnAsync, setExtraStateDepOnAsync] = React.useState<SignoutsTablesExtraStateDepOnAsync>({ratings: [], ratingsSorted: {ratingsRows: [], orphanedRatings: []}, boatTypes: [], boatTypesHR: []});
 	const [filterValue, setFilterValue] = React.useState(makeInitFilter());
 	React.useEffect(() => {
-		const ratings = asc.state.ratings;
 		setExtraStateDepOnAsync((s) => ({...s, ratings: ratings, ratingsSorted: sortRatings(ratings)}));
-	}, [asc.state.ratings]);
+	}, [ratings]);
 	React.useEffect(() => {
-		const boatTypes = asc.state.boatTypes;
 		setExtraStateDepOnAsync((s) => ({...s, boatTypes: boatTypes, boatTypesHR: makeBoatTypesHR(boatTypes)}));
-	}, [asc.state.boatTypes]);
+	}, [boatTypes]);
 	const usersHR = React.useMemo(() => getUsersHR(state), [state]);
 
 	const updateState = (id: any, value: any) => {

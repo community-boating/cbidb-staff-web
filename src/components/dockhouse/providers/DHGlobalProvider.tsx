@@ -23,5 +23,5 @@ const defaultDHGlobal: DHGlobals = {
 export const DHGlobalContext = React.createContext(defaultDHGlobal);
 
 export default function DHGlobalProvider(props: {children?: React.ReactNode}){
-    return <AsyncStateProvider apiWrapper={getDHGlobals} refreshRate={30*1000} makeChildren={(state) => {return <DHGlobalContext.Provider value={state}>{props.children}</DHGlobalContext.Provider>}}/>
+    return <AsyncStateProvider apiWrapper={getDHGlobals} initState={defaultDHGlobal} refreshRate={30*1000} makeChildren={(state) => {return <DHGlobalContext.Provider value={state}>{props.children}</DHGlobalContext.Provider>}}/>
 }

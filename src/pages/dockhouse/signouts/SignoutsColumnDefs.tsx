@@ -11,10 +11,11 @@ import { CrewHover } from './input/EditCrewModal';
 import { iconWidth, iconHeight, programsHR, signoutTypesHR, orphanedRatingsShownByDefault } from './Constants';
 import { CellOptionBase, CellOptionTime, CellSelect } from 'util/tableUtil';
 import { InteractiveColumnDef } from './InteractiveColumnProvider';
-import { SignoutsTablesExtraState, SignoutsTablesState, SignoutTablesState } from './StateTypes';
 import { MultiHover } from './MultiHover';
 import { Info } from 'react-feather';
 import Button from 'components/wrapped/Button';
+import { SignoutTablesState, SignoutsTablesState } from 'async/staff/dockhouse/signouts-tables';
+import { SignoutsTablesExtraState } from './StateTypes';
 
 export const CommentsHover = (props: { row: SignoutTablesState, extraState: SignoutsTablesExtraState }) => {
 	const display = <span className="flex flex-row">Comments{props.row.comments["_tag"] === "Some" ? <Info color="#777" size="1.4em" /> : <></>}</span>;

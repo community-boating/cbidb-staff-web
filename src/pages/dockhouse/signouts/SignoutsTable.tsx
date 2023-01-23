@@ -1,29 +1,28 @@
 import * as React from 'react';
-import { putSignout, signoutValidator } from 'async/staff/dockhouse/signouts-tables';
+import { putSignout, SignoutsTablesState, SignoutTablesState, signoutValidator } from 'async/staff/dockhouse/signouts-tables';
 import TableWithModalForm, { TableWithModalFormAsync, TableWithModalFormAsyncRaw, UpdateStateType, wrapForFormComponents, wrapForFormComponentsMoment } from 'components/table/TableWithModalForm';
 import { StringifiedProps } from 'util/StringifyObjectProps';
 import { SelectOption, AmPmInput, HourInput, MinuteInput, SelectInput, ValidatedTextInput } from 'components/wrapped/Input';
 import { option, state } from 'fp-ts';
 import * as moment from "moment";
 import { SignoutsTableFilterState } from './input/SignoutsTableFilter';
-import { programsHR, signoutTypesHR, testResultsHR, SignoutTablesNonEditableObject, SignoutTypes } from './Constants';
 import { FilterFnOption } from '@tanstack/react-table';
 import { formatSelection, formatOptional, columnsActive, columnsInactive } from "./SignoutsColumnDefs";
 import { InteractiveColumnProvider } from './InteractiveColumnProvider';
-import { SignoutTablesState, SignoutsTablesState, SignoutsTablesExtraState } from './StateTypes';
-import { EditCrew, DialogOutput, DotBox, AddCrew, SignoutProps, SkipperInfo, MemberActionMode, AddEditCrew, EditSignout, ScannedCrewType, testMemberships, MemberActionState } from '../memberaction/ActionModal';
+import { ActionProps, MemberActionState } from "../memberaction/MemberActionState";
 import { ModalHeader } from 'components/wrapped/Modal';
 import RadioGroup from 'components/wrapped/RadioGroup';
 import BoatIcon, { BoatSelect } from '../memberaction/BoatIcon';
 import { isCrewValid } from './input/EditCrewModal';
 import Button from 'components/wrapped/Button';
 import { Table } from 'components/table/Table';
+import { SignoutsTablesExtraState } from './StateTypes';
 
 export const filterActive = (isActive) => isActive ? (a: SignoutTablesState) => option.isNone(a.signinDatetime) : (a: SignoutTablesState) => option.isSome(a.signinDatetime);
 
 const spanClassName = "text-left whitespace-nowrap";
 
-function adaptMemberActionState(state: SignoutProps["state"], currentRow: SignoutTablesState): SignoutTablesState{
+function adaptMemberActionState(state: ActionProps["state"], currentRow: SignoutTablesState): SignoutTablesState{
 	return {...currentRow, boatId: state.boatId.getOrElse(undefined), $$crew: []};
 }
 
@@ -73,7 +72,7 @@ export const SignoutsTable = (props: {
 	// Define edit/add form
 	const formComponents = (
 		rowForEdit: SignoutTablesState,
-		updateState: React.Dispatch<React.SetStateAction<SignoutTablesState>>,
+		updateState: React.Dispatch<React.SetStateAction<SignoutTablesState>>
 	) => {
 		const currentRow = rowForEdit;
 		const lower = moment("2000", "yyyy");

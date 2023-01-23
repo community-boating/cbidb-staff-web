@@ -1,5 +1,5 @@
 import * as React from 'react';
-import APIWrapper from './APIWrapper';
+import APIWrapper, { API_CODE_NOT_LOGGED_IN } from './APIWrapper';
 import * as t from 'io-ts';
 import { AppStateContext } from 'app/state/AppStateContext';
 
@@ -23,12 +23,13 @@ type AsyncStateProviderState<T_Validator extends t.Any> = {
 export default class AsyncStateProvider<T_Validator extends t.Any> extends React.Component<AsyncStateProviderProps<T_Validator>, AsyncStateProviderState<T_Validator>> {
     mounted
     intervalID
+    waitForLogin
     constructor(props){
         super(props);
         this.mounted = false;
+        this.waitForLogin = false;
         this.state = {mainState:props.initState, providerState: ProviderState.INITIAL};
         this.setState = this.setState.bind(this);
-        this.loadAsync();
         this.render = this.render.bind(this);
     }
     loadAsync(){
@@ -38,8 +39,14 @@ export default class AsyncStateProvider<T_Validator extends t.Any> extends React
             }
             if(a.type == "Success"){
                 this.setState({mainState: a.success, providerState: ProviderState.SUCCESS});
+                this.waitForLogin = false;
             }else{
-                this.setState((s) => ({...s, providerState: ProviderState.ERROR}));
+                if(a.code == API_CODE_NOT_LOGGED_IN){
+                    this.waitForLogin = true;
+                }
+                else{
+                    this.setState((s) => ({...s, providerState: ProviderState.ERROR}));
+                }
             }
         });
     }
@@ -50,6 +57,7 @@ export default class AsyncStateProvider<T_Validator extends t.Any> extends React
                 this.loadAsync();
             }, this.props.refreshRate);
         }
+        this.loadAsync();
     }
     componentWillUnmount(): void {
         this.mounted = false;
@@ -59,6 +67,9 @@ export default class AsyncStateProvider<T_Validator extends t.Any> extends React
         }
     }
     render(): React.ReactNode {
+        if(this.waitForLogin && this.context.state.login.authenticatedUserName){
+            this.loadAsync();
+        }
         if(this.state.providerState == ProviderState.ERROR && this.props.spinnerOnInit){
             return <p className="text-red-900">Error Loading</p>
         }

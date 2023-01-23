@@ -130,18 +130,14 @@ function ScrollingDiv(props: {children?: React.ReactNode}){
         updateScrolling();
     }
     React.useEffect(() => {
-        //console.log("running effect");
-        //console.log(innerRef, outerRef);
-        //updateScrolling();
         window.addEventListener("resize", eventListener);
         return () => {
-            //console.log("cleanup");
             window.removeEventListener("resize", eventListener);
         }
     });
     React.useEffect(() => {
         updateScrolling();
-    }, []);
+    }, [props.children]);
     return <div ref={outerRef} className="relative hidden-scrollbar whitespace-nowrap">
         <div ref={innerRef}>
             <div ref={textMeasureRef} className="inline-block pr-5">

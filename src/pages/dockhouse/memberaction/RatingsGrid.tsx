@@ -1,10 +1,9 @@
 import { AppStateContext } from 'app/state/AppStateContext';
-import { CheckboxInput, SelectInput } from 'components/wrapped/Input';
+import { RatingsType } from 'async/staff/dockhouse/ratings';
+import { RatingsContext } from 'components/dockhouse/providers/RatingsProvider';
+import { CheckboxInput} from 'components/wrapped/Input';
 import { option } from 'fp-ts';
 import * as React from 'react';
-import { programsHR } from '../signouts/Constants';
-import { RatingsType } from '../signouts/StateTypes';
-import { ScannedCrewType } from './ActionModal';
 
 export type RatingsGridProps = {
     selectedProgram: option.Option<number>
@@ -25,8 +24,8 @@ function makeRatingsById(ratings: RatingsType){
 }
 
 export default function RatingsGrid(props: RatingsGridProps){
-    const asc = React.useContext(AppStateContext);
-    const ratingsById = React.useMemo(() => makeRatingsById(asc.state.ratings), [asc.state.ratings])
+    const ratings = React.useContext(RatingsContext);
+    const ratingsById = React.useMemo(() => makeRatingsById(ratings), [ratings])
     return <>
         <div className="grid grid-cols-4 gap-4">
             {props.selectedProgram.isSome() ? ratingsById[props.selectedProgram.value].map((a, i) => (<div key={a.ratingId} className="flex flex-col items-end">

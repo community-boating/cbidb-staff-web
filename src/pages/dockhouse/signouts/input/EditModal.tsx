@@ -3,7 +3,7 @@ import { ErrorPopupControlled } from "components/ErrorPopup";
 import { SetErrorsType } from "./EditCommentModal";
 import Modal, { ModalHeader } from "components/wrapped/Modal";
 import Button from "components/wrapped/Button";
-import { SignoutTablesState } from "../StateTypes";
+import { SignoutTablesState } from "async/staff/dockhouse/signouts-tables";
 
 export type EditModalCommonProps = {modalIsOpen: boolean, closeModal: () => void, currentRow: SignoutTablesState};
 

@@ -63,6 +63,10 @@ const makePostString: <T_PostJSON extends {[K: string]: string}>(forString: T_Po
 const makePostJSON: <T_PostJSON extends object>(jsonData: T_PostJSON) => PostJSON<T_PostJSON> = jsonData => ({type: "json", jsonData})
 
 
+export const API_CODE_NOT_LOGGED_IN = "API.NOT.LOGGED.IN"
+
+export const API_CODE_INSUFFICIENT_PERMISSION = "API.INSUFFICIENT.PERMISSION"
+
 // TODO: do we still need do() vs send() vs sendWithHeaders(), can probably tidy this all up into one function that does the thing
 export default class APIWrapper<T_ResponseValidator extends t.Any, T_PostBodyValidator extends t.Any, T_FixedParams> {
 	config: Config<T_ResponseValidator, T_PostBodyValidator, T_FixedParams>
@@ -74,6 +78,21 @@ export default class APIWrapper<T_ResponseValidator extends t.Any, T_PostBodyVal
 	sendFormUrlEncoded: (asc: AppStateCombined, data: t.TypeOf<T_PostBodyValidator>) => Promise<ApiResult<t.TypeOf<T_ResponseValidator>>> = (asc, data) => this.sendWithParams(asc, none)(makePostString(data))
 	// send: (data: PostType<t.TypeOf<T_PostBodyValidator>>) => Promise<ApiResult<t.TypeOf<T_ResponseValidator>>> = data => this.sendWithParams(none)(data)
 	sendWithParams: (asc: AppStateCombined, serverParamsOption: Option<ServerParams>, params?: any) => (data: PostType<t.TypeOf<T_PostBodyValidator>>) => Promise<ApiResult<t.TypeOf<T_ResponseValidator>>> = (asc, serverParamsOption, params) => data => {
+		if(this.config.permissions){
+			var perm = true;
+			if(!asc.state.login.authenticatedUserName.isSome()){
+				return Promise.resolve({
+					type: "Failure",
+					code: API_CODE_NOT_LOGGED_IN
+				});
+			}
+			this.config.permissions.forEach((a) => {perm = perm && asc.state.login.permissions[a]})
+			if(!perm)
+				return Promise.resolve({
+					type: "Failure",
+					code: API_CODE_INSUFFICIENT_PERMISSION
+				});
+		}
 		moment.fn.toJSON = function() { return this.format(this["_f"]); }
 		const serverParams = serverParamsOption.getOrElse((process.env as any).serverToUseForAPI);
 		const self = this;
@@ -167,7 +186,7 @@ export default class APIWrapper<T_ResponseValidator extends t.Any, T_PostBodyVal
 		if (parsed["error"]) {
 			// Did the session time out? 
 			if (parsed.error.code == "unauthorized") {
-				
+				asc.stateAction.login.logout();
 				// TODO: call the is-logged-in endpoint and verify we are indeed not logged in
 				// TODO: differentiate between unauthorized from cbi api vs some other random host (is that a supported use case?)
 			}

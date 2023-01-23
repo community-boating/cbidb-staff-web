@@ -1,4 +1,5 @@
-import { ratingValidator, programsValidator, boatsValidator, personRatingValidator } from "async/staff/dockhouse/signouts-tables";
+import { programsValidator, boatsValidator, personRatingValidator, SignoutTablesState } from "async/staff/dockhouse/signouts-tables";
+import { RatingsType, ratingValidator } from "async/staff/dockhouse/ratings";
 import { option } from "fp-ts";
 import * as React from 'react';
 import { FlagStatusIcons } from "../../../components/dockhouse/FlagStatusIcons"
@@ -6,7 +7,7 @@ import * as t from "io-ts";
 import { MultiHover } from "./MultiHover";
 import { ReactNode } from "react";
 import { programsHR } from "./Constants";
-import { SignoutTablesState, RatingsValidatorState, SignoutsTablesExtraState } from "./StateTypes";
+import { SignoutsTablesExtraState } from "./StateTypes";
 
 
 type RatingValidatorState = t.TypeOf<typeof ratingValidator>;
@@ -321,7 +322,7 @@ export type SortedRatings = {
 	orphanedRatings: RatingTreeNode[];
 }
 
-export function sortRatings(ratings: RatingsValidatorState) : SortedRatings{
+export function sortRatings(ratings: RatingsType) : SortedRatings{
 	const ratingsById : {[key: number]: RatingValidatorState} = {};
 	const ratingsByOverrideId: {[key: number]: number[]} = {};
 	const inferredProgramIds: number[] = [];
@@ -353,7 +354,7 @@ export function sortRatings(ratings: RatingsValidatorState) : SortedRatings{
 	return {ratingsRows: ratingsRowsTotal, orphanedRatings: orphanedRatings};
 }
 
-export function findOrphanedRatings(ratings: RatingsValidatorState, ratingsRows: RatingTreeNode[][][], currentOrphans: RatingTreeNode[]) : RatingTreeNode[]{
+export function findOrphanedRatings(ratings: RatingsType, ratingsRows: RatingTreeNode[][][], currentOrphans: RatingTreeNode[]) : RatingTreeNode[]{
 	var foundRatings: {[key: number]: boolean} = {};
 	currentOrphans.forEach((a) => {
 		findOrphanedRecursive(foundRatings, a, undefined);

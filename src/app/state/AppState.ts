@@ -1,8 +1,6 @@
 import { DHGlobals } from 'async/staff/dockhouse/dh-globals';
 import { Option } from 'fp-ts/lib/Option';
 
-import { BoatTypesType, RatingsType } from 'pages/dockhouse/signouts/StateTypes';
-
 export interface AppProps {
 
 }
@@ -15,8 +13,6 @@ export type AppState = {
 	}
 	borderless: boolean
 	sudo: boolean
-	boatTypes: BoatTypesType
-    ratings: RatingsType
     sudoModalOpener: () => void
     hasInit: boolean
 }
@@ -34,7 +30,6 @@ export type AppStateAction = {
         logout: () => void
     }
     setSudoModalOpener: (sudoModalOpener: () => void) => void
-    initAfterLogin: () => void
 }
 
 export type AppStateCombined = {

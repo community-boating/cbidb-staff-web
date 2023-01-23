@@ -9,7 +9,8 @@ import { AppStateContext } from "./app/state/AppStateContext"
 import SudoModal from "components/SudoModal";
 import { getAppStateCombined } from "app/state/AppStateAction";
 import { AppState, AppStateCombined } from "app/state/AppState";
-import DHGlobalProvider from "components/dockhouse/DHGlobalProvider";
+import DHGlobalProvider from "components/dockhouse/providers/DHGlobalProvider";
+import DHProviders from "components/dockhouse/providers/DHProviders";
 
 interface Props {
 	history: any
@@ -21,6 +22,7 @@ class App extends React.Component<Props, AppState> {
 	constructor(props: Props) {
 		super(props);
 		this.state = props.asc;
+		this.makeAppStateCombined();
 		this.setState = this.setState.bind(this);
 	}
 	componentDidMount(): void {
@@ -36,21 +38,14 @@ class App extends React.Component<Props, AppState> {
 	makeAppStateCombined(){
 		this.appStateCombined = getAppStateCombined(this.state, this.setState);
 	}
-	initAfterLogin(){
-		if(!this.state.hasInit && this.state.login.authenticatedUserName.isSome()){
-			this.appStateCombined.stateAction.initAfterLogin();
-			this.setState((s) => ({...s, hasInit: true}));
-		}
-	}
 	componentDidUpdate(prevProps: Readonly<Props>, prevState: Readonly<AppState>, snapshot?: any): void {
-		this.initAfterLogin();
 	}
 	render() {
 		this.makeAppStateCombined();
 		return (
 			<Provider store={store}>
 					<AppStateContext.Provider value={this.appStateCombined}>
-						<DHGlobalProvider>
+						<DHProviders>
 							<Routes authenticatedUserName={this.state.login.authenticatedUserName} history={this.props.history}/>
 							<ReduxToastr
 								timeOut={15000}
@@ -62,7 +57,7 @@ class App extends React.Component<Props, AppState> {
 								closeOnToastrClick
 							/>
 							<SudoModal />
-						</DHGlobalProvider>
+						</DHProviders>
 					</AppStateContext.Provider>
 			</Provider>
 		)

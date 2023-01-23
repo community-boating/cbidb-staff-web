@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { CardLayout, Card, LayoutDirection, FlexSize, CardOrButton } from '../../../components/dockhouse/Card';
-import ActionModal, { Action, CardNumberScanner, EditSignoutAction, MemberAction, NoneAction } from '../memberaction/ActionModal';
+import ActionModal, { Action, EditSignoutAction, MemberAction, NoneAction } from '../memberaction/ActionModal';
+import { CardNumberScanner } from "../memberaction/CardNumberScanner";
 import AsyncStateProvider, { ProviderState } from 'core/AsyncStateProvider';
 import { getSignoutsToday } from 'async/staff/dockhouse/signouts-tables';
 import { filterActive, SignoutsTable } from '../signouts/SignoutsTable';
@@ -11,18 +12,21 @@ import { sortRatings } from '../signouts/RatingSorter';
 import * as t from "io-ts";
 import { AppStateContext } from 'app/state/AppStateContext';
 import ScannedPersonsCache from '../memberaction/ScannedPersonsCache';
+import { BoatsContext } from 'components/dockhouse/providers/BoatsProvider';
+import { RatingsContext } from 'components/dockhouse/providers/RatingsProvider';
 
 export default function DockHousePage (props) {
     const [inputState, setInputState] = React.useState("");
-    const asc = React.useContext(AppStateContext);
+    const boatTypes = React.useContext(BoatsContext);
+    const ratings = React.useContext(RatingsContext);
     const [action, setAction] = React.useState<Action<any>>(new NoneAction());
     const v = t.type({derp: t.boolean});
     const extraStateAsync: SignoutsTablesExtraStateDepOnAsync = React.useMemo(() => ({
-        ratings: asc.state.ratings,
-        ratingsSorted: sortRatings(asc.state.ratings),
-        boatTypes: asc.state.boatTypes,
-        boatTypesHR: makeBoatTypesHR(asc.state.boatTypes)
-        }), [asc.state.ratings, asc.state.boatTypes]);
+        ratings: ratings,
+        ratingsSorted: sortRatings(ratings),
+        boatTypes: boatTypes,
+        boatTypesHR: makeBoatTypesHR(boatTypes)
+        }), [ratings, boatTypes]);
     return (<ScannedPersonsCache>
         <CardLayout direction={LayoutDirection.VERTICAL} parentDirection={LayoutDirection.VERTICAL}>
             <CardLayout direction={LayoutDirection.HORIZONTAL}>

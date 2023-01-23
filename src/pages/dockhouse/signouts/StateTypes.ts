@@ -1,19 +1,9 @@
-import { boatTypesValidator, ratingsValidator, signoutsValidator, signoutValidator, skipperValidator } from 'async/staff/dockhouse/signouts-tables';
+import { BoatTypesValidatorState, signoutsValidator, SignoutTablesState, signoutValidator, skipperValidator } from 'async/staff/dockhouse/signouts-tables';
+import { RatingsType, ratingsValidator } from "async/staff/dockhouse/ratings";
 import { SelectOption } from 'components/wrapped/Input';
 
 import * as t from "io-ts";
 import { SortedRatings } from './RatingSorter';
-
-export type SignoutTablesState = t.TypeOf<typeof signoutValidator>;
-export type SignoutsTablesState = (SignoutTablesState[]);
-export type SignoutsTablesStateRaw = t.TypeOf<typeof signoutsValidator>;
-export type BoatTypesValidatorState = t.TypeOf<typeof boatTypesValidator>;
-export type RatingsValidatorState = t.TypeOf<typeof ratingsValidator>;
-
-export type BoatTypesType = t.TypeOf<typeof boatTypesValidator>;
-export type RatingsType = t.TypeOf<typeof ratingsValidator>;
-
-export type SkipperType = t.TypeOf<typeof skipperValidator>;
 
 export type ReassignedMapType = { [key: string]: { [key: number]: number[] } };
 
@@ -39,6 +29,6 @@ export type SignoutsTablesExtraStateDepOnAsync = {
 	boatTypesHR: SelectOption<number>[]
 } & AsyncPageState
 export type AsyncPageState = {
-	ratings: RatingsValidatorState
+	ratings: RatingsType,
 	boatTypes: BoatTypesValidatorState
 }

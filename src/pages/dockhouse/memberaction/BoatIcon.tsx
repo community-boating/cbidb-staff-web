@@ -15,6 +15,7 @@ import RadioGroup from 'components/wrapped/RadioGroup';
 import { SelectInput } from 'components/wrapped/Input';
 import { makeBoatTypesHR } from '../signouts/SignoutsTablesPage';
 import { AppStateContext } from 'app/state/AppStateContext';
+import { BoatsContext } from 'components/dockhouse/providers/BoatsProvider';
 export type BoatIconProps = {
     boatId: option.Option<number>
     setBoatId: (boatId: option.Option<number>) => void
@@ -69,8 +70,8 @@ const BoatIcons = [{
 export default function(props: BoatIconProps){
     const boatsByHR = {};
     const boatsById = {};
-    const asc = React.useContext(AppStateContext);
-    asc.state.boatTypes.forEach((a) => {
+    const boatTypes = React.useContext(BoatsContext);
+    boatTypes.forEach((a) => {
         boatsByHR[a.boatName] = a;
         boatsById[a.boatId] = a;
     });
@@ -80,16 +81,16 @@ export default function(props: BoatIconProps){
         if(boat.length > 0){
             props.setBoatId(option.some(boatsByHR[boat[0].hr].boatId));
         }
-    }} makeChildren={BoatIcons.map((a, i) => ({
-        value: boatsByHR[a.hr].boatId,
-        makeNode: (checked) => <IconButton key={i} src={a.src} onClick={() => props.setBoatId(option.some(boatsByHR[a.hr].boatId))} className={"min-w-[100px] text-black rounded-2 border border-[#00507d]" + (checked? " bg-blue-200 border-gray-200" : "")}/>
-    })
+    }} makeChildren={BoatIcons.map((a, i) => {const boatWrapped = (boatsByHR[a.hr] || {boatId: -1}); return({
+        value: boatWrapped.boatId,
+        makeNode: (checked) => <IconButton key={i} src={a.src} onClick={() => props.setBoatId(option.some(boatWrapped.boatId))} className={"min-w-[100px] text-black rounded-2 border border-[#00507d]" + (checked? " bg-blue-200 border-gray-200" : "")}/>
+    }) }
     )}/>
     )
 }
 
 export function BoatSelect(props: BoatIconProps){
-    const asc = React.useContext(AppStateContext);
-    const boatTypesHR = React.useMemo(() => makeBoatTypesHR(asc.state.boatTypes), [asc.state.boatTypes]);
+    const boatTypes = React.useContext(BoatsContext);
+    const boatTypesHR = React.useMemo(() => makeBoatTypesHR(boatTypes), [boatTypes]);
     return <SelectInput controlledValue={props.boatId} updateValue={props.setBoatId} validationResults={[]} selectOptions={boatTypesHR} selectNone={false} label={"Boat Type:"}></SelectInput>
 }
