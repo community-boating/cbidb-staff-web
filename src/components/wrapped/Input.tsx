@@ -16,7 +16,7 @@ export type InputProps = {
     ref?: any
 } & React.DetailedHTMLProps<React.InputHTMLAttributes<HTMLInputElement>, HTMLInputElement>;
 
-const inputClassName = "rounded-md border border-gray-700 p-1"
+const inputClassName = "rounded-md border border-gray-700 p-1 h-input"
 
 const ValidationContext = React.createContext<ValidationType>({validationsById: {}, globalValidations: []});
 
@@ -91,7 +91,7 @@ class Input<T> extends React.PureComponent<(CustomInputProps<T> & InputAdapterPr
 		return (
 			<div className="flex flex-row">
 			{this.props.label}
-			<input {...other} className={className + " " + inputClassName} {...makeInputProps(this.props.controlledValue)} 
+			<input {...other} className={className + " " + (inputClassName)} {...makeInputProps(this.props.controlledValue)} 
 			onChange={(e) => {updateValue(convertChange(e))}}
 			onBlur={() => {
 				this.setState({...this.state,showErrors:false})

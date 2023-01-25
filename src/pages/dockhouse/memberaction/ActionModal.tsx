@@ -100,8 +100,8 @@ export function EditSignout(props: {state: MemberActionState, setState: React.Di
     return (
     <div className="flex flex-col grow-[1] gap-5">
         <div className="flex flex-row grow-[0] gap-5">
-            {props.state.currentPeople.map((a, i) => (<DetailedPersonInfo {...propsSorted} person={i}/>))}
-            <AddEditCrew {...propsSorted}/>
+            {props.state.currentPeople.map((a, i) => (<DetailedPersonInfo {...propsSorted} index={i}/>))}
+            <AddEditCrew {...propsSorted} />
         </div>
         <div className="flex flex-row grow-[1]">
             <DialogOutput>
@@ -216,8 +216,7 @@ const memberActionTypes: {title: React.ReactNode, getContent: (state: MemberActi
 },
 {
     title: "Comments",
-    getContent: (state, setState) => (
-        <div>
+    getContent: (state, setState) => (<div>
             <AddEditCrew state={state} setState={setState} mode={SignoutActionMode.COMMENTS}></AddEditCrew>
             <textarea cols={100} rows={20}></textarea>
         </div>)

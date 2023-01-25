@@ -24,18 +24,12 @@ export type ActionProps = {
     setState: React.Dispatch<React.SetStateAction<MemberActionState>>
 }
 
-export enum UpdateCrewType {
-    ADD,
-    REMOVE,
-    ADD_TESTING,
-    REMOVE_TESTING,
-    SET_SKIPPER
-}
 
-export type EditCrewProps = {
-    index: number
-    cardNum: string
-    updateCrew: (action: UpdateCrewType) => any
+export type AddEditCrewProps = MemberActionProps & {
+    add: (newCrew: MemberActionState['currentPeople'][number]) => void
+    remove: (index: number) => void
+    setSkipper: (index: number) => void
+    setTesting: (index: number, testing: boolean) => void
 }
 
 export type MemberActionProps = ActionProps & {mode: SignoutActionMode}

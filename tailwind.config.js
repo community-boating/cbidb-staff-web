@@ -39,6 +39,8 @@ module.exports = {
         '2': '1mm',
         'primary': '2mm',
         'card': '1mm',
+        'input': '1.7em',
+        'icon_button': '1.7em',
         ...headerSizes(theme)
       }),
       fontSize: ({theme}) => ({
