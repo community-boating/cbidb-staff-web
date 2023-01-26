@@ -1,3 +1,5 @@
+import { ActionModalProvider } from 'pages/dockhouse/memberaction/ActionModal';
+import ScannedPersonsCache from 'pages/dockhouse/memberaction/ScannedPersonsCache';
 import * as React from 'react';
 import BoatsProvider from './BoatsProvider';
 import DHGlobalProvider from './DHGlobalProvider';
@@ -7,7 +9,11 @@ export default function DHProviders(props: {children?: React.ReactNode}){
     return <BoatsProvider>
         <RatingsProvider>
             <DHGlobalProvider>
-                {props.children}
+                <ScannedPersonsCache>
+                    <ActionModalProvider>
+                        {props.children}
+                    </ActionModalProvider>
+                </ScannedPersonsCache>
             </DHGlobalProvider>
         </RatingsProvider>
     </BoatsProvider>

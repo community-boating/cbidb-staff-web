@@ -43,7 +43,7 @@ const BoatIcons = [{
 },
 {
     hr: "Keel Mercury",
-    key: "K",
+    key: "F",
     src: keelmerc
 },
 {
@@ -58,7 +58,7 @@ const BoatIcons = [{
 },
 {
     hr: "Mercury",
-    key: "M",
+    key: "C",
     src: mercury
 },
 {
@@ -92,5 +92,5 @@ export default function(props: BoatIconProps){
 export function BoatSelect(props: BoatIconProps){
     const boatTypes = React.useContext(BoatsContext);
     const boatTypesHR = React.useMemo(() => makeBoatTypesHR(boatTypes), [boatTypes]);
-    return <SelectInput controlledValue={props.boatId} updateValue={props.setBoatId} validationResults={[]} selectOptions={boatTypesHR} selectNone={false} label={"Boat Type:"}></SelectInput>
+    return <SelectInput controlledValue={props.boatId} updateValue={props.setBoatId} validationResults={[]} selectOptions={boatTypesHR} selectNone={false} label={"Boat Type:"} autoWidth></SelectInput>
 }

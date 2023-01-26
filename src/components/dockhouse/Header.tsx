@@ -9,7 +9,7 @@ import ims from 'assets/img/icons/header/ims.svg';
 import runaground from 'assets/img/icons/header/runaground.svg';
 import capsize from 'assets/img/icons/header/capsize.svg';
 import assist from 'assets/img/icons/header/assist.svg';
-import { FlagStatusIcon, FlagStatusIcons } from "./FlagStatusIcons";
+import { FlagStatusIcons } from "./FlagStatusIcons";
 import { DHGlobalContext } from "./providers/DHGlobalProvider";
 import { DHGlobals } from "async/staff/dockhouse/dh-globals";
 
@@ -34,7 +34,7 @@ const Header = (props: { history, dispatch }) => {
 	const dhGlobal = React.useContext(DHGlobalContext);
 	const headerState = {
 		flag: getLatestFlag(dhGlobal),
-		time: dhGlobal.serverDateTime,
+		localTimeOffset: dhGlobal.localTimeOffset,
 		sunset: dhGlobal.sunsetTime,
 		speed: dhGlobal.windSpeedAvg,
 		direction: dhGlobal.winDir,

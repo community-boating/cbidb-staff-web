@@ -8,6 +8,7 @@ export type AsyncStateProviderProps<T_Validator extends t.Any> = {
     spinnerOnInit?: boolean
     initState?: t.TypeOf<T_Validator>
     refreshRate?: number
+    postGet?: (res: t.TypeOf<T_Validator>) => t.TypeOf<T_Validator>
     makeChildren: (state: t.TypeOf<T_Validator>, setState: React.Dispatch<React.SetStateAction<t.TypeOf<T_Validator>>>, providerState?: ProviderState) => React.ReactNode
 }
 
@@ -38,7 +39,7 @@ export default class AsyncStateProvider<T_Validator extends t.Any> extends React
                 return;
             }
             if(a.type == "Success"){
-                this.setState({mainState: a.success, providerState: ProviderState.SUCCESS});
+                this.setState({mainState: this.props.postGet? this.props.postGet(a.success): a.success, providerState: ProviderState.SUCCESS});
                 this.waitForLogin = false;
             }else{
                 if(a.code == API_CODE_NOT_LOGGED_IN){

@@ -11,6 +11,7 @@ import { getAppStateCombined } from "app/state/AppStateAction";
 import { AppState, AppStateCombined } from "app/state/AppState";
 import DHGlobalProvider from "components/dockhouse/providers/DHGlobalProvider";
 import DHProviders from "components/dockhouse/providers/DHProviders";
+import ActionModal, { ActionModalProvider } from "pages/dockhouse/memberaction/ActionModal";
 
 interface Props {
 	history: any
@@ -18,7 +19,6 @@ interface Props {
 }
 
 class App extends React.Component<Props, AppState> {
-	appStateCombined: AppStateCombined
 	constructor(props: Props) {
 		super(props);
 		this.state = props.asc;
@@ -26,25 +26,25 @@ class App extends React.Component<Props, AppState> {
 		this.setState = this.setState.bind(this);
 	}
 	componentDidMount(): void {
-		isLoggedInAsStaff.send(this.appStateCombined).then(usernameResult => {
+		const asc = this.makeAppStateCombined();
+		isLoggedInAsStaff.send(asc).then(usernameResult => {
 			if (usernameResult.type == "Success") {
-				this.appStateCombined.stateAction.login.setLoggedIn(usernameResult.success.value)
-				console.log("doing it");
+				asc.stateAction.login.setLoggedIn(usernameResult.success.value)
 			}
 		}, () => {
 			// not logged in
 		});
 	}
-	makeAppStateCombined(){
-		this.appStateCombined = getAppStateCombined(this.state, this.setState);
+	makeAppStateCombined(): AppStateCombined{
+		return getAppStateCombined(this.state, this.setState);
 	}
 	componentDidUpdate(prevProps: Readonly<Props>, prevState: Readonly<AppState>, snapshot?: any): void {
 	}
 	render() {
-		this.makeAppStateCombined();
+		const asc = this.makeAppStateCombined();
 		return (
 			<Provider store={store}>
-					<AppStateContext.Provider value={this.appStateCombined}>
+					<AppStateContext.Provider value={asc}>
 						<DHProviders>
 							<Routes authenticatedUserName={this.state.login.authenticatedUserName} history={this.props.history}/>
 							<ReduxToastr

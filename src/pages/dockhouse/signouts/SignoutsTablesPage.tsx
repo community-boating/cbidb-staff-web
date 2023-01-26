@@ -18,6 +18,7 @@ import { AppStateContext } from 'app/state/AppStateContext';
 import { SignoutsTablesExtraStateDepOnAsync, SignoutsTablesExtraState, ReassignedMapType } from './StateTypes';
 import { RatingsContext } from 'components/dockhouse/providers/RatingsProvider';
 import { BoatsContext } from 'components/dockhouse/providers/BoatsProvider';
+import { ActionModalContext, EditSignoutAction } from '../memberaction/ActionModal';
 
 function matchNameOrCard(row: SignoutTablesState, nameOrCard: string) {
 	if(nameOrCard.trim().length === 0){
@@ -56,6 +57,7 @@ export const SignoutsTablesPage = (props: {
 	const ratings = React.useContext(RatingsContext);
 	const boatTypes = React.useContext(BoatsContext);
 	const asc = React.useContext(AppStateContext);
+	const actionModal = React.useContext(ActionModalContext);
 	React.useEffect(() => {
 		setState(props.initState);
 	}, [getPropsMemoDep(props.initState)]);
@@ -105,6 +107,11 @@ export const SignoutsTablesPage = (props: {
 			setErrors(["Server error updating comments"]);
 		}
 	});
+
+	const openEditRow = (row: SignoutTablesState) => {
+		actionModal.setAction(new EditSignoutAction(row, undefined));
+	}
+
 	const tdStyle: React.CSSProperties = { verticalAlign: "middle", textAlign: "right" };
 	const labelStyle: React.CSSProperties = { margin: 0 };
 	const extraState: SignoutsTablesExtraState = React.useMemo(() => ({
@@ -115,12 +122,12 @@ export const SignoutsTablesPage = (props: {
 		setUpdateCrewModal,
 		setMultiSignInSelected
 	}), [extraStateDepOnMain, extraStateDepOnAsync, multiSignInSelected]);
-
+	
 	const tableContent = React.useMemo(() => {
 		return <>
 			<SignoutsTableFilter tdStyle={tdStyle} labelStyle={labelStyle} filterValue={filterValue} updateState={updateState} boatTypesHR={extraState.boatTypesHR} setFilterValue={setFilterValue} usersHR={usersHR} />
-			<SignoutsTable {...props} state={state} setState={setState} extraState={extraState} isActive={true} filterValue={filterValue} globalFilter={filterRows} openEditRow={undefined} />
-			<SignoutsTable {...props} state={state} setState={setState} extraState={extraState} isActive={false} filterValue={filterValue} globalFilter={filterRows} openEditRow={undefined} />
+			<SignoutsTable {...props} state={state} setState={setState} extraState={extraState} isActive={true} filterValue={filterValue} globalFilter={filterRows} openEditRow={openEditRow} />
+			<SignoutsTable {...props} state={state} setState={setState} extraState={extraState} isActive={false} filterValue={filterValue} globalFilter={filterRows} openEditRow={openEditRow} />
 		</>;
 	}, [state, extraState, filterValue]);
 

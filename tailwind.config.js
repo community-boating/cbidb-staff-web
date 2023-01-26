@@ -40,7 +40,7 @@ module.exports = {
         'primary': '2mm',
         'card': '1mm',
         'input': '1.7em',
-        'icon_button': '1.7em',
+        'icon_button': '1.5em',
         ...headerSizes(theme)
       }),
       fontSize: ({theme}) => ({

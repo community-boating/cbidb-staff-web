@@ -3,17 +3,19 @@ import { Flag, FlagStatusIcon, FlagStatusIcons } from './FlagStatusIcons';
 import boat from 'assets/img/icons/boat.svg';
 import * as moment from "moment";
 import { logout } from 'async/logout';
-import Menu, { ButtonMenu, DirectionX } from 'components/wrapped/Menu';
+import Menu, { DirectionX, DirectionY } from 'components/wrapped/Menu';
 
 import settings from 'assets/img/icons/header/settings.svg';
 import { AppStateContext } from 'app/state/AppStateContext';
 import { DHGlobals, MessagePriority } from 'async/staff/dockhouse/dh-globals';
+import { option } from 'fp-ts';
+import { SelectInput } from 'components/wrapped/Input';
 
 type HeaderFlagProps = {flag: Flag, setFlag: (flag: Flag) => void};
 
 type HeaderImageProps = {src: string, half?: boolean};
 
-type HeaderTimeProps = {time: moment.Moment};
+type HeaderTimeProps = {localTimeOffset: option.Option<number>};
 
 type HeaderSunsetProps = {sunset: moment.Moment};
 
@@ -238,12 +240,17 @@ function PositionedTitle(props: {value: string, size: TitleSize, className?: str
     </div>;
 }
 
+function adjustTime(time: moment.Moment, localTimeOffset: option.Option<number>){
+    return localTimeOffset.isSome() ? time.add(localTimeOffset.value, 'milliseconds') : time;
+}
+
 function HeaderTime(props: HeaderTimeProps){
-    const [time, setTime] = React.useState(props.time);
+    const [time, setTime] = React.useState(adjustTime(moment(), props.localTimeOffset));
     const [blink, setBlink] = React.useState(false);
+
     React.useEffect(() => {
         const callback = () => {
-            setTime(moment());
+            setTime(adjustTime(moment(), props.localTimeOffset));
             setBlink((s) => !s);
         }
         const timerID = setInterval(callback, 1000);
@@ -266,7 +273,8 @@ function CBIBoatIcon(props: HeaderProps){
 const availableFlags = [FlagStatusIcons.R, FlagStatusIcons.Y, FlagStatusIcons.G, FlagStatusIcons.B];
 
 function FlagIcon(props: HeaderProps){
-    return <ButtonMenu className="h-full" itemClassName="h-[25%]" itemsClassName="h-[400%]" title={<FlagStatusIcon flag={props.flag} className="h-full"></FlagStatusIcon>} itemAction={props.setFlag} items={availableFlags.map((a) => ({node: <FlagStatusIcon className="h-full" flag={a}></FlagStatusIcon>, value: a}))}/>;
+    const [flag, setFlag] = React.useState(option.some(props.flag.hr));
+    return <SelectInput controlledValue={flag} updateValue={setFlag} selectOptions={availableFlags.map((a) => ({display: <FlagStatusIcon className="h-status_banner_height" flag={a}></FlagStatusIcon>, value: a.hr}))} customStyle horizontal x={DirectionX.RIGHT} y={DirectionY.UP}/>;
 }
 
 function HeaderImage(props: HeaderImageProps){

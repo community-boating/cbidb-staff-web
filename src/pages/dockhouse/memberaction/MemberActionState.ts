@@ -15,6 +15,7 @@ export type MemberActionState = {
     signoutType: option.Option<string>
     testType: option.Option<string>
     testRating: option.Option<number>
+    dialogOutput: option.Option<string>
 }
 
 export type EditSignoutState = MemberActionState & {}

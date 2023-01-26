@@ -15,32 +15,34 @@ export enum DirectionY {
     DOWN = 2
 }
 
-type PopoverProps = {
-    title: React.ReactNode
-    items: React.ReactNode[]
+export type DropDownProps = {
     x?: DirectionX
     y?: DirectionY
+    horizontal?: boolean
+}
+
+type Menu = DropDownProps & {
+    title: React.ReactNode
+    items: React.ReactNode[]
     className?: string
     itemsClassName?: string
     itemClassName?: string
 }
 
-type ButtonMenuProps<T_Item> = {
-    itemAction: (item: T_Item) => void
-    items: {node: React.ReactNode, value: T_Item}[]
-} & Omit<PopoverProps, 'items'>;
-
-export function ButtonMenu<T_Item>(props: ButtonMenuProps<T_Item>){
-    const {itemAction, items, ...other} = props;
-    return <Menu {...other} items={items.map((a, i) => <Button className="h-full" onClick={() => {itemAction(a.value);}}>{a.node}</Button>)}/>
+export function getPositionClassOuter(props: DropDownProps){
+    return ((props.x == DirectionX.LEFT ? "left-0 " : "") + (props.x == DirectionX.RIGHT ? "right-0 " : "") + 
+    (props.y == DirectionY.UP ? "top-0 " : "") + (props.y == DirectionY.DOWN ? "bottom-0 " : "") + (props.horizontal ? " w-[0]" : "w-full"));
 }
 
-export default function Menu(props: PopoverProps){
-    const positionClasses = (props.x == DirectionX.LEFT ? "left-0 " : "") + (props.x == DirectionX.RIGHT ? "right-0 " : "") + 
-    (props.y == DirectionY.UP ? "top-0 " : "") + (props.y == DirectionY.DOWN ? "bottom-0 " : "");
+export function getPositionClassInner(props: DropDownProps){
+    return ("flex " + (props.horizontal ? "flex-row w-max" : "flex-col w-full"));
+}
+
+export default function Menu(props: Menu){
     return (
         <div className={"relative " + (props.className || "")}>
             <MenuHUI>
+                {({close}) => (<>
                 <MenuHUI.Button className={(props.className || "")}>{props.title}</MenuHUI.Button>
                 <Transition
             className={(props.className || "")}
@@ -51,10 +53,12 @@ export default function Menu(props: PopoverProps){
             leaveFrom="opacity-100 scale-100 "
             leaveTo="opacity-0 scale-95 "
         >
-                    <MenuHUI.Items className={"absolute bg-white z-50 whitespace-nowrap flex flex-col " + (props.itemsClassName || "") + " " + positionClasses} static>
-                        {props.items.map((a, i) => <MenuHUI.Item key={i}><div className={(props.itemClassName || "")}>{a}</div></MenuHUI.Item>)}
+                    <MenuHUI.Items className={"absolute bg-white z-50 whitespace-nowrap flex " + (props.itemsClassName || "") + " " + getPositionClassOuter(props)} static>
+                        <div className={getPositionClassInner(props)}>
+                            {props.items.map((a, i) => <MenuHUI.Item key={i}><div className={(props.itemClassName || "")}>{a}</div></MenuHUI.Item>)}
+                        </div>
                     </MenuHUI.Items>
-                </Transition>
+                </Transition></>)}
             </MenuHUI>
         </div>
     );

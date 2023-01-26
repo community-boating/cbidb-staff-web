@@ -6,6 +6,7 @@ import { ReactNode } from 'react';
 import * as moment from "moment";
 import { Listbox } from '@headlessui/react';
 import { ChevronDown } from 'react-feather';
+import { DropDownProps, getPositionClassInner, getPositionClassOuter } from './Menu';
 
 export type InputProps = {
     label?: React.ReactNode,
@@ -122,9 +123,8 @@ export const ValidatedTextInput = (props: (CustomInputProps<any> & InputProps)) 
 
 export type SelectOption<T_SelectOption> = {value: T_SelectOption, display: ReactNode};
 
-export function SelectInput<T_Value extends string | number> (props: CustomInputProps<option.Option<T_Value>> & InputProps & {selectOptions : SelectOption<T_Value>[], showNone?: SelectOption<T_Value>, selectNone?: boolean, isNumber?: boolean, autoWidth?: boolean}) {
-	const value = React.useContext(ValidationContext);
-	const {selectOptions,showNone,selectNone,isNumber,autoWidth,controlledValue,updateValue} = props;
+export function SelectInput<T_Value extends string | number> (props: CustomInputProps<option.Option<T_Value>> & InputProps & DropDownProps & {selectOptions : SelectOption<T_Value>[], showNone?: SelectOption<T_Value>, selectNone?: boolean, isNumber?: boolean, autoWidth?: boolean, customStyle?: boolean}) {
+	const {selectOptions,showNone,selectNone,customStyle,isNumber,autoWidth,controlledValue,x,y,updateValue} = props;
 	const selectOptionsOptionified = React.useMemo(() => selectOptions.map((a) => ({value: option.some(a.value), display: a.display})), [selectOptions]);
 	const showNonePadded: SelectOption<option.Option<T_Value>> = ((showNone === undefined ) ? {value: option.none, display: "None"} : {value: option.none, display: showNone.display})
 	const selectOptionsWithNone = React.useMemo(() => [showNonePadded].concat(selectOptionsOptionified), [showNone, selectOptionsOptionified]);
@@ -133,37 +133,40 @@ export function SelectInput<T_Value extends string | number> (props: CustomInput
 	const testRef = React.createRef<HTMLDivElement>();
 	const current = (controlledValue.isSome() ? (selectOptions.filter((a) => a.value == controlledValue.value)[0]) : showNonePadded);
 
-	React.useEffect(() => {
+	autoWidth && React.useEffect(() => {
 		testRef.current.style.display = "";
 		setMinWidth(testRef.current.clientWidth);
 		testRef.current.style.display = "none";
 	}, [selectOptions]);
+	
     const options = React.useMemo(() => (useOptions.map((a, i) => (<Listbox.Option key={i} value={a.value} as={React.Fragment}>
-		{({active, selected}) => (<div className={(active ? "bg-gray-100" : "") + " whitespace-nowrap"}><button>{a.display}</button></div>)}
+		{({active, selected}) => (<div className={(active ? "bg-gray-100" : "") + " whitespace-nowrap flex"}><button>{a.display}</button></div>)}
 		</Listbox.Option>))), [useOptions]);
 	return (<>
 			<div className="flex flex-row">
 				{props.label}
 				<Listbox value={controlledValue} onChange={(v) => {updateValue(v);}}>
 					<div className="relative max-w-min">
-					<Listbox.Button className={"flex flex-col items-end bg-white whitespace-nowrap " + inputClassName + " " + (props.className ? props.className : "")}>
+					<Listbox.Button className={"flex flex-col items-end bg-white whitespace-nowrap " + (customStyle ? "" : inputClassName) + " " + (props.className ? props.className : "")}>
 						<div className="flex flex-row w-full">
 							<div className={"text-left grow"} style={{minWidth: minWidth}}>
 								{current && current.display}
 							</div>
-							<ChevronDown className="flex-none"/>
+							{customStyle ? <></> : <ChevronDown className="flex-none"/>}
 						</div>
 					</Listbox.Button>
-					<Listbox.Options className="absolute bg-white w-full z-50">
-						{options}
+					<Listbox.Options className={"absolute z-50 " + getPositionClassOuter(props)}>
+						<div className={"bg-white " + getPositionClassInner(props)}>
+							{options}
+						</div>
 					</Listbox.Options>
 					</div>
 				</Listbox>
 				{props.end}
 			</div>
-			<div ref={testRef} className=" whitespace-nowrap fixed" style={{display: "none"}}>
+			{autoWidth ? <div ref={testRef} className=" whitespace-nowrap fixed" style={{display: "none"}}>
 				{selectOptions.map((a, i) => <div key={i} className="whitespace-nowrap">{a.display}</div>)}
-			</div>
+			</div> : <></>}
 		</>
     );
 }

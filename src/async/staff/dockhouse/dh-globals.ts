@@ -1,8 +1,7 @@
 import * as t from 'io-ts';
 import APIWrapper from 'core/APIWrapper';
 import { HttpMethod } from "core/HttpMethod";
-import { DateTime, EnumType } from 'util/OptionalTypeValidators';
-import { PERMISSIONS } from 'models/permissions';
+import { DateTime, EnumType, OptionalNumber } from 'util/OptionalTypeValidators';
 
 export enum MessagePriority {
 	LOW = "L",
@@ -23,6 +22,7 @@ const flagChangeValidator = t.type({
 })
 
 export const dhGlobalsValidator = t.type({
+	localTimeOffset: OptionalNumber,
 	serverDateTime: DateTime,
 	sunsetTime: DateTime,
 	windSpeedAvg: t.number,

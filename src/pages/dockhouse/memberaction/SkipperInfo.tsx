@@ -90,15 +90,16 @@ export function AddCrew(props: AddEditCrewProps){
     const setRandom = (e) => {
         //props.setState((state) => ({...state, currentPeople: state.currentPeople.map((a) => )}));
     }
+    const isSignout = (props.mode == SignoutActionMode.SIGNOUT || props.mode == SignoutActionMode.RACING);
     return (<div className="flex flex-col grow-0 gap-2">
-            {props.mode == SignoutActionMode.SIGNOUT ? <div className="flex flex-row gap-2">
+            {isSignout ? <div className="flex flex-row gap-2">
                 <Button className="bg-gray-200">Search Phone</Button>
                 <Button className="bg-gray-200">Search Name</Button>
             </div> : <></>}
             <CardNumberScanner label="Add person..." onAction={(a) => {
                 props.add({cardNum: a.cardNumber, isSkipper: false, isTesting: false, sortOrder: 0});
             }}></CardNumberScanner>
-            {props.mode == SignoutActionMode.SIGNOUT ? <><Button className="bg-gray-200" onClick={setRandom}>Find Highest Ratings</Button>
+            {isSignout ? <><Button className="bg-gray-200" onClick={setRandom}>Find Highest Ratings</Button>
             <Button className="bg-gray-200" onClick={setRandom}>Find Highest Privileges</Button></> : <></>}
         </div>);
 }
@@ -113,10 +114,14 @@ export function EditCrew(props: AddEditCrewProps){
     const cache = React.useContext(ScannedPersonsCacheContext);
     const crew = <>{props.state.currentPeople.map((a, i) => {
         const b = cache.getCached(a.cardNum);
-        if(props.mode != SignoutActionMode.TESTING){
-            if(a.isSkipper) return undefined;
-        }else{
-            if(a.isTesting) return undefined;
+        switch(props.mode){
+            case SignoutActionMode.TESTING:
+                if(a.isTesting) return undefined;
+                break;
+            case SignoutActionMode.SIGNOUT:
+            case SignoutActionMode.RACING:
+                if(a.isSkipper) return undefined;
+                break;
         }
         if(b.isNone()){
             return undefined;

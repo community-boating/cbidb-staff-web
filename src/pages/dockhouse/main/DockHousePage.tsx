@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { CardLayout, Card, LayoutDirection, FlexSize, CardOrButton } from '../../../components/dockhouse/Card';
-import ActionModal, { Action, EditSignoutAction, MemberAction, NoneAction } from '../memberaction/ActionModal';
+import ActionModal, { Action, ActionModalContext, EditSignoutAction, MemberAction, NoneAction } from '../memberaction/ActionModal';
 import { CardNumberScanner } from "../memberaction/CardNumberScanner";
 import AsyncStateProvider, { ProviderState } from 'core/AsyncStateProvider';
 import { getSignoutsToday } from 'async/staff/dockhouse/signouts-tables';
@@ -16,10 +16,9 @@ import { BoatsContext } from 'components/dockhouse/providers/BoatsProvider';
 import { RatingsContext } from 'components/dockhouse/providers/RatingsProvider';
 
 export default function DockHousePage (props) {
-    const [inputState, setInputState] = React.useState("");
     const boatTypes = React.useContext(BoatsContext);
     const ratings = React.useContext(RatingsContext);
-    const [action, setAction] = React.useState<Action<any>>(new NoneAction());
+    const actionModal = React.useContext(ActionModalContext);
     const v = t.type({derp: t.boolean});
     const extraStateAsync: SignoutsTablesExtraStateDepOnAsync = React.useMemo(() => ({
         ratings: ratings,
@@ -27,13 +26,13 @@ export default function DockHousePage (props) {
         boatTypes: boatTypes,
         boatTypesHR: makeBoatTypesHR(boatTypes)
         }), [ratings, boatTypes]);
-    return (<ScannedPersonsCache>
+    return (<>
         <CardLayout direction={LayoutDirection.VERTICAL} parentDirection={LayoutDirection.VERTICAL}>
             <CardLayout direction={LayoutDirection.HORIZONTAL}>
                 <CardLayout direction={LayoutDirection.VERTICAL}>
                     <CardOrButton title="Member Actions" button={<div><input className="object-fill" type="image" src={""}/></div>}>
                         <CardNumberScanner label="Card Number:" onAction={(a) => {
-                            setAction(new MemberAction(a.cardNumber));
+                            actionModal.setAction(new MemberAction(a.cardNumber));
                         }}></CardNumberScanner>
                     </CardOrButton>
                     <Card title="One Day Rentals"></Card>
@@ -56,7 +55,7 @@ export default function DockHousePage (props) {
                 const extraState: SignoutsTablesExtraState = {...extraStateAsync, multiSignInSelected: [], reassignedHullsMap, reassignedSailsMap} ;
                 return <>
                     <Card title="Active Signouts">
-                        {providerState == ProviderState.SUCCESS ? <SignoutsTable state={state} setState={setState} extraState={extraState} isActive={true} filterValue={makeInitFilter()} globalFilter={{} as any} openEditRow={(row) => {setAction(new EditSignoutAction(row, ((row) => {return Promise.resolve();})))}}></SignoutsTable> : <>Loading...</>}
+                        {providerState == ProviderState.SUCCESS ? <SignoutsTable state={state} setState={setState} extraState={extraState} isActive={true} filterValue={makeInitFilter()} globalFilter={{} as any} openEditRow={(row) => {actionModal.setAction(new EditSignoutAction(row, ((row) => {return Promise.resolve();})))}}></SignoutsTable> : <>Loading...</>}
                     </Card>
                     <Card title="Completed Signouts">
                         {providerState == ProviderState.SUCCESS ? state.length : "Loading..."}
@@ -64,6 +63,5 @@ export default function DockHousePage (props) {
                 </>
             }}></AsyncStateProvider>
         </CardLayout>
-        <ActionModal action={action} setAction={setAction}/>
-     </ScannedPersonsCache>);
+     </>);
 };

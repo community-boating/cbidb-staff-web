@@ -1,5 +1,5 @@
 import { Tab } from '@headlessui/react';
-import Modal, { ModalHeader } from 'components/wrapped/Modal';
+import Modal, { ModalContext, ModalHeader } from 'components/wrapped/Modal';
 import * as React from 'react';
 
 import * as t from "io-ts";
@@ -106,6 +106,7 @@ export function EditSignout(props: {state: MemberActionState, setState: React.Di
         <div className="flex flex-row grow-[1]">
             <DialogOutput>
                 <p>Dialog Output</p>
+                <p>{props.state.dialogOutput.isSome() ? props.state.dialogOutput.value : <></>}</p>
             </DialogOutput>
         </div>
         <div className="flex flex-row grow-[3]">
@@ -123,9 +124,9 @@ export function EditSignout(props: {state: MemberActionState, setState: React.Di
                             <OptionalStringInput label="Sail Number:" controlledValue={props.state.sailNum} updateValue={(v) => {props.setState((s) => ({...s, sailNum: v}))}}/>
                         </div>
                         <div className="flex flex-col items-end gap-5">
-                            <SelectInput label="Signout Type:" className="w-[200px]" controlledValue={props.state.signoutType} updateValue={(v) => {props.setState((s) => ({...s, signoutType: v}))}} selectOptions={signoutTypesHR}></SelectInput>
-                            <SelectInput label="Test Type:" className="w-[200px]" controlledValue={props.state.testType} updateValue={(v) => {props.setState((s) => ({...s, testType: v}))}} selectOptions={testResultsHR}></SelectInput>
-                            <SelectInput label="Test Rating:" className="w-[200px]" controlledValue={props.state.testRating} updateValue={(v) => {props.setState((s) => ({...s, testRating: v}))}} selectOptions={ratingsHR}></SelectInput>
+                            <SelectInput label="Signout Type:" className="w-[200px]" controlledValue={props.state.signoutType} updateValue={(v) => {props.setState((s) => ({...s, signoutType: v}))}} selectOptions={signoutTypesHR} autoWidth></SelectInput>
+                            <SelectInput label="Test Type:" className="w-[200px]" controlledValue={props.state.testType} updateValue={(v) => {props.setState((s) => ({...s, testType: v}))}} selectOptions={testResultsHR} autoWidth></SelectInput>
+                            <SelectInput label="Test Rating:" className="w-[200px]" controlledValue={props.state.testRating} updateValue={(v) => {props.setState((s) => ({...s, testRating: v}))}} selectOptions={ratingsHR} autoWidth></SelectInput>
                         </div>
                     </div>
                 </DotBox>
@@ -169,16 +170,26 @@ function convertToCreateSignout(state: MemberActionState, cache: ScannedPersonsC
     }
 }
 
+
+
+function validateSubmit(state: MemberActionState): string[]{
+    return [];
+}
+
 function CreateQueueSignout(props: {state: MemberActionState, setState: React.Dispatch<React.SetStateAction<MemberActionState>>}){
     const asc = React.useContext(AppStateContext);
     const cache = React.useContext(ScannedPersonsCacheContext);
+    const modal = React.useContext(ModalContext);
     return <>
         <div className="flex flex-row gap-2 mr-0 ml-auto">
             <Button className="bg-gray-300 px-5 py-2">Queue Signout</Button>
-            <Button className="bg-gray-300 px-5 py-2 bg-boathouseblue text-gray-100" spinnerOnClick submit={(e) => {
-                console.log("happening");
+            <Button className="px-5 py-2 bg-boathouseblue text-gray-100" spinnerOnClick submit={(e) => {
                 return createSignout.sendJson(asc, convertToCreateSignout(props.state, cache)).then((a) => {
-                    console.log(a);
+                    if(a.type == "Success"){
+                        modal.setOpen(false);
+                    }else{
+                        props.setState((s) => ({...s, dialogOutput: option.some(a.message)}))
+                    }
                 });
             }}>Create Signout</Button>
         </div>
@@ -242,9 +253,9 @@ function MemberActionRatings(props: {state: MemberActionState, setState: React.D
     const [selectedRatings, setSelectedRatings] = React.useState<{[key: number]: boolean}>({});
     return <div className="flex flex-col gap-5 grow-[1]">
             <AddEditCrew state={props.state} setState={props.setState} mode={SignoutActionMode.RATINGS}></AddEditCrew>
-            <SelectInput controlledValue={programId} updateValue={setProgramId} selectOptions={programsHR.filter((a) => availablePrograms[a.value])} validationResults={[]}></SelectInput>
+            <SelectInput controlledValue={programId} updateValue={setProgramId} selectOptions={programsHR.filter((a) => availablePrograms[a.value])} validationResults={[]} autoWidth/>
             <RatingsGrid selectedProgram={programId} selectedRatings={selectedRatings} setSelectedRatings={setSelectedRatings}></RatingsGrid>
-            <Button className="bg-gray-300 px-5 py-2 bg-boathouseblue text-gray-100 ml-auto mr-0 mt-auto mb-0" spinnerOnClick submit={(e) => {
+            <Button className="px-5 py-2 bg-boathouseblue text-gray-100 ml-auto mr-0 mt-auto mb-0" spinnerOnClick submit={(e) => {
                 console.log(convertToGrantRatings(props.state, programId.getOrElse(undefined), Object.keys(selectedRatings).map((a) => parseInt(a)), cache));
                 return grantRatings.sendJson(asc, convertToGrantRatings(props.state, programId.getOrElse(undefined), Object.keys(selectedRatings).map((a) => parseInt(a)), cache)).then((a) => {
                     console.log(a);
@@ -303,7 +314,8 @@ function MemberActionModal(props: MemberActionType){
         sailNum: option.none,
         signoutType: option.none,
         testType: option.none,
-        testRating: option.none});
+        testRating: option.none,
+        dialogOutput: option.none});
     return <Tab.Group>
         <ModalHeader className="text-2xl font-bold">
             <Tab.List className="flex flex-row gap-primary">
@@ -335,7 +347,8 @@ function adaptSignoutState(state: SignoutTablesState): EditSignoutState{
         hullNum: state.hullNumber,
         sailNum: state.sailNumber,
         testType: state.testResult,
-        testRating: state.testRatingId
+        testRating: state.testRatingId,
+        dialogOutput: option.none
 	}
 }
 
@@ -362,4 +375,14 @@ export default function ActionModal(props: ActionModalProps){
         <Modal open={props.action && !(props.action instanceof NoneAction)} setOpen={(s) => {if(!s){props.setAction(new NoneAction())}}} className="bg-gray-100 rounded-lg">
             {modalContent}
         </Modal>);
+}
+
+export const ActionModalContext = React.createContext<ActionModalProps>({action: new NoneAction(), setAction: () => {}});
+
+export function ActionModalProvider(props: {children?: React.ReactNode}){
+    const [action, setAction] = React.useState(new NoneAction());
+    return <ActionModalContext.Provider value={{action, setAction}}>
+        {props.children}
+        <ActionModal action={action} setAction={setAction}></ActionModal>
+    </ActionModalContext.Provider>
 }
