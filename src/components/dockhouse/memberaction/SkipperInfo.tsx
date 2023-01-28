@@ -47,13 +47,13 @@ export function DetailedPersonInfo(props: MemberActionProps & {index: number}) {
     const crewActions = getCrewActions(props);
     const currentPerson = props.state.currentPeople[props.index];
     if(!currentPerson.isSkipper && props.mode != SignoutActionMode.TESTING)
-        return;
+        return <></>;
     if(!currentPerson.isTesting && props.mode == SignoutActionMode.TESTING)
-        return;
+        return <></>;
     const scannedPersonsCache = React.useContext(ScannedPersonsCacheContext);
     const personCached = scannedPersonsCache.getCached(props.state.currentPeople[props.index].cardNum);
     if(personCached.isNone()){
-        return;
+        return <></>;
     }
     const currentMembership = personCached.value.activeMemberships[0];
     const programHR = getProgramHR(currentMembership.programId.getOrElse(-1));
