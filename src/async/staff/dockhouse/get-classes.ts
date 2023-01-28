@@ -5,11 +5,12 @@ import { HttpMethod } from "core/HttpMethod";
 export const instructorValidator = t.type({
     instructorId: t.number,
     nameFirst: t.string,
-    nameLast: t.string
+    nameLast: t.string,
+    status: t.boolean
 })
 
 export const classValidator = t.type({
-	instructor: t.string,
+	instructor: instructorValidator,
 	programId: t.number,
 	personIds: t.array(t.number),
 	ratingIds: t.array(t.number),
@@ -20,6 +21,15 @@ export type GetClassesParams = {
     startTime?: moment.Moment,
     endTime?: moment.Moment
 }
+
+//get classes,
+//get instructors
+//set instructor
+//set location
+//get locations?
+//add person
+
+//grant rating
 
 export const classesValidator = t.array(classValidator);
 

@@ -10,8 +10,6 @@ import { SignoutsTablesExtraState, SignoutsTablesExtraStateDepOnAsync } from '..
 import { makeBoatTypesHR, makeReassignedMaps } from '../signouts/SignoutsTablesPage';
 import { sortRatings } from '../signouts/RatingSorter';
 import * as t from "io-ts";
-import { AppStateContext } from 'app/state/AppStateContext';
-import ScannedPersonsCache from '../../../components/dockhouse/memberaction/ScannedPersonsCache';
 import { BoatsContext } from 'components/dockhouse/providers/BoatsProvider';
 import { RatingsContext } from 'components/dockhouse/providers/RatingsProvider';
 
@@ -35,16 +33,16 @@ export default function DockHousePage (props) {
                             actionModal.setAction(new MemberAction(a.cardNumber));
                         }}></CardNumberScanner>
                     </CardOrButton>
-                    <Card title="One Day Rentals"></Card>
-                    <Card title="Testing"></Card>
+                    <Card title="Boat Queue"></Card>
+                    <Card title="Rentals"></Card>
                 </CardLayout>
                 <CardLayout direction={LayoutDirection.VERTICAL} weight={FlexSize.S_2}>
                     <Card title="Dynamic Large View"></Card>
                 </CardLayout>
                 <CardLayout direction={LayoutDirection.VERTICAL}>
                     <Card title="Incidents"></Card>
-                    <Card title="UAP Schedule"></Card>
-                    <Card title="Forms"></Card>
+                    <Card title="Schedule"></Card>
+                    <Card title="Testing"></Card>
                 </CardLayout>
             </CardLayout>
             <AsyncStateProvider apiWrapper={getSignoutsToday} initState={[]} makeChildren={(state, setState, providerState) => {
