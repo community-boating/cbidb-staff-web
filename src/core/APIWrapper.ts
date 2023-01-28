@@ -68,16 +68,16 @@ export const API_CODE_NOT_LOGGED_IN = "API.NOT.LOGGED.IN"
 export const API_CODE_INSUFFICIENT_PERMISSION = "API.INSUFFICIENT.PERMISSION"
 
 // TODO: do we still need do() vs send() vs sendWithHeaders(), can probably tidy this all up into one function that does the thing
-export default class APIWrapper<T_ResponseValidator extends t.Any, T_PostBodyValidator extends t.Any, T_FixedParams> {
+export default class APIWrapper<T_ResponseValidator extends t.Any, T_PostBodyValidator extends t.Any, T_FixedParams = any, T_Params = any> {
 	config: Config<T_ResponseValidator, T_PostBodyValidator, T_FixedParams>
 	constructor(config: Config<T_ResponseValidator, T_PostBodyValidator, T_FixedParams>) {
 		this.config = config;
 	}
 	send: (asc: AppStateCombined) => Promise<ApiResult<t.TypeOf<T_ResponseValidator>>> = (asc) => this.sendWithParams(asc, none)(undefined)
-	sendJson: (asc: AppStateCombined, data: t.TypeOf<T_PostBodyValidator>) => Promise<ApiResult<t.TypeOf<T_ResponseValidator>>> = (asc, data) => this.sendWithParams(asc, none)(makePostJSON(data))
-	sendFormUrlEncoded: (asc: AppStateCombined, data: t.TypeOf<T_PostBodyValidator>) => Promise<ApiResult<t.TypeOf<T_ResponseValidator>>> = (asc, data) => this.sendWithParams(asc, none)(makePostString(data))
+	sendJson: (asc: AppStateCombined, data: t.TypeOf<T_PostBodyValidator>, params?: T_Params) => Promise<ApiResult<t.TypeOf<T_ResponseValidator>>> = (asc, data, params) => this.sendWithParams(asc, none, params)(makePostJSON(data))
+	sendFormUrlEncoded: (asc: AppStateCombined, data: t.TypeOf<T_PostBodyValidator>, params?: T_Params) => Promise<ApiResult<t.TypeOf<T_ResponseValidator>>> = (asc, data, params) => this.sendWithParams(asc, none, params)(makePostString(data))
 	// send: (data: PostType<t.TypeOf<T_PostBodyValidator>>) => Promise<ApiResult<t.TypeOf<T_ResponseValidator>>> = data => this.sendWithParams(none)(data)
-	sendWithParams: (asc: AppStateCombined, serverParamsOption: Option<ServerParams>, params?: any) => (data: PostType<t.TypeOf<T_PostBodyValidator>>) => Promise<ApiResult<t.TypeOf<T_ResponseValidator>>> = (asc, serverParamsOption, params) => data => {
+	sendWithParams: (asc: AppStateCombined, serverParamsOption: Option<ServerParams>, params?: T_Params) => (data: PostType<t.TypeOf<T_PostBodyValidator>>) => Promise<ApiResult<t.TypeOf<T_ResponseValidator>>> = (asc, serverParamsOption, params) => data => {
 		if(this.config.permissions){
 			var perm = true;
 			if(!asc.state.login.authenticatedUserName.isSome()){

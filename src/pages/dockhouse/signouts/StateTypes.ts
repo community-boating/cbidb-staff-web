@@ -1,4 +1,4 @@
-import { BoatTypesValidatorState, signoutsValidator, SignoutTablesState, signoutValidator, skipperValidator } from 'async/staff/dockhouse/signouts-tables';
+import { BoatTypesValidatorState, signoutsValidator, SignoutTablesState, signoutValidator, skipperValidator } from 'async/staff/dockhouse/signouts';
 import { RatingsType, ratingsValidator } from "async/staff/dockhouse/ratings";
 import { SelectOption } from 'components/wrapped/Input';
 

@@ -5,7 +5,7 @@ import * as React from 'react';
 import * as t from "io-ts";
 
 import { option } from 'fp-ts';
-import { programsHR, SignoutTypes, signoutTypesHR, testResultsHR } from '../signouts/Constants';
+import { programsHR, SignoutTypes, signoutTypesHR, testResultsHR } from '../../../pages/dockhouse/signouts/Constants';
 import Button from 'components/wrapped/Button';
 import { OptionalStringInput, SelectInput } from 'components/wrapped/Input';
 
@@ -13,14 +13,14 @@ import BoatIcon, { BoatSelect } from './BoatIcon';
 import { ScannedPersonsType } from 'async/staff/dockhouse/scan-card';
 import RatingsGrid from './RatingsGrid';
 import { ScannedPersonsCacheContext, ScannedPersonsCacheGet } from './ScannedPersonsCache';
-import { EditSignoutType } from '../signouts/StateTypes';
+import { EditSignoutType } from '../../../pages/dockhouse/signouts/StateTypes';
 import RadioGroup from 'components/wrapped/RadioGroup';
 import { AppStateContext } from 'app/state/AppStateContext';
 import { CreateSignoutType, postWrapper as createSignout } from 'async/staff/dockhouse/create-signout';
 import { grantRatingsValidator, postWrapper as grantRatings } from 'async/staff/dockhouse/grant-ratings';
 import { AddEditCrew, DetailedPersonInfo } from './SkipperInfo';
 import { SignoutActionMode, MemberActionState, EditSignoutState } from './MemberActionState';
-import { SignoutTablesState } from 'async/staff/dockhouse/signouts-tables';
+import { SignoutTablesState } from 'async/staff/dockhouse/signouts';
 import { RatingsContext } from 'components/dockhouse/providers/RatingsProvider';
 
 export const testMemberships: ScannedPersonsType["activeMemberships"] = [{

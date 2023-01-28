@@ -11,7 +11,7 @@ import { getAppStateCombined } from "app/state/AppStateAction";
 import { AppState, AppStateCombined } from "app/state/AppState";
 import DHGlobalProvider from "components/dockhouse/providers/DHGlobalProvider";
 import DHProviders from "components/dockhouse/providers/DHProviders";
-import ActionModal, { ActionModalProvider } from "pages/dockhouse/memberaction/ActionModal";
+import ActionModal, { ActionModalProvider } from "components/dockhouse/memberaction/ActionModal";
 
 interface Props {
 	history: any

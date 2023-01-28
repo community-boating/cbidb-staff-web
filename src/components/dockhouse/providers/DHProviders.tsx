@@ -1,5 +1,5 @@
-import { ActionModalProvider } from 'pages/dockhouse/memberaction/ActionModal';
-import ScannedPersonsCache from 'pages/dockhouse/memberaction/ScannedPersonsCache';
+import { ActionModalProvider } from 'components/dockhouse/memberaction/ActionModal';
+import ScannedPersonsCache from 'components/dockhouse/memberaction/ScannedPersonsCache';
 import * as React from 'react';
 import BoatsProvider from './BoatsProvider';
 import DHGlobalProvider from './DHGlobalProvider';

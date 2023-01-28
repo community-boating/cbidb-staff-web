@@ -7,14 +7,13 @@ import reassignedIcon from "assets/img/reassigned.png";
 import stopwatchIcon from "assets/img/stopwatch.jpg";
 import { FlagStatusIcon, FlagStatusIcons } from '../../../components/dockhouse/FlagStatusIcons';
 import { RatingsHover } from './RatingSorter';
-import { CrewHover } from './input/EditCrewModal';
 import { iconWidth, iconHeight, programsHR, signoutTypesHR, orphanedRatingsShownByDefault } from './Constants';
 import { CellOptionBase, CellOptionTime, CellSelect } from 'util/tableUtil';
 import { InteractiveColumnDef } from './InteractiveColumnProvider';
 import { MultiHover } from './MultiHover';
 import { Info } from 'react-feather';
 import Button from 'components/wrapped/Button';
-import { SignoutTablesState, SignoutsTablesState } from 'async/staff/dockhouse/signouts-tables';
+import { SignoutTablesState, SignoutsTablesState } from 'async/staff/dockhouse/signouts';
 import { SignoutsTablesExtraState } from './StateTypes';
 
 export const CommentsHover = (props: { row: SignoutTablesState, extraState: SignoutsTablesExtraState }) => {
@@ -174,8 +173,7 @@ const columnsBaseUpper: SignoutsTablesColumnDef[] = [
 	{
 		accessorKey: "$$crew",
 		header: "Crew",
-		size: 50,
-		cellWithExtra: (a, extraState) => <CrewHover row={a.row.original} extraState={extraState} />
+		size: 50
 	}
 ];
 const columnsBaseLower: (active: boolean) => SignoutsTablesColumnDef[] = (active) => [

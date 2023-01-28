@@ -21,6 +21,8 @@ export const pathDockReport = pathDockhouseBase.appendPathSegment("dock-report")
 
 export const pathStaggeredOrder = new PathWrapper("staggered-order/:personId");
 
+export const pathClasses = pathDockhouseBase.appendPathSegment("classes");
+
 export const pathSignoutsTables = pathDockhouseBase.appendPathSegment("signouts-tables");
 
 export const pathIncidents = pathDockhouseBase.appendPathSegment("incidents");

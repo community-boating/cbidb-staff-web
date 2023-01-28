@@ -1,9 +1,9 @@
 import * as React from 'react';
 import { CardLayout, Card, LayoutDirection, FlexSize, CardOrButton } from '../../../components/dockhouse/Card';
-import ActionModal, { Action, ActionModalContext, EditSignoutAction, MemberAction, NoneAction } from '../memberaction/ActionModal';
-import { CardNumberScanner } from "../memberaction/CardNumberScanner";
+import ActionModal, { Action, ActionModalContext, EditSignoutAction, MemberAction, NoneAction } from '../../../components/dockhouse/memberaction/ActionModal';
+import { CardNumberScanner } from "../../../components/dockhouse/memberaction/CardNumberScanner";
 import AsyncStateProvider, { ProviderState } from 'core/AsyncStateProvider';
-import { getSignoutsToday } from 'async/staff/dockhouse/signouts-tables';
+import { getSignoutsToday } from 'async/staff/dockhouse/signouts';
 import { filterActive, SignoutsTable } from '../signouts/SignoutsTable';
 import { makeInitFilter } from '../signouts/input/SignoutsTableFilter';
 import { SignoutsTablesExtraState, SignoutsTablesExtraStateDepOnAsync } from '../signouts/StateTypes';
@@ -11,7 +11,7 @@ import { makeBoatTypesHR, makeReassignedMaps } from '../signouts/SignoutsTablesP
 import { sortRatings } from '../signouts/RatingSorter';
 import * as t from "io-ts";
 import { AppStateContext } from 'app/state/AppStateContext';
-import ScannedPersonsCache from '../memberaction/ScannedPersonsCache';
+import ScannedPersonsCache from '../../../components/dockhouse/memberaction/ScannedPersonsCache';
 import { BoatsContext } from 'components/dockhouse/providers/BoatsProvider';
 import { RatingsContext } from 'components/dockhouse/providers/RatingsProvider';
 

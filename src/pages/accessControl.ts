@@ -31,6 +31,7 @@ export function canAccessPage(asc: AppStateCombined, pageName: PageName): boolea
 		case PageName.SIGNOUTS_TABLES:
 		case PageName.DOCK_HOUSE_PAGE:
 		case PageName.INCIDENTS:
+		case PageName.CLASSES:
 			return true;
 		default:
 			assertNever(pageName);

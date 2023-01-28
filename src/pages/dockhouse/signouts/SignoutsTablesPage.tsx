@@ -1,15 +1,13 @@
 import * as React from 'react';
 
-import { BoatTypesValidatorState, putSignout, putSignouts, SignoutsTablesState, SignoutTablesState } from 'async/staff/dockhouse/signouts-tables';
+import { BoatTypesValidatorState, putSignout, putSignouts, SignoutsTablesState, SignoutTablesState } from 'async/staff/dockhouse/signouts';
 import { Option } from 'fp-ts/lib/Option';
 import { option } from 'fp-ts';
 import * as moment from "moment";
 
 
 import { sortRatings } from './RatingSorter';
-import { EditCommentsModal } from './input/EditCommentModal';
 import { DefaultDateTimeFormat } from 'util/OptionalTypeValidators';
-import { EditCrewModal } from './input/EditCrewModal';
 import { makeInitFilter, SignoutsTableFilter, SignoutsTableFilterState } from './input/SignoutsTableFilter';
 import { filterActive, SignoutsTable } from './SignoutsTable';
 import { getUsersHR } from './SignoutsColumnDefs';
@@ -18,7 +16,7 @@ import { AppStateContext } from 'app/state/AppStateContext';
 import { SignoutsTablesExtraStateDepOnAsync, SignoutsTablesExtraState, ReassignedMapType } from './StateTypes';
 import { RatingsContext } from 'components/dockhouse/providers/RatingsProvider';
 import { BoatsContext } from 'components/dockhouse/providers/BoatsProvider';
-import { ActionModalContext, EditSignoutAction } from '../memberaction/ActionModal';
+import { ActionModalContext, EditSignoutAction } from '../../../components/dockhouse/memberaction/ActionModal';
 
 function matchNameOrCard(row: SignoutTablesState, nameOrCard: string) {
 	if(nameOrCard.trim().length === 0){
@@ -131,25 +129,8 @@ export const SignoutsTablesPage = (props: {
 		</>;
 	}, [state, extraState, filterValue]);
 
-	const modalContent = React.useMemo(() => {
-		return <>
-		<EditCommentsModal modalIsOpen={updateCommentsModal !== undefined} closeModal={() => { setUpdateCommentsModal(undefined) }} currentRow={state.find((a) => a.signoutId == updateCommentsModal)} updateComments={updateCommentsSubmit} />
-		<EditCrewModal modalIsOpen={updateCrewModal !== undefined} closeModal={() => { setUpdateCrewModal(undefined) }} boatTypes={extraState.boatTypes} boatTypesHR={extraState.boatTypesHR} currentRow={state.find((a) => a.signoutId == updateCrewModal)} updateCurrentRow={(row) => {
-			const newState = state.map((a) => {
-				if(a.signoutId == row.signoutId){
-					return row;
-				}else{
-					return a;
-				}
-			})
-			setState(newState);
-		}} />
-		</>
-	}, [state, updateCommentsModal, updateCrewModal, extraState.boatTypes]);
-
 	return <>
 		{tableContent}
-		{modalContent}
 	</>;
 
 

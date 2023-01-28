@@ -47,17 +47,17 @@ export function DetailedPersonInfo(props: MemberActionProps & {index: number}) {
     const crewActions = getCrewActions(props);
     const currentPerson = props.state.currentPeople[props.index];
     if(!currentPerson.isSkipper && props.mode != SignoutActionMode.TESTING)
-        return <></>;
+        return;
     if(!currentPerson.isTesting && props.mode == SignoutActionMode.TESTING)
-        return <></>;
+        return;
     const scannedPersonsCache = React.useContext(ScannedPersonsCacheContext);
     const personCached = scannedPersonsCache.getCached(props.state.currentPeople[props.index].cardNum);
     if(personCached.isNone()){
-        return <></>;
+        return;
     }
     const currentMembership = personCached.value.activeMemberships[0];
     const programHR = getProgramHR(currentMembership.programId.getOrElse(-1));
-    return <div className="flex flex-row grow-0 gap-5">
+    return <div key={currentPerson.cardNum} className="flex flex-row grow-0 gap-5">
         <div className="flex flex-col">
             <h3 className="font-bold inline-block">{props.mode == SignoutActionMode.TESTING ? "Testing:" : "Skipper:"}</h3>
             <CrewIcons skipper={personCached.value} />

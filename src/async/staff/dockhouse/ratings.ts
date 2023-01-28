@@ -2,7 +2,7 @@ import { OptionalNumber } from "util/OptionalTypeValidators";
 import * as t from "io-ts";
 import APIWrapper from "../../../core/APIWrapper";
 import { HttpMethod } from "../../../core/HttpMethod";
-import { boatsValidator, programsValidator, pathGetRatings } from "./signouts-tables";
+import { boatsValidator, programsValidator, pathGetRatings } from "./signouts";
 
 
 export const ratingValidator = t.type({

@@ -9,7 +9,6 @@ const pathPost = "/rest/signout";
 const pathPostMulti = "/rest/signouts";
 const pathSignoutCrew = "/rest/signout-crew";
 export const pathGetRatings = "/rest/ratings";
-const pathRunagroundCapsize = "/rest/runaground-capsize";
 const pathPersonByCardNumber = "/rest/person/by-card";
 
 export const personRatingValidator = t.type({
@@ -44,6 +43,7 @@ export const skipperValidator = t.type({
 export const signoutValidator = t.type({
 	signoutId: t.number,
 	programId: t.number,
+	classSessionId: OptionalNumber,
 	$$skipper: skipperValidator,
 	apAttendanceId: OptionalNumber,
 	jpAttendanceId: OptionalNumber,
@@ -95,11 +95,11 @@ export const getSignoutsToday = new APIWrapper({
 	resultValidator: signoutsValidator,
 });
 
-export const getPersonByCardNumber = new APIWrapper({
+/*export const getPersonByCardNumber = new APIWrapper({
 	path: pathPersonByCardNumber,
 	type: HttpMethod.GET,
 	resultValidator: crewPersonValidator,
-});
+});*/
 
 export const putSignoutCrew = new APIWrapper({
 	path: pathSignoutCrew,

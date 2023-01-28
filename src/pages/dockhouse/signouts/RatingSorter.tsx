@@ -1,4 +1,4 @@
-import { programsValidator, boatsValidator, personRatingValidator, SignoutTablesState } from "async/staff/dockhouse/signouts-tables";
+import { programsValidator, boatsValidator, personRatingValidator, SignoutTablesState } from "async/staff/dockhouse/signouts";
 import { RatingsType, ratingValidator } from "async/staff/dockhouse/ratings";
 import { option } from "fp-ts";
 import * as React from 'react';

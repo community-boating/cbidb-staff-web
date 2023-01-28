@@ -13,8 +13,7 @@ import IconButton from 'components/wrapped/IconButton';
 import { option } from 'fp-ts';
 import RadioGroup from 'components/wrapped/RadioGroup';
 import { SelectInput } from 'components/wrapped/Input';
-import { makeBoatTypesHR } from '../signouts/SignoutsTablesPage';
-import { AppStateContext } from 'app/state/AppStateContext';
+import { makeBoatTypesHR } from '../../../pages/dockhouse/signouts/SignoutsTablesPage';
 import { BoatsContext } from 'components/dockhouse/providers/BoatsProvider';
 export type BoatIconProps = {
     boatId: option.Option<number>

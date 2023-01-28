@@ -138,9 +138,9 @@ export function SelectInput<T_Value extends string | number> (props: CustomInput
 		setMinWidth(testRef.current.clientWidth);
 		testRef.current.style.display = "none";
 	}, [selectOptions]);
-	
+
     const options = React.useMemo(() => (useOptions.map((a, i) => (<Listbox.Option key={i} value={a.value} as={React.Fragment}>
-		{({active, selected}) => (<div className={(active ? "bg-gray-100" : "") + " whitespace-nowrap flex"}><button>{a.display}</button></div>)}
+		{({active, selected}) => (<div className={(active ? "bg-gray-100" : "") + " whitespace-nowrap w-full flex"}><button className="w-full text-left">{a.display}</button></div>)}
 		</Listbox.Option>))), [useOptions]);
 	return (<>
 			<div className="flex flex-row">
