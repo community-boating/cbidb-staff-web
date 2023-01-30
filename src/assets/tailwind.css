@@ -5,6 +5,8 @@
 @import url(//fonts.googleapis.com/css?family=Roboto:100,200,300,400,500,600,700,800,900);
 
 @import '../../node_modules/react-redux-toastr/lib/css/react-redux-toastr.min.css';
+@import 'react-big-calendar/lib/css/react-big-calendar.css';
+@import 'react-big-calendar/lib/addons/dragAndDrop/styles.css';
 
 .hidden-scrollbar {
   -ms-overflow-style: none;  /* IE and Edge */
