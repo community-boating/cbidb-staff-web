@@ -1,23 +1,21 @@
 import * as React from 'react';
 
-import { BoatTypesValidatorState, putSignout, putSignouts, SignoutsTablesState, SignoutTablesState } from 'async/staff/dockhouse/signouts';
+import { putSignout, putSignouts, SignoutsTablesState, SignoutTablesState } from 'async/staff/dockhouse/signouts';
 import { Option } from 'fp-ts/lib/Option';
-import { option } from 'fp-ts';
 import * as moment from "moment";
 
-
 import { sortRatings } from './RatingSorter';
-import { DefaultDateTimeFormat } from 'util/OptionalTypeValidators';
 import { makeInitFilter, SignoutsTableFilter, SignoutsTableFilterState } from './input/SignoutsTableFilter';
 import { filterActive, SignoutsTable } from './SignoutsTable';
 import { getUsersHR } from './SignoutsColumnDefs';
 import { Row } from '@tanstack/react-table';
 import { AppStateContext } from 'app/state/AppStateContext';
-import { SignoutsTablesExtraStateDepOnAsync, SignoutsTablesExtraState, ReassignedMapType } from './StateTypes';
+import { SignoutsTablesExtraStateDepOnAsync, SignoutsTablesExtraState } from './StateTypes';
 import { RatingsContext } from 'components/dockhouse/providers/RatingsProvider';
 import { BoatsContext } from 'components/dockhouse/providers/BoatsProvider';
 import { ActionModalContext } from '../../../components/dockhouse/memberaction/ActionModal';
-import { EditSignoutAction } from "../../../components/dockhouse/memberaction/ActionModalProps";
+import { EditSignoutAction } from "../../../components/dockhouse/memberaction/MemberActionType";
+import { makeReassignedMaps, handleSingleSignIn, makeBoatTypesHR } from './makeReassignedMaps';
 
 function matchNameOrCard(row: SignoutTablesState, nameOrCard: string) {
 	if(nameOrCard.trim().length === 0){
@@ -135,41 +133,6 @@ export const SignoutsTablesPage = (props: {
 	</>;
 
 
-}
-
-export function makeReassignedMaps(activeSignouts: SignoutsTablesState, reassignedHullsMap: ReassignedMapType, reassignedSailsMap: ReassignedMapType){
-	activeSignouts.forEach((a) => { mapOptional(a.hullNumber, a.boatId, a.signoutId, reassignedHullsMap); });
-	activeSignouts.forEach((a) => { mapOptional(a.sailNumber, a.boatId, a.signoutId, reassignedSailsMap); });
-}
-
-export function mapOptional(n: Option<string>, boatId: number, signoutId: number, b: { [key: string]: { [key: number]: number[] } }) {
-	if (option.isSome(n)) {
-		var val = (b[n.getOrElse("")] || {})
-		val[boatId] = (val[boatId] || []).concat(signoutId);
-		b[n.getOrElse("")] = val;
-	}
-}
-
-export function makeBoatTypesHR(boatTypes: BoatTypesValidatorState) {
-	return boatTypes.sort((a, b) => a.displayOrder - b.displayOrder).map((v) => ({ value: v.boatId, display: v.boatName }));
-}
-
-function handleSingleSignIn(signoutId: number, isUndo: boolean, state: SignoutsTablesState, setState: (state: SignoutsTablesState) => void) {
-	const signinDatetime = isUndo ? option.none : option.some(moment().format(DefaultDateTimeFormat));
-	return Promise.reject();
-	/*return putSignout.sendJson({ signoutId: signoutId, signinDatetime: signinDatetime }).then((a) => {
-		if (a.type === "Success") {
-			const newState = Object.assign([], state);
-			for (var i = 0; i < newState.length; i++) {
-				if (state[i].signoutId == signoutId) {
-					newState[i] = Object.assign({}, state[i]);
-					newState[i].signinDatetime = signinDatetime;
-					break;
-				}
-			}
-			setState(newState);
-		}
-	})*/
 }
 
 

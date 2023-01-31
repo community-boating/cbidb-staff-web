@@ -13,14 +13,14 @@ import IconButton from 'components/wrapped/IconButton';
 import { option } from 'fp-ts';
 import RadioGroup from 'components/wrapped/RadioGroup';
 import { SelectInput } from 'components/wrapped/Input';
-import { makeBoatTypesHR } from '../../../pages/dockhouse/signouts/SignoutsTablesPage';
+import { makeBoatTypesHR } from "../../../pages/dockhouse/signouts/makeReassignedMaps";
 import { BoatsContext } from 'components/dockhouse/providers/BoatsProvider';
 export type BoatIconProps = {
     boatId: option.Option<number>
     setBoatId: (boatId: option.Option<number>) => void
 }
 
-const BoatIcons = [{
+export const BoatIcons = [{
     hr: "Stand Up Paddleboard",
     key: "P",
     src: sup
@@ -88,8 +88,8 @@ export default function(props: BoatIconProps){
     )
 }
 
-export function BoatSelect(props: BoatIconProps){
+export function BoatSelect(props: BoatIconProps & {autoWidth?: boolean, nowrap?: boolean, fullWidth?: boolean}){
     const boatTypes = React.useContext(BoatsContext);
     const boatTypesHR = React.useMemo(() => makeBoatTypesHR(boatTypes), [boatTypes]);
-    return <SelectInput controlledValue={props.boatId} updateValue={props.setBoatId} validationResults={[]} selectOptions={boatTypesHR} selectNone={false} label={"Boat Type:"} autoWidth></SelectInput>
+    return <SelectInput controlledValue={props.boatId} updateValue={props.setBoatId} validationResults={[]} selectOptions={boatTypesHR} selectNone={false} nowrap={props.nowrap} autoWidth={props.autoWidth} fullWidth={props.fullWidth}></SelectInput>
 }

@@ -123,7 +123,7 @@ export const ValidatedTextInput = (props: (CustomInputProps<any> & InputProps)) 
 
 export type SelectOption<T_SelectOption> = {value: T_SelectOption, display: ReactNode};
 
-export function SelectInput<T_Value extends string | number> (props: CustomInputProps<option.Option<T_Value>> & InputProps & DropDownProps & {selectOptions : SelectOption<T_Value>[], showNone?: SelectOption<T_Value>, selectNone?: boolean, isNumber?: boolean, autoWidth?: boolean, customStyle?: boolean}) {
+export function SelectInput<T_Value extends string | number> (props: CustomInputProps<option.Option<T_Value>> & InputProps & DropDownProps & {selectOptions : SelectOption<T_Value>[], showNone?: SelectOption<T_Value>, selectNone?: boolean, isNumber?: boolean, autoWidth?: boolean, nowrap?: boolean, fullWidth?: boolean, customStyle?: boolean}) {
 	const {selectOptions,showNone,selectNone,customStyle,isNumber,autoWidth,controlledValue,x,y,updateValue} = props;
 	const selectOptionsOptionified = React.useMemo(() => selectOptions.map((a) => ({value: option.some(a.value), display: a.display})), [selectOptions]);
 	const showNonePadded: SelectOption<option.Option<T_Value>> = ((showNone === undefined ) ? {value: option.none, display: "None"} : {value: option.none, display: showNone.display})
@@ -140,14 +140,14 @@ export function SelectInput<T_Value extends string | number> (props: CustomInput
 	}, [selectOptions]);
 
     const options = React.useMemo(() => (useOptions.map((a, i) => (<Listbox.Option key={i} value={a.value} as={React.Fragment}>
-		{({active, selected}) => (<div className={(active ? "bg-gray-100" : "") + " whitespace-nowrap w-full flex"}><button className="w-full text-left">{a.display}</button></div>)}
+		{({active, selected}) => (<div className={(active ? "bg-gray-100" : "") + " w-full flex"}><button className="w-full text-left">{a.display}</button></div>)}
 		</Listbox.Option>))), [useOptions]);
-	return (<>
-			<div className="flex flex-row">
+	return (<div className={(props.nowrap ? "whitespace-nowrap" : "break-words") + (props.fullWidth ? " w-full" : " max-w-min")}>
+			<div className="flex flex-row w-full">
 				{props.label}
 				<Listbox value={controlledValue} onChange={(v) => {updateValue(v);}}>
-					<div className="relative max-w-min">
-					<Listbox.Button className={"flex flex-col items-end bg-white whitespace-nowrap " + (customStyle ? "" : inputClassName) + " " + (props.className ? props.className : "")}>
+					<div className="relative w-full">
+					<Listbox.Button className={"flex flex-col w-full items-end bg-white overflow-hidden " + (customStyle ? "" : inputClassName) + " " + (props.className ? props.className : "")}>
 						<div className="flex flex-row w-full">
 							<div className={"text-left grow"} style={{minWidth: minWidth}}>
 								{current && current.display}
@@ -164,10 +164,10 @@ export function SelectInput<T_Value extends string | number> (props: CustomInput
 				</Listbox>
 				{props.end}
 			</div>
-			{autoWidth ? <div ref={testRef} className=" whitespace-nowrap fixed" style={{display: "none"}}>
-				{selectOptions.map((a, i) => <div key={i} className="whitespace-nowrap">{a.display}</div>)}
+			{autoWidth ? <div ref={testRef} className=" fixed" style={{display: "none"}}>
+				{selectOptions.map((a, i) => <div key={i} className="">{a.display}</div>)}
 			</div> : <></>}
-		</>
+		</div>
     );
 }
 

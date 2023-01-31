@@ -15,13 +15,21 @@ const columnsInteractive: InteractiveColumnDef<ClassType['$$apClassSignups'][num
     header: "Name Last"
 },
 {
-    accessorKey: '$$person.name',
-    header: "Name First"
+    header: "Attendance",
+    cell: () => <button>Here</button>
 },
+
 ];
 
 export default function ClassRosterTable(props: ActionClassType){
+    const personIdsOnWater: {[key: number]: true} = {};
+    props.associatedSignouts.forEach((a) => {
+        personIdsOnWater[a.$$skipper.personId] = true;
+        a.$$crew.forEach((b) => {
+            personIdsOnWater[b.$$person.personId] = true;
+        })
+    })
     const columnInjector = React.useMemo(() => new InteractiveColumnInjector(columnsInteractive), []);
     const columns = React.useMemo(() => columnInjector.provideColumns({}), []);
-    return <Table rows={props.currentClass.$$apClassSignups} columns={columns} keyField="signupId"/>;
+    return <Table rows={props.currentClass.$$apClassSignups.filter((a) => !personIdsOnWater[a.$$person.personId])} columns={columns} keyField="signupId"/>;
 }

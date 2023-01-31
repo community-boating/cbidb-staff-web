@@ -22,7 +22,8 @@ import { AddEditCrew, DetailedPersonInfo } from './SkipperInfo';
 import { SignoutActionMode, MemberActionState, EditSignoutState } from './MemberActionState';
 import { SignoutTablesState } from 'async/staff/dockhouse/signouts';
 import { RatingsContext } from 'components/dockhouse/providers/RatingsProvider';
-import { MemberActionType, ActionModalProps, NoneAction } from './ActionModalProps';
+import { ActionModalProps, NoneAction } from './ActionModalProps';
+import { MemberActionType } from "./MemberActionType";
 
 export const testMemberships: ScannedPersonsType["activeMemberships"] = [{
     startDate: option.some("1992"),
@@ -71,7 +72,7 @@ export function EditSignout(props: {state: MemberActionState, setState: React.Di
                 <DotBox className="grow-[1] p-5">
                     <div className="flex flex-row gap-5">
                         <div className="flex flex-col items-end gap-5">
-                            <BoatSelect boatId={props.state.boatId} setBoatId={setBoatId}></BoatSelect>
+                            <BoatSelect boatId={props.state.boatId} setBoatId={setBoatId} autoWidth nowrap></BoatSelect>
                         </div>
                         <div className="flex flex-col items-end gap-5">
                             <OptionalStringInput label="Boat Number:" controlledValue={props.state.boatNum} updateValue={(v) => {props.setState((s) => ({...s, boatNum: v}))}}/>
