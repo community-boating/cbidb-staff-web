@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { CardLayout, Card, LayoutDirection, FlexSize, CardOrButton } from '../../../components/dockhouse/Card';
-import ActionModal, { Action, ActionModalContext, EditSignoutAction, MemberAction, NoneAction } from '../../../components/dockhouse/memberaction/ActionModal';
+import ActionModal, { ActionModalContext } from '../../../components/dockhouse/memberaction/ActionModal';
+import { Action, EditSignoutAction, MemberAction, NoneAction } from "../../../components/dockhouse/memberaction/ActionModalProps";
 import { CardNumberScanner } from "../../../components/dockhouse/memberaction/CardNumberScanner";
 import AsyncStateProvider, { ProviderState } from 'core/AsyncStateProvider';
 import { getSignoutsToday } from 'async/staff/dockhouse/signouts';

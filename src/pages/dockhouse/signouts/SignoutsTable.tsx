@@ -8,7 +8,7 @@ import * as moment from "moment";
 import { SignoutsTableFilterState } from './input/SignoutsTableFilter';
 import { FilterFnOption } from '@tanstack/react-table';
 import { formatSelection, formatOptional, columnsActive, columnsInactive } from "./SignoutsColumnDefs";
-import { InteractiveColumnProvider } from './InteractiveColumnProvider';
+import { InteractiveColumnInjector } from '../../../components/table/InteractiveColumnInjector';
 import { ActionProps, MemberActionState } from "../../../components/dockhouse/memberaction/MemberActionState";
 import { ModalHeader } from 'components/wrapped/Modal';
 import RadioGroup from 'components/wrapped/RadioGroup';
@@ -89,7 +89,7 @@ export const SignoutsTable = (props: {
 	</>
 	const cardTitle = props.isActive ? "Active Signouts" : "Completed Signouts";
 	const f = filterActive(props.isActive);
-	const provider = React.useMemo(() => (new InteractiveColumnProvider(props.isActive ? columnsActive : columnsInactive)), [])
+	const provider = React.useMemo(() => (new InteractiveColumnInjector(props.isActive ? columnsActive : columnsInactive)), [])
 	var columns = React.useMemo(() => (provider.provideColumns(props.extraState)), [props.extraState]);
 	const filteredSignouts = props.state.filter(f);
 	return <>

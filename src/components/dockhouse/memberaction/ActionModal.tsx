@@ -22,6 +22,7 @@ import { AddEditCrew, DetailedPersonInfo } from './SkipperInfo';
 import { SignoutActionMode, MemberActionState, EditSignoutState } from './MemberActionState';
 import { SignoutTablesState } from 'async/staff/dockhouse/signouts';
 import { RatingsContext } from 'components/dockhouse/providers/RatingsProvider';
+import { MemberActionType, ActionModalProps, NoneAction } from './ActionModalProps';
 
 export const testMemberships: ScannedPersonsType["activeMemberships"] = [{
     startDate: option.some("1992"),
@@ -33,52 +34,6 @@ export const testMemberships: ScannedPersonsType["activeMemberships"] = [{
     assignId: 0,
     discountName: option.none,
 }];
-
-const testSkipper: ScannedPersonsType = {
-    nameFirst: "Evan",
-    nameLast: "McCarter",
-    personId: 100, 
-    cardNumber: "1234567",
-    activeMemberships:testMemberships,
-    bannerComment: option.some("Comment Here"),
-    specialNeeds: option.none,
-    personRatings: []
-};
-
-const b = {
-    nameFirst: "Joon",
-    nameLast: "Coal",
-    personId: 100, 
-    cardNumber: "1234567",
-    activeMemberships:testMemberships,
-    bannerComment: option.some("Comment Here"),
-    specialNeeds: option.none,
-    personRatings: []
-}
-
-const c = {
-    nameFirst: "Pawl",
-    nameLast: "Gammind",
-    personId: 100, 
-    cardNumber: "1234567",
-    activeMemberships:testMemberships,
-    bannerComment: option.some("Comment Here"),
-    specialNeeds: option.none,
-    personRatings: []
-}
-
-const d = {
-    nameFirst: "Samp",
-    nameLast: "Peersin",
-    personId: 100, 
-    cardNumber: "1234567",
-    activeMemberships:testMemberships,
-    bannerComment: option.some("Comment Here"),
-    specialNeeds: option.none,
-    personRatings: []
-}
-
-const testCrew = [testSkipper, b, c, d]
 
 export function DotBox(props: {className?: string, children: React.ReactNode}){
     return <div className={"my-5 py-5 border-dashed border-2 grow-[1] " + props.className}>
@@ -240,7 +195,7 @@ function convertToGrantRatings(state: MemberActionState, programId: number, rati
         instructor: "jon",
         programId: programId,
         ratingIds: ratingIds,
-        personIds: state.currentPeople.map((a) => cache.getCached(a.cardNum).getOrElse(d).personId)
+        personIds: state.currentPeople.map((a) => cache.getCached(a.cardNum).getOrElse({personId: 0} as any).personId)
     }
 }
 
@@ -248,7 +203,10 @@ function MemberActionRatings(props: {state: MemberActionState, setState: React.D
     const cache = React.useContext(ScannedPersonsCacheContext);
     const asc = React.useContext(AppStateContext);
     const availablePrograms = {};
-    props.state.currentPeople.forEach((a) => availablePrograms[cache.getCached(a.cardNum).getOrElse(d).activeMemberships[0].programId.getOrElse(1)] = true);
+    props.state.currentPeople.forEach((a) => {
+        const cached = cache.getCached(a.cardNum);
+        cached.isSome() && (availablePrograms[cached.value.activeMemberships[0].programId.getOrElse(1)] = true);
+    });
     const [programId, setProgramId] = React.useState<option.Option<number>>(option.none);
     const [selectedRatings, setSelectedRatings] = React.useState<{[key: number]: boolean}>({});
     return <div className="flex flex-col gap-5 grow-[1]">
@@ -264,48 +222,7 @@ function MemberActionRatings(props: {state: MemberActionState, setState: React.D
         </div>
 }
 
-export type ActionModalProps = {
-    action: Action<any>
-    setAction: (action: Action<any>) => void
-}
-
-export abstract class Action<T>{
-    modeInfo: T
-    createModalContent(info: T): React.ReactNode{return undefined}
-}
-
-type MemberActionType = {
-    scannedCard: string
-}
-
-export class MemberAction extends Action<MemberActionType>{
-    constructor(scannedCard: string){
-        super();
-        this.modeInfo = {scannedCard};
-    }
-    createModalContent(info: MemberActionType){
-        return <MemberActionModal {...info}></MemberActionModal>
-    } 
-}
-
-export class EditSignoutAction extends Action<EditSignoutType>{
-    constructor(row: SignoutTablesState, onSubmit: (row: SignoutTablesState) => Promise<any>){
-        super();
-        this.modeInfo = {
-            currentSignout: row,
-            onSubmit: onSubmit
-        }
-    }
-    createModalContent(info: EditSignoutType){
-        return <EditSignoutModal {...info}></EditSignoutModal>
-    }
-}
-
-export class NoneAction extends Action<undefined>{
-}
-
-
-function MemberActionModal(props: MemberActionType){
+export function MemberActionModal(props: MemberActionType){
     const [state, setState] = React.useState({
         currentPeople: [{cardNum: props.scannedCard, isSkipper: true, isTesting: true, sortOrder: 0}],
         boatId: option.none,
@@ -356,7 +273,7 @@ const makeNode = (index: number, display: React.ReactNode) => (checked: boolean,
 	return <h1 className={"flex " + (checked ? "text-boathouseblue" : "")} key={index}>{display}</h1>;
 }
 
-function EditSignoutModal(props: EditSignoutType){
+export function EditSignoutModal(props: EditSignoutType){
     const [state, setState] = React.useState(adaptSignoutState(props.currentSignout));
     const mode = (state.signoutType.isSome() && state.signoutType.value == SignoutTypes.TEST) ? SignoutActionMode.TESTING : SignoutActionMode.SIGNOUT;
         return <>

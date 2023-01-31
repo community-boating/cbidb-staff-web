@@ -2,11 +2,11 @@ import { Cell, ColumnDef, Header } from "@tanstack/react-table";
 
 
 
-export class InteractiveColumnProvider<T_Data, T_Extra, T_Value> {
-    columnsStateless: InteractiveColumnDef<T_Data, T_Extra, T_Value>[]
+export class InteractiveColumnInjector<T_Data, T_Extra, T_Value> {
+    columnsInjected: InteractiveColumnDef<T_Data, T_Extra, T_Value>[]
     currentExtra: T_Extra;
     constructor(columns: InteractiveColumnDef<T_Data, T_Extra, T_Value>[]){
-        this.columnsStateless = columns.map((a) => {
+        this.columnsInjected = columns.map((a) => {
             const newA = Object.assign({}, a);
             if(a.cellWithExtra !== undefined){
                 newA.cell = (b) => a.cellWithExtra(b, this.getExtra());
@@ -22,7 +22,7 @@ export class InteractiveColumnProvider<T_Data, T_Extra, T_Value> {
     }
     provideColumns(extraState: T_Extra): ColumnDef<T_Data, T_Value>[]{
         this.currentExtra = extraState;
-        return this.columnsStateless;
+        return this.columnsInjected;
     }
 }
 

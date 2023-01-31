@@ -12,13 +12,13 @@ export default function DHProviders(props: {children?: React.ReactNode}){
         <RatingsProvider>
             <DHGlobalProvider>
                 <ScannedPersonsCache>
-                    <ActionModalProvider>
-                        <ClassesProvider>
-                            <ClassTypesProvider>
-                                {props.children}
-                            </ClassTypesProvider>
-                        </ClassesProvider>
-                    </ActionModalProvider>
+                    <ClassesProvider>
+                        <ClassTypesProvider>
+                        <ActionModalProvider>
+                            {props.children}
+                            </ActionModalProvider>
+                        </ClassTypesProvider>
+                    </ClassesProvider>
                 </ScannedPersonsCache>
             </DHGlobalProvider>
         </RatingsProvider>
