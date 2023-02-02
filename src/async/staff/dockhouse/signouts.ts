@@ -1,8 +1,9 @@
-import { OptionalBoolean, OptionalNumber, OptionalString, makeOptionalProps, OptionalDateTime, allowNullUndefinedProps } from "util/OptionalTypeValidators";
+import { OptionalBoolean, OptionalNumber, OptionalString, makeOptionalProps, OptionalDateTime, allowNullUndefinedProps, EnumType } from "util/OptionalTypeValidators";
 import * as t from "io-ts";
 import APIWrapper from "../../../core/APIWrapper";
 import { HttpMethod } from "../../../core/HttpMethod";
 import { boatTypesValidator } from "./boats";
+import { TestResultValidator } from "./tests";
 
 const pathGet = "/rest/signouts-today";
 const pathPost = "/rest/signout";
@@ -10,6 +11,15 @@ const pathPostMulti = "/rest/signouts";
 const pathSignoutCrew = "/rest/signout-crew";
 export const pathGetRatings = "/rest/ratings";
 const pathPersonByCardNumber = "/rest/person/by-card";
+
+export enum SignoutType{
+	TEST = "T",
+	SAIL = "S",
+	CLASS = "C",
+	RACE = "R"
+}
+
+export const SignoutTypeValidator = EnumType("signoutType", SignoutType);
 
 export const personRatingValidator = t.type({
 	personId: t.number,
@@ -55,8 +65,8 @@ export const signoutValidator = t.type({
 	signoutDatetime: OptionalDateTime,
 	signinDatetime: OptionalDateTime,
 	testRatingId: OptionalNumber,
-	testResult: OptionalString,
-	signoutType: t.string,
+	testResult: TestResultValidator,
+	signoutType: SignoutTypeValidator,
 	didCapsize: OptionalBoolean,
 	comments: OptionalString,
 	createdBy: OptionalString,

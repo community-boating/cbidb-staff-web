@@ -1,4 +1,5 @@
 import { ScannedCrewType } from 'async/staff/dockhouse/scan-card';
+import { SignoutType } from 'async/staff/dockhouse/signouts';
 import { option } from 'fp-ts';
 
 
@@ -8,7 +9,7 @@ export type MemberActionState = {
     boatNum: option.Option<string>
     hullNum: option.Option<string>
     sailNum: option.Option<string>
-    signoutType: option.Option<string>
+    signoutType: option.Option<SignoutType>
     testType: option.Option<string>
     testRating: option.Option<number>
     dialogOutput: option.Option<string>

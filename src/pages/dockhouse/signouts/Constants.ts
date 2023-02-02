@@ -1,4 +1,6 @@
 import { MAGIC_NUMBERS } from "app/magicNumbers";
+import { SignoutType } from "async/staff/dockhouse/signouts";
+import { TestResultEnum } from "async/staff/dockhouse/tests";
 
 export const orphanedRatingsShownByDefault = {
 	4: true,
@@ -16,18 +18,14 @@ export const SignoutTablesNonEditableObject: SignoutTablesNonEditable[] = ["$$cr
 
 export type SignoutTablesNonEditable = "$$crew" | "$$skipper" | "personId" | "programId" | "cardNum";
 
-export const SignoutTypes = {SAIL:"S", CLASS:"C", RACING:"R", TEST:"T"};
-
 export const signoutTypesHR = [
-	{ value: SignoutTypes.SAIL, display: "Sail" },
-	{ value: SignoutTypes.CLASS, display: "Class" },
-	{ value: SignoutTypes.RACING, display: "Racing" },
-	{ value: SignoutTypes.TEST, display: "Test" }
+	{ value: SignoutType.SAIL, display: "Sail" },
+	{ value: SignoutType.CLASS, display: "Class" },
+	{ value: SignoutType.RACE, display: "Racing" },
+	{ value: SignoutType.TEST, display: "Test" }
 ];
 
-export const TestResults = {PASS: "Pass", FAIL: "Fail", ABORT: "Abort"};
-
-export const testResultsHR = Object.values(TestResults).map((a) => ({value: a, display: a}));
+export const testResultsHR = Object.values(TestResultEnum).map((a) => ({value: a, display: a}));
 
 export const programsHR = [
 	{ value: MAGIC_NUMBERS.PROGRAM_TYPE_ID.ADULT_PROGRAM, display: "Adult Program" },

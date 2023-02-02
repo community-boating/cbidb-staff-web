@@ -3,6 +3,7 @@ import { Button, Label, Table } from 'reactstrap';
 import { SelectInput, ValidatedTextInput, SelectOption } from 'components/wrapped/Input';
 import { signoutTypesHR, programsHR } from '../Constants';
 import { UpdateStateType, wrapForFormComponents } from 'components/table/TableWithModalForm';
+import { SignoutType } from 'async/staff/dockhouse/signouts';
 
 export const SignoutsTableFilter = (props: { tdStyle: React.CSSProperties; labelStyle: React.CSSProperties; filterValue: SignoutsTableFilterState; updateState: UpdateStateType; boatTypesHR: SelectOption<number>[]; setFilterValue: (filterValue: SignoutsTableFilterState) => void; usersHR: SelectOption<string>[]}) => {
 	const tdStyle = props.tdStyle;
@@ -83,7 +84,7 @@ export const SignoutsTableFilter = (props: { tdStyle: React.CSSProperties; label
 
 export type SignoutsTableFilterState = {
 	boatType: number;
-	signoutType: string;
+	signoutType: SignoutType;
 	programId: number;
 	nameOrCard: string;
 	sail: string;
@@ -92,5 +93,5 @@ export type SignoutsTableFilterState = {
 };
 
 export function makeInitFilter(): SignoutsTableFilterState {
-	return { boatType: -1, nameOrCard: "", sail: "", signoutType: "", programId: -1, personId: "", createdBy: "" };
+	return { boatType: -1, nameOrCard: "", sail: "", signoutType: SignoutType.CLASS, programId: -1, personId: "", createdBy: "" };
 }

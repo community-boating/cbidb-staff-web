@@ -20,6 +20,12 @@ export const MAGIC_NUMBERS = {
 	},
 	ACCESS_PROFILE_ID: {
 		GLOBAL_ADMIN: 1
+	},
+	SIGNOUT_TYPE: {
+		TEST: "T",
+		SAIL: "S",
+		CLASS: "C",
+		RACE: "R"
 	}
 	
 

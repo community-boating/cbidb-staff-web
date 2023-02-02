@@ -138,20 +138,12 @@ export function SelectInput<T_Value extends string | number> (props: CustomInput
 	const showNonePadded: SelectOption<option.Option<T_Value>> = ((showNone === undefined ) ? {value: option.none, display: "None"} : {value: option.none, display: showNone.display})
 	const selectOptionsWithNone = React.useMemo(() => [showNonePadded].concat(selectOptionsOptionified), [showNone, selectOptionsOptionified]);
 	const useOptions = (selectNone || props.controlledValue.isNone() ? selectOptionsWithNone : selectOptionsOptionified);
-	const [minWidth, setMinWidth] = React.useState(0);
-	const testRef = React.createRef<HTMLDivElement>();
 	const current = (controlledValue.isSome() ? (selectOptionsOptionified.filter((a) => a.value.isSome() && a.value.value == controlledValue.value)[0]) : showNonePadded);
-
-	autoWidth && React.useEffect(() => {
-		testRef.current.style.display = "";
-		setMinWidth(testRef.current.clientWidth);
-		testRef.current.style.display = "none";
-	}, [selectOptions]);
 
     const options = React.useMemo(() => (useOptions.map((a, i) => (<Listbox.Option key={i} value={a.value} as={React.Fragment}>
 		{({active, selected}) => (<div className={(active ? "bg-gray-100" : "") + " w-full flex"}><button className="w-full text-left">{a.display}</button></div>)}
 		</Listbox.Option>))), [useOptions]);
-	return (<div className={(props.nowrap ? "whitespace-nowrap" : "break-words") + (props.fullWidth ? " w-full" : " max-w-min")}>
+	return (<div className={(props.nowrap ? "whitespace-nowrap" : "break-words") + (props.fullWidth ? " w-full" : " w-fit")}>
 			<div className="flex flex-row w-full">
 				<Label>
 					{props.label}
@@ -160,7 +152,7 @@ export function SelectInput<T_Value extends string | number> (props: CustomInput
 					<div className="relative w-full">
 					<Listbox.Button className={"flex flex-col w-full items-end overflow-hidden " + (customStyle ? "" : inputClassName + " bg-white") + " " + (props.className ? props.className : "")}>
 						<div className="flex flex-row w-full">
-							<div className={"text-left grow"} style={{minWidth: minWidth}}>
+							<div className={"text-left grow"}>
 								{props.makeButton ? props.makeButton(current) : (current && current.display)}
 							</div>
 							{customStyle ? <></> : <ChevronDown className="flex-none"/>}
@@ -175,8 +167,8 @@ export function SelectInput<T_Value extends string | number> (props: CustomInput
 				</Listbox>
 				{props.end}
 			</div>
-			{autoWidth ? <div ref={testRef} className=" fixed" style={{display: "none"}}>
-				{selectOptions.map((a, i) => <div key={i} className="">{a.display}</div>)}
+			{autoWidth ? <div className="relative h-[0px] overflow-hidden">
+				{selectOptions.map((a, i) => <div key={i} className="overflow-hidden whitespace-nowrap flex flex-row gap-4">{a.display}{customStyle ? <></> : <ChevronDown className="flex-none"/>}</div>)}
 			</div> : <></>}
 		</div>
     );

@@ -65,7 +65,7 @@ export const Table: <T_Data, T_Filter>(props: TableProps<T_Data, T_Filter>) => J
 	const table = useReactTable({
 		data: dataProp,
 		columns: openEditRow? editColumn.concat(columns) : columns,
-		globalFilterFn: globalFilter, 
+		globalFilterFn: globalFilter,
 		getCoreRowModel: getCoreRowModel(),
 		getFilteredRowModel: getFilteredRowModel(),
 		getSortedRowModel: getSortedRowModel(),
@@ -108,7 +108,7 @@ export const Table: <T_Data, T_Filter>(props: TableProps<T_Data, T_Filter>) => J
 		{table.getHeaderGroups().map(headerGroup => (
 			<tr key={headerGroup.id}>
 				{headerGroup.headers.map(header => (
-					<th key={header.id} style={{verticalAlign: "middle", width: header.column.getSize()}}>
+					<th key={header.id} style={{width: header.column.getSize()}} className="text-center">
 						{header.isPlaceholder
 							? null
 							: <span onClick={handleColumnClick(header)}>{flexRender(header.column.columnDef.header, header.getContext())}
@@ -144,14 +144,14 @@ export const Table: <T_Data, T_Filter>(props: TableProps<T_Data, T_Filter>) => J
 		</tfoot> : undefined
 	}, []);
 	return (
-		<div className="p-2">
-			<table className="table-auto">
+		<div className="p-2 h-full">
+			<table className="table-auto w-full h-full">
 				{header}
 				<tbody>
 					{table.getRowModel().rows.map(row => (
 						<tr key={row.id} className="even:bg-gray-100">
 							{row.getVisibleCells().map(cell => (
-								<td key={cell.id}>
+								<td key={cell.id} className="max-w-min text-center">
 										{flexRender(cell.column.columnDef.cell, cell.getContext())}
 								</td>
 							))}

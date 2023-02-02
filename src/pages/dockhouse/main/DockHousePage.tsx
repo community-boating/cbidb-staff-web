@@ -5,7 +5,7 @@ import { Action, NoneAction } from "../../../components/dockhouse/memberaction/A
 import { EditSignoutAction, MemberAction } from "../../../components/dockhouse/memberaction/MemberActionType";
 import { CardNumberScanner } from "../../../components/dockhouse/memberaction/CardNumberScanner";
 import AsyncStateProvider, { ProviderState } from 'core/AsyncStateProvider';
-import { getSignoutsToday } from 'async/staff/dockhouse/signouts';
+import { getSignoutsToday, SignoutType } from 'async/staff/dockhouse/signouts';
 import { filterActive, SignoutsTable } from '../signouts/SignoutsTable';
 import { makeInitFilter } from '../signouts/input/SignoutsTableFilter';
 import { SignoutsTablesExtraState, SignoutsTablesExtraStateDepOnAsync } from '../signouts/StateTypes';
@@ -16,6 +16,9 @@ import { BoatsContext } from 'components/dockhouse/providers/BoatsProvider';
 import { RatingsContext } from 'components/dockhouse/providers/RatingsProvider';
 import { SignoutsTodayContext } from 'components/dockhouse/providers/SignoutsTodayProvider';
 import { GoButton } from 'components/wrapped/IconButton';
+import { TestType } from 'async/staff/dockhouse/tests';
+import * as moment from 'moment';
+import { EditTestsAction } from 'components/dockhouse/memberaction/test/EditTestsType';
 
 type CardOrButtonProps = CardProps & {
     //button: React.ReactNode;
@@ -101,7 +104,11 @@ export default function DockHousePage (props) {
                         </div>
                     </Card>
                     <ActionCard title="Schedule" onAction={undefined}></ActionCard>
-                    <ActionCard title="testing" onAction={undefined}>
+                    <ActionCard title="testing" onAction={() => {
+                        const testingSignouts = signoutsToday.signouts.filter((a) => a.signoutType == SignoutType.TEST);
+                        const testsToday: TestType[] = testingSignouts.flatMap((a) => [{signoutId: a.signoutId, personId: a.$$skipper.personId, nameFirst: a.$$skipper.nameFirst, nameLast: a.$$skipper.nameLast, testResult: a.testResult, createdBy: 0, createdOn: moment()}].concat(a.$$crew.map((b) => ({signoutId: a.signoutId, testResult: a.testResult, ...b.$$person, createdBy: 0, createdOn: moment()}))));
+                        actionModal.setAction(new EditTestsAction(testingSignouts, testsToday));
+                    }}>
                         <div className="flex flex-row gap-2">
                             <NumberWithLabel number={0} label="Queue"/>
                             <Spacer/>
@@ -110,11 +117,11 @@ export default function DockHousePage (props) {
                     </ActionCard>
                 </CardLayout>
             </CardLayout>
-            <Card title="Active Signouts">
-                {signoutsToday.providerState == ProviderState.SUCCESS ? <SignoutsTable state={signoutsToday.signouts} setState={signoutsToday.setSignouts} extraState={extraState} isActive={true} filterValue={makeInitFilter()} globalFilter={{} as any} openEditRow={(row) => {actionModal.setAction(new EditSignoutAction(row))}}></SignoutsTable> : <>Loading...</>}
+            <Card title="Active Signouts" weight={FlexSize.S_0} className="basis-0">
+                {signoutsToday.providerState == ProviderState.SUCCESS ? <SignoutsTable state={signoutsToday.signouts.filter((a) => a.signinDatetime.isNone())} setState={signoutsToday.setSignouts} extraState={extraState} isActive={true} filterValue={makeInitFilter()} globalFilter={{} as any} openEditRow={(row) => {actionModal.setAction(new EditSignoutAction(row))}}></SignoutsTable> : <>Loading...</>}
             </Card>
             <Card title="Completed Signouts">
-                {signoutsToday.providerState == ProviderState.SUCCESS ? signoutsToday.signouts.length : "Loading..."}
+                {signoutsToday.providerState == ProviderState.SUCCESS ? <SignoutsTable state={signoutsToday.signouts.filter((a) => a.signinDatetime.isSome())} setState={signoutsToday.setSignouts} extraState={extraState} isActive={true} filterValue={makeInitFilter()} globalFilter={{} as any} openEditRow={(row) => {actionModal.setAction(new EditSignoutAction(row))}}></SignoutsTable> : "Loading..."}
             </Card>
         </CardLayout>
      </>);

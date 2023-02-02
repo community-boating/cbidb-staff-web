@@ -1,5 +1,6 @@
 import { AppStateContext } from 'app/state/AppStateContext';
 import { getWrapper } from 'async/staff/dockhouse/get-classes';
+import { SignoutType } from 'async/staff/dockhouse/signouts';
 import { Card, CardLayout, FlexSize, LayoutDirection } from 'components/dockhouse/Card';
 import { ActionModalContext } from 'components/dockhouse/memberaction/ActionModal';
 import { ActionClass } from 'components/dockhouse/memberaction/ActionModalProps';
@@ -19,7 +20,7 @@ export default function ClassesPage (props) {
         classes.every((a) => {
             return a.$$apClassSessions.every((b) => {
                 if(b.sessionId == s.getOrElse(undefined)){
-                    modal.setAction(new ActionClass(a, b, signoutsToday.signouts.filter((a) => a.signoutType == "C")));
+                    modal.setAction(new ActionClass(a, b, signoutsToday.signouts.filter((a) => a.signoutType == SignoutType.CLASS)));
                     return false;
                 }
                 return true;

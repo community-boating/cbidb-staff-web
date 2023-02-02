@@ -5,14 +5,12 @@ import * as React from 'react';
 import * as t from "io-ts";
 
 import { option } from 'fp-ts';
-import { programsHR, SignoutTypes, signoutTypesHR, testResultsHR } from '../../../pages/dockhouse/signouts/Constants';
+import { programsHR, signoutTypesHR, testResultsHR } from '../../../pages/dockhouse/signouts/Constants';
 import Button from 'components/wrapped/Button';
 import { OptionalStringInput, SelectInput } from 'components/wrapped/Input';
 
 import BoatIcon, { BoatSelect } from './BoatIcon';
-import { ScannedPersonType } from 'async/staff/dockhouse/scan-card';
 import RatingsGrid from './RatingsGrid';
-import { ScannedPersonsCacheContext, ScannedPersonsCacheGet } from './ScannedPersonsCache';
 import { EditSignoutType } from '../../../pages/dockhouse/signouts/StateTypes';
 import RadioGroup from 'components/wrapped/RadioGroup';
 import { AppStateContext } from 'app/state/AppStateContext';
@@ -20,13 +18,14 @@ import { CreateSignoutType, postWrapper as createSignout } from 'async/staff/doc
 import { grantRatingsValidator, postWrapper as grantRatings } from 'async/staff/dockhouse/grant-ratings';
 import { AddEditCrew, DetailedPersonInfo } from './SkipperInfo';
 import { SignoutActionMode, MemberActionState, EditSignoutState } from './MemberActionState';
-import { putSignout, SignoutTablesState } from 'async/staff/dockhouse/signouts';
+import { putSignout, SignoutTablesState, SignoutType } from 'async/staff/dockhouse/signouts';
 import { RatingsContext } from 'components/dockhouse/providers/RatingsProvider';
 import { ActionModalProps, NoneAction } from './ActionModalProps';
 import { MemberActionType } from "./MemberActionType";
 import { RatingsType } from 'async/staff/dockhouse/ratings';
 import * as moment from 'moment';
-import { buttonClasses, buttonClassInactive, buttonClassActive } from './styles';
+import { buttonClassActive, buttonClasses, buttonClassInactive } from './styles';
+//import { buttonClasses, buttonClassInactive, buttonClassActive } from './buttonClasses';
 
 export function DotBox(props: {className?: string, children: React.ReactNode}){
     return <div className={"my-5 py-5 border-dashed border-2 grow-[1] " + props.className}>
@@ -232,7 +231,6 @@ export function MemberActionModal(props: MemberActionType){
                 }
             </Tab.List>
         </ModalHeader>
-        <hr className="border-t-1 border-black"/>
         <Tab.Panels className="h-[80vh] min-w-[80vw] flex flex-col">
             {memberActionTypes.map((a, i) => <Tab.Panel className="flex flex-col grow-[1]" key={i}>{a.getContent(state, setState, )}</Tab.Panel>)}
         </Tab.Panels>
@@ -250,7 +248,7 @@ function adaptSignoutState(state: SignoutTablesState, ratings: RatingsType): Edi
             specialNeeds: option.none,
             personRatings: state.$$skipper.$$personRatings.map((a) => ({...a, ratingName: ratings.find((b) => b.ratingId == a.ratingId).ratingName, status: ""})),
             isSkipper: true,
-            isTesting: state.signoutType == "T",
+            isTesting: state.signoutType == SignoutType.TEST,
             testRatingId: state.testRatingId,
             activeMemberships: [{
                 assignId: 0,
@@ -271,7 +269,7 @@ function adaptSignoutState(state: SignoutTablesState, ratings: RatingsType): Edi
                 specialNeeds: option.none,
                 personRatings: [],
                 isSkipper: false,
-                isTesting: state.signoutType == "T",
+                isTesting: state.signoutType == SignoutType.TEST,
                 testRatingId: state.testRatingId,
                 activeMemberships: [{
                     assignId: 0,
@@ -315,7 +313,7 @@ export function EditSignoutModal(props: EditSignoutType){
     React.useEffect(() => {
         setState(adaptSignoutState(props.currentSignout, ratings));
     }, [props.currentSignout]);
-    const mode = (state.signoutType.isSome() && state.signoutType.value == SignoutTypes.TEST) ? SignoutActionMode.TESTING : SignoutActionMode.SIGNOUT;
+    const mode = (state.signoutType.isSome() && state.signoutType.value == SignoutType.TEST) ? SignoutActionMode.TESTING : SignoutActionMode.SIGNOUT;
         return <>
             <ModalHeader className="font-bold text-2xl gap-1">
                 <RadioGroup className="flex flex-row" value={state.signoutType} setValue={(v) => setState((s) => ({...s, signoutType: v}))} makeChildren={signoutTypesHR.map((a,i) => ({value: a.value, makeNode: (c, s) => {return makeNode(i, a.display)(c, s)}}))}/>
@@ -324,7 +322,7 @@ export function EditSignoutModal(props: EditSignoutType){
                 <EditSignout state={state} setState={setState} mode={mode}/>
             </div>
             <SubmitEditSignout state={state} currentRow={props.currentSignout}/>
-			</>
+		</>
 }
 
 function SubmitEditSignout(props: {state: MemberActionState, currentRow: SignoutTablesState}){

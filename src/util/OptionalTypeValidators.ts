@@ -59,6 +59,11 @@ function DateWithFormat(name: string, format: string){
 	)
 }
 
+export function OptionalEnumType<T>(name: string, e: T){
+	return OptionalTypeWithExtraValidator(name, EnumType(name, e));
+}
+
+
 export function EnumType<T>(name: string, e: T){
 	const revEnum = {};
 	Object.entries(e).forEach((a) => {
