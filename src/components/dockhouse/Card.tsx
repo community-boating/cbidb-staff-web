@@ -30,39 +30,23 @@ type CardLayoutChildProps = {
     parentDirection?: LayoutDirection
 };
 
-type CardProps = CardLayoutChildProps & {
+export type CardProps = CardLayoutChildProps & {
     children?: React.ReactNode,
     title: React.ReactNode,
     className?: string
 }
 
-type CardOrButtonProps = CardProps & {
-    button: React.ReactNode;
-}
-
-export function CardOrButton(props: CardOrButtonProps){
-    return <>
-        <Card {...props} className="hidden lg:flex"/>
-        <div className="lg:hidden basis-0 grow-[1]">{props.button}</div>
-    </>
-}
-
 export function Card(props: CardProps){
-    return <div className={(props.weight || FlexSize.S_1) + " flex flex-col basis-0 bg-card p-card " + props.className}><h2 className="text-xl font-bold leading-none">{props.title}</h2>{props.children}</div>;
+    return <div className={(props.weight || FlexSize.S_1) + " flex flex-col basis-0 bg-card p-card " + (props.className || "")}><h2 className="text-xl font-bold leading-none">{props.title}</h2>{props.children}</div>;
 }
 
 type CardLayoutProps = CardLayoutChildProps & {
-    children?: React.ReactNode,
+    children?: React.ReactNode
     direction: LayoutDirection
+    className?: string
 }
 
 export function CardLayout(props: CardLayoutProps){
     var total = 0;
-    const children = React.Children.map(props.children, (child: React.ReactElement<CardLayoutChildProps>) => {
-        if(React.isValidElement(child)){
-            return React.cloneElement(child, {total, parentDirection: props.direction});
-        }
-        return child;
-    });
-    return <div className={(props.direction == LayoutDirection.HORIZONTAL ? "flex flex-row w-full basis-0 space-x-primary " : "flex flex-col h-full basis-0 space-y-primary ") + (props.weight || FlexSize.S_1)}>{children}</div>;
+    return <div className={(props.className ? (props.className + " ") : "" ) + (props.direction == LayoutDirection.HORIZONTAL ? "flex flex-row w-full basis-0 space-x-primary " : "flex flex-col h-full basis-0 space-y-primary ") + (props.weight || FlexSize.S_1)}>{props.children}</div>;
 }

@@ -10,7 +10,7 @@ import Button from 'components/wrapped/Button';
 import { OptionalStringInput, SelectInput } from 'components/wrapped/Input';
 
 import BoatIcon, { BoatSelect } from './BoatIcon';
-import { ScannedPersonsType } from 'async/staff/dockhouse/scan-card';
+import { ScannedPersonType } from 'async/staff/dockhouse/scan-card';
 import RatingsGrid from './RatingsGrid';
 import { ScannedPersonsCacheContext, ScannedPersonsCacheGet } from './ScannedPersonsCache';
 import { EditSignoutType } from '../../../pages/dockhouse/signouts/StateTypes';
@@ -20,21 +20,13 @@ import { CreateSignoutType, postWrapper as createSignout } from 'async/staff/doc
 import { grantRatingsValidator, postWrapper as grantRatings } from 'async/staff/dockhouse/grant-ratings';
 import { AddEditCrew, DetailedPersonInfo } from './SkipperInfo';
 import { SignoutActionMode, MemberActionState, EditSignoutState } from './MemberActionState';
-import { SignoutTablesState } from 'async/staff/dockhouse/signouts';
+import { putSignout, SignoutTablesState } from 'async/staff/dockhouse/signouts';
 import { RatingsContext } from 'components/dockhouse/providers/RatingsProvider';
 import { ActionModalProps, NoneAction } from './ActionModalProps';
 import { MemberActionType } from "./MemberActionType";
-
-export const testMemberships: ScannedPersonsType["activeMemberships"] = [{
-    startDate: option.some("1992"),
-    expirationDate: option.some("12/20/2022"),
-    membershipTypeId: 0,
-    programId: option.some(1),
-    isDiscountFrozen: false,
-    hasGuestPrivs: true,
-    assignId: 0,
-    discountName: option.none,
-}];
+import { RatingsType } from 'async/staff/dockhouse/ratings';
+import * as moment from 'moment';
+import { buttonClasses, buttonClassInactive, buttonClassActive } from './styles';
 
 export function DotBox(props: {className?: string, children: React.ReactNode}){
     return <div className={"my-5 py-5 border-dashed border-2 grow-[1] " + props.className}>
@@ -56,7 +48,7 @@ export function EditSignout(props: {state: MemberActionState, setState: React.Di
     return (
     <div className="flex flex-col grow-[1] gap-5">
         <div className="flex flex-row grow-[0] gap-5">
-            {props.state.currentPeople.map((a, i) => (<DetailedPersonInfo {...propsSorted} index={i}/>))}
+            {props.state.currentPeople.map((a, i) => (<DetailedPersonInfo key={a.personId} {...propsSorted} index={i}/>))}
             <AddEditCrew {...propsSorted} />
         </div>
         <div className="flex flex-row grow-[1]">
@@ -91,13 +83,13 @@ export function EditSignout(props: {state: MemberActionState, setState: React.Di
     </div>);
 }
 
-export function getSkipper(state: MemberActionState, cache: ScannedPersonsCacheGet){
-    const skipperPeople = state.currentPeople.filter((a) => a.isSkipper);
-    return skipperPeople.length == 0 ? option.none : cache.getCached(skipperPeople[0].cardNum);
+export function getSkipper(state: MemberActionState){
+    const skipperPeople = state.currentPeople.find((a) => a.isSkipper);
+    return skipperPeople ? option.some(skipperPeople) : option.none;
 }
 
-function convertToCreateSignout(state: MemberActionState, cache: ScannedPersonsCacheGet): CreateSignoutType{
-    const skipper = getSkipper(state, cache);
+function convertToCreateSignout(state: MemberActionState): CreateSignoutType{
+    const skipper = getSkipper(state);
     if(!skipper.isSome()){
         throw "bad";
     }
@@ -109,24 +101,18 @@ function convertToCreateSignout(state: MemberActionState, cache: ScannedPersonsC
         sailNumber: state.sailNum,
         hullNumber: state.hullNum,
         classSessionId: option.none,
-        isRacing: false,
+        isRacing: state.signoutType.getOrElse(undefined) == "R",
         dockmasterOverride: false,
         didInformKayakRules: true,
         signoutCrew: state.currentPeople.filter((a) => !a.isSkipper).map((a) => {
-            const crewMember = cache.getCached(a.cardNum);
-            if(!crewMember.isSome()){
-                throw "Tried signing out crew before scanning them in"
-            }
             return ({
-                personId: crewMember.value.personId,
-                cardNumber: crewMember.value.cardNumber,
-                testRatingId: a.isTesting ? state.testRating : option.none
+                personId: a.personId,
+                cardNumber: a.cardNumber,
+                testRatingId: a.testRatingId
             });
         })
     }
 }
-
-
 
 function validateSubmit(state: MemberActionState): string[]{
     return [];
@@ -134,13 +120,12 @@ function validateSubmit(state: MemberActionState): string[]{
 
 function CreateQueueSignout(props: {state: MemberActionState, setState: React.Dispatch<React.SetStateAction<MemberActionState>>}){
     const asc = React.useContext(AppStateContext);
-    const cache = React.useContext(ScannedPersonsCacheContext);
     const modal = React.useContext(ModalContext);
     return <>
         <div className="flex flex-row gap-2 mr-0 ml-auto">
-            <Button className="bg-gray-300 px-5 py-2">Queue Signout</Button>
-            <Button className="px-5 py-2 bg-boathouseblue text-gray-100" spinnerOnClick submit={(e) => {
-                return createSignout.sendJson(asc, convertToCreateSignout(props.state, cache)).then((a) => {
+            <Button className={buttonClasses + " " + buttonClassInactive}>Queue Signout</Button>
+            <Button className={buttonClasses + " " + buttonClassActive} spinnerOnClick submit={(e) => {
+                return createSignout.sendJson(asc, convertToCreateSignout(props.state)).then((a) => {
                     if(a.type == "Success"){
                         modal.setOpen(false);
                     }else{
@@ -191,22 +176,20 @@ const memberActionTypes: {title: React.ReactNode, getContent: (state: MemberActi
 
 export type GrantRatingsType = t.TypeOf<typeof grantRatingsValidator>
 
-function convertToGrantRatings(state: MemberActionState, programId: number, ratingIds: number[], cache: ScannedPersonsCacheGet): GrantRatingsType{
+function convertToGrantRatings(state: MemberActionState, programId: number, ratingIds: number[]): GrantRatingsType{
     return {
         instructor: "jon",
         programId: programId,
         ratingIds: ratingIds,
-        personIds: state.currentPeople.map((a) => cache.getCached(a.cardNum).getOrElse({personId: 0} as any).personId)
+        personIds: state.currentPeople.map((a) => a.personId)
     }
 }
 
 function MemberActionRatings(props: {state: MemberActionState, setState: React.Dispatch<React.SetStateAction<MemberActionState>>}){
-    const cache = React.useContext(ScannedPersonsCacheContext);
     const asc = React.useContext(AppStateContext);
     const availablePrograms = {};
     props.state.currentPeople.forEach((a) => {
-        const cached = cache.getCached(a.cardNum);
-        cached.isSome() && (availablePrograms[cached.value.activeMemberships[0].programId.getOrElse(1)] = true);
+        (availablePrograms[a.activeMemberships[0].programId.getOrElse(1)] = true);
     });
     const [programId, setProgramId] = React.useState<option.Option<number>>(option.none);
     const [selectedRatings, setSelectedRatings] = React.useState<{[key: number]: boolean}>({});
@@ -214,9 +197,9 @@ function MemberActionRatings(props: {state: MemberActionState, setState: React.D
             <AddEditCrew state={props.state} setState={props.setState} mode={SignoutActionMode.RATINGS}></AddEditCrew>
             <SelectInput controlledValue={programId} updateValue={setProgramId} selectOptions={programsHR.filter((a) => availablePrograms[a.value])} validationResults={[]} autoWidth/>
             <RatingsGrid selectedProgram={programId} selectedRatings={selectedRatings} setSelectedRatings={setSelectedRatings}></RatingsGrid>
-            <Button className="px-5 py-2 bg-boathouseblue text-gray-100 ml-auto mr-0 mt-auto mb-0" spinnerOnClick submit={(e) => {
-                console.log(convertToGrantRatings(props.state, programId.getOrElse(undefined), Object.keys(selectedRatings).map((a) => parseInt(a)), cache));
-                return grantRatings.sendJson(asc, convertToGrantRatings(props.state, programId.getOrElse(undefined), Object.keys(selectedRatings).map((a) => parseInt(a)), cache)).then((a) => {
+            <Button className={buttonClasses + " " + buttonClassActive + " ml-auto mr-0 mt-auto mb-0"} spinnerOnClick submit={(e) => {
+                console.log(convertToGrantRatings(props.state, programId.getOrElse(undefined), Object.keys(selectedRatings).map((a) => parseInt(a))));
+                return grantRatings.sendJson(asc, convertToGrantRatings(props.state, programId.getOrElse(undefined), Object.keys(selectedRatings).map((a) => parseInt(a)))).then((a) => {
                     console.log(a);
                 });
             }}>Grant Ratings</Button>
@@ -225,7 +208,7 @@ function MemberActionRatings(props: {state: MemberActionState, setState: React.D
 
 export function MemberActionModal(props: MemberActionType){
     const [state, setState] = React.useState({
-        currentPeople: [{cardNum: props.scannedCard, isSkipper: true, isTesting: true, sortOrder: 0}],
+        currentPeople: [{...props.scannedPerson, isSkipper: true, isTesting: true, testRatingId: option.none, sortOrder: 0}],
         boatId: option.none,
         boatNum: option.none,
         hullNum: option.none,
@@ -256,9 +239,52 @@ export function MemberActionModal(props: MemberActionType){
     </Tab.Group>
 }
 
-function adaptSignoutState(state: SignoutTablesState): EditSignoutState{
+function adaptSignoutState(state: SignoutTablesState, ratings: RatingsType): EditSignoutState{
 	return {
-		currentPeople: [{cardNum: state.cardNum.getOrElse(undefined), isSkipper: true, isTesting: state.signoutType == SignoutTypes.TEST, sortOrder: 0}].concat(state.$$crew.map((a, i) => ({cardNum: a.cardNum.getOrElse(undefined), isSkipper: false, isTesting: false, sortOrder: (i + 1)}))),
+		currentPeople: [{
+            personId: state.$$skipper.personId,
+            cardNumber: state.cardNum.getOrElse(undefined),
+            nameFirst: state.$$skipper.nameFirst,
+            nameLast: state.$$skipper.nameLast,
+            bannerComment: state.comments,
+            specialNeeds: option.none,
+            personRatings: state.$$skipper.$$personRatings.map((a) => ({...a, ratingName: ratings.find((b) => b.ratingId == a.ratingId).ratingName, status: ""})),
+            isSkipper: true,
+            isTesting: state.signoutType == "T",
+            testRatingId: state.testRatingId,
+            activeMemberships: [{
+                assignId: 0,
+                membershipTypeId: 0,
+                startDate: option.some(moment()),
+                expirationDate: option.none,
+                discountName: option.none,
+                isDiscountFrozen: false,
+                hasGuestPrivs: true,
+                programId: option.some(state.programId)
+            }],
+            sortOrder: 0}].concat((state.$$crew.map((a, i) => ({
+                personId: a.$$person.personId,
+                cardNumber: a.cardNum.getOrElse(undefined),
+                nameFirst: a.$$person.nameFirst,
+                nameLast: a.$$person.nameLast,
+                bannerComment: option.none,
+                specialNeeds: option.none,
+                personRatings: [],
+                isSkipper: false,
+                isTesting: state.signoutType == "T",
+                testRatingId: state.testRatingId,
+                activeMemberships: [{
+                    assignId: 0,
+                    membershipTypeId: 0,
+                    startDate: option.some(moment()),
+                    expirationDate: option.none,
+                    discountName: option.none,
+                    isDiscountFrozen: false,
+                    hasGuestPrivs: true,
+                    programId: option.some(state.programId)
+                }],
+                sortOrder: 1 + i
+            })))),
 		boatId: option.some(state.boatId),
         signoutType: option.some(state.signoutType),
         boatNum: option.none,
@@ -270,21 +296,54 @@ function adaptSignoutState(state: SignoutTablesState): EditSignoutState{
 	}
 }
 
+function adaptMemberState(state: MemberActionState, currentRow: SignoutTablesState): SignoutTablesState{
+    return {...currentRow,
+        boatId:state.boatId.getOrElse(undefined),
+        hullNumber: state.hullNum,
+        sailNumber: state.hullNum,
+        //$$skipper: state.currentPeople
+    }
+}
+
 const makeNode = (index: number, display: React.ReactNode) => (checked: boolean, setValue) => {
 	return <h1 className={"flex " + (checked ? "text-boathouseblue" : "")} key={index}>{display}</h1>;
 }
 
 export function EditSignoutModal(props: EditSignoutType){
-    const [state, setState] = React.useState(adaptSignoutState(props.currentSignout));
+    const ratings = React.useContext(RatingsContext);
+    const [state, setState] = React.useState(adaptSignoutState(props.currentSignout, ratings));
+    React.useEffect(() => {
+        setState(adaptSignoutState(props.currentSignout, ratings));
+    }, [props.currentSignout]);
     const mode = (state.signoutType.isSome() && state.signoutType.value == SignoutTypes.TEST) ? SignoutActionMode.TESTING : SignoutActionMode.SIGNOUT;
         return <>
-			<ModalHeader className="font-bold text-2xl gap-1">
-				<RadioGroup className="flex flex-row" value={state.signoutType} setValue={(v) => setState((s) => ({...s, signoutType: v}))} makeChildren={signoutTypesHR.map((a,i) => ({value: a.value, makeNode: (c, s) => {return makeNode(i, a.display)(c, s)}}))}/>
-			</ModalHeader>
-				<div className="w-[80vw] h-[80vh] p-5">
-					<EditSignout state={state} setState={setState} mode={mode}/>
-				</div>
+            <ModalHeader className="font-bold text-2xl gap-1">
+                <RadioGroup className="flex flex-row" value={state.signoutType} setValue={(v) => setState((s) => ({...s, signoutType: v}))} makeChildren={signoutTypesHR.map((a,i) => ({value: a.value, makeNode: (c, s) => {return makeNode(i, a.display)(c, s)}}))}/>
+            </ModalHeader>
+            <div className="w-[80vw] h-[80vh] p-5">
+                <EditSignout state={state} setState={setState} mode={mode}/>
+            </div>
+            <SubmitEditSignout state={state} currentRow={props.currentSignout}/>
 			</>
+}
+
+function SubmitEditSignout(props: {state: MemberActionState, currentRow: SignoutTablesState}){
+    const asc = React.useContext(AppStateContext);
+    return <div className="flex flex-row gap-2 ml-auto mr-0">
+        <ModalContext.Consumer>
+            {(value) => {
+            return <Button className={buttonClasses + " " + buttonClassInactive} onClick={(e) => {
+                value.setOpen(false);
+                }}>Cancel</Button>
+            }}
+        </ModalContext.Consumer>
+        <Button className={buttonClasses + " " + buttonClassActive} onClick={(e) => {
+            const adaptedToSignout = adaptMemberState(props.state, props.currentRow);
+            return putSignout.sendJson(asc, adaptedToSignout).then((a) => {
+                console.log(a);
+            });
+        }}>Save</Button>
+    </div>
 }
 
 export default function ActionModal(props: ActionModalProps){

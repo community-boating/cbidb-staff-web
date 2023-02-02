@@ -7,7 +7,9 @@ import * as t from "io-ts";
 import { MultiHover } from "./MultiHover";
 import { ReactNode } from "react";
 import { programsHR } from "./Constants";
-import { SignoutsTablesExtraState } from "./StateTypes";
+import { ScannedPersonType } from "async/staff/dockhouse/scan-card";
+import { RatingsContext } from "components/dockhouse/providers/RatingsProvider";
+import { MAGIC_NUMBERS } from "app/magicNumbers";
 
 
 type RatingValidatorState = t.TypeOf<typeof ratingValidator>;
@@ -37,15 +39,15 @@ function drawRatingBucket(currentRatings: {[key:number] : PersonRatingValidatorS
 	}
 	return <>{highest.map((a, i) => <span style={hasRating(currentRatings, a.rating.ratingId, program) ? {color: "red"} : {}}key={i}>{a.rating.ratingName}</span>)}</>;
 }
-export function getMakeRatingsTable(row: SignoutTablesState, sortedRatings: SortedRatings, orphanedRatingsShownByDefault: {[key: number]: boolean}){
+
+export function getRatingsTable(person: ScannedPersonType, programId: number, sortedRatings: SortedRatings, orphanedRatingsShownByDefault: {[key: number]: boolean}){
 	if(sortedRatings.ratingsRows.length == 0){
 		return () => <p>Loading...</p>;
 	}
 
 	const currentRatings = {};
-
-	row.$$skipper.$$personRatings.forEach((a) => {
-		if(row.programId == a.programId){
+	person.personRatings.forEach((a) => {
+		if(programId == a.programId){
 			currentRatings[a.ratingId] = (currentRatings[a.ratingId] || []).concat(a);
 		}
 	});
@@ -53,11 +55,11 @@ export function getMakeRatingsTable(row: SignoutTablesState, sortedRatings: Sort
 	const makeTable = () => {
 		var programHR = "Unknown Program";
 		programsHR.forEach((a) => {
-			if(a.value == row.programId){
+			if(a.value == programId){
 				programHR = a.display;
 			}
 		});
-		var drawnRows: ReactNode[][] = sortedRatings.ratingsRows.map((a, i) => a.map((b, i) => drawRatingBucket(currentRatings,b,row.programId,false)));
+		var drawnRows: ReactNode[][] = sortedRatings.ratingsRows.map((a, i) => a.map((b, i) => drawRatingBucket(currentRatings,b,programId,false)));
 		drawnRows.forEach((a, i) => {
 			drawnRows[i] = a.filter((b) => b !== undefined);
 		});
@@ -71,21 +73,25 @@ export function getMakeRatingsTable(row: SignoutTablesState, sortedRatings: Sort
 							{drawnRow}
 						</td>})}
 					</tr>})}
-					{makeOrphanedTableRows(currentRatings, sortedRatings.orphanedRatings, orphanedRatingsShownByDefault, row.programId)}
+					{makeOrphanedTableRows(currentRatings, sortedRatings.orphanedRatings, orphanedRatingsShownByDefault,programId)}
 				</tbody>
-			</table></div>);
+			</table></div>)
 	};
-	return makeTable;
+	return makeTable();
 }
 
-export const RatingsHover = (props: {row: SignoutTablesState, orphanedRatingsShownByDefault: {[key: number]: boolean}, extraState: SignoutsTablesExtraState}) => {
+export const RatingsHover = (props: {person: ScannedPersonType, programId: number, orphanedRatingsShownByDefault: {[key: number]: boolean}, label: React.ReactNode}) => {
 
-	const sortedRatings = props.extraState.ratingsSorted;
+	const ratings = React.useContext(RatingsContext);
 
-	const makeHover = getMakeRatingsTable(props.row, sortedRatings, props.orphanedRatingsShownByDefault);
+	const ratingsSorted = React.useMemo(() => sortRatings(ratings), [ratings]);
+
+	const makeHover = React.useMemo(() => (props: {person: ScannedPersonType, programId: number, ratingsSorted: SortedRatings, orphanedRatingsShownByDefault: {[key: number]: boolean}}) => getRatingsTable(props.person, props.programId, props.ratingsSorted, props.orphanedRatingsShownByDefault),[]);
+
+	const hoverProps = React.useMemo(() => ({person: props.person, programId: MAGIC_NUMBERS.PROGRAM_TYPE_ID.ADULT_PROGRAM, ratingsSorted: ratingsSorted, orphanedRatingsShownByDefault: props.orphanedRatingsShownByDefault}), [props.person.personId, props.programId, ratings]);
 
 	return (
-		<MultiHover makeChildren={makeHover} openDisplay={"Ratings"}/>
+		<MultiHover makeChildren={makeHover} hoverProps={hoverProps} openDisplay={props.label}/>
 	)
 }
 

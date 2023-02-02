@@ -1,6 +1,7 @@
 import { ReactNode } from "react";
 import * as React from 'react';
-import { Popover } from "reactstrap";
+import { Popover } from "@headlessui/react";
+import { memoize } from "lodash";
 
 const OPEN_STATE_CLOSED = 0;
 const OPEN_STATE_HOVER = 1;
@@ -13,64 +14,37 @@ function getUID() : string{
 	return "ID_" + String(currentUID);
 }
 
-export class MultiHover extends React.Component<{
-	makeChildren: () => ReactNode,
+export class MultiHover<T_ChildProps> extends React.Component<{
+	makeChildren: (props: T_ChildProps) => ReactNode,
 	handleClick?: () => void,
+	hoverProps: T_ChildProps,
 	noMemoChildren?: boolean,
 	openDisplay: ReactNode,
 }, {
-	children: ReactNode,
-	id: string,
-	open: boolean
+	id: string
 }> {
 	ref: React.RefObject<HTMLDivElement>;
 	constructor(props) {
 		super(props);
-		this.ref = React.createRef();
-		this.state = { open: false, children: undefined, id: getUID()};
+		this.state = { id: getUID()};
 	}
-	componentDidMount(): void {
-		const clickHandler = function(e) {
-			if(this.ref.current != null && this.state.open){
-				if(!this.ref.current.contains(e.target)){
-					this.setOpen(false);
-				}
-			}
-		}.bind(this);
-		document.addEventListener("click", (e) => clickHandler(e));
-	}
-	setOpen(open: boolean) {
-		if (this.state.children == undefined) {
-			const newChildren = this.props.makeChildren();
-			this.setState({
-				children: newChildren,
-				open: newChildren !== undefined
-			});
-		} else {
-			this.setState({
-				...this.state,
-				open: open
-			});
-		}
-	}
-	toggleOpen() {
-		this.setOpen(!this.state.open);
-	}
-	handleClick(){
-		this.toggleOpen();
-		if(this.props.handleClick !== undefined){
-			this.props.handleClick();
-		}
-	}
+	getChildren = memoize ((childProps: T_ChildProps) => this.props.makeChildren(childProps));
 	render() {
-		const useChildren = this.props.noMemoChildren === false ? this.state.children : this.props.makeChildren();
-		return (<div ref={this.ref}>
-			<a id={this.state.id} onClick={() => this.handleClick()} onMouseOver={() => this.setOpen(true)} onMouseOut={() => this.setOpen(false)}>
-				{this.props.openDisplay}
-			</a>
-			<Popover placement="right" isOpen={this.state.open && useChildren !== undefined} target={this.state.id} toggle={() => this.toggleOpen}>
-				{useChildren}
+		return (<div>
+			<Popover className="z-10 mr-auto">
+					{(a) => {
+						return <>
+							<Popover.Button>
+								<a id={this.state.id}>
+									{this.props.openDisplay}
+								</a>
+							</Popover.Button>
+							<Popover.Panel className="z-10 absolute bg-white">
+								{(a.open ? this.getChildren(this.props.hoverProps) : <></>)}
+							</Popover.Panel>
+						</>
+					}}
 			</Popover>
-		</div>);
+		</div>)
 	}
 }

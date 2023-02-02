@@ -1,12 +1,15 @@
 import * as React from 'react';
 import { option } from 'fp-ts';
 import { OptionalStringInput } from 'components/wrapped/Input';
-import { GoButton } from 'components/wrapped/IconButton';
-import { ScannedCrewType } from 'async/staff/dockhouse/scan-card';
+import { ScannedCrewType, ScannedPersonType } from 'async/staff/dockhouse/scan-card';
 import { ScannedPersonsCacheContext } from './ScannedPersonsCache';
+import { RatingsHover } from 'pages/dockhouse/signouts/RatingSorter';
 
+export function findCurrentMembership(person: ScannedPersonType){
+    return person.activeMemberships[0];
+}
 
-export function CardNumberScanner(props: ({ label: string; onAction: (result: ScannedCrewType[number]) => void; })) {
+export function CardNumberScanner(props: ({ label: string; onAction: (result: ScannedCrewType[number]) => void; externalQueueTrigger?: number, className?: string})) {
     const [cardNum, setCardNum] = React.useState<option.Option<string>>(option.none);
     const [foundPerson, setFoundPerson] = React.useState<option.Option<ScannedCrewType[number]>>(option.none);
     const [error, setError] = React.useState<option.Option<string>>(option.none);
@@ -46,11 +49,14 @@ export function CardNumberScanner(props: ({ label: string; onAction: (result: Sc
     const doQueue = () => {
         setActionQueued(cardNum);
     };
-    return <div className="">
-        <OptionalStringInput label={props.label} controlledValue={cardNum} end={<GoButton onClick={() => { doQueue(); }} />} updateValue={(value) => { setCardNum(value); }} onEnter={() => {
+    React.useEffect(() => {
+        (props.externalQueueTrigger > 0) && doQueue();
+    }, [props.externalQueueTrigger]);
+    return <div className={props.className || ""}>
+        {foundPerson.isSome() ? <RatingsHover person={foundPerson.value} programId={findCurrentMembership(foundPerson.value).programId.getOrElse(undefined)} orphanedRatingsShownByDefault={{}} label={foundPerson.value.nameFirst + " " + foundPerson.value.nameLast}></RatingsHover> : ""} 
+        {error.isSome() ? error.value : ""}
+        <OptionalStringInput label={props.label} controlledValue={cardNum} updateValue={(value) => { setCardNum(value); }} onEnter={() => {
             doQueue();
         }}></OptionalStringInput>
-        {foundPerson.isSome() ? (foundPerson.value.nameFirst + " " + foundPerson.value.nameLast) : ""}
-        {error.isSome() ? error.value : ""}
     </div>;
 }

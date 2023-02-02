@@ -1,13 +1,9 @@
+import { ScannedCrewType } from 'async/staff/dockhouse/scan-card';
 import { option } from 'fp-ts';
 
 
 export type MemberActionState = {
-    currentPeople: {
-        cardNum: string
-        isSkipper: boolean
-        isTesting: boolean
-        sortOrder: number
-    }[]
+    currentPeople: (ScannedCrewType[number] & {isSkipper: boolean, isTesting: boolean, testRatingId: option.Option<number>, sortOrder: number})[]
     boatId: option.Option<number>
     boatNum: option.Option<string>
     hullNum: option.Option<string>

@@ -62,5 +62,6 @@ const path = "/rest/ap-class-instances/this-season"
 export const getWrapper = new APIWrapper<typeof classesValidator, any, any, GetClassesParams>({
 	path: path,
 	type: HttpMethod.GET,
-	resultValidator: classesValidator
+	resultValidator: classesValidator,
+    permissions: []
 })

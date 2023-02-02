@@ -11,5 +11,5 @@ const defaultSignoutsToday: {
 export const SignoutsTodayContext = React.createContext(defaultSignoutsToday);
 
 export default function SignoutsTodayProvider(props: {children?: React.ReactNode}){
-    return <AsyncStateProvider apiWrapper={getSignoutsToday} initState={[]} makeChildren={(state, setState, providerState) => {return <SignoutsTodayContext.Provider value={{signouts:state, setSignouts:setState, providerState:providerState}}>{props.children}</SignoutsTodayContext.Provider>}}/>
+    return <AsyncStateProvider apiWrapper={getSignoutsToday} refreshRate={30*1000} initState={[]} makeChildren={(state, setState, providerState) => {return <SignoutsTodayContext.Provider value={{signouts:state, setSignouts:setState, providerState:providerState}}>{props.children}</SignoutsTodayContext.Provider>}}/>
 }

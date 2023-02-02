@@ -5,6 +5,7 @@ import BoatsProvider from './BoatsProvider';
 import ClassesProvider from './ClassesProvider';
 import ClassTypesProvider from './ClassTypesProvider';
 import DHGlobalProvider from './DHGlobalProvider';
+import InstructorsProvider from './InstructorsProvider';
 import RatingsProvider from './RatingsProvider';
 import SignoutsTodayProvider from './SignoutsTodayProvider';
 
@@ -13,15 +14,17 @@ export default function DHProviders(props: {children?: React.ReactNode}){
         <RatingsProvider>
             <SignoutsTodayProvider>
                 <DHGlobalProvider>
-                    <ScannedPersonsCache>
-                        <ClassesProvider>
-                            <ClassTypesProvider>
-                            <ActionModalProvider>
-                                {props.children}
-                                </ActionModalProvider>
-                            </ClassTypesProvider>
-                        </ClassesProvider>
-                    </ScannedPersonsCache>
+                    <InstructorsProvider>
+                        <ScannedPersonsCache>
+                            <ClassesProvider>
+                                <ClassTypesProvider>
+                                    <ActionModalProvider>
+                                        {props.children}
+                                    </ActionModalProvider>
+                                </ClassTypesProvider>
+                            </ClassesProvider>
+                        </ScannedPersonsCache>
+                    </InstructorsProvider>
                 </DHGlobalProvider>
             </SignoutsTodayProvider>
         </RatingsProvider>

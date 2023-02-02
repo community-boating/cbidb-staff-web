@@ -106,7 +106,7 @@ export const SignoutsTablesPage = (props: {
 	});
 
 	const openEditRow = (row: SignoutTablesState) => {
-		actionModal.setAction(new EditSignoutAction(row, undefined));
+		actionModal.setAction(new EditSignoutAction(row));
 	}
 
 	const tdStyle: React.CSSProperties = { verticalAlign: "middle", textAlign: "right" };

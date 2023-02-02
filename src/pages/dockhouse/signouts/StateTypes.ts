@@ -9,7 +9,6 @@ export type ReassignedMapType = { [key: string]: { [key: number]: number[] } };
 
 export type EditSignoutType = {
     currentSignout: SignoutTablesState
-    onSubmit: (updatedSignout: SignoutTablesState) => Promise<any>
 }
 
 export type SignoutsTablesExtraState = {

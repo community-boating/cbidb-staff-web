@@ -50,6 +50,7 @@ export type CustomInputProps<T> = {
 	controlledValue: T
 	updateValue: (value: T) => void
 	validationResults?: string[]
+	customStyle?: boolean
 } & InputProps
 
 type StateType<T> = {
@@ -78,21 +79,29 @@ export function OptionalInput<T>(props: CustomInputProps<option.Option<T>> & {co
 	return <Input {...other} convertChange={(e) => ((e.target.value == "") ? option.none : option.some(convert(e.target.value)))} makeInputProps={(value) => ({value: (value.isSome() ? value.value : "")})}></Input>
 }
 
+function Label(props: {children?: React.ReactNode}){
+	return <span className="whitespace-nowrap">
+		{props.children}
+	</span>
+}
+
 class Input<T> extends React.PureComponent<(CustomInputProps<T> & InputAdapterProps<T> & InputProps), StateType<T>, any>  {
 	constructor(props){
 		super(props);
 		this.state = { showErrors:false };
 	}
 	render() {
-		var {controlledValue: initValue,className,updateValue,children,makeInputProps,convertChange,onEnter,validationResults,label,end,...other}=this.props;
+		var {controlledValue: initValue,className,updateValue,children,makeInputProps,convertChange,onEnter,validationResults,label,end,customStyle,...other}=this.props;
 		var errorTooltip = <></>;
 		if(validationResults && validationResults.length > 0){
 			errorTooltip=<div>{validationResults.map((a) => a["display"] || a)}</div>;
 		}
 		return (
 			<div className="flex flex-row">
-			{this.props.label}
-			<input {...other} className={className + " " + (inputClassName)} {...makeInputProps(this.props.controlledValue)} 
+				<Label>
+					{this.props.label}
+				</Label>
+			<input {...other} className={(className || "") + " " + (customStyle ? "" : inputClassName)} {...makeInputProps(this.props.controlledValue)} 
 			onChange={(e) => {updateValue(convertChange(e))}}
 			onBlur={() => {
 				this.setState({...this.state,showErrors:false})
@@ -123,7 +132,7 @@ export const ValidatedTextInput = (props: (CustomInputProps<any> & InputProps)) 
 
 export type SelectOption<T_SelectOption> = {value: T_SelectOption, display: ReactNode};
 
-export function SelectInput<T_Value extends string | number> (props: CustomInputProps<option.Option<T_Value>> & InputProps & DropDownProps & {selectOptions : SelectOption<T_Value>[], showNone?: SelectOption<T_Value>, selectNone?: boolean, isNumber?: boolean, autoWidth?: boolean, nowrap?: boolean, fullWidth?: boolean, customStyle?: boolean}) {
+export function SelectInput<T_Value extends string | number> (props: CustomInputProps<option.Option<T_Value>> & InputProps & DropDownProps & {selectOptions : SelectOption<T_Value>[], showNone?: SelectOption<T_Value>, selectNone?: boolean, isNumber?: boolean, autoWidth?: boolean, nowrap?: boolean, fullWidth?: boolean, customStyle?: boolean, makeButton?: (current: SelectOption<option.Option<T_Value>>) => React.ReactNode}) {
 	const {selectOptions,showNone,selectNone,customStyle,isNumber,autoWidth,controlledValue,x,y,updateValue} = props;
 	const selectOptionsOptionified = React.useMemo(() => selectOptions.map((a) => ({value: option.some(a.value), display: a.display})), [selectOptions]);
 	const showNonePadded: SelectOption<option.Option<T_Value>> = ((showNone === undefined ) ? {value: option.none, display: "None"} : {value: option.none, display: showNone.display})
@@ -131,7 +140,7 @@ export function SelectInput<T_Value extends string | number> (props: CustomInput
 	const useOptions = (selectNone || props.controlledValue.isNone() ? selectOptionsWithNone : selectOptionsOptionified);
 	const [minWidth, setMinWidth] = React.useState(0);
 	const testRef = React.createRef<HTMLDivElement>();
-	const current = (controlledValue.isSome() ? (selectOptions.filter((a) => a.value == controlledValue.value)[0]) : showNonePadded);
+	const current = (controlledValue.isSome() ? (selectOptionsOptionified.filter((a) => a.value.isSome() && a.value.value == controlledValue.value)[0]) : showNonePadded);
 
 	autoWidth && React.useEffect(() => {
 		testRef.current.style.display = "";
@@ -144,13 +153,15 @@ export function SelectInput<T_Value extends string | number> (props: CustomInput
 		</Listbox.Option>))), [useOptions]);
 	return (<div className={(props.nowrap ? "whitespace-nowrap" : "break-words") + (props.fullWidth ? " w-full" : " max-w-min")}>
 			<div className="flex flex-row w-full">
-				{props.label}
+				<Label>
+					{props.label}
+				</Label>
 				<Listbox value={controlledValue} onChange={(v) => {updateValue(v);}}>
 					<div className="relative w-full">
-					<Listbox.Button className={"flex flex-col w-full items-end bg-white overflow-hidden " + (customStyle ? "" : inputClassName) + " " + (props.className ? props.className : "")}>
+					<Listbox.Button className={"flex flex-col w-full items-end overflow-hidden " + (customStyle ? "" : inputClassName + " bg-white") + " " + (props.className ? props.className : "")}>
 						<div className="flex flex-row w-full">
 							<div className={"text-left grow"} style={{minWidth: minWidth}}>
-								{current && current.display}
+								{props.makeButton ? props.makeButton(current) : (current && current.display)}
 							</div>
 							{customStyle ? <></> : <ChevronDown className="flex-none"/>}
 						</div>

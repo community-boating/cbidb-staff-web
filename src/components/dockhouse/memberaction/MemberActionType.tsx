@@ -3,15 +3,16 @@ import { EditSignoutType } from '../../../pages/dockhouse/signouts/StateTypes';
 import { SignoutTablesState } from 'async/staff/dockhouse/signouts';
 import { MemberActionModal, EditSignoutModal } from './ActionModal';
 import { Action } from './ActionModalProps';
+import { ScannedCrewType } from 'async/staff/dockhouse/scan-card';
 
 export type MemberActionType = {
-    scannedCard: string;
+    scannedPerson: ScannedCrewType[number];
 };
 
 export class MemberAction extends Action<MemberActionType> {
-    constructor(scannedCard: string) {
+    constructor(scannedPerson: ScannedCrewType[number]) {
         super();
-        this.modeInfo = { scannedCard };
+        this.modeInfo = {scannedPerson: scannedPerson};
     }
     createModalContent(info: MemberActionType) {
         return <MemberActionModal {...info}></MemberActionModal>;
@@ -19,11 +20,10 @@ export class MemberAction extends Action<MemberActionType> {
 }
 
 export class EditSignoutAction extends Action<EditSignoutType> {
-    constructor(row: SignoutTablesState, onSubmit: (row: SignoutTablesState) => Promise<any>) {
+    constructor(row: SignoutTablesState) {
         super();
         this.modeInfo = {
-            currentSignout: row,
-            onSubmit: onSubmit
+            currentSignout: row
         };
     }
     createModalContent(info: EditSignoutType) {

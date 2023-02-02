@@ -11,12 +11,15 @@ export const classInstructorValidator = t.type({
 
 export const validator = t.array(classInstructorValidator);
 
+export type InstructorType = t.TypeOf<typeof classInstructorValidator>;
+
 const path = "/rest/class-instructor";
 
 export const getWrapper = new APIWrapper({
 	path,
 	type: HttpMethod.GET,
 	resultValidator: validator,
+	permissions: []
 });
 
 const resultValidator = t.type({

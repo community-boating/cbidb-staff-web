@@ -1,9 +1,8 @@
 import * as React from 'react';
 import person from 'assets/img/icons/person.svg';
-import { ScannedPersonsCacheContext } from './ScannedPersonsCache';
 import { AddEditCrewProps, MemberActionProps, MemberActionState, SignoutActionMode } from "./MemberActionState";
 import { getProgramHR } from 'util/textAdapter';
-import { ScannedCrewType, ScannedPersonsType } from 'async/staff/dockhouse/scan-card';
+import { ScannedPersonType } from 'async/staff/dockhouse/scan-card';
 
 import hold from 'assets/img/icons/hold.svg';
 import comments from 'assets/img/icons/comments.svg';
@@ -12,8 +11,9 @@ import x from 'assets/img/icons/buttons/x.svg';
 import add from 'assets/img/icons/buttons/add.svg';
 import minus from 'assets/img/icons/buttons/minus.svg';
 import { Button } from 'reactstrap';
-import { CardNumberScanner } from './CardNumberScanner';
+import { CardNumberScanner, findCurrentMembership } from './CardNumberScanner';
 import IconButton from 'components/wrapped/IconButton';
+import { option } from 'fp-ts';
 
 function getCrewActions(props: {state: MemberActionState, setState: React.Dispatch<React.SetStateAction<MemberActionState>>, mode: SignoutActionMode}){
     return {
@@ -32,11 +32,11 @@ function getCrewActions(props: {state: MemberActionState, setState: React.Dispat
     }
 }
 
-function isHold(crew: ScannedPersonsType){
+function isHold(crew: ScannedPersonType){
     return false;
 }
 
-export function CrewIcons(props: {skipper: ScannedPersonsType}){
+export function CrewIcons(props: {skipper: ScannedPersonType}){
     return <div className="flex flex-row">
             {props.skipper.bannerComment.isSome() ? <img src={hold} width={50}/> : <></>}
             {isHold(props.skipper) ? <img src={comments} width={50}/> : <></>}
@@ -50,21 +50,16 @@ export function DetailedPersonInfo(props: MemberActionProps & {index: number}) {
         return <></>;
     if(!currentPerson.isTesting && props.mode == SignoutActionMode.TESTING)
         return <></>;
-    const scannedPersonsCache = React.useContext(ScannedPersonsCacheContext);
-    const personCached = scannedPersonsCache.getCached(props.state.currentPeople[props.index].cardNum);
-    if(personCached.isNone()){
-        return <></>;
-    }
-    const currentMembership = personCached.value.activeMemberships[0];
+    const currentMembership = findCurrentMembership(currentPerson);
     const programHR = getProgramHR(currentMembership.programId.getOrElse(-1));
-    return <div key={currentPerson.cardNum} className="flex flex-row grow-0 gap-5">
+    return <div key={currentPerson.personId} className="flex flex-row grow-0 gap-5">
         <div className="flex flex-col">
             <h3 className="font-bold inline-block">{props.mode == SignoutActionMode.TESTING ? "Testing:" : "Skipper:"}</h3>
-            <CrewIcons skipper={personCached.value} />
-            <h3 className="text-2xl font-bold">{personCached.value.nameFirst} {personCached.value.nameLast}</h3>
+            <CrewIcons skipper={currentPerson} />
+            <h3 className="text-2xl font-bold">{currentPerson.nameFirst} {currentPerson.nameLast}</h3>
             <h3 className="text-xl">{programHR}</h3>
             <h3 className="text-xl">{currentMembership.membershipTypeId} TODO make this HR</h3>
-            <h3 className="text-xl">{currentMembership.expirationDate.getOrElse("")}</h3>
+            <h3 className="text-xl">{currentMembership.expirationDate.isSome() ? currentMembership.expirationDate.value.format() : "Never"}</h3>
             <h3 className="text-xl">Guest Privileges: {currentMembership.hasGuestPrivs ? "Yes" : "No"}</h3>
         </div>
         <div className="flex flex-col">
@@ -97,7 +92,7 @@ export function AddCrew(props: AddEditCrewProps){
                 <Button className="bg-gray-200">Search Name</Button>
             </div> : <></>}
             <CardNumberScanner label="Add person..." onAction={(a) => {
-                props.add({cardNum: a.cardNumber, isSkipper: false, isTesting: false, sortOrder: 0});
+                props.add({...a, isSkipper: false, isTesting: false, testRatingId: option.none, sortOrder: 0});
             }}></CardNumberScanner>
             {isSignout ? <><Button className="bg-gray-200" onClick={setRandom}>Find Highest Ratings</Button>
             <Button className="bg-gray-200" onClick={setRandom}>Find Highest Privileges</Button></> : <></>}
@@ -111,9 +106,7 @@ function EditCrewButton(props: {src: string, onClick: (e) => void, mode: Signout
 
 export function EditCrew(props: AddEditCrewProps){
     const iconTwo = props.mode == SignoutActionMode.TESTING ? add : swap;
-    const cache = React.useContext(ScannedPersonsCacheContext);
     const crew = <>{props.state.currentPeople.map((a, i) => {
-        const b = cache.getCached(a.cardNum);
         switch(props.mode){
             case SignoutActionMode.TESTING:
                 if(a.isTesting) return undefined;
@@ -123,17 +116,14 @@ export function EditCrew(props: AddEditCrewProps){
                 if(a.isSkipper) return undefined;
                 break;
         }
-        if(b.isNone()){
-            return undefined;
-        }
         return (<div key={i} className="whitespace-nowrap">        
             <div className="flex flex-row">
                 <EditCrewButton src={x} onClick={() => {props.remove(i)}} mode={props.mode}/>
-                <h3 className="font-medium">{b.value.nameFirst} {b.value.nameLast}</h3>
+                <h3 className="font-medium">{a.nameFirst} {a.nameLast}</h3>
             </div>
             <div className="flex flex-row">
                 <EditCrewButton src={iconTwo} onClick={() => {props.mode == SignoutActionMode.TESTING ? props.setTesting(i, true) : props.setSkipper(i)}} mode={props.mode}/>
-                <h3 className="font-light">{getProgramHR(b.value.activeMemberships[0].programId.getOrElse(undefined))}</h3>
+                <h3 className="font-light">{getProgramHR(a.activeMemberships[0].programId.getOrElse(undefined))}</h3>
             </div>
         </div>)})}</>;
     return (<div className={"grid grow-[1] gap-5 " + ((props.mode != SignoutActionMode.TESTING) ? "grid-cols-4 grid-rows-2" : "grid-cols-2 grid-rows-2")}>{crew}</div>)

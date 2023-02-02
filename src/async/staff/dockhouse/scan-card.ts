@@ -1,13 +1,13 @@
 import * as t from 'io-ts';
 import APIWrapper from 'core/APIWrapper';
 import { HttpMethod } from "core/HttpMethod";
-import { OptionalNumber, OptionalString } from 'util/OptionalTypeValidators';
+import { OptionalDate, OptionalNumber, OptionalString } from 'util/OptionalTypeValidators';
 
 const scanCardMembershipValidator = t.type({
 	assignId: t.number,
 	membershipTypeId: t.number,
-	startDate: OptionalString,
-	expirationDate: OptionalString,
+	startDate: OptionalDate,
+	expirationDate: OptionalDate,
 	discountName: OptionalString,
 	isDiscountFrozen: t.boolean,
 	hasGuestPrivs: t.boolean,
@@ -32,9 +32,9 @@ export const scanCardValidator = t.type({
 	personRatings: t.array(scanCardRatingValidator)
 })
 
-export type ScannedPersonsType = t.TypeOf<typeof scanCardValidator>;
+export type ScannedPersonType = t.TypeOf<typeof scanCardValidator>;
 
-export type ScannedCrewType = ScannedPersonsType[];
+export type ScannedCrewType = ScannedPersonType[];
 
 const path = "/staff/dockhouse/scan-card"
 

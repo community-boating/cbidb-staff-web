@@ -93,6 +93,7 @@ export const getSignoutsToday = new APIWrapper({
 	path:pathGet,
 	type: HttpMethod.GET,
 	resultValidator: signoutsValidator,
+	permissions: []
 });
 
 /*export const getPersonByCardNumber = new APIWrapper({
