@@ -10,7 +10,7 @@ import { RatingsHover } from './RatingSorter';
 import { iconWidth, iconHeight, programsHR, signoutTypesHR, orphanedRatingsShownByDefault } from './Constants';
 import { CellOptionBase, CellOptionTime, CellSelect } from 'util/tableUtil';
 import { InteractiveColumnDef } from '../../../components/table/InteractiveColumnInjector';
-import { MultiHover } from './MultiHover';
+import { Popover } from '../../../components/wrapped/Popover';
 import { Info } from 'react-feather';
 import Button from 'components/wrapped/Button';
 import { SignoutTablesState, SignoutsTablesState } from 'async/staff/dockhouse/signouts';

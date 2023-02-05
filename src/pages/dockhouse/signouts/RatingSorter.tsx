@@ -4,7 +4,7 @@ import { option } from "fp-ts";
 import * as React from 'react';
 import { FlagStatusIcons } from "../../../components/dockhouse/FlagStatusIcons"
 import * as t from "io-ts";
-import { MultiHover } from "./MultiHover";
+import { Popover } from "../../../components/wrapped/Popover";
 import { ReactNode } from "react";
 import { programsHR } from "./Constants";
 import { ScannedPersonType } from "async/staff/dockhouse/scan-card";
@@ -91,7 +91,7 @@ export const RatingsHover = (props: {person: ScannedPersonType, programId: numbe
 	const hoverProps = React.useMemo(() => ({person: props.person, programId: MAGIC_NUMBERS.PROGRAM_TYPE_ID.ADULT_PROGRAM, ratingsSorted: ratingsSorted, orphanedRatingsShownByDefault: props.orphanedRatingsShownByDefault}), [props.person.personId, props.programId, ratings]);
 
 	return (
-		<MultiHover makeChildren={makeHover} hoverProps={hoverProps} openDisplay={props.label}/>
+		<Popover makeChildren={makeHover} hoverProps={hoverProps} openDisplay={props.label}/>
 	)
 }
 

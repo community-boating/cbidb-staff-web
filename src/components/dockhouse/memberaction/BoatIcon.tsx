@@ -77,7 +77,7 @@ export const boatIconsByKey = BoatIcons.reduce((a, b) => {
     return a;
 }, {} as {[key: string]: typeof BoatIcons[number]});
 
-function boatTypesMapped(boatTypes: BoatTypesType): [{[key: string]: BoatTypesType[number]}, {[key: number]: BoatTypesType[number]}]{
+export function boatTypesMapped(boatTypes: BoatTypesType): [{[key: string]: BoatTypesType[number]}, {[key: number]: BoatTypesType[number]}]{
     const boatsByHR = {};
     const boatsById = {};
     boatTypes.forEach((a) => {
@@ -104,10 +104,10 @@ export default function(props: BoatIconProps){
     )
 }
 
-export function BoatSelect(props: BoatIconProps & {autoWidth?: boolean, nowrap?: boolean, fullWidth?: boolean, useBoatImage?: boolean, className?: string}){
+export function BoatSelect(props: BoatIconProps & {label?: string, autoWidth?: boolean, nowrap?: boolean, fullWidth?: boolean, useBoatImage?: boolean, className?: string}){
     const boatTypes = React.useContext(BoatsContext);
     const boatTypesSelectOptions = React.useMemo(() => makeBoatTypesHR(boatTypes), [boatTypes]);
     const [boatsByHR, boatsById] = boatTypesMapped(boatTypes);
-    return <SelectInput controlledValue={props.boatId} updateValue={props.setBoatId} validationResults={[]} selectOptions={boatTypesSelectOptions} selectNone={false} nowrap={props.nowrap} autoWidth={props.autoWidth} fullWidth={props.fullWidth}
-    makeButton={props.useBoatImage ? (a) => a.value.isSome() ? <img src={boatIconsByHR[boatsById[a.value.value].boatName].src} className="h-[8vh] min-w-[10vh]"/> : <>Boat Type</> : undefined} customStyle={props.useBoatImage} className={props.className}></SelectInput>
+    return <SelectInput label={props.label} controlledValue={props.boatId} updateValue={props.setBoatId} validationResults={[]} selectOptions={boatTypesSelectOptions} selectNone={false} nowrap={props.nowrap} autoWidth={props.autoWidth} fullWidth={props.fullWidth}
+    makeButton={props.useBoatImage ? (a) => a.value.isSome() ? <img src={boatIconsByHR[boatsById[a.value.value].boatName].src} className="h-[8vh] min-w-[8vh]"/> : <>Boat Type</> : undefined} customStyle={props.useBoatImage} className={props.className}></SelectInput>
 }

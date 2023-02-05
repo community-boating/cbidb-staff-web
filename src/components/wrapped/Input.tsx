@@ -158,7 +158,7 @@ export function SelectInput<T_Value extends string | number> (props: CustomInput
 							{customStyle ? <></> : <ChevronDown className="flex-none"/>}
 						</div>
 					</Listbox.Button>
-					<Listbox.Options className={"absolute z-50 " + getPositionClassOuter(props)}>
+					<Listbox.Options className={"absolute z-50 overflow-y-scroll max-h-[50vh] " + getPositionClassOuter(props)}>
 						<div className={"bg-white " + getPositionClassInner(props)}>
 							{options}
 						</div>
@@ -168,7 +168,13 @@ export function SelectInput<T_Value extends string | number> (props: CustomInput
 				{props.end}
 			</div>
 			{autoWidth ? <div className="relative h-[0px] overflow-hidden">
-				{selectOptions.map((a, i) => <div key={i} className="overflow-hidden whitespace-nowrap flex flex-row gap-4">{a.display}{customStyle ? <></> : <ChevronDown className="flex-none"/>}</div>)}
+				{selectOptions.map((a, i) => <div key={i} className="overflow-hidden whitespace-nowrap flex flex-row gap-4">
+					<Label>
+						{props.label}
+					</Label>
+						{a.display}
+						{customStyle ? <></> : <ChevronDown className="flex-none"/>}
+					</div>)}
 			</div> : <></>}
 		</div>
     );

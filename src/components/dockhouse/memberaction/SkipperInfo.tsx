@@ -1,6 +1,6 @@
 import * as React from 'react';
 import person from 'assets/img/icons/person.svg';
-import { AddEditCrewProps, MemberActionProps, MemberActionState, SignoutActionMode } from "./MemberActionState";
+import { AddEditCrewProps, MemberActionProps, SignoutCombinedType, SignoutActionMode } from "./SignoutCombinedType";
 import { getProgramHR } from 'util/textAdapter';
 import { ScannedPersonType } from 'async/staff/dockhouse/scan-card';
 
@@ -15,7 +15,7 @@ import { CardNumberScanner, findCurrentMembership } from './CardNumberScanner';
 import IconButton from 'components/wrapped/IconButton';
 import { option } from 'fp-ts';
 
-function getCrewActions(props: {state: MemberActionState, setState: React.Dispatch<React.SetStateAction<MemberActionState>>, mode: SignoutActionMode}){
+function getCrewActions(props: {state: SignoutCombinedType, setState: React.Dispatch<React.SetStateAction<SignoutCombinedType>>, mode: SignoutActionMode}){
     return {
         add: (newCrew) => {
             props.setState((s) => ({...s, currentPeople: s.currentPeople.concat(newCrew)}));
@@ -92,7 +92,7 @@ export function AddCrew(props: AddEditCrewProps){
                 <Button className="bg-gray-200">Search Name</Button>
             </div> : <></>}
             <CardNumberScanner label="Add person..." onAction={(a) => {
-                props.add({...a, isSkipper: false, isTesting: false, testRatingId: option.none, sortOrder: 0});
+                props.add({...a, isSkipper: false, isTesting: false, testRatingId: option.none});
             }}></CardNumberScanner>
             {isSignout ? <><Button className="bg-gray-200" onClick={setRandom}>Find Highest Ratings</Button>
             <Button className="bg-gray-200" onClick={setRandom}>Find Highest Privileges</Button></> : <></>}

@@ -9,7 +9,7 @@ import { getSignoutsToday, SignoutType } from 'async/staff/dockhouse/signouts';
 import { filterActive, SignoutsTable } from '../signouts/SignoutsTable';
 import { makeInitFilter } from '../signouts/input/SignoutsTableFilter';
 import { SignoutsTablesExtraState, SignoutsTablesExtraStateDepOnAsync } from '../signouts/StateTypes';
-import { makeBoatTypesHR, makeReassignedMaps } from "../signouts/makeReassignedMaps";
+import { makeBoatTypesHR, makeReassignedMaps } from "../signouts/makeReassignedMaps"; 
 import { sortRatings } from '../signouts/RatingSorter';
 import * as t from "io-ts";
 import { BoatsContext } from 'components/dockhouse/providers/BoatsProvider';
@@ -117,7 +117,7 @@ export default function DockHousePage (props) {
                     </ActionCard>
                 </CardLayout>
             </CardLayout>
-            <Card title="Active Signouts" weight={FlexSize.S_0} className="basis-0">
+            <Card title="Active Signouts">
                 {signoutsToday.providerState == ProviderState.SUCCESS ? <SignoutsTable state={signoutsToday.signouts.filter((a) => a.signinDatetime.isNone())} setState={signoutsToday.setSignouts} extraState={extraState} isActive={true} filterValue={makeInitFilter()} globalFilter={{} as any} openEditRow={(row) => {actionModal.setAction(new EditSignoutAction(row))}}></SignoutsTable> : <>Loading...</>}
             </Card>
             <Card title="Completed Signouts">

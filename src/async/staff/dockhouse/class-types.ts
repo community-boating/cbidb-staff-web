@@ -42,5 +42,6 @@ export type ClassTypeType = t.TypeOf<typeof classTypeValidator>;
 export const getWrapper = new APIWrapper({
 	path: path,
 	type: HttpMethod.GET,
-	resultValidator: classTypesValidator
+	resultValidator: classTypesValidator,
+    permissions: []
 })

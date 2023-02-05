@@ -17,7 +17,7 @@ import { AppStateContext } from 'app/state/AppStateContext';
 import { CreateSignoutType, postWrapper as createSignout } from 'async/staff/dockhouse/create-signout';
 import { grantRatingsValidator, postWrapper as grantRatings } from 'async/staff/dockhouse/grant-ratings';
 import { AddEditCrew, DetailedPersonInfo } from './SkipperInfo';
-import { SignoutActionMode, MemberActionState, EditSignoutState } from './MemberActionState';
+import { SignoutActionMode, SignoutCombinedType, EditSignoutState } from './SignoutCombinedType';
 import { putSignout, SignoutTablesState, SignoutType } from 'async/staff/dockhouse/signouts';
 import { RatingsContext } from 'components/dockhouse/providers/RatingsProvider';
 import { ActionModalProps, NoneAction } from './ActionModalProps';
@@ -25,6 +25,7 @@ import { MemberActionType } from "./MemberActionType";
 import { RatingsType } from 'async/staff/dockhouse/ratings';
 import * as moment from 'moment';
 import { buttonClassActive, buttonClasses, buttonClassInactive } from './styles';
+import { RatingsSelect } from './class/ActionClassModal';
 //import { buttonClasses, buttonClassInactive, buttonClassActive } from './buttonClasses';
 
 export function DotBox(props: {className?: string, children: React.ReactNode}){
@@ -37,10 +38,9 @@ export function DialogOutput(props: {children: React.ReactNode}){
     return <div className="bg-card w-full">{props.children}</div>;
 }
 
-export function EditSignout(props: {state: MemberActionState, setState: React.Dispatch<React.SetStateAction<MemberActionState>>, mode: SignoutActionMode}){
-    const ratings = React.useContext(RatingsContext);
-    const ratingsHR = React.useMemo(() => ratings.map((a) => ({value: a.ratingId, display: a.ratingName})), [ratings]);
-    const propsSorted = {...props, state: {...props.state, currentPeople: props.state.currentPeople.sort((a, b) => a.sortOrder - b.sortOrder)}};
+export function EditSignout(props: {state: SignoutCombinedType, setState: React.Dispatch<React.SetStateAction<SignoutCombinedType>>, mode: SignoutActionMode}){
+    const propsSorted = {...props, state: {...props.state, currentPeople: props.state.currentPeople}};
+    const [dialogOutput, setDialogOutput] = React.useState<option.Option<string>>(option.none);
     const setBoatId = (boatId: option.Option<number>) => {
         props.setState({...props.state, boatId: boatId})
     };
@@ -53,7 +53,7 @@ export function EditSignout(props: {state: MemberActionState, setState: React.Di
         <div className="flex flex-row grow-[1]">
             <DialogOutput>
                 <p>Dialog Output</p>
-                <p>{props.state.dialogOutput.isSome() ? props.state.dialogOutput.value : <></>}</p>
+                <p>{dialogOutput.isSome() ? dialogOutput.value : <></>}</p>
             </DialogOutput>
         </div>
         <div className="flex flex-row grow-[3]">
@@ -72,8 +72,8 @@ export function EditSignout(props: {state: MemberActionState, setState: React.Di
                         </div>
                         <div className="flex flex-col items-end gap-5">
                             <SelectInput label="Signout Type:" className="w-[200px]" controlledValue={props.state.signoutType} updateValue={(v) => {props.setState((s) => ({...s, signoutType: v}))}} selectOptions={signoutTypesHR} autoWidth></SelectInput>
-                            <SelectInput label="Test Type:" className="w-[200px]" controlledValue={props.state.testType} updateValue={(v) => {props.setState((s) => ({...s, testType: v}))}} selectOptions={testResultsHR} autoWidth></SelectInput>
-                            <SelectInput label="Test Rating:" className="w-[200px]" controlledValue={props.state.testRating} updateValue={(v) => {props.setState((s) => ({...s, testRating: v}))}} selectOptions={ratingsHR} autoWidth></SelectInput>
+                            <SelectInput label="Test Type:" className="w-[200px]" controlledValue={option.none} updateValue={undefined} selectOptions={testResultsHR} autoWidth></SelectInput>
+                            <RatingsSelect label="Ratings:" className="w-[200px]" ratingId={props.state.testRating} setRating={(v) => {props.setState((s) => ({...s, testRating: v}))}}/>
                         </div>
                     </div>
                 </DotBox>
@@ -82,12 +82,12 @@ export function EditSignout(props: {state: MemberActionState, setState: React.Di
     </div>);
 }
 
-export function getSkipper(state: MemberActionState){
+export function getSkipper(state: SignoutCombinedType){
     const skipperPeople = state.currentPeople.find((a) => a.isSkipper);
     return skipperPeople ? option.some(skipperPeople) : option.none;
 }
 
-function convertToCreateSignout(state: MemberActionState): CreateSignoutType{
+function convertToCreateSignout(state: SignoutCombinedType): CreateSignoutType{
     const skipper = getSkipper(state);
     if(!skipper.isSome()){
         throw "bad";
@@ -113,11 +113,11 @@ function convertToCreateSignout(state: MemberActionState): CreateSignoutType{
     }
 }
 
-function validateSubmit(state: MemberActionState): string[]{
+function validateSubmit(state: SignoutCombinedType): string[]{
     return [];
 }
 
-function CreateQueueSignout(props: {state: MemberActionState, setState: React.Dispatch<React.SetStateAction<MemberActionState>>}){
+function CreateQueueSignout(props: {state: SignoutCombinedType, setState: React.Dispatch<React.SetStateAction<SignoutCombinedType>>}){
     const asc = React.useContext(AppStateContext);
     const modal = React.useContext(ModalContext);
     return <>
@@ -136,7 +136,7 @@ function CreateQueueSignout(props: {state: MemberActionState, setState: React.Di
     </>
 }
 
-const memberActionTypes: {title: React.ReactNode, getContent: (state: MemberActionState, setState: React.Dispatch<React.SetStateAction<MemberActionState>>) => React.ReactNode}[] = [{
+const memberActionTypes: {title: React.ReactNode, getContent: (state: SignoutCombinedType, setState: React.Dispatch<React.SetStateAction<SignoutCombinedType>>) => React.ReactNode}[] = [{
     title: "Sign Out",
     getContent: (state, setState) => <>
         <EditSignout state={state} setState={setState} mode={SignoutActionMode.SIGNOUT}/>
@@ -175,7 +175,7 @@ const memberActionTypes: {title: React.ReactNode, getContent: (state: MemberActi
 
 export type GrantRatingsType = t.TypeOf<typeof grantRatingsValidator>
 
-function convertToGrantRatings(state: MemberActionState, programId: number, ratingIds: number[]): GrantRatingsType{
+function convertToGrantRatings(state: SignoutCombinedType, programId: number, ratingIds: number[]): GrantRatingsType{
     return {
         instructor: "jon",
         programId: programId,
@@ -184,7 +184,7 @@ function convertToGrantRatings(state: MemberActionState, programId: number, rati
     }
 }
 
-function MemberActionRatings(props: {state: MemberActionState, setState: React.Dispatch<React.SetStateAction<MemberActionState>>}){
+function MemberActionRatings(props: {state: SignoutCombinedType, setState: React.Dispatch<React.SetStateAction<SignoutCombinedType>>}){
     const asc = React.useContext(AppStateContext);
     const availablePrograms = {};
     props.state.currentPeople.forEach((a) => {
@@ -215,7 +215,8 @@ export function MemberActionModal(props: MemberActionType){
         signoutType: option.none,
         testType: option.none,
         testRating: option.none,
-        dialogOutput: option.none});
+        dialogOutput: option.none,
+        signoutId: -1});
     return <Tab.Group>
         <ModalHeader className="text-2xl font-bold">
             <Tab.List className="flex flex-row gap-primary">
@@ -237,7 +238,7 @@ export function MemberActionModal(props: MemberActionType){
     </Tab.Group>
 }
 
-function adaptSignoutState(state: SignoutTablesState, ratings: RatingsType): EditSignoutState{
+export function adaptSignoutState(state: SignoutTablesState, ratings: RatingsType): EditSignoutState{
 	return {
 		currentPeople: [{
             personId: state.$$skipper.personId,
@@ -288,13 +289,12 @@ function adaptSignoutState(state: SignoutTablesState, ratings: RatingsType): Edi
         boatNum: option.none,
         hullNum: state.hullNumber,
         sailNum: state.sailNumber,
-        testType: state.testResult,
         testRating: state.testRatingId,
-        dialogOutput: option.none
+        signoutId: state.signoutId
 	}
 }
 
-function adaptMemberState(state: MemberActionState, currentRow: SignoutTablesState): SignoutTablesState{
+function adaptMemberState(state: SignoutCombinedType, currentRow: SignoutTablesState): SignoutTablesState{
     return {...currentRow,
         boatId:state.boatId.getOrElse(undefined),
         hullNumber: state.hullNum,
@@ -325,7 +325,7 @@ export function EditSignoutModal(props: EditSignoutType){
 		</>
 }
 
-function SubmitEditSignout(props: {state: MemberActionState, currentRow: SignoutTablesState}){
+function SubmitEditSignout(props: {state: SignoutCombinedType, currentRow: SignoutTablesState}){
     const asc = React.useContext(AppStateContext);
     return <div className="flex flex-row gap-2 ml-auto mr-0">
         <ModalContext.Consumer>

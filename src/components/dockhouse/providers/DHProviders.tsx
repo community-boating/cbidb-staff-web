@@ -3,6 +3,7 @@ import ScannedPersonsCache from 'components/dockhouse/memberaction/ScannedPerson
 import * as React from 'react';
 import BoatsProvider from './BoatsProvider';
 import ClassesProvider from './ClassesProvider';
+import ClassLocationsProvider from './ClassLocationsProvider';
 import ClassTypesProvider from './ClassTypesProvider';
 import DHGlobalProvider from './DHGlobalProvider';
 import InstructorsProvider from './InstructorsProvider';
@@ -15,15 +16,17 @@ export default function DHProviders(props: {children?: React.ReactNode}){
             <SignoutsTodayProvider>
                 <DHGlobalProvider>
                     <InstructorsProvider>
-                        <ScannedPersonsCache>
-                            <ClassesProvider>
-                                <ClassTypesProvider>
-                                    <ActionModalProvider>
-                                        {props.children}
-                                    </ActionModalProvider>
-                                </ClassTypesProvider>
-                            </ClassesProvider>
-                        </ScannedPersonsCache>
+                        <ClassLocationsProvider>
+                            <ScannedPersonsCache>
+                                <ClassesProvider>
+                                    <ClassTypesProvider>
+                                        <ActionModalProvider>
+                                            {props.children}
+                                        </ActionModalProvider>
+                                    </ClassTypesProvider>
+                                </ClassesProvider>
+                            </ScannedPersonsCache>
+                        </ClassLocationsProvider>
                     </InstructorsProvider>
                 </DHGlobalProvider>
             </SignoutsTodayProvider>

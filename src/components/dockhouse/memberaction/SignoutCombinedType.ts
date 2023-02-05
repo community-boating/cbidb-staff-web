@@ -3,28 +3,27 @@ import { SignoutType } from 'async/staff/dockhouse/signouts';
 import { option } from 'fp-ts';
 
 
-export type MemberActionState = {
-    currentPeople: (ScannedCrewType[number] & {isSkipper: boolean, isTesting: boolean, testRatingId: option.Option<number>, sortOrder: number})[]
+export type SignoutCombinedType = {
+    currentPeople: (ScannedCrewType[number] & {isSkipper: boolean, isTesting: boolean, testRatingId: option.Option<number>})[]
     boatId: option.Option<number>
     boatNum: option.Option<string>
     hullNum: option.Option<string>
     sailNum: option.Option<string>
     signoutType: option.Option<SignoutType>
-    testType: option.Option<string>
     testRating: option.Option<number>
-    dialogOutput: option.Option<string>
+    signoutId: number
 }
 
-export type EditSignoutState = MemberActionState & {}
+export type EditSignoutState = SignoutCombinedType & {}
 
 export type ActionProps = {
-    state: MemberActionState
-    setState: React.Dispatch<React.SetStateAction<MemberActionState>>
+    state: SignoutCombinedType
+    setState: React.Dispatch<React.SetStateAction<SignoutCombinedType>>
 }
 
 
 export type AddEditCrewProps = MemberActionProps & {
-    add: (newCrew: MemberActionState['currentPeople'][number]) => void
+    add: (newCrew: SignoutCombinedType['currentPeople'][number]) => void
     remove: (index: number) => void
     setSkipper: (index: number) => void
     setTesting: (index: number, testing: boolean) => void

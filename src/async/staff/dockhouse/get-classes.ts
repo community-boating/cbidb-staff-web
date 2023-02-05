@@ -1,7 +1,7 @@
 import * as t from 'io-ts';
 import APIWrapper from 'core/APIWrapper';
 import { HttpMethod } from "core/HttpMethod";
-import { Date, DateTime, OptionalDateTime, OptionalNumber, OptionalString } from 'util/OptionalTypeValidators';
+import { Date, DateTime, EnumType, OptionalDateTime, OptionalEnumType, OptionalNumber, OptionalString } from 'util/OptionalTypeValidators';
 
 const sessionValidator = t.type({
 	sessionId: t.number,
@@ -12,6 +12,13 @@ const sessionValidator = t.type({
 	sessionLength: t.number// Hours?
 });
 
+export enum SignupType{
+    ACTIVE="E",
+    WAITLIST="W"
+}
+
+export const signupTypeValidator = EnumType("signupType", SignupType);
+
 export const signupValidator = t.type({
     $$person: t.type({
         personId: t.number,
@@ -20,7 +27,7 @@ export const signupValidator = t.type({
     }),
     instanceId: t.number,
     signupId: t.number,
-    signupType: t.string,
+    signupType: signupTypeValidator,
     signupDatetime: DateTime,
     personId: t.number
 });
@@ -32,6 +39,7 @@ export const classValidator = t.type({
 	$$apClassSessions: t.array(sessionValidator),
     $$apClassSignups: t.array(signupValidator),
     locationString: OptionalString,
+    instructorId: OptionalNumber,
     signupMax: t.number,
     signupMin: t.number,
 });

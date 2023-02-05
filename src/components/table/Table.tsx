@@ -144,8 +144,8 @@ export const Table: <T_Data, T_Filter>(props: TableProps<T_Data, T_Filter>) => J
 		</tfoot> : undefined
 	}, []);
 	return (
-		<div className="p-2 h-full">
-			<table className="table-auto w-full h-full">
+		<div className="p-2 w-full grow-[1] flex flex-col">
+			<table className="table-auto w-full">
 				{header}
 				<tbody>
 					{table.getRowModel().rows.map(row => (
@@ -160,9 +160,10 @@ export const Table: <T_Data, T_Filter>(props: TableProps<T_Data, T_Filter>) => J
 				</tbody>
 				{footer}
 			</table>
-			<div className="h-4" />
-			{pagination}
-			{hiddenColumnsControl}
+			<div className="w-full flex flex-row mt-auto mb-0">
+				{pagination}
+				{hiddenColumnsControl}
+			</div>
 		</div>
 	);
 };

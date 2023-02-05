@@ -3,7 +3,7 @@ import { InstructorsContext } from 'components/dockhouse/providers/InstructorsPr
 import { SelectInput } from 'components/wrapped/Input';
 import { option } from 'fp-ts';
 import * as React from 'react';
-import { ActionClassType } from '../ActionModalProps';
+import { ActionClassType } from "./ActionClassType";
 
 export function AddInstructor(props: {onAdd: (instructor: InstructorType) => {}}){
     const instructors = React.useContext(InstructorsContext);

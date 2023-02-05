@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { putSignout, putSignouts, SignoutsTablesState, SignoutTablesState } from 'async/staff/dockhouse/signouts';
+import { putSignout, SignoutsTablesState, SignoutTablesState } from 'async/staff/dockhouse/signouts';
 import { Option } from 'fp-ts/lib/Option';
 import * as moment from "moment";
 

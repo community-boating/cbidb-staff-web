@@ -23,7 +23,7 @@ export default function RadioGroup<T_Value>(props: RadioGroupProps<T_Value>){
     }
     return <RadioGroupHUI value={props.value.getOrElse("" as any)} onChange={(e) => {props.setValue(option.some(e))}}>
         <RadioGroupHUI.Label>{props.label}</RadioGroupHUI.Label>
-        <div ref={ref} className={props.className} tabIndex={0}>
+        <div ref={ref} className={props.className} tabIndex={0}  onClick={(e) => {e.preventDefault(); e.stopPropagation();}}>
             {props.makeChildren.map((a, i) => (<RadioGroupHUI.Option key={i} value={a.value} as={React.Fragment}>
                 {({active, checked}) => <button key={i} className="flex">{a.makeNode(checked, props.setValue)}</button>}
             </RadioGroupHUI.Option>))}

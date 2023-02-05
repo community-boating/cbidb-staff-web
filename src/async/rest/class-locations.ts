@@ -11,12 +11,15 @@ export const classLocationValidator = t.type({
 
 export const validator = t.array(classLocationValidator);
 
+export type ClassLocationType = t.TypeOf<typeof classLocationValidator>;
+
 const path = "/rest/class-location";
 
 export const getWrapper = new APIWrapper({
 	path,
 	type: HttpMethod.GET,
 	resultValidator: validator,
+	permissions: []
 });
 
 const resultValidator = t.type({

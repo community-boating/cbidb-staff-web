@@ -3,52 +3,123 @@ import { SignoutTablesState } from 'async/staff/dockhouse/signouts';
 import { BoatsContext } from 'components/dockhouse/providers/BoatsProvider';
 import { option } from 'fp-ts';
 import * as React from 'react';
-import { ActionClassType } from '../ActionModalProps';
+import { ActionClassType } from "./ActionClassType";
 import BoatIcon, { BoatIcons, BoatSelect } from '../BoatIcon';
-import x from 'assets/img/icons/buttons/x.svg';
-import { OptionalStringInput, SimpleInput } from 'components/wrapped/Input';
+import add from 'assets/img/icons/buttons/add.svg';
+import { CustomInputProps, OptionalStringInput } from 'components/wrapped/Input';
 import Button from 'components/wrapped/Button';
 import { buttonClassActive, buttonClasses, buttonClassInactive } from '../styles';
+import { RatingsContext } from 'components/dockhouse/providers/RatingsProvider';
+import { ClassBoatListActions, NON_SELECTABLE_CLASS_NAME, SelectableDiv, selectKeySignout, selectKeySignoutPerson } from './ClassSelectableDiv';
+import { SignoutCombinedType } from '../SignoutCombinedType';
+import { Action, ActionBasedEditorProps } from 'components/ActionBasedEditor';
+import { AddActionType, addSignoutAction, findLowestId, updateSignoutAction } from './Actions';
+import { ScannedPersonType } from 'async/staff/dockhouse/scan-card';
+import { RatingsHover } from 'pages/dockhouse/signouts/RatingSorter';
+import { MAGIC_NUMBERS } from 'app/magicNumbers';
 
-function ClassBoat(props: SignoutTablesState & {selected: boolean, setSelected: React.Dispatch<React.SetStateAction<option.Option<number>>>}){
+function InputWithDelay<T_Value>(props: {makeInput: (value: T_Value, updateValue: (value: T_Value) => void) => JSX.Element, delay: number, value: T_Value, updateValue: (value: T_Value) => void}){
+    const [value, updateValue] = React.useState(props.value);
+    const ref = React.useRef<NodeJS.Timeout>();
+    React.useEffect(() => {
+        updateValue(props.value);
+    }, [props.value]);
+    React.useEffect(() => {
+        return () => {
+            if(ref.current){
+                clearTimeout(ref.current);
+            }
+        }
+    }, []);
+    const updateValueDelayed = (value: T_Value) => {
+        props.updateValue(value);
+        if(ref.current){
+            clearTimeout(ref.current);
+        }
+        ref.current = setTimeout(() => {
+            updateValue(value);
+        }, props.delay);
+    }
+    return props.makeInput(value, updateValueDelayed);
+}
+
+export function NameWithRatingHover(props: ScannedPersonType & {programId: number}){
+    return <RatingsHover person={props} programId={props.programId} orphanedRatingsShownByDefault={[]} label={
+        <p className="truncate">{props.nameFirst} {props.nameLast}</p>
+    }/>
+}
+
+function ClassBoat(props: SignoutCombinedType & ClassBoatListActions & AddActionType & 
+{selectingInner: boolean, setSelectingInner: React.Dispatch<React.SetStateAction<boolean>>}){
     const boatTypes = React.useContext(BoatsContext);
     const boatsById = React.useMemo(() => boatTypes.reduce((a, b) => {
         a[b.boatId] = b;
         return a;
     }, {} as {[key: number]: BoatTypesType[number]}), [boatTypes]);
-    const allPeople = [props.$$skipper].concat(props.$$crew.map((a) => ({...a.$$person, $$personRatings: []}))).concat(props.$$crew.map((a) => ({...a.$$person, $$personRatings: []}))).concat(props.$$crew.map((a) => ({...a.$$person, $$personRatings: []}))).concat(props.$$crew.map((a) => ({...a.$$person, $$personRatings: []}))).concat(props.$$crew.map((a) => ({...a.$$person, $$personRatings: []}))).concat(props.$$crew.map((a) => ({...a.$$person, $$personRatings: []}))).concat(props.$$crew.map((a) => ({...a.$$person, $$personRatings: []})));
-    return <div className={"border-2 " + (allPeople.length > 4 ? "col-span-3 " : "col-span-2 ") + (props.selected ? "border-red-600" : "border")} onClick={(e) => {
-        props.setSelected(option.some(props.signoutId));
-    }}>
-            <div className="flex flex-row w-full h-full">
-            <div className="h-full grow-[1] basis-0">
-                <div className="flex flex-row basis-0 grow-0">
-                    <BoatSelect boatId={option.some(props.boatId)} setBoatId={() => {}} useBoatImage className="h-[8vh]"/>
-                    <OptionalStringInput controlledValue={props.sailNumber} updateValue={(v) => {}} label={"#"} customStyle className="bg-transparent border-0 text-[8vh] leading-none p-0 m-0 w-[8vh] h-[8vh]"></OptionalStringInput>
+    const ratings = React.useContext(RatingsContext);
+    const long = props.currentPeople.length > 4;
+    return <div className={(long ? "col-span-3 " : "col-span-2 ")}>
+
+                        <SelectableDiv className="w-full h-full" isInner={false} thisSelect={{[selectKeySignout(props.signoutId)]: true}} {...props} makeNoSelectChildren={(ref) =>
+                            <div ref={ref} className="flex flex-row basis-0 grow-[1] my-auto">
+                                <BoatSelect boatId={props.boatId} setBoatId={(v) => {
+                                    props.addAction(updateSignoutAction({signoutId: props.signoutId, boatId: v}));
+                                }} useBoatImage className="h-[8vh] w-[8vh]"/>
+                                <InputWithDelay value={props.sailNum} updateValue={(v) => {
+                                    props.addAction(updateSignoutAction({signoutId: props.signoutId, sailNum: v}));
+                                }} delay={400} makeInput={(value, updateValue) => 
+                                    <OptionalStringInput controlledValue={value} updateValue={updateValue} label={"#"} customStyle className="bg-transparent border-0 text-[8vh] leading-none p-0 m-0 w-[10vh] h-[8vh] overflow-x-visible w-full"></OptionalStringInput>
+                                }></InputWithDelay>
+                            </div>
+                        }>
+                <div className={"grid grid-rows-4 basis-0 gap-1 p-1 " + (long ? "grow-[2] grid-cols-2" : "grow-[1] grid-cols-1")}>
+                    {props.currentPeople.map((a, i) => <div key={i} className="grow-0 basis-0 whitespace-nowrap flex flex-row w-full">
+                        <SelectableDiv isInner thisSelect={{[selectKeySignoutPerson(props.signoutId, a.personId)]: true}} {...props}>
+                            <div className="basis-3 min-w-full max-w-full leading-none text-overflow-ellipsis"><NameWithRatingHover {...a} programId={MAGIC_NUMBERS.PROGRAM_TYPE_ID.ADULT_PROGRAM}/></div>
+                        </SelectableDiv>
+                    </div>)}
                 </div>
-            </div>
-            <div className={"grid grid-cols-2 grid-rows-4 basis-0 " + (allPeople.length > 4 ? "grow-[2]" : "grow-[1]")}>
-                {allPeople.map((a) => <div className="grow-0 basis-0 whitespace-nowrap flex flex-row w-full">
-                    <input className="h-icon_button ml-0 mr-auto basis-1 grow-[1]" type="image" src={x}/>
-                    <p className="ml-2 basis-3 grow-[3]">{a.nameFirst}</p>
-                    <p className="basis-3 grow-[3]">{a.nameLast}</p>
-                </div>)}
-            </div>
-        </div>
+        </SelectableDiv>
     </div>
 }
 
-export function ClassActionsList(props: {signin, incident, cancel, new}){
+export function ClassActionsList(props: {signin, incident, cancel}){
     return <div className="flex flex-row gap-2">
         <Button className={buttonClasses + " " + buttonClassInactive} onClick={(e) => props.signin()}>Sign In</Button>
         <Button className={buttonClasses + " " + buttonClassInactive} onClick={(e) => props.incident()}>Incident</Button>
         <Button className={buttonClasses + " " + buttonClassInactive} onClick={(e) => props.cancel()}>Cancel</Button>
-        <Button className={buttonClasses + " " + buttonClassActive} onClick={(e) => props.signin()}>Add</Button>
     </div>
 }
 
-export default function ClassSignoutBoatList(props: ActionClassType & {selected: option.Option<number>, setSelected: React.Dispatch<React.SetStateAction<option.Option<number>>>}){
-    return <div className="grid gap-2 grid-cols-4 grid-rows-6 grow-[1] max-h-full h-full">
-        {props.associatedSignouts.map((a) => <ClassBoat key={a.signoutId} {...a} selected={props.selected.getOrElse(-1) == a.signoutId} setSelected={props.setSelected}/>)}
+export function makeNewSignout(associatedSignouts: SignoutCombinedType[], newBoatId: option.Option<number>, addAction: AddActionType['addAction']){
+    const newId = findLowestId(associatedSignouts) - 1;
+    addAction(addSignoutAction({signoutId: newId, boatId: newBoatId}));
+    return newId;
+}
+
+export default function ClassSignoutBoatList(props: ActionClassType & ClassBoatListActions & AddActionType){
+    const [selectingInner, setSelectingInner] = React.useState(false);
+    React.useEffect(() => {
+        const listener = () => {
+            setSelectingInner(false);
+        }
+        document.addEventListener('mouseup', listener);
+        return () => {
+            document.removeEventListener('mouseup', listener);
+        }
+    }, [])
+    return <div className="flex flex-col grow-[1]">
+        <div className="grid gap-2 grid-cols-6 grid-rows-6 grow-[1] max-h-full">
+            <div className="relative col-span-2 border-2 select-none cursor-pointer" onClick={(e) => {
+                e.preventDefault();
+                const newId = makeNewSignout(props.associatedSignouts, option.none, props.addAction);
+                props.set({[selectKeySignout(newId)]: true});
+            }}>
+                <div className="relative w-full h-full">
+                    <input type="image" className="absolute h-[90%] m-auto right-0 left-0 top-0 bottom-0" src={add}/>
+                </div>
+            </div>
+            {props.associatedSignouts.map((a) => <ClassBoat key={a.signoutId} {...a} {...props} selectingInner={selectingInner} setSelectingInner={setSelectingInner}/>)}
+        </div>
     </div>
 }
