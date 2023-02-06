@@ -1,11 +1,10 @@
 import * as React from 'react';
 import { CardLayout, Card, LayoutDirection, FlexSize, CardProps } from '../../../components/dockhouse/Card';
-import ActionModal, { ActionModalContext } from '../../../components/dockhouse/memberaction/ActionModal';
-import { Action, NoneAction } from "../../../components/dockhouse/memberaction/ActionModalProps";
-import { EditSignoutAction, MemberAction } from "../../../components/dockhouse/memberaction/MemberActionType";
-import { CardNumberScanner } from "../../../components/dockhouse/memberaction/CardNumberScanner";
-import AsyncStateProvider, { ProviderState } from 'core/AsyncStateProvider';
-import { getSignoutsToday, SignoutType } from 'async/staff/dockhouse/signouts';
+import { ActionModalContext } from '../../../components/dockhouse/actionmodal/ActionModal';
+import { MemberAction } from "../../../components/dockhouse/actionmodal/member-action/MemberActionType";
+import { CardNumberScanner } from "../../../components/dockhouse/actionmodal/CardNumberScanner";
+import { ProviderState } from 'core/AsyncStateProvider';
+import { SignoutType } from 'async/staff/dockhouse/signouts';
 import { filterActive, SignoutsTable } from '../signouts/SignoutsTable';
 import { makeInitFilter } from '../signouts/input/SignoutsTableFilter';
 import { SignoutsTablesExtraState, SignoutsTablesExtraStateDepOnAsync } from '../signouts/StateTypes';
@@ -18,7 +17,9 @@ import { SignoutsTodayContext } from 'components/dockhouse/providers/SignoutsTod
 import { GoButton } from 'components/wrapped/IconButton';
 import { TestType } from 'async/staff/dockhouse/tests';
 import * as moment from 'moment';
-import { EditTestsAction } from 'components/dockhouse/memberaction/test/EditTestsType';
+import { EditTestsAction } from 'components/dockhouse/actionmodal/test/EditTestsType';
+import { ActionChooseClass } from 'components/dockhouse/actionmodal/class/ActionClassType';
+import { EditSignoutAction } from 'components/dockhouse/actionmodal/signouts/EditSignoutType';
 
 type CardOrButtonProps = CardProps & {
     //button: React.ReactNode;
@@ -96,6 +97,9 @@ export default function DockHousePage (props) {
                     <Card title="Dynamic Large View"></Card>
                 </CardLayout>
                 <CardLayout direction={LayoutDirection.VERTICAL}>
+                    <ActionCard title="Schedule" onAction={() => {
+                        actionModal.setAction(new ActionChooseClass());
+                    }}></ActionCard>
                     <Card title="Incidents">
                         <div className="flex flex-row gap-2">
                             <NumberWithLabel number={0} label="Pending"/>
@@ -103,7 +107,6 @@ export default function DockHousePage (props) {
                             <NumberWithLabel number={3} label="Assigned"/>
                         </div>
                     </Card>
-                    <ActionCard title="Schedule" onAction={undefined}></ActionCard>
                     <ActionCard title="testing" onAction={() => {
                         const testingSignouts = signoutsToday.signouts.filter((a) => a.signoutType == SignoutType.TEST);
                         const testsToday: TestType[] = testingSignouts.flatMap((a) => [{signoutId: a.signoutId, personId: a.$$skipper.personId, nameFirst: a.$$skipper.nameFirst, nameLast: a.$$skipper.nameLast, testResult: a.testResult, createdBy: 0, createdOn: moment()}].concat(a.$$crew.map((b) => ({signoutId: a.signoutId, testResult: a.testResult, ...b.$$person, createdBy: 0, createdOn: moment()}))));

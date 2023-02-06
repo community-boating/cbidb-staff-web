@@ -1,5 +1,5 @@
 import { SelectedType, selectKeyRosterPerson, selectKeySignout, selectKeySignoutPerson } from "./ClassSelectableDiv";
-import { SignoutCombinedType } from '../SignoutCombinedType';
+import { SignoutCombinedType } from '../signouts/SignoutCombinedType';
 import { ClassType } from 'async/staff/dockhouse/get-classes';
 
 

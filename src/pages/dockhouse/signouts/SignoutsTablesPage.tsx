@@ -13,9 +13,9 @@ import { AppStateContext } from 'app/state/AppStateContext';
 import { SignoutsTablesExtraStateDepOnAsync, SignoutsTablesExtraState } from './StateTypes';
 import { RatingsContext } from 'components/dockhouse/providers/RatingsProvider';
 import { BoatsContext } from 'components/dockhouse/providers/BoatsProvider';
-import { ActionModalContext } from '../../../components/dockhouse/memberaction/ActionModal';
-import { EditSignoutAction } from "../../../components/dockhouse/memberaction/MemberActionType";
+import { ActionModalContext } from '../../../components/dockhouse/actionmodal/ActionModal';
 import { makeReassignedMaps, handleSingleSignIn, makeBoatTypesHR } from './makeReassignedMaps';
+import { EditSignoutAction } from 'components/dockhouse/actionmodal/signouts/EditSignoutType';
 
 function matchNameOrCard(row: SignoutTablesState, nameOrCard: string) {
 	if(nameOrCard.trim().length === 0){

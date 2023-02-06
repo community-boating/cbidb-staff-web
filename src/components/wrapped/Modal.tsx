@@ -36,6 +36,12 @@ export function ModalDescription(props: {children?: React.ReactNode}){
     return <Dialog.Description>{props.children}</Dialog.Description>;
 }
 
+export function DefaultModalBody(props: {children?: React.ReactNode}){
+    return <div className="h-[calc(100vh-10vw)] w-[90vw] flex flex-col">
+        {props.children}
+    </div>
+}
+
 export default function Modal(props: ModalProps){
     return (
         <Dialog className="fixed h-full w-full top-0 left-0 flex items-center justify-center z-10" open={props.open} onClose={() => props.setOpen(false)}>

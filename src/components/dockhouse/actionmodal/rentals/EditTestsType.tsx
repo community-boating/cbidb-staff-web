@@ -10,7 +10,7 @@ export type EditTestsType = {
     tests: TestType[]
 }
 
-export class EditTestsAction extends Action<EditTestsType>{
+export class EditTestsAction extends Action<EditTestsType, {}>{
     constructor(testingSignouts: SignoutsTablesState, tests: TestType[]){
         super();
         this.modeInfo = {

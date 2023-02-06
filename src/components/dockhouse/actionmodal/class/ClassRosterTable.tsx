@@ -2,7 +2,7 @@ import { MAGIC_NUMBERS } from 'app/magicNumbers';
 import { ClassType, SignupType } from 'async/staff/dockhouse/get-classes';
 import * as React from 'react';
 import { ActionClassType, AttendanceMap } from "./ActionClassType";
-import { SignoutCombinedType } from '../SignoutCombinedType';
+import { SignoutCombinedType } from '../signouts/SignoutCombinedType';
 import { AddActionType, AddCrewAction, updateAttendanceList, updateClassSignup, updateSignoutCrew } from './Actions';
 import { ClassBoatListActions, SelectableDiv, SelectedType, selectKeyRosterPerson, selectKeySignout } from './ClassSelectableDiv';
 import { makeNewSignout, NameWithRatingHover } from './ClassSignoutBoatList';

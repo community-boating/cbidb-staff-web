@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { Calendar, Event, momentLocalizer } from 'react-big-calendar'
+import { Calendar, Event, momentLocalizer, Views } from 'react-big-calendar'
 import withDragAndDrop from 'react-big-calendar/lib/addons/dragAndDrop'
 import * as moment from 'moment'
 import { ClassesContext } from 'components/dockhouse/providers/ClassesProvider';
@@ -66,6 +66,7 @@ export default function ClassesCalendar(props: ClassesProps){
     events={events}
     startAccessor="start"
     endAccessor="end"
+    defaultView={Views.DAY}
     selected={current}
     min={minTime}
     max={maxTime}

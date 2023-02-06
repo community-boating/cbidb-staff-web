@@ -11,8 +11,8 @@ import Button from 'components/wrapped/Button';
 import { buttonClassActive, buttonClasses, buttonClassInactive } from '../styles';
 import { RatingsContext } from 'components/dockhouse/providers/RatingsProvider';
 import { ClassBoatListActions, NON_SELECTABLE_CLASS_NAME, SelectableDiv, selectKeySignout, selectKeySignoutPerson } from './ClassSelectableDiv';
-import { SignoutCombinedType } from '../SignoutCombinedType';
-import { Action, ActionBasedEditorProps } from 'components/ActionBasedEditor';
+import { SignoutCombinedType } from '../signouts/SignoutCombinedType';
+import { EditAction, ActionBasedEditorProps } from 'components/ActionBasedEditor';
 import { AddActionType, addSignoutAction, findLowestId, updateSignoutAction } from './Actions';
 import { ScannedPersonType } from 'async/staff/dockhouse/scan-card';
 import { RatingsHover } from 'pages/dockhouse/signouts/RatingSorter';
@@ -32,12 +32,12 @@ function InputWithDelay<T_Value>(props: {makeInput: (value: T_Value, updateValue
         }
     }, []);
     const updateValueDelayed = (value: T_Value) => {
-        props.updateValue(value);
+        updateValue(value);
         if(ref.current){
             clearTimeout(ref.current);
         }
         ref.current = setTimeout(() => {
-            updateValue(value);
+            props.updateValue(value);
         }, props.delay);
     }
     return props.makeInput(value, updateValueDelayed);
@@ -67,7 +67,7 @@ function ClassBoat(props: SignoutCombinedType & ClassBoatListActions & AddAction
                                 }} useBoatImage className="h-[8vh] w-[8vh]"/>
                                 <InputWithDelay value={props.sailNum} updateValue={(v) => {
                                     props.addAction(updateSignoutAction({signoutId: props.signoutId, sailNum: v}));
-                                }} delay={400} makeInput={(value, updateValue) => 
+                                }} delay={800} makeInput={(value, updateValue) => 
                                     <OptionalStringInput controlledValue={value} updateValue={updateValue} label={"#"} customStyle className="bg-transparent border-0 text-[8vh] leading-none p-0 m-0 w-[10vh] h-[8vh] overflow-x-visible w-full"></OptionalStringInput>
                                 }></InputWithDelay>
                             </div>

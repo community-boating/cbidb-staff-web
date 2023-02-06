@@ -1,14 +1,14 @@
 import { ClassType, SignupType } from "async/staff/dockhouse/get-classes";
 import { ScannedPersonType } from "async/staff/dockhouse/scan-card";
 import { SignoutTablesState, SignoutType } from "async/staff/dockhouse/signouts";
-import { Action, ActionActionType } from "components/ActionBasedEditor";
+import { EditAction, ActionActionType } from "components/ActionBasedEditor";
 import { option } from "fp-ts";
 import { ActionClassType, AttendanceMap } from "./ActionClassType";
-import { SignoutCombinedType } from "../SignoutCombinedType";
+import { SignoutCombinedType } from "../signouts/SignoutCombinedType";
 
 export type AddActionType = Pick<ActionActionType<ActionClassType>, 'addAction'>;
 
-export function addPersonAction(person: ScannedPersonType, time: moment.Moment): Action<ActionClassType>{
+export function addPersonAction(person: ScannedPersonType, time: moment.Moment): EditAction<ActionClassType>{
     return {
         applyAction: (data) => {
             return {...data, currentClass: {...data.currentClass, $$apClassSignups: data.currentClass.$$apClassSignups.concat({
@@ -29,7 +29,7 @@ export function findLowestId(signouts: SignoutCombinedType[]){
     }, 0);
 }
 
-export function addSignoutAction(signout: Partial<SignoutCombinedType> & Pick<SignoutCombinedType, 'signoutId'>): Action<ActionClassType>{
+export function addSignoutAction(signout: Partial<SignoutCombinedType> & Pick<SignoutCombinedType, 'signoutId'>): EditAction<ActionClassType>{
     return {
         applyAction: (data) => {
             
@@ -47,7 +47,7 @@ export function addSignoutAction(signout: Partial<SignoutCombinedType> & Pick<Si
     }
 }
 
-export function updateSignoutAction(signout: Partial<SignoutCombinedType>): Action<ActionClassType>{
+export function updateSignoutAction(signout: Partial<SignoutCombinedType>): EditAction<ActionClassType>{
     return {
         applyAction: (data) => {
             return {...data, associatedSignouts: data.associatedSignouts.map((a) => {
@@ -86,7 +86,7 @@ function makeSkipperIfNone(people: SignoutCombinedType['currentPeople']): Signou
     return people.some((a) => a.isSkipper) ? people : people.map((a, i) => (i > 0) ? a : {...a, isSkipper: true});
 }
 
-export function updateSignoutCrew(actions: UpdateCrewAction[], signoutId: number): Action<ActionClassType>{
+export function updateSignoutCrew(actions: UpdateCrewAction[], signoutId: number): EditAction<ActionClassType>{
     const toRemove = actions.reduce((a, b) => {
         if(b instanceof RemoveCrewAction){
             a[b.personId] = true;
@@ -107,7 +107,7 @@ export function updateSignoutCrew(actions: UpdateCrewAction[], signoutId: number
     }
 }
 
-export function updateClassSignup (classSignup: Partial<ClassType['$$apClassSignups'][number]>): Action<ActionClassType>{
+export function updateClassSignup (classSignup: Partial<ClassType['$$apClassSignups'][number]>): EditAction<ActionClassType>{
     return {
         applyAction: (data) => {
             return {...data, currentClass: {...data.currentClass, $$apClassSignups: data.currentClass.$$apClassSignups.map((a) => {
@@ -120,7 +120,7 @@ export function updateClassSignup (classSignup: Partial<ClassType['$$apClassSign
     };
 }
 
-export function updateAttendanceList(attendanceList: AttendanceMap): Action<ActionClassType>{
+export function updateAttendanceList(attendanceList: AttendanceMap): EditAction<ActionClassType>{
     return {
         applyAction: (data) => {
             return {...data, attendanceMap: {...data.attendanceMap, ...attendanceList}};
@@ -128,7 +128,7 @@ export function updateAttendanceList(attendanceList: AttendanceMap): Action<Acti
     };
 }
 
-export function updateClass(updatedClass: Partial<ClassType>): Action<ActionClassType>{
+export function updateClass(updatedClass: Partial<ClassType>): EditAction<ActionClassType>{
     return {
         applyAction: (data) => {
             console.log("applying");
@@ -140,7 +140,7 @@ export function updateClass(updatedClass: Partial<ClassType>): Action<ActionClas
     };
 }
 
-export function removeSignouts(signoutIds: number[]): Action<ActionClassType>{
+export function removeSignouts(signoutIds: number[]): EditAction<ActionClassType>{
     return {
         applyAction: (data) => {
             return {...data, associatedSignouts: data.associatedSignouts.filter((a) => !signoutIds.contains(a.signoutId))};

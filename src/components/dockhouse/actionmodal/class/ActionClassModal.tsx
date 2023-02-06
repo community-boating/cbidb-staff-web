@@ -1,11 +1,11 @@
 import ActionBasedEditor, { ActionActionType } from 'components/ActionBasedEditor';
 import { Card, CardLayout, FlexSize, LayoutDirection } from 'components/dockhouse/Card';
 import { ClassTypesContext } from 'components/dockhouse/providers/ClassTypesProvider';
-import { ModalHeader } from 'components/wrapped/Modal';
+import { DefaultModalBody, ModalHeader } from 'components/wrapped/Modal';
 import { option } from 'fp-ts';
 import { formatsById } from 'pages/dockhouse/classes/ClassesCalendar';
 import * as React from 'react';
-import { ActionClassType } from "./ActionClassType";
+import { ActionClassModalState, ActionClassType } from "./ActionClassType";
 import { CardNumberScanner } from '../CardNumberScanner';
 import { AddInstructor, InstructorsList } from './AddEditInstructors';
 import ClassRosterTable from './ClassRosterTable';
@@ -20,6 +20,7 @@ import { ClassLocationsContext } from 'components/dockhouse/providers/ClassLocat
 import { RatingsContext } from 'components/dockhouse/providers/RatingsProvider';
 import { InstructorsContext } from 'components/dockhouse/providers/InstructorsProvider';
 import { getSelectedRosterPeople, getSelectedSignoutPeople, getSelectedSignouts } from './getSelected';
+import { ActionModalPropsWithState, subStateWithSet } from '../ActionModalProps';
 
 export const selectNone: SelectedType = {
 }
@@ -52,12 +53,13 @@ export function InstructorsSelect(props: {label?: React.ReactNode, className?: s
     return <SelectInput label={props.label} className={props.className} controlledValue={props.currentInstructorId} updateValue={props.setInstructorId} selectOptions={instructorsHR} autoWidth/>
 }
 
-export default function ActionClassModal(props: ActionClassType){
+export default function ActionClassModal(props: ActionModalPropsWithState<ActionClassType, ActionClassModalState>){
     const classTypes = React.useContext(ClassTypesContext);
     const formats = formatsById(classTypes);
-    const [selected, setSelected] = React.useState(selectNone);
-    const [selectType, setSelectType] = React.useState();
-    const [currentRating, setCurrentRating] = React.useState<option.Option<number>>(option.none);
+    const [selected, setSelected] = subStateWithSet(props.state, props.setState, 'selected');
+    const [selectType, setSelectType] = subStateWithSet(props.state, props.setState, 'selectType');
+    const [currentRating, setCurrentRating] = subStateWithSet(props.state, props.setState, 'currentRating');
+    const [actions, setActions] = subStateWithSet(props.state, props.setState, 'actions')
     const [grantingInstructorId, setGrantingInstructorId] = React.useState<option.Option<number>>(option.none);
     const boatListActions = {
         selectType,
@@ -74,8 +76,8 @@ export default function ActionClassModal(props: ActionClassType){
         },
         set:setSelected
     }
-    return <div className="h-[calc(100vh-10vw)] w-[90vw] flex flex-col">
-        <ActionBasedEditor originalData={props} makeChildren={(state, {addAction, undo, reset}) => <>
+    return <DefaultModalBody>
+        <ActionBasedEditor originalData={props.info} actions={actions} setActions={setActions} makeChildren={(state, {addAction, undo, reset}) => <>
             <ModalHeader className='font-bold text-2xl'>
                     Class {formats[state.currentClass.formatId].b.typeName} @ <SelectClassLocation currentLocation={state.currentClass.locationString} addAction={addAction}/>
             </ModalHeader>
@@ -134,5 +136,5 @@ export default function ActionClassModal(props: ActionClassType){
             </CardLayout>
         </>
         }/>
-    </div>
+    </DefaultModalBody>
 }

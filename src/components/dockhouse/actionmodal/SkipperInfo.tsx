@@ -1,6 +1,6 @@
 import * as React from 'react';
 import person from 'assets/img/icons/person.svg';
-import { AddEditCrewProps, MemberActionProps, SignoutCombinedType, SignoutActionMode } from "./SignoutCombinedType";
+import { AddEditCrewProps, MemberActionProps, SignoutCombinedType, SignoutActionMode } from "./signouts/SignoutCombinedType";
 import { getProgramHR } from 'util/textAdapter';
 import { ScannedPersonType } from 'async/staff/dockhouse/scan-card';
 

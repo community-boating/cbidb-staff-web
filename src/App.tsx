@@ -9,9 +9,7 @@ import { AppStateContext } from "./app/state/AppStateContext"
 import SudoModal from "components/SudoModal";
 import { getAppStateCombined } from "app/state/AppStateAction";
 import { AppState, AppStateCombined } from "app/state/AppState";
-import DHGlobalProvider from "components/dockhouse/providers/DHGlobalProvider";
 import DHProviders from "components/dockhouse/providers/DHProviders";
-import ActionModal, { ActionModalProvider } from "components/dockhouse/memberaction/ActionModal";
 
 interface Props {
 	history: any
