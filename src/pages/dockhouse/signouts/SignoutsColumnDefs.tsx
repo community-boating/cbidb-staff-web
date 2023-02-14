@@ -1,20 +1,18 @@
 import * as React from 'react';
-import { CheckboxInput, SelectOption, SimpleInput } from 'components/wrapped/Input';
+import { CheckboxInput, SelectOption } from 'components/wrapped/Input';
 import { none, Option } from 'fp-ts/lib/Option';
 import { option } from 'fp-ts';
 import * as moment from "moment";
 import reassignedIcon from "assets/img/reassigned.png";
 import stopwatchIcon from "assets/img/stopwatch.jpg";
-import { FlagStatusIcon, FlagStatusIcons } from '../../../components/dockhouse/FlagStatusIcons';
-import { RatingsHover } from './RatingSorter';
-import { iconWidth, iconHeight, programsHR, signoutTypesHR, orphanedRatingsShownByDefault } from './Constants';
+import { Flag, FlagStatusIcon, FlagStatusIcons, getFlagIcon } from '../../../components/dockhouse/FlagStatusIcons';
+import { programsHR, signoutTypesHR } from './Constants';
 import { CellOptionBase, CellOptionTime, CellSelect } from 'util/tableUtil';
 import { InteractiveColumnDef } from '../../../components/table/InteractiveColumnInjector';
-import { Popover } from '../../../components/wrapped/Popover';
 import { Info } from 'react-feather';
-import Button from 'components/wrapped/Button';
 import { SignoutTablesState, SignoutsTablesState } from 'async/staff/dockhouse/signouts';
 import { SignoutsTablesExtraState } from './StateTypes';
+import { RatingsType } from 'async/staff/dockhouse/ratings';
 
 export const CommentsHover = (props: { row: SignoutTablesState, extraState: SignoutsTablesExtraState }) => {
 	const display = <span className="flex flex-row">Comments{props.row.comments["_tag"] === "Some" ? <Info color="#777" size="1.4em" /> : <></>}</span>;
@@ -52,13 +50,13 @@ const FlagIcon = (props: { row: SignoutTablesState; extraState: SignoutsTablesEx
 	if (ratings.length == 0) {
 		return <p>Loading...</p>;
 	}
-	const mapped = {};
+	const mapped: {[key: string]: RatingsType[number]} = {};
 	ratings.forEach((a) => {
 		mapped[String(a.ratingId)] = a;
 	});
 	const skipperRatings = props.row.$$skipper.$$personRatings.map((a) => mapped[a.ratingId]);
-	const flags = skipperRatings.map((a) => getHighestFlag(a, props.row.programId, props.row.boatId)).flatten().filter((a) => FlagStatusIcons[a as string] !== undefined).sort((a, b) => FlagStatusIcons[a as string].sortOrder - FlagStatusIcons[b as string].sortOrder);
-	return <FlagStatusIcon flag={FlagStatusIcons[flags[0] as string] || FlagStatusIcons.B} className={iconClass}/>
+	const flags = skipperRatings.map((a) => getHighestFlag(a, props.row.programId, props.row.boatId)).flatten<Flag>();
+	return <FlagStatusIcon flag={flags[0]} className={iconClass}/>
 };
 const MakeLinks = (props: { row: SignoutTablesState; isActive: boolean; extraState: SignoutsTablesExtraState }) => {
 	if (props.isActive) {
@@ -74,8 +72,8 @@ const StopwatchIcon = (props: { row: SignoutTablesState; }) => {
 	}
 	return <></>;
 };
-function getHighestFlag(rating, programId, boatId) {
-	return rating !== undefined ? rating.$$boats.filter((a) => a.programId == programId && a.boatId == boatId).map((a) => a.flag) : undefined;
+function getHighestFlag(rating: RatingsType[number], programId: number, boatId: number) {
+	return rating !== undefined ? rating.$$boats.filter((a) => a.programId == programId && a.boatId == boatId).map((a) => getFlagIcon(a.flag)) : undefined;
 }
 
 export function formatOptional(v: undefined | null | number | string | moment.Moment | Option<any>) {

@@ -9,7 +9,7 @@ export function findCurrentMembership(person: ScannedPersonType){
     return person.activeMemberships[0];
 }
 
-export function CardNumberScanner(props: ({ label: string; onAction: (result: ScannedCrewType[number]) => void; externalQueueTrigger?: number, className?: string})) {
+export function CardNumberScanner(props: ({ label: string; onAction: (result: ScannedCrewType[number]) => void; externalQueueTrigger?: number, className?: string, showHover?: boolean, tabIndex?: number, autoFocus?: boolean})) {
     const [cardNum, setCardNum] = React.useState<option.Option<string>>(option.none);
     const [foundPerson, setFoundPerson] = React.useState<option.Option<ScannedCrewType[number]>>(option.none);
     const [error, setError] = React.useState<option.Option<string>>(option.none);
@@ -53,9 +53,9 @@ export function CardNumberScanner(props: ({ label: string; onAction: (result: Sc
         (props.externalQueueTrigger > 0) && doQueue();
     }, [props.externalQueueTrigger]);
     return <div className={props.className || ""}>
-        {foundPerson.isSome() ? <RatingsHover person={foundPerson.value} programId={findCurrentMembership(foundPerson.value).programId.getOrElse(undefined)} orphanedRatingsShownByDefault={{}} label={foundPerson.value.nameFirst + " " + foundPerson.value.nameLast}></RatingsHover> : ""} 
+        {((props.showHover && foundPerson.isSome()) ? (<RatingsHover person={foundPerson.value} programId={findCurrentMembership(foundPerson.value).programId.getOrElse(undefined)} orphanedRatingsShownByDefault={{}} label={foundPerson.value.nameFirst + " " + foundPerson.value.nameLast}></RatingsHover>) : "")} 
         {error.isSome() ? error.value : ""}
-        <OptionalStringInput label={props.label} controlledValue={cardNum} updateValue={(value) => { setCardNum(value); }} onEnter={() => {
+        <OptionalStringInput autoFocus={props.autoFocus} tabIndex={props.tabIndex} label={props.label} controlledValue={cardNum} updateValue={(value) => { setCardNum(value.map((a) => a.replace(/[^0-9]*$/, "").substring(0, 7))); }} onEnter={() => {
             doQueue();
         }}></OptionalStringInput>
     </div>;

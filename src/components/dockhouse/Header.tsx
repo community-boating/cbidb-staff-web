@@ -12,6 +12,8 @@ import assist from 'assets/img/icons/header/assist.svg';
 import { FlagStatusIcons } from "./FlagStatusIcons";
 import { DHGlobalContext } from "./providers/DHGlobalProvider";
 import { DHGlobals } from "async/staff/dockhouse/dh-globals";
+import { FlagColor, postWrapper as postFlagColor } from "async/staff/dockhouse/flag-color";
+import { AppStateContext } from "app/state/AppStateContext";
 
 /*
 Flag Banner (close, GYRB, right)
@@ -24,16 +26,18 @@ Boat order (Merc, Keel Merc, Sonar, Ideal, Laser, 420, Kayak, Paddleboard, Winds
 
 function getLatestFlag(dhGlobal: DHGlobals){
 	const latestChange = dhGlobal.flagChanges.sort((a, b) => b.changeDatetime.diff(a.changeDatetime))[0];
-	if(latestChange && FlagStatusIcons[latestChange.flag]){
-		return FlagStatusIcons[latestChange.flag];
-	}
-	return FlagStatusIcons.B;
+	return latestChange ? latestChange.flag : FlagColor.BLACK;
 }
 
 const Header = (props: { history, dispatch }) => {
+	const asc = React.useContext(AppStateContext);
 	const dhGlobal = React.useContext(DHGlobalContext);
+	const [flag, setFlag] = React.useState(FlagColor.BLACK);
+	React.useEffect(() => {
+		setFlag(getLatestFlag(dhGlobal));
+	}, [dhGlobal]);
 	const headerState = {
-		flag: getLatestFlag(dhGlobal),
+		flag: flag,
 		localTimeOffset: dhGlobal.localTimeOffset,
 		sunset: dhGlobal.sunsetTime,
 		speed: dhGlobal.windSpeedAvg,
@@ -49,7 +53,17 @@ const Header = (props: { history, dispatch }) => {
 		<div className="grow-0 relative">
 			<StatusHeader
 			{...headerState}
-			setFlag={(flag) => {}}
+			setFlag={(flag) => {
+				postFlagColor.sendJson(asc, {
+					flagColor: flag
+				}).then((a) => {
+					if(a.type == "Success"){
+						setFlag(flag);
+					}else{
+						alert("Error setting flag color");
+					}
+				})
+			}}
 			buttons={buttons}
 			dropdownNavbar={<HeaderNavbarDropdown history={props.history}/>}
 			></StatusHeader>

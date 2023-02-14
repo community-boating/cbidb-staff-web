@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Flag, FlagStatusIcon, FlagStatusIcons } from './FlagStatusIcons';
+import { FlagStatusIcon, FlagStatusIcons, getFlagIcon } from './FlagStatusIcons';
 import boat from 'assets/img/icons/boat.svg';
 import * as moment from "moment";
 import { logout } from 'async/logout';
@@ -10,8 +10,9 @@ import { AppStateContext } from 'app/state/AppStateContext';
 import { DHGlobals, MessagePriority } from 'async/staff/dockhouse/dh-globals';
 import { option } from 'fp-ts';
 import { SelectInput } from 'components/wrapped/Input';
+import { allFlags, FlagColor, getFlagColor } from 'async/staff/dockhouse/flag-color';
 
-type HeaderFlagProps = {flag: Flag, setFlag: (flag: Flag) => void};
+type HeaderFlagProps = {flag: FlagColor, setFlag: (flag: FlagColor) => void};
 
 type HeaderImageProps = {src: string, half?: boolean};
 
@@ -270,11 +271,10 @@ function CBIBoatIcon(props: HeaderProps){
     return <HeaderImage {...props} src={boat}/>;
 }
 
-const availableFlags = [FlagStatusIcons.R, FlagStatusIcons.Y, FlagStatusIcons.G, FlagStatusIcons.B];
-
 function FlagIcon(props: HeaderProps){
-    const [flag, setFlag] = React.useState(option.some(props.flag.hr));
-    return <SelectInput controlledValue={flag} updateValue={setFlag} selectOptions={availableFlags.map((a) => ({display: <FlagStatusIcon className="h-status_banner_height" flag={a}></FlagStatusIcon>, value: a.hr}))} customStyle horizontal x={DirectionX.RIGHT} y={DirectionY.UP}/>;
+    return <SelectInput controlledValue={option.some(props.flag)} updateValue={(v) => {
+        props.setFlag(getFlagColor(v.getOrElse(undefined)));
+    }} selectOptions={allFlags.filter((a) => a != FlagColor.BLACK).sort((a, b) => getFlagIcon(b).sortOrder - getFlagIcon(a).sortOrder).map((a) => ({display: <FlagStatusIcon className="h-status_banner_height" flag={getFlagIcon(a)}></FlagStatusIcon>, value: a}))} className="border-r-2" openClassName="border-black" closedClassName="border-transparent" customStyle horizontal x={DirectionX.RIGHT} y={DirectionY.UP}/>;
 }
 
 function HeaderImage(props: HeaderImageProps){

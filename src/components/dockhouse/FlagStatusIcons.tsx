@@ -1,3 +1,4 @@
+import { FlagColor } from 'async/staff/dockhouse/flag-color';
 import * as React from 'react';
 
 export type Flag = {
@@ -7,11 +8,14 @@ export type Flag = {
 };
 
 export const FlagStatusIcons = {
-    "R":{fill:"#a61e1e", sortOrder:3, hr:"Red"},
-    "G":{fill:"#007d1d", sortOrder:5, hr:"Green"},
-    "Y":{fill:"#ffbf1c", sortOrder:4, hr:"Yellow"},
-    "B":{fill:"#000000", sortOrder:2, hr:"Black"},
-    "W":{fill:"#ffffff", sortOrder:1, hr:"White"},
+    [FlagColor.RED]:{fill:"#a61e1e", sortOrder:3, hr:"Red"},
+    [FlagColor.GREEN]:{fill:"#007d1d", sortOrder:5, hr:"Green"},
+    [FlagColor.YELLOW]:{fill:"#ffbf1c", sortOrder:4, hr:"Yellow"},
+    [FlagColor.BLACK]:{fill:"#000000", sortOrder:2, hr:"Black"},
+}
+
+export function getFlagIcon(flagColor: FlagColor): Flag{
+    return FlagStatusIcons[flagColor] ? FlagStatusIcons[flagColor] : FlagStatusIcons.C;
 }
 
 export function FlagStatusIcon(props: {flag: Flag, className?: string}){

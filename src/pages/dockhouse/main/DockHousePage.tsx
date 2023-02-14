@@ -30,7 +30,7 @@ export function ActionCard(props: CardOrButtonProps){
     const {children,className,onAction, ...other} = props;
     return <>
         <Card {...other} className={"hidden lg:flex " + (className || "")}>
-            <div className="flex flex-row gap-2 mt-auto mb-0">
+            <div className="flex flex-row gap-2 grow-[1]">
                 {children}
                 <GoButton className="mr-1 ml-auto mt-auto mb-1" onClick={(e) => {
                     onAction();
@@ -78,7 +78,7 @@ export default function DockHousePage (props) {
             <CardLayout direction={LayoutDirection.HORIZONTAL}>
                 <CardLayout direction={LayoutDirection.VERTICAL}>
                     <ActionCard title="Member Actions" onAction={doScanCard}>
-                        <CardNumberScanner label="Card Number:" className="mr-0 ml-auto" onAction={(a) => {
+                        <CardNumberScanner label="Card Number:" className="ml-0 mr-auto" onAction={(a) => {
                             actionModal.setAction(new MemberAction(a));
                         }} externalQueueTrigger={externalQueue}></CardNumberScanner>
                     </ActionCard>
@@ -86,7 +86,7 @@ export default function DockHousePage (props) {
                         <NumberWithLabel number={0} label="Signouts"/>
                     </ActionCard>
                     <ActionCard title="One Day Rentals" onAction={undefined}>
-                        <div className="flex flex-row gap-2">
+                        <div className="flex flex-row gap-2 mt-0 mb-auto">
                             <NumberWithLabel number={0} label="Sail"/>
                             <Spacer/>
                             <NumberWithLabel number={1} label="Paddle"/>
@@ -100,13 +100,13 @@ export default function DockHousePage (props) {
                     <ActionCard title="Schedule" onAction={() => {
                         actionModal.setAction(new ActionChooseClass());
                     }}></ActionCard>
-                    <Card title="Incidents">
+                    <ActionCard title="Incidents" onAction={undefined}>
                         <div className="flex flex-row gap-2">
                             <NumberWithLabel number={0} label="Pending"/>
                             <Spacer/>
                             <NumberWithLabel number={3} label="Assigned"/>
                         </div>
-                    </Card>
+                    </ActionCard>
                     <ActionCard title="testing" onAction={() => {
                         const testingSignouts = signoutsToday.signouts.filter((a) => a.signoutType == SignoutType.TEST);
                         const testsToday: TestType[] = testingSignouts.flatMap((a) => [{signoutId: a.signoutId, personId: a.$$skipper.personId, nameFirst: a.$$skipper.nameFirst, nameLast: a.$$skipper.nameLast, testResult: a.testResult, createdBy: 0, createdOn: moment()}].concat(a.$$crew.map((b) => ({signoutId: a.signoutId, testResult: a.testResult, ...b.$$person, createdBy: 0, createdOn: moment()}))));

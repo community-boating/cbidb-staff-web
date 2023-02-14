@@ -27,6 +27,7 @@ type Menu = DropDownProps & {
     className?: string
     itemsClassName?: string
     itemClassName?: string
+    tabIndex?: number
 }
 
 export function getPositionClassOuter(props: DropDownProps){
@@ -43,7 +44,7 @@ export default function Menu(props: Menu){
         <div className={"relative " + (props.className || "")}>
             <MenuHUI>
                 {({close}) => (<>
-                <MenuHUI.Button className={(props.className || "")}>{props.title}</MenuHUI.Button>
+                <MenuHUI.Button tabIndex={props.tabIndex} className={(props.className || "")}>{props.title}</MenuHUI.Button>
                 <Transition
             className={(props.className || "")}
             enter="transform transition duration-200"

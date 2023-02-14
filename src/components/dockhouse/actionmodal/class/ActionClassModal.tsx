@@ -54,12 +54,13 @@ export function InstructorsSelect(props: {label?: React.ReactNode, className?: s
 }
 
 export default function ActionClassModal(props: ActionModalPropsWithState<ActionClassType, ActionClassModalState>){
+    
     const classTypes = React.useContext(ClassTypesContext);
     const formats = formatsById(classTypes);
     const [selected, setSelected] = subStateWithSet(props.state, props.setState, 'selected');
     const [selectType, setSelectType] = subStateWithSet(props.state, props.setState, 'selectType');
     const [currentRating, setCurrentRating] = subStateWithSet(props.state, props.setState, 'currentRating');
-    const [actions, setActions] = subStateWithSet(props.state, props.setState, 'actions')
+    const [actions, setActions] = subStateWithSet(props.state, props.setState, 'actions');
     const [grantingInstructorId, setGrantingInstructorId] = React.useState<option.Option<number>>(option.none);
     const boatListActions = {
         selectType,

@@ -4,6 +4,7 @@ import APIWrapper from "../../../core/APIWrapper";
 import { HttpMethod } from "../../../core/HttpMethod";
 import { boatTypesValidator } from "./boats";
 import { TestResultValidator } from "./tests";
+import { flagEnumValidator } from "./flag-color";
 
 const pathGet = "/rest/signouts-today";
 const pathPost = "/rest/signout";
@@ -80,7 +81,7 @@ export const boatsValidator = t.type({
 	boatId: t.number,
 	assignId: t.number,
 	programId: t.number,
-	flag: t.string,
+	flag: flagEnumValidator,
 	ratingId: t.number
 });
 

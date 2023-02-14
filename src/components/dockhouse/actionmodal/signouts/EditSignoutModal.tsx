@@ -18,6 +18,7 @@ import { RatingsSelect } from '../class/ActionClassModal';
 import { DetailedPersonInfo, AddEditCrew } from '../SkipperInfo';
 import { CreateSignoutType } from 'async/staff/dockhouse/create-signout';
 import { ActionModalPropsWithState } from '../ActionModalProps';
+import SignoutNumbersDropdown from './SignoutNumbersDropdown';
 
 export function DotBox(props: {className?: string, children: React.ReactNode}){
     return <div className={"my-5 py-5 border-dashed border-2 grow-[1] " + props.className}>
@@ -29,12 +30,15 @@ export function DialogOutput(props: {children: React.ReactNode}){
     return <div className="bg-card w-full">{props.children}</div>;
 }
 
+const signoutNumberKeys = ["boatNum", "sailNum", "hullNum"];
+
 export function EditSignout(props: {state: SignoutCombinedType, setState: React.Dispatch<React.SetStateAction<SignoutCombinedType>>, mode: SignoutActionMode}){
     const propsSorted = {...props, state: {...props.state, currentPeople: props.state.currentPeople}};
     const [dialogOutput, setDialogOutput] = React.useState<option.Option<string>>(option.none);
     const setBoatId = (boatId: option.Option<number>) => {
         props.setState({...props.state, boatId: boatId})
     };
+    const numbersSorted = React.useMemo(() => Object.entries(props.state).filter((a) => signoutNumberKeys.contains(a[0])).sort((a, b) => (signoutNumberKeys.indexOf(a[0]) - signoutNumberKeys.indexOf(b[0]))).map((a) => a[1] as option.Option<number | string>), [props.state]);
     return (
     <div className="flex flex-col grow-[1] gap-5">
         <div className="flex flex-row grow-[0] gap-5">
@@ -51,23 +55,16 @@ export function EditSignout(props: {state: SignoutCombinedType, setState: React.
             <div className="w-full flex flex-col">
                 <p>Boat Type</p>
                 <BoatIcon boatId={props.state.boatId} setBoatId={setBoatId}/>
-                <DotBox className="grow-[1] p-5">
-                    <div className="flex flex-row gap-5">
-                        <div className="flex flex-col items-end gap-5">
-                            <BoatSelect boatId={props.state.boatId} setBoatId={setBoatId} autoWidth nowrap></BoatSelect>
-                        </div>
-                        <div className="flex flex-col items-end gap-5">
-                            <OptionalStringInput label="Boat Number:" controlledValue={props.state.boatNum} updateValue={(v) => {props.setState((s) => ({...s, boatNum: v}))}}/>
-                            <OptionalStringInput label="Hull Number:" controlledValue={props.state.hullNum} updateValue={(v) => {props.setState((s) => ({...s, hullNum: v}))}}/>
-                            <OptionalStringInput label="Sail Number:" controlledValue={props.state.sailNum} updateValue={(v) => {props.setState((s) => ({...s, sailNum: v}))}}/>
-                        </div>
-                        <div className="flex flex-col items-end gap-5">
-                            <SelectInput label="Signout Type:" className="w-[200px]" controlledValue={props.state.signoutType} updateValue={(v) => {props.setState((s) => ({...s, signoutType: v}))}} selectOptions={signoutTypesHR} autoWidth></SelectInput>
-                            <SelectInput label="Test Type:" className="w-[200px]" controlledValue={option.none} updateValue={undefined} selectOptions={testResultsHR} autoWidth></SelectInput>
-                            <RatingsSelect label="Ratings:" className="w-[200px]" ratingId={props.state.testRating} setRating={(v) => {props.setState((s) => ({...s, testRating: v}))}}/>
-                        </div>
+                <div className="flex flex-row gap-5 py-5">
+                    <div className="flex flex-col items-end gap-5">
+                        <BoatSelect tabIndex={-1} boatId={props.state.boatId} setBoatId={setBoatId} autoWidth nowrap></BoatSelect>
                     </div>
-                </DotBox>
+                    <div className="flex flex-col items-end gap-5">
+                        <SignoutNumbersDropdown numbers={numbersSorted} setNumber={(i, v) => {
+                            props.setState((s) => ({...s, [signoutNumberKeys[i]]: v}))
+                        }}/>
+                    </div>
+                </div>
             </div>
         </div>
     </div>);

@@ -88,14 +88,14 @@ export function AddCrew(props: AddEditCrewProps){
     const isSignout = (props.mode == SignoutActionMode.SIGNOUT || props.mode == SignoutActionMode.RACING);
     return (<div className="flex flex-col grow-0 gap-2">
             {isSignout ? <div className="flex flex-row gap-2">
-                <Button className="bg-gray-200">Search Phone</Button>
-                <Button className="bg-gray-200">Search Name</Button>
+                <Button tabIndex={-1} className="bg-gray-200">Search Phone</Button>
+                <Button tabIndex={-1} className="bg-gray-200">Search Name</Button>
             </div> : <></>}
-            <CardNumberScanner label="Add person..." onAction={(a) => {
+            <CardNumberScanner label="Add person..." tabIndex={2} autoFocus onAction={(a) => {
                 props.add({...a, isSkipper: false, isTesting: false, testRatingId: option.none});
             }}></CardNumberScanner>
-            {isSignout ? <><Button className="bg-gray-200" onClick={setRandom}>Find Highest Ratings</Button>
-            <Button className="bg-gray-200" onClick={setRandom}>Find Highest Privileges</Button></> : <></>}
+            {isSignout ? <><Button className="bg-gray-200" tabIndex={-1} onClick={setRandom}>Find Highest Ratings</Button>
+            <Button className="bg-gray-200" tabIndex={-1} onClick={setRandom}>Find Highest Privileges</Button></> : <></>}
         </div>);
 }
 

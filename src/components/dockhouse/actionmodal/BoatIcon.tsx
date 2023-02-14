@@ -28,7 +28,7 @@ export const BoatIcons = [{
 },
 {
     hr: "Kayak",
-    key: "Y",
+    key: "K",
     src: kayak
 },
 {
@@ -92,7 +92,7 @@ export default function(props: BoatIconProps){
     const [boatsByHR, boatsById] = boatTypesMapped(boatTypes);
     return (
     <RadioGroup value={props.boatId} setValue={(value) => props.setBoatId(value)} className="flex flex-row gap-5" keyListener={(key) => {
-        const boat = boatIconsByKey[key];
+        const boat = boatIconsByKey[key.toUpperCase()];
         if(boat){
             props.setBoatId(option.some(boatsByHR[boat.hr].boatId));
         }
@@ -104,10 +104,10 @@ export default function(props: BoatIconProps){
     )
 }
 
-export function BoatSelect(props: BoatIconProps & {label?: string, autoWidth?: boolean, nowrap?: boolean, fullWidth?: boolean, useBoatImage?: boolean, className?: string}){
+export function BoatSelect(props: BoatIconProps & {label?: string, autoWidth?: boolean, nowrap?: boolean, fullWidth?: boolean, useBoatImage?: boolean, className?: string, tabIndex?: number}){
     const boatTypes = React.useContext(BoatsContext);
     const boatTypesSelectOptions = React.useMemo(() => makeBoatTypesHR(boatTypes), [boatTypes]);
     const [boatsByHR, boatsById] = boatTypesMapped(boatTypes);
-    return <SelectInput label={props.label} controlledValue={props.boatId} updateValue={props.setBoatId} validationResults={[]} selectOptions={boatTypesSelectOptions} selectNone={false} nowrap={props.nowrap} autoWidth={props.autoWidth} fullWidth={props.fullWidth}
+    return <SelectInput tabIndex={props.tabIndex} label={props.label} controlledValue={props.boatId} updateValue={props.setBoatId} validationResults={[]} selectOptions={boatTypesSelectOptions} selectNone={false} nowrap={props.nowrap} autoWidth={props.autoWidth} fullWidth={props.fullWidth}
     makeButton={props.useBoatImage ? (a) => a.value.isSome() ? <img src={boatIconsByHR[boatsById[a.value.value].boatName].src} className="h-[8vh] min-w-[8vh]"/> : <>Boat Type</> : undefined} customStyle={props.useBoatImage} className={props.className}></SelectInput>
 }

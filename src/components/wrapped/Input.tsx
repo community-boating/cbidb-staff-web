@@ -110,7 +110,7 @@ class Input<T> extends React.PureComponent<(CustomInputProps<T> & InputAdapterPr
 				this.setState({...this.state,showErrors:true})
 			}}
 			onKeyDown={(e) => {
-				if(onEnter && e.key == "Enter"){
+				if(onEnter && (e.key == "Enter" || e.keyCode == 13)){
 					onEnter();
 				}
 			}}
@@ -132,7 +132,7 @@ export const ValidatedTextInput = (props: (CustomInputProps<any> & InputProps)) 
 
 export type SelectOption<T_SelectOption> = {value: T_SelectOption, display: ReactNode};
 
-export function SelectInput<T_Value extends string | number> (props: CustomInputProps<option.Option<T_Value>> & InputProps & DropDownProps & {selectOptions : SelectOption<T_Value>[], showNone?: SelectOption<T_Value>, selectNone?: boolean, isNumber?: boolean, autoWidth?: boolean, nowrap?: boolean, fullWidth?: boolean, customStyle?: boolean, makeButton?: (current: SelectOption<option.Option<T_Value>>) => React.ReactNode}) {
+export function SelectInput<T_Value extends string | number> (props: CustomInputProps<option.Option<T_Value>> & InputProps & DropDownProps & {selectOptions : SelectOption<T_Value>[], showNone?: SelectOption<T_Value>, selectNone?: boolean, isNumber?: boolean, autoWidth?: boolean, nowrap?: boolean, fullWidth?: boolean, customStyle?: boolean, makeButton?: (current: SelectOption<option.Option<T_Value>>) => React.ReactNode, openClassName?: string, closedClassName?: string}) {
 	const {selectOptions,showNone,selectNone,customStyle,isNumber,autoWidth,controlledValue,x,y,updateValue} = props;
 	const selectOptionsOptionified = React.useMemo(() => selectOptions.map((a) => ({value: option.some(a.value), display: a.display})), [selectOptions]);
 	const showNonePadded: SelectOption<option.Option<T_Value>> = ((showNone === undefined ) ? {value: option.none, display: "None"} : {value: option.none, display: showNone.display})
@@ -149,21 +149,26 @@ export function SelectInput<T_Value extends string | number> (props: CustomInput
 					{props.label}
 				</Label>
 				<Listbox value={controlledValue} onChange={(v) => {updateValue(v);}}>
-					<div className="relative w-full">
-					<Listbox.Button className={"flex flex-col w-full items-end overflow-hidden " + (customStyle ? "" : inputClassName + " bg-white") + " " + (props.className ? props.className : "")}>
-						<div className="flex flex-row w-full">
-							<div className={"text-left grow"}>
-								{props.makeButton ? props.makeButton(current) : (current && current.display)}
+					{({open}) => 
+						<div className="relative w-full">
+					
+						<Listbox.Button className={"flex flex-col w-full items-end overflow-hidden " + (customStyle ? "" : inputClassName + " bg-white") + " " + (props.className ? props.className : "") + " " + (props.openClassName ? (open ? props.openClassName : (props.closedClassName ? props.closedClassName : "")) : "")}>
+
+							<div className="flex flex-row w-full">
+								<div className={"text-left grow"}>
+									{props.makeButton ? props.makeButton(current) : (current && current.display)}
+								</div>
+								{customStyle ? <></> : <ChevronDown className="flex-none"/>}
 							</div>
-							{customStyle ? <></> : <ChevronDown className="flex-none"/>}
+						</Listbox.Button>
+						<Listbox.Options className={"absolute z-50 " + getPositionClassOuter(props)}>
+							<div className={"bg-white overflow-y-scroll max-h-[50vh] " + getPositionClassInner(props)}>
+								{options}
+							</div>
+						</Listbox.Options>
 						</div>
-					</Listbox.Button>
-					<Listbox.Options className={"absolute z-50 " + getPositionClassOuter(props)}>
-						<div className={"bg-white overflow-y-scroll max-h-[50vh] " + getPositionClassInner(props)}>
-							{options}
-						</div>
-					</Listbox.Options>
-					</div>
+					}
+					
 				</Listbox>
 				{props.end}
 			</div>

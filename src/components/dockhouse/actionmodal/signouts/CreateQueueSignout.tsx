@@ -11,10 +11,11 @@ import { convertToCreateSignout } from './EditSignoutModal';
 export function CreateQueueSignout(props: { state: SignoutCombinedType; setState: React.Dispatch<React.SetStateAction<SignoutCombinedType>>; }) {
     const asc = React.useContext(AppStateContext);
     const modal = React.useContext(ModalContext);
+    const ref = React.createRef<HTMLButtonElement>();
     return <>
         <div className="flex flex-row gap-2 mr-0 ml-auto">
-            <Button className={buttonClasses + " " + buttonClassInactive}>Queue Signout</Button>
-            <Button className={buttonClasses + " " + buttonClassActive} spinnerOnClick submit={(e) => {
+            <Button tabIndex={5} id="focusLoopback" className={buttonClasses + " " + buttonClassInactive}>Queue Signout</Button>
+            <Button tabIndex={6} className={buttonClasses + " " + buttonClassActive} spinnerOnClick submit={(e) => {
                 return createSignout.sendJson(asc, convertToCreateSignout(props.state)).then((a) => {
                     if (a.type == "Success") {
                         modal.setOpen(false);
@@ -23,6 +24,12 @@ export function CreateQueueSignout(props: { state: SignoutCombinedType; setState
                     }
                 });
             }}>Create Signout</Button>
+            <div tabIndex={7} onFocus={(e) => {
+                const element = document.getElementById("focusLoopback");
+                if(element){
+                    element.focus();
+                }
+            }}></div>
         </div>
     </>;
 }
