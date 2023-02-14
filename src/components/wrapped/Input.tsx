@@ -158,8 +158,8 @@ export function SelectInput<T_Value extends string | number> (props: CustomInput
 							{customStyle ? <></> : <ChevronDown className="flex-none"/>}
 						</div>
 					</Listbox.Button>
-					<Listbox.Options className={"absolute z-50 overflow-y-scroll max-h-[50vh] " + getPositionClassOuter(props)}>
-						<div className={"bg-white " + getPositionClassInner(props)}>
+					<Listbox.Options className={"absolute z-50 " + getPositionClassOuter(props)}>
+						<div className={"bg-white overflow-y-scroll max-h-[50vh] " + getPositionClassInner(props)}>
 							{options}
 						</div>
 					</Listbox.Options>

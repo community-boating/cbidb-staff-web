@@ -4,6 +4,7 @@ import * as moment from 'moment';
 import * as React from 'react';
 import { getWrapper as getDHGlobals } from "async/staff/dockhouse/dh-globals";
 import { none, some } from 'fp-ts/lib/Option';
+import { FlagColor } from 'async/staff/dockhouse/flag-color';
 
 const defaultDHGlobal: DHGlobals = {
     localTimeOffset: none,
@@ -16,7 +17,7 @@ const defaultDHGlobal: DHGlobals = {
         message: "A MESSAGE"
     }],
     flagChanges: [{
-        flag: "R",
+        flag: FlagColor.RED,
         changeDatetime: moment()
     }]
 

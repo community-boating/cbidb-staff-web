@@ -2,6 +2,7 @@ import * as t from 'io-ts';
 import APIWrapper from 'core/APIWrapper';
 import { HttpMethod } from "core/HttpMethod";
 import { DateTime, EnumType, OptionalNumber } from 'util/OptionalTypeValidators';
+import { flagEnumValidator } from './flag-color';
 
 export enum MessagePriority {
 	LOW = "L",
@@ -17,7 +18,7 @@ const announcementValidator = t.type({
 })
 
 const flagChangeValidator = t.type({
-	flag: t.string,
+	flag: flagEnumValidator,
 	changeDatetime: DateTime,
 })
 

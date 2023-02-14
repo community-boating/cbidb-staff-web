@@ -53,7 +53,7 @@ export default function Menu(props: Menu){
             leaveFrom="opacity-100 scale-100 "
             leaveTo="opacity-0 scale-95 "
         >
-                    <MenuHUI.Items className={"absolute bg-white z-50 whitespace-nowrap flex " + (props.itemsClassName || "") + " " + getPositionClassOuter(props)} static>
+                    <MenuHUI.Items className={"absolute bg-white z-50 whitespace-nowrap flex min-w-fit " + (props.itemsClassName || "") + " " + getPositionClassOuter(props)} static>
                         <div className={getPositionClassInner(props)}>
                             {props.items.map((a, i) => <MenuHUI.Item key={i}><div className={(props.itemClassName || "")}>{a}</div></MenuHUI.Item>)}
                         </div>
