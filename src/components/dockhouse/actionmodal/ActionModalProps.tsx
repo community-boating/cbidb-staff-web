@@ -31,7 +31,7 @@ export function subStateWithSet<T_State, T_Key extends keyof T_State>(state: T_S
 
 export type ActionModalProps = {
     action: Action<any, any>
-    setAction: (action: Action<any, any>) => void
+    pushAction: (action: Action<any, any>) => void
 };
 
 export abstract class Action<T, T_State> {

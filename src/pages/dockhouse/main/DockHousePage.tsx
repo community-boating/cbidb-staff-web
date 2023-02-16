@@ -19,7 +19,8 @@ import { TestType } from 'async/staff/dockhouse/tests';
 import * as moment from 'moment';
 import { EditTestsAction } from 'components/dockhouse/actionmodal/test/EditTestsType';
 import { ActionChooseClass } from 'components/dockhouse/actionmodal/class/ActionClassType';
-import { EditSignoutAction } from 'components/dockhouse/actionmodal/signouts/EditSignoutType';
+import { RentalsAction } from 'components/dockhouse/actionmodal/rentals/RentalsType';
+import { BoatQueueAction } from 'components/dockhouse/actionmodal/boatqueue/BoatQueueType';
 
 type CardOrButtonProps = CardProps & {
     //button: React.ReactNode;
@@ -72,20 +73,24 @@ export default function DockHousePage (props) {
         const reassignedHullsMap = {};
         const reassignedSailsMap = {};
         makeReassignedMaps(filteredSignouts, reassignedHullsMap, reassignedSailsMap);
-        const extraState: SignoutsTablesExtraState = {...extraStateAsync, multiSignInSelected: [], reassignedHullsMap, reassignedSailsMap} ;
+        const extraState: SignoutsTablesExtraState = {...extraStateAsync, reassignedHullsMap, reassignedSailsMap} ;
     return (<>
         <CardLayout direction={LayoutDirection.VERTICAL} parentDirection={LayoutDirection.VERTICAL}>
             <CardLayout direction={LayoutDirection.HORIZONTAL}>
                 <CardLayout direction={LayoutDirection.VERTICAL}>
                     <ActionCard title="Member Actions" onAction={doScanCard}>
                         <CardNumberScanner label="Card Number:" className="ml-0 mr-auto" onAction={(a) => {
-                            actionModal.setAction(new MemberAction(a));
+                            actionModal.pushAction(new MemberAction(a));
                         }} externalQueueTrigger={externalQueue}></CardNumberScanner>
                     </ActionCard>
-                    <ActionCard title="Boat Queue" onAction={undefined}>
+                    <ActionCard title="Boat Queue" onAction={() => {
+                        actionModal.pushAction(new BoatQueueAction(signoutsToday.signouts.filter((a) => true)))
+                    }}>
                         <NumberWithLabel number={0} label="Signouts"/>
                     </ActionCard>
-                    <ActionCard title="One Day Rentals" onAction={undefined}>
+                    <ActionCard title="One Day Rentals" onAction={() => {
+                        actionModal.pushAction(new RentalsAction(signoutsToday.signouts.filter((a) => true)))
+                    }}>
                         <div className="flex flex-row gap-2 mt-0 mb-auto">
                             <NumberWithLabel number={0} label="Sail"/>
                             <Spacer/>
@@ -98,7 +103,7 @@ export default function DockHousePage (props) {
                 </CardLayout>
                 <CardLayout direction={LayoutDirection.VERTICAL}>
                     <ActionCard title="Schedule" onAction={() => {
-                        actionModal.setAction(new ActionChooseClass());
+                        actionModal.pushAction(new ActionChooseClass());
                     }}></ActionCard>
                     <ActionCard title="Incidents" onAction={undefined}>
                         <div className="flex flex-row gap-2">
@@ -110,7 +115,7 @@ export default function DockHousePage (props) {
                     <ActionCard title="testing" onAction={() => {
                         const testingSignouts = signoutsToday.signouts.filter((a) => a.signoutType == SignoutType.TEST);
                         const testsToday: TestType[] = testingSignouts.flatMap((a) => [{signoutId: a.signoutId, personId: a.$$skipper.personId, nameFirst: a.$$skipper.nameFirst, nameLast: a.$$skipper.nameLast, testResult: a.testResult, createdBy: 0, createdOn: moment()}].concat(a.$$crew.map((b) => ({signoutId: a.signoutId, testResult: a.testResult, ...b.$$person, createdBy: 0, createdOn: moment()}))));
-                        actionModal.setAction(new EditTestsAction(testingSignouts, testsToday));
+                        actionModal.pushAction(new EditTestsAction(testingSignouts, testsToday));
                     }}>
                         <div className="flex flex-row gap-2">
                             <NumberWithLabel number={0} label="Queue"/>
@@ -121,10 +126,10 @@ export default function DockHousePage (props) {
                 </CardLayout>
             </CardLayout>
             <Card title="Active Signouts">
-                {signoutsToday.providerState == ProviderState.SUCCESS ? <SignoutsTable state={signoutsToday.signouts.filter((a) => a.signinDatetime.isNone())} setState={signoutsToday.setSignouts} extraState={extraState} isActive={true} filterValue={makeInitFilter()} globalFilter={{} as any} openEditRow={(row) => {actionModal.setAction(new EditSignoutAction(row))}}></SignoutsTable> : <>Loading...</>}
+                {signoutsToday.providerState == ProviderState.SUCCESS ? <SignoutsTable state={signoutsToday.signouts.filter((a) => a.signinDatetime.isNone())} setState={signoutsToday.setSignouts} extraState={extraState} isActive={true} filterValue={makeInitFilter()} globalFilter={{} as any}/> : <>Loading...</>}
             </Card>
             <Card title="Completed Signouts">
-                {signoutsToday.providerState == ProviderState.SUCCESS ? <SignoutsTable state={signoutsToday.signouts.filter((a) => a.signinDatetime.isSome())} setState={signoutsToday.setSignouts} extraState={extraState} isActive={true} filterValue={makeInitFilter()} globalFilter={{} as any} openEditRow={(row) => {actionModal.setAction(new EditSignoutAction(row))}}></SignoutsTable> : "Loading..."}
+                {signoutsToday.providerState == ProviderState.SUCCESS ? <SignoutsTable state={signoutsToday.signouts.filter((a) => a.signinDatetime.isSome())} setState={signoutsToday.setSignouts} extraState={extraState} isActive={true} filterValue={makeInitFilter()} globalFilter={{} as any}/> : "Loading..."}
             </Card>
         </CardLayout>
      </>);

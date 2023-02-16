@@ -19,10 +19,6 @@ export const CommentsHover = (props: { row: SignoutTablesState, extraState: Sign
 	//return <MultiHover makeChildren={() => props.row.comments["_tag"] === "Some" ? <p>{props.row.comments.getOrElse("")}</p> : undefined} handleClick={() => props.extraState.setUpdateCommentsModal(props.row.signoutId)} openDisplay={display} noMemoChildren={true} />;
 }
 
-export const MultiSigninCheckbox = (props: { row: SignoutTablesState, extraState: SignoutsTablesExtraState }) => {
-	return <CheckboxInput className="m-auto" controlledValue={option.some(props.extraState.multiSignInSelected.contains(props.row.signoutId))} updateValue={(v) => { if (v.isSome() && v.value) { props.extraState.setMultiSignInSelected(props.extraState.multiSignInSelected.concat(props.row.signoutId)) } else { props.extraState.setMultiSignInSelected(props.extraState.multiSignInSelected.filter((a) => a != props.row.signoutId)) } }} />;
-}
-
 function isMax(n: number, a: number[]) {
 	if (a === undefined) {
 		return true;

@@ -11,6 +11,8 @@ import { columnsActive, columnsInactive } from "./SignoutsColumnDefs";
 import { InteractiveColumnInjector } from '../../../components/table/InteractiveColumnInjector';
 import { Table } from 'components/table/Table';
 import { SignoutsTablesExtraState } from './StateTypes';
+import { ActionModalContext } from 'components/dockhouse/actionmodal/ActionModal';
+import { EditSignoutAction } from 'components/dockhouse/actionmodal/signouts/EditSignoutType';
 
 export const filterActive = (isActive) => isActive ? (a: SignoutTablesState) => option.isNone(a.signinDatetime) : (a: SignoutTablesState) => option.isSome(a.signinDatetime);
 
@@ -21,12 +23,16 @@ export const SignoutsTable = (props: {
 	isActive: boolean
 	filterValue: SignoutsTableFilterState
 	globalFilter: FilterFnOption<SignoutTablesState>
-	openEditRow: (row: SignoutTablesState) => void
+	hiddenColumns?: string[]
 }) => {
+	const actionModal = React.useContext(ActionModalContext);
 	const f = filterActive(props.isActive);
 	const provider = React.useMemo(() => (new InteractiveColumnInjector(props.isActive ? columnsActive : columnsInactive)), [])
 	var columns = React.useMemo(() => (provider.provideColumns(props.extraState)), [props.extraState]);
 	const filteredSignouts = props.state.filter(f);
+	const openEditRow = (row: SignoutTablesState) => {
+		actionModal.pushAction(new EditSignoutAction(row));
+	}
 	return <>
 		<Table<SignoutTablesState, SignoutsTableFilterState>
 			globalFilter={props.globalFilter}
@@ -34,7 +40,7 @@ export const SignoutsTable = (props: {
 			rows={filteredSignouts}
 			keyField="signoutId"
 			columns={columns}
-			openEditRow={props.openEditRow}
+			openEditRow={openEditRow}
 			/>
 	</>;
 };

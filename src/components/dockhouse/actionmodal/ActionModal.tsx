@@ -7,12 +7,12 @@ import { Action, ActionModalProps, NoneAction, setStateChain } from './ActionMod
 export default function ActionModal(props: ActionModalProps & {state: any, setState: React.Dispatch<React.SetStateAction<any>>}){
     const modalContent = props.action.createModalContent(props.action.modeInfo, props.state, props.setState);
     return (
-        <Modal open={props.action && !(props.action instanceof NoneAction)} setOpen={(s) => {if(!s){props.setAction(new NoneAction())}}} className="bg-gray-100 rounded-lg">
+        <Modal open={props.action && !(props.action instanceof NoneAction)} setOpen={(s) => {if(!s){props.pushAction(new NoneAction())}}} className="bg-gray-100 rounded-lg">
             {modalContent}
         </Modal>);
 }
 
-export const ActionModalContext = React.createContext<ActionModalProps>({action: new NoneAction(), setAction: () => {}});
+export const ActionModalContext = React.createContext<ActionModalProps>({action: new NoneAction(), pushAction: () => {}});
 
 export function ActionModalProvider(props: {children?: React.ReactNode}){
     const [actionAndState, setActionAndState] = React.useState({modalState: undefined, action: new NoneAction()})
@@ -27,8 +27,8 @@ export function ActionModalProvider(props: {children?: React.ReactNode}){
             ...s, modalState: setStateChain(state, s.modalState)
         }))
     }
-    return <ActionModalContext.Provider value={{action: actionAndState.action, setAction}}>
+    return <ActionModalContext.Provider value={{action: actionAndState.action, pushAction: setAction}}>
         {props.children}
-        <ActionModal action={actionAndState.action} setAction={setAction} state={actionAndState.modalState} setState={setModalState}></ActionModal>
+        <ActionModal action={actionAndState.action} pushAction={setAction} state={actionAndState.modalState} setState={setModalState}></ActionModal>
     </ActionModalContext.Provider>
 }

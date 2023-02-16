@@ -1,4 +1,4 @@
-import { OptionalNumberInput, OptionalStringInput } from 'components/wrapped/Input';
+import { OptionalStringInput } from 'components/wrapped/Input';
 import Menu, { DirectionX } from 'components/wrapped/Menu';
 import { option } from 'fp-ts';
 import * as React from 'react';

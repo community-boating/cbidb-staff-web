@@ -27,7 +27,7 @@ export default function ClassesPage (props) {
                         a[b.personId] = true;
                         return a;
                     }, {})
-                    modal.setAction(new ActionClass(a, b, signoutsToday.signouts.filter((a) => a.signoutType == SignoutType.CLASS).map((a) => adaptSignoutState(a, ratings)).filter((a) => a.currentPeople.some((b) => allPersons[b.personId])), []));
+                    modal.pushAction(new ActionClass(a, b, signoutsToday.signouts.filter((a) => a.signoutType == SignoutType.CLASS).map((a) => adaptSignoutState(a, ratings)).filter((a) => a.currentPeople.some((b) => allPersons[b.personId])), []));
                     return false;
                 }
                 return true;

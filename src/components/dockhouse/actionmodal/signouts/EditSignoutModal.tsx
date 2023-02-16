@@ -1,7 +1,7 @@
 import { ModalContext, ModalHeader } from 'components/wrapped/Modal';
 import * as React from 'react';
 import { option } from 'fp-ts';
-import { signoutTypesHR, testResultsHR } from '../../../../pages/dockhouse/signouts/Constants';
+import { signoutTypesHR } from '../../../../pages/dockhouse/signouts/Constants';
 import Button from 'components/wrapped/Button';
 import { EditSignoutType } from '../../../../pages/dockhouse/signouts/StateTypes';
 import RadioGroup from 'components/wrapped/RadioGroup';
@@ -12,9 +12,7 @@ import { RatingsContext } from 'components/dockhouse/providers/RatingsProvider';
 import { RatingsType } from 'async/staff/dockhouse/ratings';
 import * as moment from 'moment';
 import { buttonClassActive, buttonClasses, buttonClassInactive } from '../styles';
-import { OptionalStringInput, SelectInput } from 'components/wrapped/Input';
 import BoatIcon, { BoatSelect } from '../BoatIcon';
-import { RatingsSelect } from '../class/ActionClassModal';
 import { DetailedPersonInfo, AddEditCrew } from '../SkipperInfo';
 import { CreateSignoutType } from 'async/staff/dockhouse/create-signout';
 import { ActionModalPropsWithState } from '../ActionModalProps';
