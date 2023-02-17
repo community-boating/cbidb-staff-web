@@ -4,6 +4,7 @@ import { ActionModalContext } from 'components/dockhouse/actionmodal/ActionModal
 import { ActionEditIncident } from 'components/dockhouse/actionmodal/incident/IncidentModalType';
 import { Table } from 'components/table/Table';
 import * as React from 'react';
+import { CellOptionBase, CellOptionTime } from 'util/tableUtil';
 
 export type IncidentsTableProps = {
     incidents: IncidentType[];
@@ -12,18 +13,23 @@ export type IncidentsTableProps = {
 const columns: ColumnDef<IncidentType, any>[] = [
 {
     accessorKey: 'type',
+    cell: CellOptionBase("None")
 },
 {
     accessorKey: 'priority',
+    cell: CellOptionBase("None")
 },
 {
     accessorKey: 'status',
+    cell: CellOptionBase("None")
 },
 {
-    accessorKey: 'time',
+    accessorKey: 'createdTime',
+    cell: CellOptionTime
 },
 {
     accessorKey: 'location',
+    cell: CellOptionBase("None")
 },
 {
     accessorKey: 'description',

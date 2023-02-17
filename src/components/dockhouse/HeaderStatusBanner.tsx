@@ -95,7 +95,7 @@ function HeaderButtons(props: HeaderButtonsProps){
 }
 
 function HeaderButton(props: HeaderButtonProps){
-    return <div className="object-cover"><input type="image" className="h-full" src={props.src}/></div>;
+    return <div className="object-cover"><input type="image" className="h-full" src={props.src} onClick={props.onClick}/></div>;
 }
 
 function HeaderAccountment(props: HeaderAnnouncementProps){

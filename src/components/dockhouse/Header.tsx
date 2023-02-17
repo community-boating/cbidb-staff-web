@@ -14,6 +14,10 @@ import { DHGlobalContext } from "./providers/DHGlobalProvider";
 import { DHGlobals } from "async/staff/dockhouse/dh-globals";
 import { FlagColor, postWrapper as postFlagColor } from "async/staff/dockhouse/flag-color";
 import { AppStateContext } from "app/state/AppStateContext";
+import { ActionModalContext } from "./actionmodal/ActionModal";
+import { ActionCreateIncident } from "./actionmodal/incident/IncidentModalType";
+import { IncidentTypes } from "async/staff/dockhouse/incidents";
+import { option } from "fp-ts";
 
 /*
 Flag Banner (close, GYRB, right)
@@ -32,6 +36,7 @@ function getLatestFlag(dhGlobal: DHGlobals){
 const Header = (props: { history, dispatch }) => {
 	const asc = React.useContext(AppStateContext);
 	const dhGlobal = React.useContext(DHGlobalContext);
+	const actionModal = React.useContext(ActionModalContext);
 	const [flag, setFlag] = React.useState(FlagColor.BLACK);
 	React.useEffect(() => {
 		setFlag(getLatestFlag(dhGlobal));
@@ -45,10 +50,21 @@ const Header = (props: { history, dispatch }) => {
 		announcements: dhGlobal.announcements
 	}
 	const buttons = [
-        {src: ims, onClick: (a) => {alert("clicked IMS")}},
-		{src: capsize, onClick: (a) => {alert("clicked CAP")}},
-        {src: assist, onClick: (a) => {alert("clicked AST")}},
-        {src: runaground, onClick: (a) => {alert("clicked RUN")}}];
+        {src: ims, onClick: (e) => {
+			e.preventDefault();
+		}},
+		{src: capsize, onClick: (e) => {
+			e.preventDefault();
+			actionModal.pushAction(new ActionCreateIncident(option.some(IncidentTypes.CAPSIZE)));
+		}},
+        {src: assist, onClick: (e) => {
+			e.preventDefault();
+			actionModal.pushAction(new ActionCreateIncident(option.some(IncidentTypes.ASSIST)));
+		}},
+        {src: runaground, onClick: (e) => {
+			e.preventDefault();
+			actionModal.pushAction(new ActionCreateIncident(option.some(IncidentTypes.RUNAGROUND)));
+		}}];
 	return (
 		<div className="grow-0 relative">
 			<StatusHeader

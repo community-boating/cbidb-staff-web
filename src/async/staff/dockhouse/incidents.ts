@@ -1,7 +1,19 @@
 import * as t from 'io-ts';
 import APIWrapper from 'core/APIWrapper';
 import { HttpMethod } from "core/HttpMethod";
-import { OptionalDateTime, OptionalNumber, OptionalString } from 'util/OptionalTypeValidators';
+import { OptionalDateTime, OptionalEnumType, OptionalNumber, OptionalString } from 'util/OptionalTypeValidators';
+
+export enum IncidentTypes{
+    CAPSIZE = "CAPSIZE", ASSIST="ASSIST", RUNAGROUND="RUNAGROUND", OTHER='OTHER'
+}
+
+export const incidentTypeValidator = OptionalEnumType("incidentType", IncidentTypes);
+
+export enum IncidentStatusTypes{
+    INPUT="INPUT",PENDING="PENDING",ASSIGNED="ASSIGNED",ARRIVED="ARRIVED",CLEAR="CLEAR",REPORT_TO_FOLLOW="REPORT_TO_FOLLOW",COMPLETE="COMPLETE"
+}
+
+export const incidentStatusTypeValidator = OptionalEnumType("incidentStatusType", IncidentStatusTypes);
 
 const incidentValidator = t.type({
     id: t.number,
@@ -11,14 +23,14 @@ const incidentValidator = t.type({
     location: OptionalString,
     locationN: OptionalNumber,
     locationW: OptionalNumber,
-    type: OptionalString,
+    type: incidentTypeValidator,
     subtype: OptionalString,
     assignedResourcePrimary: OptionalString,
-    assignedResourcesOther: t.array(t.string),
+    assignedResourcesOther: OptionalString,//t.array(t.string),
     currentPeople: t.array(t.number), //Person Ids
     associatedSignouts: t.array(t.number), //Signout Ids
-    priority: t.string,
-    status: OptionalString,
+    priority: OptionalString,
+    status: incidentStatusTypeValidator,
     received: OptionalString,
     description: t.string
 });

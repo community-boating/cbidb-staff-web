@@ -2,6 +2,7 @@ import * as React from 'react';
 import APIWrapper, { API_CODE_NOT_LOGGED_IN } from './APIWrapper';
 import * as t from 'io-ts';
 import { AppStateContext } from 'app/state/AppStateContext';
+import { setStateChain } from 'components/dockhouse/actionmodal/ActionModalProps';
 
 export type AsyncStateProviderProps<T_Validator extends t.Any> = {
     apiWrapper: APIWrapper<T_Validator, any, any>
@@ -78,7 +79,7 @@ export default class AsyncStateProvider<T_Validator extends t.Any> extends React
         if(this.props.spinnerOnInit && this.state.providerState == ProviderState.INITIAL){
             return <p>derp</p>;
         }
-        return <>{this.props.makeChildren(this.state.mainState, this.setState, this.state.providerState)}</>;
+        return <>{this.props.makeChildren(this.state.mainState, (s) => this.setState((b) => ({...b, mainState: setStateChain(s, b.mainState)})), this.state.providerState)}</>;
     }
 }
 AsyncStateProvider.contextType = AppStateContext;

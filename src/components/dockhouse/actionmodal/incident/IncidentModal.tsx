@@ -1,13 +1,12 @@
-import { IncidentType } from 'async/staff/dockhouse/incidents';
+import { IncidentStatusTypes, IncidentType, IncidentTypes } from 'async/staff/dockhouse/incidents';
 import { IncidentsContext } from 'components/dockhouse/providers/IncidentsProvider';
 import Button from 'components/wrapped/Button';
-import { OptionalNumberInput, SelectInput, SelectOption } from 'components/wrapped/Input';
+import { OptionalNumberInput, OptionalStringInput, SelectInput, SelectOption } from 'components/wrapped/Input';
 import { ModalContext, ModalHeader } from 'components/wrapped/Modal';
 import * as moment from "moment";
 import { ValidatedTimeInput } from 'pages/dockhouse/signouts/SignoutsTable';
 import * as React from 'react';
-import { CustomInput } from 'reactstrap';
-import { buttonClassActive, buttonClasses } from '../styles';
+import { buttonClassActive, buttonClasses, buttonClassInactive } from '../styles';
 import { IncidentModalType } from './IncidentModalType';
 
 const locations = [
@@ -55,45 +54,60 @@ const received = [
     "C"
 ]
 
-function SelectInputWithKey(props: {incident: IncidentType, setIncident: React.Dispatch<React.SetStateAction<IncidentType>>, key: keyof IncidentType, options: SelectOption<string>[]}){
-    return <SelectInput controlledValue={props.incident.location} updateValue={(v) => {
-        props.setIncident((s) => ({...s, location: v}));
+function SelectInputWithKey(props: {label?: string, incident: IncidentType, setIncident: React.Dispatch<React.SetStateAction<IncidentType>>, col: keyof IncidentType, options: SelectOption<string>[]}){
+    return <SelectInput label={props.label} controlledValue={props.incident[props.col] as any} updateValue={(v) => {
+        props.setIncident((s) => {
+            console.log({...s, ...{[props.col]: v}});
+            return ({...s, [props.col]: v});
+        });
     }} selectOptions={props.options} fullWidth/>
 }
 
 const mapper = (a) => ({value: a, display: a})
 
 const locationsHR = locations.map(mapper);
-const typesHR = types.map(mapper);
+const typesHR = Object.keys(IncidentTypes).map(mapper);
 const subTypesHR = types.map(mapper);
 const receivedHR = types.map(mapper);
+const statusHR = Object.keys(IncidentStatusTypes).map(mapper);
 
 export default function IncidentModal(props: IncidentModalType){
-    const wasNew = props.currentIncident == undefined;
     const [incident, setIncident] = React.useState(props.currentIncident);
     const incidents = React.useContext(IncidentsContext);
-    var i = 0;
     return <div className="min-w-[90vw] min-h-[90vh] flex flex-col">
         <ModalHeader>
             <span className="text-2xl font-bold">New Incident:</span>
         </ModalHeader>
-        <div className="grid grid-rows-4 grid-cols-2">
-            <SelectInputWithKey incident={incident} setIncident={setIncident} options={locationsHR} key="location"/>
+        <div className="grid grid-rows-4 grid-cols-2 grow-[1]">
+            <SelectInputWithKey label="Location: " incident={incident} setIncident={setIncident} options={locationsHR} col="location"/>
             <div className="flex flex-row">
-                <OptionalNumberInput controlledValue={incident.locationN} updateValue={(v) => {setIncident((s) => ({...s, locationN: v}))}} />
-                <OptionalNumberInput controlledValue={incident.locationW} updateValue={(v) => {setIncident((s) => ({...s, locationW: v}))}} />
+                <OptionalNumberInput label="GPS N" controlledValue={incident.locationN} updateValue={(v) => {setIncident((s) => ({...s, locationN: v}))}} />
+                <OptionalNumberInput label="GPS W" controlledValue={incident.locationW} updateValue={(v) => {setIncident((s) => ({...s, locationW: v}))}} />
             </div>
-            <SelectInputWithKey incident={incident} setIncident={setIncident} options={typesHR} key="type"/>
-            <SelectInputWithKey incident={incident} setIncident={setIncident} options={subTypesHR} key="subtype"/>
-            <SelectInputWithKey incident={incident} setIncident={setIncident} options={receivedHR} key="received"/>
+            <SelectInputWithKey label="Type: " incident={incident} setIncident={setIncident} options={typesHR} col="type"/>
+            <SelectInputWithKey label="Subtype: "incident={incident} setIncident={setIncident} options={subTypesHR} col="subtype"/>
+            <SelectInputWithKey label="Received: "incident={incident} setIncident={setIncident} options={receivedHR} col="received"/>
             <ValidatedTimeInput rowForEdit={incident} updateState={(a, b) => {setIncident((s) => ({...s, [a]: b}))}} validationResults={[]} columnId={'createdTime'} lower={moment().startOf('day')} upper={moment().endOf('day')}/>
+            <SelectInputWithKey label="Status: "incident={incident} setIncident={setIncident} options={statusHR} col="status"/>
+            <h1>@ Time: {}</h1>
+            <OptionalStringInput label="Assigned Primary" controlledValue={incident.assignedResourcePrimary} updateValue={(v) => {setIncident((s) => ({...s, assignedResourcePrimary: v}))}} />
+            <OptionalStringInput label="Assigned Secondary" controlledValue={incident.assignedResourcesOther} updateValue={(v) => {setIncident((s) => ({...s, assignedResourceOther: v}))}} />
         </div>
+        <textarea rows={20} value={incident.description} onChange={(e) => {
+            e.preventDefault();
+            setIncident((s) => ({...s, description: e.target.value}));
+        }}>
+
+        </textarea>
         <ModalContext.Consumer>{value =>
-            <Button className={buttonClasses + buttonClassActive} onClick={(e) => {
+            <Button className={buttonClasses + " " + (props.wasNew ? buttonClassActive : buttonClassInactive)} onClick={(e) => {
                 e.preventDefault();
-                incidents.setState((s) => (s.concat(incident)));
+                if(props.wasNew)
+                    incidents.setState((b) => (b.concat(incident)));
+                else
+                    incidents.setState((b) => (b.map((a) => a.id == incident.id ? incident : a)));
                 value.setOpen(false);
-            }}>Add Incident</Button>
+            }}>{props.wasNew ? "Add Incident" : "Update Incident"}</Button>
         }</ModalContext.Consumer>
     </div>
 }
