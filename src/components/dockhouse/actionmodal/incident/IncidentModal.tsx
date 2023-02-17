@@ -3,13 +3,28 @@ import { IncidentsContext } from 'components/dockhouse/providers/IncidentsProvid
 import Button from 'components/wrapped/Button';
 import { OptionalNumberInput, OptionalStringInput, SelectInput, SelectOption } from 'components/wrapped/Input';
 import { ModalContext, ModalHeader } from 'components/wrapped/Modal';
+import { option } from 'fp-ts';
 import * as moment from "moment";
 import { ValidatedTimeInput } from 'pages/dockhouse/signouts/SignoutsTable';
 import * as React from 'react';
 import { buttonClassActive, buttonClasses, buttonClassInactive } from '../styles';
 import { IncidentModalType } from './IncidentModalType';
 
+const locationCoords = [
+{W:42.3592, N:-71.0755},
+{W:42.3565, N:-71.0804},
+{W:42.3547, N:-71.0865},
+{W:42.3605, N:-71.0778},
+{W:42.3582, N:-71.0833},
+{W:42.3570, N:-71.0880}]
+
 const locations = [
+"Boston Longfellow",
+"Boston Mid River",
+"Boston Mass Ave",
+"Cambridge Longfellow",
+"Cambridge Mid River",
+"Cambridge Mass Ave",
 "Dock - Front of Dock",
 "Dock - Longfellow Dock",
 "Dock - Main Dock",
@@ -74,6 +89,14 @@ const statusHR = Object.keys(IncidentStatusTypes).map(mapper);
 export default function IncidentModal(props: IncidentModalType){
     const [incident, setIncident] = React.useState(props.currentIncident);
     const incidents = React.useContext(IncidentsContext);
+    React.useEffect(() => {
+        if(incident.location.isSome()){
+            const index = locations.indexOf(incident.location.value);
+            if(index < locationCoords.length){
+                setIncident((s) => ({...s, locationW: option.some(locationCoords[index].W), locationN: option.some(locationCoords[index].N)}))
+            }
+        }
+    }, [incident.location]);
     return <div className="min-w-[90vw] min-h-[90vh] flex flex-col">
         <ModalHeader>
             <span className="text-2xl font-bold">New Incident:</span>
