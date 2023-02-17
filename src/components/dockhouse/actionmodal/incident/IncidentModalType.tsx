@@ -2,7 +2,7 @@ import { ReactNode } from "react"
 import { Action } from "../ActionModalProps"
 import IncidentModal from "./IncidentModal"
 import * as React from 'react';
-import { IncidentType, IncidentTypes } from "async/staff/dockhouse/incidents";
+import { IncidentStatusTypes, IncidentType, IncidentTypes } from "async/staff/dockhouse/incidents";
 import * as moment from "moment";
 import { option } from "fp-ts";
 
@@ -40,7 +40,7 @@ export class ActionCreateIncident extends Action<IncidentModalType, {}>{
                 locationW: option.none,
                 type: type,
                 subtype: option.none,
-                status: option.none,
+                status: option.some(IncidentStatusTypes.PENDING),
                 priority: option.none,
                 received: option.none,
                 assignedResourcePrimary: option.none,

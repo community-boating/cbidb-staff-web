@@ -1,4 +1,4 @@
-import { IncidentStatusTypes, IncidentType, IncidentTypes } from 'async/staff/dockhouse/incidents';
+import { IncidentStatusTypes, incidentSubTypeMapping, IncidentType, IncidentTypes } from 'async/staff/dockhouse/incidents';
 import { IncidentsContext } from 'components/dockhouse/providers/IncidentsProvider';
 import Button from 'components/wrapped/Button';
 import { OptionalNumberInput, OptionalStringInput, SelectInput, SelectOption } from 'components/wrapped/Input';
@@ -85,7 +85,7 @@ export default function IncidentModal(props: IncidentModalType){
                 <OptionalNumberInput label="GPS W" controlledValue={incident.locationW} updateValue={(v) => {setIncident((s) => ({...s, locationW: v}))}} />
             </div>
             <SelectInputWithKey label="Type: " incident={incident} setIncident={setIncident} options={typesHR} col="type"/>
-            <SelectInputWithKey label="Subtype: "incident={incident} setIncident={setIncident} options={subTypesHR} col="subtype"/>
+            <SelectInputWithKey label="Subtype: "incident={incident} setIncident={setIncident} options={incident.type.isSome() ? incidentSubTypeMapping[incident.type.value].map(mapper) : []} col="subtype"/>
             <SelectInputWithKey label="Received: "incident={incident} setIncident={setIncident} options={receivedHR} col="received"/>
             <ValidatedTimeInput rowForEdit={incident} updateState={(a, b) => {setIncident((s) => ({...s, [a]: b}))}} validationResults={[]} columnId={'createdTime'} lower={moment().startOf('day')} upper={moment().endOf('day')}/>
             <SelectInputWithKey label="Status: "incident={incident} setIncident={setIncident} options={statusHR} col="status"/>

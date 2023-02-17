@@ -52,6 +52,7 @@ const Header = (props: { history, dispatch }) => {
 	const buttons = [
         {src: ims, onClick: (e) => {
 			e.preventDefault();
+			location.replace("/dh/incidents")
 		}},
 		{src: capsize, onClick: (e) => {
 			e.preventDefault();
@@ -59,7 +60,7 @@ const Header = (props: { history, dispatch }) => {
 		}},
         {src: assist, onClick: (e) => {
 			e.preventDefault();
-			actionModal.pushAction(new ActionCreateIncident(option.some(IncidentTypes.ASSIST)));
+			actionModal.pushAction(new ActionCreateIncident(option.some(IncidentTypes.VESSEL_ASSIST)));
 		}},
         {src: runaground, onClick: (e) => {
 			e.preventDefault();

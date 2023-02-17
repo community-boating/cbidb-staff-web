@@ -4,7 +4,51 @@ import { HttpMethod } from "core/HttpMethod";
 import { OptionalDateTime, OptionalEnumType, OptionalNumber, OptionalString } from 'util/OptionalTypeValidators';
 
 export enum IncidentTypes{
-    CAPSIZE = "CAPSIZE", ASSIST="ASSIST", RUNAGROUND="RUNAGROUND", OTHER='OTHER'
+    CAPSIZE = "CAPSIZE", RUNAGROUND="RUNAGROUND",VESSEL_ASSIST="VESSEL_ASSIST",PUBLIC_ASSIST="PUBLIC_ASSIST",
+    WATER_RESCUE='WATER_RESCUE',MEDICAl="MEDICAL",SERVICE="SERVICE"
+}
+
+export enum IncidentSubTypes{
+    GENERAL,
+    TURTLE,
+    TOW,
+    STUCK_IN_BRIDGE,
+    STUCK_IN_MARINA,
+    STANDBY,
+    CRCK,
+    MIT,
+    HARVARD,
+    OTHER_BOARHOUSE,
+    BFD,
+    CFD,
+    STATE_POLICE,
+    USCG,
+    OTHER_PUBLIC_SAFETY,
+    MAN_OVERBOARD,
+    ENTRAPMENT,
+    INJURY,
+    HEAD_INJURY,
+    UNCONSCIOUS,
+    TRAUMA,
+    DROWNING,
+    SEIZURE,
+    ALLERGIC_REACTION,
+    OUTBOARD,
+    INBOARD,
+    SPECIAL_PURPOSE,
+    RIVER_CHECK,
+    LIFE_JACKET_INSPECTION
+}
+
+export const incidentSubTypeMapping = {
+    [IncidentTypes.CAPSIZE]: [IncidentSubTypes.GENERAL, IncidentSubTypes.TURTLE],
+    [IncidentTypes.RUNAGROUND]: [IncidentSubTypes.GENERAL],
+    [IncidentTypes.VESSEL_ASSIST]: [IncidentSubTypes.GENERAL, IncidentSubTypes.TOW, IncidentSubTypes.STUCK_IN_BRIDGE, IncidentSubTypes.STUCK_IN_MARINA],
+    [IncidentTypes.PUBLIC_ASSIST]: [IncidentSubTypes.GENERAL, IncidentSubTypes.STANDBY, IncidentSubTypes.CRCK, IncidentSubTypes.MIT, IncidentSubTypes.HARVARD, 
+        IncidentSubTypes.OTHER_BOARHOUSE, IncidentSubTypes.BFD, IncidentSubTypes.CFD, IncidentSubTypes.STATE_POLICE, IncidentSubTypes.USCG, IncidentSubTypes.OTHER_PUBLIC_SAFETY],
+    [IncidentTypes.WATER_RESCUE]: [IncidentSubTypes.GENERAL, IncidentSubTypes.MAN_OVERBOARD, IncidentSubTypes.ENTRAPMENT],
+    [IncidentTypes.MEDICAl]: [IncidentSubTypes.GENERAL, IncidentSubTypes.INJURY, IncidentSubTypes.HEAD_INJURY, IncidentSubTypes.UNCONSCIOUS, IncidentSubTypes.TRAUMA, IncidentSubTypes.DROWNING, IncidentSubTypes.SEIZURE, IncidentSubTypes.ALLERGIC_REACTION],
+    [IncidentTypes.SERVICE]: [IncidentSubTypes.GENERAL, IncidentSubTypes.OUTBOARD, IncidentSubTypes.INBOARD, IncidentSubTypes.SPECIAL_PURPOSE, IncidentSubTypes.RIVER_CHECK, IncidentSubTypes.LIFE_JACKET_INSPECTION]
 }
 
 export const incidentTypeValidator = OptionalEnumType("incidentType", IncidentTypes);
