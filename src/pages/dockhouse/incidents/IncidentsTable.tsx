@@ -1,16 +1,9 @@
 import { ColumnDef, getCoreRowModel, useReactTable } from '@tanstack/react-table';
+import { IncidentType } from 'async/staff/dockhouse/incidents';
+import { ActionModalContext } from 'components/dockhouse/actionmodal/ActionModal';
+import { ActionEditIncident } from 'components/dockhouse/actionmodal/incident/IncidentModalType';
 import { Table } from 'components/table/Table';
 import * as React from 'react';
-
-type IncidentType = {
-    id: number
-    type: string
-    priority: string
-    status: string
-    time: string
-    location: string
-    description: string
-}
 
 export type IncidentsTableProps = {
     incidents: IncidentType[];
@@ -38,5 +31,8 @@ const columns: ColumnDef<IncidentType, any>[] = [
 ]
 
 export default function IncidentsTable(props: IncidentsTableProps){
-    return <Table keyField={'id'} rows={props.incidents} columns={columns}/>;
+    const actionModal = React.useContext(ActionModalContext);
+    return <Table keyField={'id'} rows={props.incidents} columns={columns} openEditRow={(r) => {
+        actionModal.pushAction(new ActionEditIncident(r));
+    }}/>;
 }

@@ -1,20 +1,10 @@
 import { Card, CardLayout, FlexSize, LayoutDirection } from 'components/dockhouse/Card';
+import { IncidentsContext } from 'components/dockhouse/providers/IncidentsProvider';
 import * as React from 'react';
 import IncidentsTable, { IncidentsTableProps } from './IncidentsTable';
 
-const incident = {
-    id: 0,
-    type: "a type",
-    priority: "low",
-    status: "ongoing",
-    time: "now",
-    location: "somewhere",
-    description: "i don't know"
-}
-
-const dummyIncidents: IncidentsTableProps['incidents'] = [incident, incident, incident];
-
 export default function IncidentsPage(props) {
+    const incidents = React.useContext(IncidentsContext);
     return <>
         <CardLayout direction={LayoutDirection.VERTICAL}>
             <CardLayout direction={LayoutDirection.HORIZONTAL}>
@@ -22,10 +12,9 @@ export default function IncidentsPage(props) {
                 <Card title="Units"></Card>
             </CardLayout>
             <Card title="Assigned Incidents">
-                <IncidentsTable incidents={dummyIncidents}></IncidentsTable>
+                <IncidentsTable incidents={incidents.state}></IncidentsTable>
             </Card>
             <Card title="Completed Incidents">
-
             </Card>
         </CardLayout>
     </>;

@@ -46,7 +46,7 @@ export const SignoutsTable = (props: {
 };
 
 export const ValidatedTimeInput: (props: { rowForEdit: any, updateState: UpdateStateType, validationResults, columnId: string, lower: moment.Moment, upper: moment.Moment }) => JSX.Element = (props) => {
-	return <>
+	return <div className="flex flex-row">
 		<div>
 			<HourInput {...wrapForFormComponentsMoment(props.rowForEdit, props.updateState, props.columnId, props.validationResults)} lower={props.lower} upper={props.upper} />
 		</div>
@@ -56,5 +56,5 @@ export const ValidatedTimeInput: (props: { rowForEdit: any, updateState: UpdateS
 		<div>
 			<AmPmInput {...wrapForFormComponentsMoment(props.rowForEdit, props.updateState, props.columnId, props.validationResults)} lower={props.lower} upper={props.upper} />
 		</div>
-	</>;
+	</div>;
 }

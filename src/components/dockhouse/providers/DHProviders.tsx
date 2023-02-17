@@ -6,6 +6,7 @@ import ClassesProvider from './ClassesProvider';
 import ClassLocationsProvider from './ClassLocationsProvider';
 import ClassTypesProvider from './ClassTypesProvider';
 import DHGlobalProvider from './DHGlobalProvider';
+import IncidentsProvider from './IncidentsProvider';
 import InstructorsProvider from './InstructorsProvider';
 import RatingsProvider from './RatingsProvider';
 import SignoutsTodayProvider from './SignoutsTodayProvider';
@@ -16,17 +17,19 @@ export default function DHProviders(props: {children?: React.ReactNode}){
             <SignoutsTodayProvider>
                 <DHGlobalProvider>
                     <InstructorsProvider>
-                        <ClassLocationsProvider>
-                            <ScannedPersonsCache>
-                                <ClassesProvider>
-                                    <ClassTypesProvider>
-                                        <ActionModalProvider>
-                                            {props.children}
-                                        </ActionModalProvider>
-                                    </ClassTypesProvider>
-                                </ClassesProvider>
-                            </ScannedPersonsCache>
-                        </ClassLocationsProvider>
+                        <IncidentsProvider>
+                            <ClassLocationsProvider>
+                                <ScannedPersonsCache>
+                                    <ClassesProvider>
+                                        <ClassTypesProvider>
+                                            <ActionModalProvider>
+                                                {props.children}
+                                            </ActionModalProvider>
+                                        </ClassTypesProvider>
+                                    </ClassesProvider>
+                                </ScannedPersonsCache>
+                            </ClassLocationsProvider>
+                        </IncidentsProvider>
                     </InstructorsProvider>
                 </DHGlobalProvider>
             </SignoutsTodayProvider>

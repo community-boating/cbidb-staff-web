@@ -15,7 +15,7 @@ import { CardNumberScanner, findCurrentMembership } from './CardNumberScanner';
 import IconButton from 'components/wrapped/IconButton';
 import { option } from 'fp-ts';
 
-function getCrewActions(props: {state: SignoutCombinedType, setState: React.Dispatch<React.SetStateAction<SignoutCombinedType>>, mode: SignoutActionMode}){
+export function getCrewActions(props: {state: SignoutCombinedType, setState: React.Dispatch<React.SetStateAction<SignoutCombinedType>>, mode: SignoutActionMode}){
     return {
         add: (newCrew) => {
             props.setState((s) => ({...s, currentPeople: s.currentPeople.concat(newCrew)}));
@@ -43,9 +43,8 @@ export function CrewIcons(props: {skipper: ScannedPersonType}){
         </div>;
 }
 
-export function DetailedPersonInfo(props: MemberActionProps & {index: number}) {
-    const crewActions = getCrewActions(props);
-    const currentPerson = props.state.currentPeople[props.index];
+export function DetailedPersonInfo(props: {currentPerson: SignoutCombinedType['currentPeople'][number], mode: SignoutActionMode, setTesting: (testing: boolean) => void}) {
+    const currentPerson = props.currentPerson;
     if(!currentPerson.isSkipper && props.mode != SignoutActionMode.TESTING)
         return <></>;
     if(!currentPerson.isTesting && props.mode == SignoutActionMode.TESTING)
@@ -63,20 +62,19 @@ export function DetailedPersonInfo(props: MemberActionProps & {index: number}) {
             <h3 className="text-xl">Guest Privileges: {currentMembership.hasGuestPrivs ? "Yes" : "No"}</h3>
         </div>
         <div className="flex flex-col">
-        {props.mode == SignoutActionMode.TESTING ? <div className="flex flex-row mr-0 ml-auto"><h3>Testing:</h3><IconButton src={minus} onClick={(e) => {e.preventDefault(); crewActions.setTesting(props.index, false)}}/></div> : <></>}
+        {props.mode == SignoutActionMode.TESTING ? <div className="flex flex-row mr-0 ml-auto"><h3>Testing:</h3><IconButton src={minus} onClick={(e) => {e.preventDefault(); props.setTesting(false)}}/></div> : <></>}
             <img src={person} className="mt-auto mb-0 border-r pr-5 border-black"></img>
         </div>
     </div>;
 }
 
-export function AddEditCrew(props: MemberActionProps){
-    const crewActions = getCrewActions(props);
+export function AddEditCrew(props: AddEditCrewProps){
     return (
         <div className="flex flex-col">
             <h3 className="font-bold">Crew:</h3>
             <div className="flex flex-row gap-5">
-                <AddCrew {...props} {...crewActions}></AddCrew>
-                <EditCrew {...props} {...crewActions}></EditCrew>
+                <AddCrew {...props}/>
+                <EditCrew {...props}/>
             </div>
         </div>);
 }
@@ -85,7 +83,7 @@ export function AddCrew(props: AddEditCrewProps){
     const setRandom = (e) => {
         //props.setState((state) => ({...state, currentPeople: state.currentPeople.map((a) => )}));
     }
-    const isSignout = (props.mode == SignoutActionMode.SIGNOUT || props.mode == SignoutActionMode.RACING);
+    const isSignout = false;//(props.mode == SignoutActionMode.SIGNOUT || props.mode == SignoutActionMode.RACING);
     return (<div className="flex flex-col grow-0 gap-2">
             {isSignout ? <div className="flex flex-row gap-2">
                 <Button tabIndex={-1} className="bg-gray-200">Search Phone</Button>
@@ -106,7 +104,7 @@ function EditCrewButton(props: {src: string, onClick: (e) => void, mode: Signout
 
 export function EditCrew(props: AddEditCrewProps){
     const iconTwo = props.mode == SignoutActionMode.TESTING ? add : swap;
-    const crew = <>{props.state.currentPeople.map((a, i) => {
+    const crew = <>{props.currentPeople.map((a, i) => {
         switch(props.mode){
             case SignoutActionMode.TESTING:
                 if(a.isTesting) return undefined;

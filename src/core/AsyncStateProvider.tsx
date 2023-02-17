@@ -70,6 +70,7 @@ export default class AsyncStateProvider<T_Validator extends t.Any> extends React
     render(): React.ReactNode {
         if(this.waitForLogin && this.context.state.login.authenticatedUserName){
             this.loadAsync();
+            this.waitForLogin = false;
         }
         if(this.state.providerState == ProviderState.ERROR && this.props.spinnerOnInit){
             return <p className="text-red-900">Error Loading</p>

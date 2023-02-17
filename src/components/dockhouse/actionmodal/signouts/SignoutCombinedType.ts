@@ -2,9 +2,10 @@ import { ScannedCrewType } from 'async/staff/dockhouse/scan-card';
 import { SignoutType } from 'async/staff/dockhouse/signouts';
 import { option } from 'fp-ts';
 
+export type CurrentPeopleType = (ScannedCrewType[number] & {isSkipper: boolean, isTesting: boolean, testRatingId: option.Option<number>})[];
 
 export type SignoutCombinedType = {
-    currentPeople: (ScannedCrewType[number] & {isSkipper: boolean, isTesting: boolean, testRatingId: option.Option<number>})[]
+    currentPeople: CurrentPeopleType
     boatId: option.Option<number>
     boatNum: option.Option<string>
     hullNum: option.Option<string>
@@ -22,7 +23,9 @@ export type ActionProps = {
 }
 
 
-export type AddEditCrewProps = MemberActionProps & {
+export type AddEditCrewProps = {
+    currentPeople: CurrentPeopleType
+    mode: SignoutActionMode
     add: (newCrew: SignoutCombinedType['currentPeople'][number]) => void
     remove: (index: number) => void
     setSkipper: (index: number) => void

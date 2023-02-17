@@ -21,6 +21,7 @@ import { EditTestsAction } from 'components/dockhouse/actionmodal/test/EditTests
 import { ActionChooseClass } from 'components/dockhouse/actionmodal/class/ActionClassType';
 import { RentalsAction } from 'components/dockhouse/actionmodal/rentals/RentalsType';
 import { BoatQueueAction } from 'components/dockhouse/actionmodal/boatqueue/BoatQueueType';
+import { ActionCreateIncident, ActionEditIncident } from 'components/dockhouse/actionmodal/incident/IncidentModalType';
 
 type CardOrButtonProps = CardProps & {
     //button: React.ReactNode;
@@ -105,7 +106,9 @@ export default function DockHousePage (props) {
                     <ActionCard title="Schedule" onAction={() => {
                         actionModal.pushAction(new ActionChooseClass());
                     }}></ActionCard>
-                    <ActionCard title="Incidents" onAction={undefined}>
+                    <ActionCard title="Incidents" onAction={() => {
+                        actionModal.pushAction(new ActionCreateIncident());
+                    }}>
                         <div className="flex flex-row gap-2">
                             <NumberWithLabel number={0} label="Pending"/>
                             <Spacer/>

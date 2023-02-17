@@ -13,7 +13,7 @@ import { RatingsType } from 'async/staff/dockhouse/ratings';
 import * as moment from 'moment';
 import { buttonClassActive, buttonClasses, buttonClassInactive } from '../styles';
 import BoatIcon, { BoatSelect } from '../BoatIcon';
-import { DetailedPersonInfo, AddEditCrew } from '../SkipperInfo';
+import { DetailedPersonInfo, AddEditCrew, getCrewActions } from '../SkipperInfo';
 import { CreateSignoutType } from 'async/staff/dockhouse/create-signout';
 import { ActionModalPropsWithState } from '../ActionModalProps';
 import SignoutNumbersDropdown from './SignoutNumbersDropdown';
@@ -31,17 +31,19 @@ export function DialogOutput(props: {children: React.ReactNode}){
 const signoutNumberKeys = ["boatNum", "sailNum", "hullNum"];
 
 export function EditSignout(props: {state: SignoutCombinedType, setState: React.Dispatch<React.SetStateAction<SignoutCombinedType>>, mode: SignoutActionMode}){
-    const propsSorted = {...props, state: {...props.state, currentPeople: props.state.currentPeople}};
     const [dialogOutput, setDialogOutput] = React.useState<option.Option<string>>(option.none);
     const setBoatId = (boatId: option.Option<number>) => {
         props.setState({...props.state, boatId: boatId})
     };
+    const crewActions = getCrewActions(props);
     const numbersSorted = React.useMemo(() => Object.entries(props.state).filter((a) => signoutNumberKeys.contains(a[0])).sort((a, b) => (signoutNumberKeys.indexOf(a[0]) - signoutNumberKeys.indexOf(b[0]))).map((a) => a[1] as option.Option<number | string>), [props.state]);
     return (
     <div className="flex flex-col grow-[1] gap-5">
         <div className="flex flex-row grow-[0] gap-5">
-            {props.state.currentPeople.map((a, i) => (<DetailedPersonInfo key={a.personId} {...propsSorted} index={i}/>))}
-            <AddEditCrew {...propsSorted} />
+            {props.state.currentPeople.map((a, i) => (<DetailedPersonInfo key={a.personId} currentPerson={props.state.currentPeople[i]} mode={props.mode} setTesting={(a) => {
+                crewActions.setTesting(i, a);
+            }}/>))}
+            <AddEditCrew currentPeople={props.state.currentPeople} {...crewActions} mode={props.mode} />
         </div>
         <div className="flex flex-row grow-[1]">
             <DialogOutput>

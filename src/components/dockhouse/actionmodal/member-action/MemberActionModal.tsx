@@ -9,7 +9,7 @@ import { SelectInput } from 'components/wrapped/Input';
 import RatingsGrid from '../RatingsGrid';
 import { AppStateContext } from 'app/state/AppStateContext';
 import { grantRatingsValidator, postWrapper as grantRatings } from 'async/staff/dockhouse/grant-ratings';
-import { AddEditCrew } from '../SkipperInfo';
+import { AddEditCrew, getCrewActions } from '../SkipperInfo';
 import { SignoutActionMode, SignoutCombinedType } from '../signouts/SignoutCombinedType';
 import { MemberActionType } from "./MemberActionType";
 import { buttonClassActive, buttonClasses } from '../styles';
@@ -49,7 +49,7 @@ const memberActionTypes: { title: React.ReactNode; getContent: (state: SignoutCo
 {
     title: "Comments",
     getContent: (state, setState) => (<div>
-        <AddEditCrew state={state} setState={setState} mode={SignoutActionMode.COMMENTS}></AddEditCrew>
+        <AddEditCrew currentPeople={state.currentPeople} {...getCrewActions({state, setState, mode: SignoutActionMode.COMMENTS})} mode={SignoutActionMode.COMMENTS}></AddEditCrew>
         <textarea cols={100} rows={20}></textarea>
     </div>)
 }];
@@ -72,7 +72,7 @@ function MemberActionRatings(props: { state: SignoutCombinedType; setState: Reac
     const [programId, setProgramId] = React.useState<option.Option<number>>(option.none);
     const [selectedRatings, setSelectedRatings] = React.useState<{ [key: number]: boolean; }>({});
     return <div className="flex flex-col gap-5 grow-[1]">
-        <AddEditCrew state={props.state} setState={props.setState} mode={SignoutActionMode.RATINGS}></AddEditCrew>
+        <AddEditCrew currentPeople={props.state.currentPeople} {...getCrewActions({...props, mode: SignoutActionMode.RATINGS})} mode={SignoutActionMode.RATINGS}></AddEditCrew>
         <SelectInput controlledValue={programId} updateValue={setProgramId} selectOptions={programsHR.filter((a) => availablePrograms[a.value])} validationResults={[]} autoWidth />
         <RatingsGrid selectedProgram={programId} selectedRatings={selectedRatings} setSelectedRatings={setSelectedRatings}></RatingsGrid>
         <Button className={buttonClasses + " " + buttonClassActive + " ml-auto mr-0 mt-auto mb-0"} spinnerOnClick submit={(e) => {
