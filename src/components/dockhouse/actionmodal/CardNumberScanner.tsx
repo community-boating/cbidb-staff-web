@@ -40,6 +40,10 @@ export function CardNumberScanner(props: ({ label: string; onAction: (result: Sc
         }
     };
     React.useEffect(() => {
+        if(foundPerson.isSome())
+            setActionQueued(cardNum);
+    }, [foundPerson]);
+    React.useEffect(() => {
         if (cardNum.isSome())
             findCardNum(cardNum.value);
     }, [cardNum]);
