@@ -4,7 +4,7 @@ import { SignoutTablesState } from 'async/staff/dockhouse/signouts';
 import { TestType } from 'async/staff/dockhouse/tests';
 import { Table } from 'components/table/Table';
 import { SelectInput } from 'components/wrapped/Input';
-import { ModalHeader } from 'components/wrapped/Modal';
+import { DefaultModalBody, ModalHeader } from 'components/wrapped/Modal';
 import { option } from 'fp-ts';
 import { testResultsHR } from 'pages/dockhouse/signouts/Constants';
 import * as React from 'react';
@@ -43,12 +43,12 @@ const columns: ColumnDef<SignoutWithTests>[] = [{
 export default function EditTestsModal(props: EditTestsType){
     var i = 0;
     const signoutsWithTests = props.testingSignouts.map((a) => ({...a, tests: props.tests.filter((b) => a.signoutId == b.signoutId)}));
-    return <div className="min-w-[90vw] min-h-[90vh] flex flex-col">
+    return <DefaultModalBody>
         <ModalHeader>
             <span className="text-2xl font-bold">Edit Tests</span>
         </ModalHeader>
         <div className="grow-[1] w-full bg-white">
             <Table rows={signoutsWithTests} columns={columns} keyField="signoutId"/>
         </div>
-    </div>
+    </DefaultModalBody>
 }

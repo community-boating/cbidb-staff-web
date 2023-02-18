@@ -1,5 +1,5 @@
 import { Card, CardLayout, LayoutDirection } from 'components/dockhouse/Card';
-import { ModalHeader } from 'components/wrapped/Modal';
+import { DefaultModalBody, ModalHeader } from 'components/wrapped/Modal';
 import { SignoutsTable } from 'pages/dockhouse/signouts/SignoutsTable';
 import * as React from 'react';
 import { RentalsType } from './RentalsType';
@@ -10,7 +10,7 @@ function RentalsSingoutsTable(props: RentalsType){
 
 export default function RentalsModal(props: RentalsType){
     var i = 0;
-    return <div className="min-w-[90vw] min-h-[90vh] flex flex-col">
+    return <DefaultModalBody>
         <ModalHeader>
             <span className="text-2xl font-bold">Rentals</span>
         </ModalHeader>
@@ -25,5 +25,5 @@ export default function RentalsModal(props: RentalsType){
 
             </Card>
         </CardLayout>
-    </div>
+    </DefaultModalBody>
 }

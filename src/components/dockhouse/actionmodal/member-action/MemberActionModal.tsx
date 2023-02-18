@@ -1,5 +1,5 @@
 import { Tab } from '@headlessui/react';
-import { ModalHeader } from 'components/wrapped/Modal';
+import { DefaultModalBody, ModalHeader } from 'components/wrapped/Modal';
 import * as React from 'react';
 import * as t from "io-ts";
 import { option } from 'fp-ts';
@@ -85,22 +85,24 @@ function MemberActionRatings(props: { state: SignoutCombinedType; setState: Reac
 }
 
 export function MemberActionModal(props: ActionModalPropsWithState<MemberActionType, SignoutCombinedType>) {
-    return <Tab.Group>
-            <ModalHeader className="text-2xl font-bold">
-                <Tab.List className="flex flex-row gap-primary">
-                    <h1>Member Actions:</h1>
-                    {memberActionTypes.map((a, i) => <Tab key={i} as={React.Fragment}>
-                        {({ selected }) => (
-                            <div className="flex flex-row gap-primary" tabIndex={-1}>
-                                {(i > 0 ? <span onClick={(e) => { e.preventDefault(); }}><h1>|</h1></span> : "")}
-                                <button className={"inline" + (selected ? " text-boathouseblue font-bold" : " underline")}>{a.title}</button>
-                            </div>
-                        )}
-                    </Tab>)}
-                </Tab.List>
-            </ModalHeader>
-            <Tab.Panels className="h-[80vh] min-w-[80vw] flex flex-col">
-                {memberActionTypes.map((a, i) => <Tab.Panel className="flex flex-col grow-[1]" key={i}>{a.getContent(props.state, props.setState)}</Tab.Panel>)}
-            </Tab.Panels>
-    </Tab.Group>;
+    return <DefaultModalBody>
+        <Tab.Group>
+                <ModalHeader className="text-2xl font-bold">
+                    <Tab.List className="flex flex-row gap-primary">
+                        <h1>Member Actions:</h1>
+                        {memberActionTypes.map((a, i) => <Tab key={i} as={React.Fragment}>
+                            {({ selected }) => (
+                                <div className="flex flex-row gap-primary" tabIndex={-1}>
+                                    {(i > 0 ? <span onClick={(e) => { e.preventDefault(); }}><h1>|</h1></span> : "")}
+                                    <button className={"inline" + (selected ? " text-boathouseblue font-bold" : " underline")}>{a.title}</button>
+                                </div>
+                            )}
+                        </Tab>)}
+                    </Tab.List>
+                </ModalHeader>
+                <Tab.Panels className="h-[80vh] min-w-[80vw] flex flex-col">
+                    {memberActionTypes.map((a, i) => <Tab.Panel className="flex flex-col grow-[1]" key={i}>{a.getContent(props.state, props.setState)}</Tab.Panel>)}
+                </Tab.Panels>
+        </Tab.Group>
+    </DefaultModalBody>;
 }

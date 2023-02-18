@@ -2,7 +2,7 @@ import { IncidentStatusTypes, incidentSubTypeMapping, IncidentSubTypes, Incident
 import { IncidentsContext } from 'components/dockhouse/providers/IncidentsProvider';
 import Button from 'components/wrapped/Button';
 import { OptionalNumberInput, OptionalStringInput, SelectInput, SelectOption } from 'components/wrapped/Input';
-import { ModalContext, ModalHeader } from 'components/wrapped/Modal';
+import { DefaultModalBody, ModalContext, ModalHeader } from 'components/wrapped/Modal';
 import { option } from 'fp-ts';
 import * as moment from "moment";
 import { ValidatedTimeInput } from 'pages/dockhouse/signouts/SignoutsTable';
@@ -97,7 +97,7 @@ export default function IncidentModal(props: IncidentModalType){
             }
         }
     }, [incident.location]);
-    return <div className="min-w-[90vw] min-h-[90vh] flex flex-col">
+    return <DefaultModalBody>
         <ModalHeader>
             <span className="text-2xl font-bold">New Incident:</span>
         </ModalHeader>
@@ -132,5 +132,5 @@ export default function IncidentModal(props: IncidentModalType){
                 value.setOpen(false);
             }}>{props.wasNew ? "Add Incident" : "Update Incident"}</Button>
         }</ModalContext.Consumer>
-    </div>
+    </DefaultModalBody>
 }

@@ -1,4 +1,4 @@
-import { ModalContext, ModalHeader } from 'components/wrapped/Modal';
+import { DefaultModalBody, ModalContext, ModalHeader } from 'components/wrapped/Modal';
 import * as React from 'react';
 import { option } from 'fp-ts';
 import { signoutTypesHR } from '../../../../pages/dockhouse/signouts/Constants';
@@ -179,15 +179,15 @@ export function EditSignoutModal(props: ActionModalPropsWithState<EditSignoutTyp
         return<></>;
     }
     const mode = (props.state.signoutType.isSome() && props.state.signoutType.value == SignoutType.TEST) ? SignoutActionMode.TESTING : SignoutActionMode.SIGNOUT;
-    return <>
+    return <DefaultModalBody>
         <ModalHeader className="font-bold text-2xl gap-1">
             <RadioGroup className="flex flex-row" value={props.state.signoutType} setValue={(v) => props.setState((s) => ({ ...s, signoutType: v }))} makeChildren={signoutTypesHR.map((a, i) => ({ value: a.value, makeNode: (c, s) => { return makeNode(i, a.display)(c, s); } }))} />
         </ModalHeader>
-        <div className="w-[80vw] h-[80vh] p-5">
+        <div className="p-5">
             <EditSignout state={props.state} setState={props.setState} mode={mode} />
         </div>
         <SubmitEditSignout state={props.state} currentRow={props.info.currentSignout} />
-    </>;
+    </DefaultModalBody>;
 }
 function SubmitEditSignout(props: { state: SignoutCombinedType; currentRow: SignoutTablesState; }) {
     const asc = React.useContext(AppStateContext);

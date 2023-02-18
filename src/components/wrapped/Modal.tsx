@@ -37,7 +37,7 @@ export function ModalDescription(props: {children?: React.ReactNode}){
 }
 
 export function DefaultModalBody(props: {children?: React.ReactNode}){
-    return <div className="h-[calc(100vh-10vw)] w-[90vw] flex flex-col">
+    return <div className="h-[calc(100vh-10vw)] w-[90vw] flex flex-col overflow-scroll">
         {props.children}
     </div>
 }
