@@ -75,10 +75,10 @@ class SignIn extends React.PureComponent<{}, State, string> {
 		const updateState = formUpdateState(this.state, this.setState.bind(this), "formData");
 
 		return (
-			<React.Fragment>
+			<form>
 				<div className="text-center mt-4">
 					<h1 className="text-2xl">Community Boating, Inc.</h1>
-					<p className="lead">Dock House</p>
+					<p className="lead">Dockhouse Application</p>
 				</div>
 				<div className="flex flex-col items-center justify-center my-auto bg-gray-100 gap-5 p-5 rounded aspect-square">
 						<img
@@ -99,14 +99,22 @@ class SignIn extends React.PureComponent<{}, State, string> {
 						placeholder="Enter your username"
 						controlledValue={self.state.formData.username.getOrElse("")}
 						updateValue={v => updateState("username", v)}
+						onEnter={() => {
+							document.getElementById("Password_Input").focus();
+						}}
+						autoFocus
 					/>
 					<SimpleInput
 						label="Password"
 						type="password"
 						name="password"
+						id="Password_Input"
 						className="mr-0 ml-auto"
 						placeholder="Enter your password"
 						controlledValue={self.state.formData.password.getOrElse("")}
+						onEnter={() => {
+							loginFunction();
+						}}
 						updateValue={v => {
 							self.setState({
 								...self.state,
@@ -121,7 +129,7 @@ class SignIn extends React.PureComponent<{}, State, string> {
 					</div>
 					<div className="text-center mt-3 p-2 bg-boathouseblue rounded text-gray-100">
 						<Button
-							submit={loginFunction}
+							onSubmit={loginFunction}
 							spinnerOnClick
 							forceSpinner={(this.state || {}).loginProcessing}
 						>
@@ -129,7 +137,7 @@ class SignIn extends React.PureComponent<{}, State, string> {
 						</Button>
 					</div>
 				</div>
-			</React.Fragment>
+			</form>
 		);
 	}
 }

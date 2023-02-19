@@ -133,7 +133,7 @@ export const ValidatedTextInput = (props: (CustomInputProps<any> & InputProps)) 
 export type SelectOption<T_SelectOption> = {value: T_SelectOption, display: ReactNode};
 
 export function SelectInput<T_Value extends string | number> (props: CustomInputProps<option.Option<T_Value>> & InputProps & DropDownProps & {selectOptions : SelectOption<T_Value>[], showNone?: SelectOption<T_Value>, selectNone?: boolean, isNumber?: boolean, autoWidth?: boolean, nowrap?: boolean, fullWidth?: boolean, customStyle?: boolean, makeButton?: (current: SelectOption<option.Option<T_Value>>) => React.ReactNode, openClassName?: string, closedClassName?: string}) {
-	const {selectOptions,showNone,selectNone,customStyle,isNumber,autoWidth,controlledValue,x,y,updateValue} = props;
+	const {selectOptions,showNone,selectNone,customStyle,isNumber,autoWidth,controlledValue,x,y,updateValue,groupClassName} = props;
 	const selectOptionsOptionified = React.useMemo(() => selectOptions.map((a) => ({value: option.some(a.value), display: a.display})), [selectOptions]);
 	const showNonePadded: SelectOption<option.Option<T_Value>> = ((showNone === undefined ) ? {value: option.none, display: "None"} : {value: option.none, display: showNone.display})
 	const selectOptionsWithNone = React.useMemo(() => [showNonePadded].concat(selectOptionsOptionified), [showNone, selectOptionsOptionified]);
@@ -162,7 +162,7 @@ export function SelectInput<T_Value extends string | number> (props: CustomInput
 							</div>
 						</Listbox.Button>
 						<Listbox.Options className={"absolute z-50 " + getPositionClassOuter(props)}>
-							<div className={"bg-white overflow-y-scroll max-h-[50vh] " + getPositionClassInner(props)}>
+							<div className={"bg-white overflow-y-scroll max-h-[50vh] " + getPositionClassInner(props) + " " + (groupClassName?groupClassName:"")}>
 								{options}
 							</div>
 						</Listbox.Options>
@@ -173,7 +173,7 @@ export function SelectInput<T_Value extends string | number> (props: CustomInput
 				{props.end}
 			</div>
 			{autoWidth ? <div className="relative h-[0px] overflow-hidden">
-				{selectOptions.map((a, i) => <div key={i} className="overflow-hidden whitespace-nowrap flex flex-row gap-4">
+				{selectOptions.map((a, i) => <div key={i} className={"overflow-hidden whitespace-nowrap flex flex-row gap-4"}>
 					<Label>
 						{props.label}
 					</Label>

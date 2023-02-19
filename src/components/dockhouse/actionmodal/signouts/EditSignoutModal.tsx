@@ -37,6 +37,7 @@ export function EditSignout(props: {state: SignoutCombinedType, setState: React.
     };
     const crewActions = getCrewActions(props);
     const numbersSorted = React.useMemo(() => Object.entries(props.state).filter((a) => signoutNumberKeys.contains(a[0])).sort((a, b) => (signoutNumberKeys.indexOf(a[0]) - signoutNumberKeys.indexOf(b[0]))).map((a) => a[1] as option.Option<number | string>), [props.state]);
+    console.log(numbersSorted);
     return (
     <div className="flex flex-col grow-[1] gap-5">
         <div className="flex flex-row grow-[0] gap-5">
