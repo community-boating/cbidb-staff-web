@@ -43,6 +43,7 @@ const ReassignedIcon = (props: { row: SignoutTablesState, extraState: SignoutsTa
 };
 const FlagIcon = (props: { row: SignoutTablesState; extraState: SignoutsTablesExtraState }) => {
 	const ratings = props.extraState.ratings;
+	console.log("hello" + ratings.length);
 	if (ratings.length == 0) {
 		return <p>Loading...</p>;
 	}

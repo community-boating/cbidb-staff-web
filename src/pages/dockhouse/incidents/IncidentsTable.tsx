@@ -12,26 +12,32 @@ export type IncidentsTableProps = {
 
 const columns: ColumnDef<IncidentType, any>[] = [
 {
+    header: "Type",
     accessorKey: 'type',
     cell: CellOptionBase("None")
 },
 {
+    header: "Priority",
     accessorKey: 'priority',
     cell: CellOptionBase("None")
 },
 {
+    header: "Status",
     accessorKey: 'status',
     cell: CellOptionBase("None")
 },
 {
+    header: "Received On",
     accessorKey: 'createdTime',
     cell: CellOptionTime
 },
 {
+    header: "Location",
     accessorKey: 'location',
     cell: CellOptionBase("None")
 },
 {
+    header: "Description",
     accessorKey: 'description',
 }
 ]

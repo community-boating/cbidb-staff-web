@@ -9,7 +9,6 @@ import ims from 'assets/img/icons/header/ims.svg';
 import runaground from 'assets/img/icons/header/runaground.svg';
 import capsize from 'assets/img/icons/header/capsize.svg';
 import assist from 'assets/img/icons/header/assist.svg';
-import { FlagStatusIcons } from "./FlagStatusIcons";
 import { DHGlobalContext } from "./providers/DHGlobalProvider";
 import { DHGlobals } from "async/staff/dockhouse/dh-globals";
 import { FlagColor, postWrapper as postFlagColor } from "async/staff/dockhouse/flag-color";

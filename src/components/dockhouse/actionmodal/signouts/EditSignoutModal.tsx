@@ -17,6 +17,8 @@ import { DetailedPersonInfo, AddEditCrew, getCrewActions } from '../SkipperInfo'
 import { CreateSignoutType } from 'async/staff/dockhouse/create-signout';
 import { ActionModalPropsWithState } from '../ActionModalProps';
 import SignoutNumbersDropdown from './SignoutNumbersDropdown';
+import { MAGIC_NUMBERS } from 'app/magicNumbers';
+import { SignoutsTodayContext } from 'components/dockhouse/providers/SignoutsTodayProvider';
 
 export function DotBox(props: {className?: string, children: React.ReactNode}){
     return <div className={"my-5 py-5 border-dashed border-2 grow-[1] " + props.className}>
@@ -85,6 +87,7 @@ export function convertToCreateSignout(state: SignoutCombinedType): CreateSignou
         skipperPersonId: skipper.value.personId,
         skipperCardNumber: skipper.value.cardNumber,
         skipperTestRatingId: state.testRating,
+        programId: MAGIC_NUMBERS.PROGRAM_TYPE_ID.ADULT_PROGRAM,
         boatId: state.boatId.getOrElse(undefined),
         sailNumber: state.sailNum,
         hullNumber: state.hullNum,
@@ -111,7 +114,7 @@ export function adaptSignoutState(state: SignoutTablesState, ratings: RatingsTyp
             nameLast: state.$$skipper.nameLast,
             bannerComment: state.comments,
             specialNeeds: option.none,
-            personRatings: state.$$skipper.$$personRatings.map((a) => ({ ...a, ratingName: ratings.find((b) => b.ratingId == a.ratingId).ratingName, status: "" })),
+            personRatings: state.$$skipper.$$personRatings.map((a) => ({ ...a, ratingName: (ratings.find((b) => b.ratingId == a.ratingId) || {ratingName: ""}).ratingName, status: "" })),
             isSkipper: true,
             isTesting: state.signoutType == SignoutType.TEST,
             testRatingId: state.testRatingId,
@@ -158,13 +161,15 @@ export function adaptSignoutState(state: SignoutTablesState, ratings: RatingsTyp
         signoutId: state.signoutId
     };
 }
-function adaptMemberState(state: SignoutCombinedType, currentRow: SignoutTablesState): SignoutTablesState {
+export function adaptMemberState(state: SignoutCombinedType, currentRow: SignoutTablesState): SignoutTablesState {
+    const skipperOrFirstTester = state.currentPeople.find((a) => a.isSkipper) || state.currentPeople.find((a) => a.isTesting);
     return {
         ...currentRow,
         boatId: state.boatId.getOrElse(undefined),
         hullNumber: state.hullNum,
         sailNumber: state.hullNum,
-        //$$skipper: state.currentPeople
+        $$crew: state.currentPeople.filter((a) => !a.isSkipper).map((a) => ({$$person:{personId: a.personId, nameFirst: a.nameFirst, nameLast: a.nameLast}, personId: option.some(a.personId), crewId: -1, signoutId: state.signoutId, cardNum: option.none, startActive: option.none, endActive: option.none})),
+        $$skipper: {...currentRow.$$skipper, personId: skipperOrFirstTester.personId, nameFirst: skipperOrFirstTester.nameFirst, nameLast: skipperOrFirstTester.nameLast, $$personRatings: skipperOrFirstTester.personRatings.map((a) => ({...a, personId: skipperOrFirstTester.personId}))}
     };
 }
 const makeNode = (index: number, display: React.ReactNode) => (checked: boolean, setValue) => {
@@ -190,21 +195,34 @@ export function EditSignoutModal(props: ActionModalPropsWithState<EditSignoutTyp
         <SubmitEditSignout state={props.state} currentRow={props.info.currentSignout} />
     </DefaultModalBody>;
 }
+
+
+
 function SubmitEditSignout(props: { state: SignoutCombinedType; currentRow: SignoutTablesState; }) {
     const asc = React.useContext(AppStateContext);
-    return <div className="flex flex-row gap-2 ml-auto mr-0">
+    const signouts = React.useContext(SignoutsTodayContext);
+    return <div className="flex flex-row gap-2 ml-auto mr-0 mt-auto mb-0">
         <ModalContext.Consumer>
             {(value) => {
-                return <Button className={buttonClasses + " " + buttonClassInactive} onClick={(e) => {
+                return <>
+                <Button className={buttonClasses + " " + buttonClassInactive} onClick={(e) => {
                     value.setOpen(false);
-                }}>Cancel</Button>;
-            }}
+                }}>Cancel</Button>
+                <Button className={buttonClasses + " " + buttonClassActive} spinnerOnClick onClick={(e) => {
+                    const adaptedToSignout = adaptMemberState(props.state, props.currentRow);
+                    return putSignout.sendJson(asc, adaptedToSignout).then((a) => {
+                        if(a.type == "Success"){
+                            signouts.setSignouts((s) => s.map((b) => {
+                                if(b.signoutId == adaptedToSignout.signoutId)
+                                    return adaptedToSignout;
+                                return b;
+                            }))
+                            value.setOpen(false);
+                        }
+                    });
+                }}>Save</Button>
+        </>
+        }}
         </ModalContext.Consumer>
-        <Button className={buttonClasses + " " + buttonClassActive} onClick={(e) => {
-            const adaptedToSignout = adaptMemberState(props.state, props.currentRow);
-            return putSignout.sendJson(asc, adaptedToSignout).then((a) => {
-                console.log(a);
-            });
-        }}>Save</Button>
     </div>;
 }

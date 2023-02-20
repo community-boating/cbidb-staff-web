@@ -13,7 +13,7 @@ import { AddEditCrew, getCrewActions } from '../SkipperInfo';
 import { SignoutActionMode, SignoutCombinedType } from '../signouts/SignoutCombinedType';
 import { MemberActionType } from "./MemberActionType";
 import { buttonClassActive, buttonClasses } from '../styles';
-import { CreateQueueSignout } from "../signouts/CreateQueueSignout";
+import { CreateQueueSignout } from "./CreateQueueSignout";
 import { EditSignout } from '../signouts/EditSignoutModal';
 import { ActionModalPropsWithState } from '../ActionModalProps';
 

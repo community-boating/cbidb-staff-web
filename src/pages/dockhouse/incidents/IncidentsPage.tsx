@@ -1,3 +1,4 @@
+import { IncidentStatusTypes } from 'async/staff/dockhouse/incidents';
 import { Card, CardLayout, FlexSize, LayoutDirection } from 'components/dockhouse/Card';
 import { IncidentsContext } from 'components/dockhouse/providers/IncidentsProvider';
 import * as React from 'react';
@@ -12,7 +13,7 @@ export default function IncidentsPage(props) {
                 <Card title="Units"></Card>
             </CardLayout>
             <Card title="Assigned Incidents">
-                <IncidentsTable incidents={incidents.state}></IncidentsTable>
+                <IncidentsTable incidents={incidents.state.filter((a) => a.status.isSome() && a.status.value == IncidentStatusTypes.PENDING)}></IncidentsTable>
             </Card>
             <Card title="Completed Incidents">
             </Card>

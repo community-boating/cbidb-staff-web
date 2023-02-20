@@ -16,6 +16,7 @@ export const createSignoutValidator = t.type({
 	boatId: t.number,
 	sailNumber: OptionalString,
 	hullNumber: OptionalString,
+	programId: t.number,
 	classSessionId: OptionalNumber,
 	isRacing: t.boolean,
 	dockmasterOverride: t.boolean,

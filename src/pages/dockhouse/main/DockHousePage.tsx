@@ -70,11 +70,11 @@ export default function DockHousePage (props) {
         boatTypes: boatTypes,
         boatTypesHR: makeBoatTypesHR(boatTypes)
         }), [ratings, boatTypes]);
-        const filteredSignouts = (signoutsToday.signouts || []).filter(filterActive(true));
-        const reassignedHullsMap = {};
-        const reassignedSailsMap = {};
-        makeReassignedMaps(filteredSignouts, reassignedHullsMap, reassignedSailsMap);
-        const extraState: SignoutsTablesExtraState = {...extraStateAsync, reassignedHullsMap, reassignedSailsMap} ;
+    const filteredSignouts = (signoutsToday.signouts || []).filter(filterActive(true));
+    const reassignedHullsMap = {};
+    const reassignedSailsMap = {};
+    makeReassignedMaps(filteredSignouts, reassignedHullsMap, reassignedSailsMap);
+    const extraState: SignoutsTablesExtraState = {...extraStateAsync, reassignedHullsMap, reassignedSailsMap} ;
     return (<>
         <CardLayout direction={LayoutDirection.VERTICAL} parentDirection={LayoutDirection.VERTICAL}>
             <CardLayout direction={LayoutDirection.HORIZONTAL}>
