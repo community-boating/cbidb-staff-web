@@ -272,7 +272,7 @@ function CBIBoatIcon(props: HeaderProps){
 }
 
 function FlagIcon(props: HeaderProps){
-    return <SelectInput groupClassName="gap-4" controlledValue={option.some(props.flag)} updateValue={(v) => {
+    return <SelectInput notWhiteBG groupClassName="gap-4" controlledValue={option.some(props.flag)} updateValue={(v) => {
         props.setFlag(getFlagColor(v.getOrElse(undefined)));
     }} selectOptions={allFlags.sort((a, b) => getFlagIcon(b).sortOrder - getFlagIcon(a).sortOrder).map((a) => ({display: <FlagStatusIcon className="h-status_banner_height" flag={getFlagIcon(a)}></FlagStatusIcon>, value: a}))} openClassName="" closedClassName="border-transparent" customStyle horizontal x={DirectionX.RIGHT} y={DirectionY.UP}/>;
 }

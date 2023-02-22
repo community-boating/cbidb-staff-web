@@ -23,6 +23,7 @@ import { RentalsAction } from 'components/dockhouse/actionmodal/rentals/RentalsT
 import { BoatQueueAction } from 'components/dockhouse/actionmodal/boatqueue/BoatQueueType';
 import { IncidentsContext } from 'components/dockhouse/providers/IncidentsProvider';
 import { isAssigned, isPending } from '../incidents/IncidentsPage';
+import { ActionViewIncidents } from 'components/dockhouse/actionmodal/view-incidents/ViewIncidentsType';
 
 type CardOrButtonProps = CardProps & {
     //button: React.ReactNode;
@@ -110,7 +111,7 @@ export default function DockHousePage (props) {
                         actionModal.pushAction(new ActionChooseClass());
                     }}></ActionCard>
                     <ActionCard title="Incidents" onAction={() => {
-                        //actionModal.pushAction(new ActionCreateIncident());
+                        actionModal.pushAction(new ActionViewIncidents());
                     }}>
                         <div className="flex flex-row gap-2">
                             <NumberWithLabel number={incidents.state.filter((a) => isPending(a.status)).length} label="Pending"/>

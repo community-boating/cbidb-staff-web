@@ -18,6 +18,7 @@ import { IncidentTypes } from "async/staff/dockhouse/incidents";
 import { option } from "fp-ts";
 import { IncidentsContext } from "./providers/IncidentsProvider";
 import { ActionEditIncident, createIncident } from "./actionmodal/incident/IncidentModalType";
+import { ActionViewIncidents } from "./actionmodal/view-incidents/ViewIncidentsType";
 
 /*
 Flag Banner (close, GYRB, right)
@@ -60,7 +61,7 @@ const Header = (props: { history, dispatch }) => {
 	const buttons = [
         {src: ims, onClick: (e) => {
 			e.preventDefault();
-			location.replace("/dh/incidents")
+			actionModal.pushAction(new ActionViewIncidents());
 		}},
 		{src: capsize, onClick: (e) => {
 			e.preventDefault();

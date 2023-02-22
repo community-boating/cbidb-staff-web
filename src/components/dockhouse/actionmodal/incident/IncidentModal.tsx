@@ -81,8 +81,31 @@ const received = [
     "Directly Reported"
 ]
 
-function SelectInputWithKey(props: {label?: string, incident: IncidentType, setIncident: React.Dispatch<React.SetStateAction<IncidentType>>, col: keyof IncidentType, options: SelectOption<string>[]}){
-    return <SelectInput label={props.label} controlledValue={props.incident[props.col] as any} updateValue={(v) => {
+const responderPrimary = [
+    "Sam",
+    "Noah",
+    "Evan",
+    "Henry",
+    "Olivia",
+    "John",
+    "Will",
+    "Shannon",
+    "Interim Safety Launch Operator Capt. Addison Antonelli"
+]
+
+const priorityClassNames = [
+    "bg-[#ff1100]",
+    "bg-[#ff5500]",
+    "bg-[#ff7700]",
+    "text-[#ff9900]",
+    "text-[#ffbb00]",
+    "text-[#009922]",
+    "text-[#00ffff]",
+    "text-[#006699]"
+]
+
+function SelectInputWithKey(props: {label?: string, className?: string, incident: IncidentType, setIncident: React.Dispatch<React.SetStateAction<IncidentType>>, col: keyof IncidentType, options: SelectOption<string>[]}){
+    return <SelectInput className={props.className} label={props.label} controlledValue={props.incident[props.col] as any} updateValue={(v) => {
         props.setIncident((s) => {
             console.log({...s, ...{[props.col]: v}});
             return ({...s, [props.col]: v});
@@ -92,7 +115,7 @@ function SelectInputWithKey(props: {label?: string, incident: IncidentType, setI
 
 const mapper = (a) => ({value: a, display: a})
 
-const priorityList: String[] = [];
+const priorityList: string[] = [];
 
 for(var i = 1; i <= 8; i++){
     priorityList.push(i.toString());
@@ -103,7 +126,7 @@ const typesHR = Object.keys(IncidentTypes).map(mapper);
 const subTypesHR = types.map(mapper);
 const receivedHR = types.map(mapper);
 const statusHR = Object.keys(IncidentStatusTypes).map(mapper);
-const priorityHR = priorityList.map(mapper);
+const priorityHR = priorityList.map((a, i) => ({value: a, display: (sel, ac) => <div className={(sel) ? (priorityClassNames[i]) : "" + " w-full h-full"}>{a}</div>, isFunction: true}));
 
 export default function IncidentModal(props: IncidentModalType){
     const [incident, setIncident] = React.useState(props.currentIncident);
@@ -119,28 +142,29 @@ export default function IncidentModal(props: IncidentModalType){
     React.useEffect(() => {
         if(incident.type.isSome() && incident.subtype.isSome()){
             const subtype = incident.subtype.value;
-            console.log
             const found = incidentSubTypeMapping[incident.type.value].find((a) => (a.subtype == subtype));
             console.log(found);
             if(found){
                 //console.log("setting", found.priority);
-                //setIncident((s) => ({...s, priority: option.some(found.priority.toString())}))
+                setIncident((s) => ({...s, priority: option.some(found.priority.toString())}))
             }
         }
     }, [incident.subtype])
+    const priorityClassName = incident.priority.isSome() ? priorityClassNames[parseInt(incident.priority.value) - 1] : "";
+    console.log(priorityClassName);
     return <DefaultModalBody>
         <ModalHeader>
             <span className="text-2xl font-bold">New Incident:</span>
         </ModalHeader>
-        <div className="grid grid-rows-4 grid-cols-4 grow-[1]">
+        <div className="grid grid-rows-4 grid-cols-2 grow-[1]">
             <SelectInputWithKey label="Location: " incident={incident} setIncident={setIncident} options={locationsHR} col="location"/>
             <div className="flex flex-row">
                 <OptionalNumberInput label="GPS N" controlledValue={incident.locationN} updateValue={(v) => {setIncident((s) => ({...s, locationN: v}))}} />
                 <OptionalNumberInput label="GPS W" controlledValue={incident.locationW} updateValue={(v) => {setIncident((s) => ({...s, locationW: v}))}} />
             </div>
             <SelectInputWithKey label="Type: " incident={incident} setIncident={setIncident} options={typesHR} col="type"/>
-            <SelectInputWithKey label="Subtype: "incident={incident} setIncident={setIncident} options={incident.type.isSome() ? incidentSubTypeMapping[incident.type.value].map((a) => ({value: a.subtype.toString(), display: IncidentStatusTypes[a.subtype]})) : []} col="subtype"/>
-            <SelectInputWithKey label="Priority: " incident={incident} setIncident={setIncident} options={priorityHR} col="priority"/>
+            <SelectInputWithKey label="Subtype: "incident={incident} setIncident={setIncident} options={incident.type.isSome() ? incidentSubTypeMapping[incident.type.value].map((a) => ({value: a.subtype.toString(), display: IncidentSubTypes[a.subtype]})) : []} col="subtype"/>
+            <SelectInputWithKey className={priorityClassName} label="Priority: " incident={incident} setIncident={setIncident} options={priorityHR} col="priority"/>
             <SelectInputWithKey label="Received Via: "incident={incident} setIncident={setIncident} options={receivedHR} col="received"/>
             <ValidatedTimeInput rowForEdit={incident} updateState={(a, b) => {setIncident((s) => ({...s, [a]: b}))}} validationResults={[]} columnId={'createdTime'} lower={moment().startOf('day')} upper={moment().endOf('day')}/>
             <SelectInputWithKey label="Status: "incident={incident} setIncident={setIncident} options={statusHR} col="status"/>
@@ -148,7 +172,7 @@ export default function IncidentModal(props: IncidentModalType){
             <OptionalStringInput label="Assigned Primary" controlledValue={incident.assignedResourcePrimary} updateValue={(v) => {setIncident((s) => ({...s, assignedResourcePrimary: v}))}} />
             <OptionalStringInput label="Assigned Secondary" controlledValue={incident.assignedResourcesOther} updateValue={(v) => {setIncident((s) => ({...s, assignedResourceOther: v}))}} />
         </div>
-        <textarea rows={10} value={incident.description} onChange={(e) => {
+        <textarea rows={8} value={incident.description} onChange={(e) => {
             e.preventDefault();
             setIncident((s) => ({...s, description: e.target.value}));
         }}>

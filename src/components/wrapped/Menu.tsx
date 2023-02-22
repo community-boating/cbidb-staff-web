@@ -41,7 +41,7 @@ export function getPositionClassInner(props: DropDownProps){
 
 export default function Menu(props: Menu){
     return (
-        <div className={"relative " + (props.className || "")}>
+        <div className={"relative  z-50 " + (props.className || "")}>
             <MenuHUI>
                 {({close}) => (<>
                 <MenuHUI.Button tabIndex={props.tabIndex} className={(props.className || "")}>{props.title}</MenuHUI.Button>
@@ -55,8 +55,8 @@ export default function Menu(props: Menu){
             leaveTo="opacity-0 scale-95 "
         >
                     <MenuHUI.Items className={"absolute bg-white z-50 whitespace-nowrap flex min-w-fit " + (props.itemsClassName || "") + " " + getPositionClassOuter(props)} static>
-                        <div className={getPositionClassInner(props)}>
-                            {props.items.map((a, i) => <MenuHUI.Item key={i}><div className={(props.itemClassName || "")}>{a}</div></MenuHUI.Item>)}
+                        <div className={getPositionClassInner(props) + " z-50"}>
+                            {props.items.map((a, i) => <MenuHUI.Item key={i}><div className={(props.itemClassName || "") + " z-50"}>{a}</div></MenuHUI.Item>)}
                         </div>
                     </MenuHUI.Items>
                 </Transition></>)}

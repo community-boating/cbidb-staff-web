@@ -45,12 +45,10 @@ export function DefaultModalBody(props: {children?: React.ReactNode}){
 export default function Modal(props: ModalProps){
     return (
         <Dialog className="fixed h-full w-full top-0 left-0 flex items-center justify-center z-10" open={props.open} onClose={() => props.setOpen(false)}>
-                <Dialog.Panel className={props.className}>
+                <Dialog.Panel className={props.className + " bg-background flex flex-col p-5 top-[200px auto]"}>
                     <Theme>
                         <ModalContext.Provider value={props}>
-                            <div className="flex flex-col p-5 h-full">
                                 {props.children}
-                            </div>
                         </ModalContext.Provider>
                     </Theme>
                 </Dialog.Panel>

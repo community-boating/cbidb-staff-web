@@ -130,18 +130,18 @@ export const ValidatedTextInput = (props: (CustomInputProps<any> & InputProps)) 
 	}/>);
 }
 
-export type SelectOption<T_SelectOption> = {value: T_SelectOption, display: ReactNode};
+export type SelectOption<T_SelectOption> = {value: T_SelectOption, isFunction?: boolean} & ({isFunction?: false, display: ReactNode} | {isFunction: true, display: (active: boolean, selected: boolean) => ReactNode});
 
-export function SelectInput<T_Value extends string | number> (props: CustomInputProps<option.Option<T_Value>> & InputProps & DropDownProps & {selectOptions : SelectOption<T_Value>[], showNone?: SelectOption<T_Value>, selectNone?: boolean, isNumber?: boolean, autoWidth?: boolean, nowrap?: boolean, fullWidth?: boolean, customStyle?: boolean, makeButton?: (current: SelectOption<option.Option<T_Value>>) => React.ReactNode, openClassName?: string, closedClassName?: string}) {
-	const {selectOptions,showNone,selectNone,customStyle,isNumber,autoWidth,controlledValue,x,y,updateValue,groupClassName} = props;
-	const selectOptionsOptionified = React.useMemo(() => selectOptions.map((a) => ({value: option.some(a.value), display: a.display})), [selectOptions]);
-	const showNonePadded: SelectOption<option.Option<T_Value>> = ((showNone === undefined ) ? {value: option.none, display: "None"} : {value: option.none, display: showNone.display})
+export function SelectInput<T_Value extends string | number> (props: CustomInputProps<option.Option<T_Value>> & InputProps & DropDownProps & {selectOptions : SelectOption<T_Value>[], showNone?: SelectOption<T_Value>, selectNone?: boolean, isNumber?: boolean, autoWidth?: boolean, notWhiteBG?: boolean, nowrap?: boolean, fullWidth?: boolean, customStyle?: boolean, makeButton?: (current: SelectOption<option.Option<T_Value>>) => React.ReactNode, openClassName?: string, closedClassName?: string}) {
+	const {selectOptions,showNone,selectNone,customStyle,isNumber,autoWidth,notWhiteBG,controlledValue,x,y,updateValue,groupClassName} = props;
+	const selectOptionsOptionified: SelectOption<option.Option<T_Value>>[] = React.useMemo(() => selectOptions.map((a) => ({...a, value: option.some(a.value)})), [selectOptions]);
+	const showNonePadded: SelectOption<option.Option<T_Value>> = ((showNone === undefined ) ? {value: option.none, display: "None", isFunction: false} : {...showNone, value: option.none})
 	const selectOptionsWithNone = React.useMemo(() => [showNonePadded].concat(selectOptionsOptionified), [showNone, selectOptionsOptionified]);
 	const useOptions = (selectNone || props.controlledValue.isNone() ? selectOptionsWithNone : selectOptionsOptionified);
 	const current = (controlledValue.isSome() ? (selectOptionsOptionified.filter((a) => a.value.isSome() && a.value.value == controlledValue.value)[0]) : showNonePadded);
-
+	const toDisplay = (props.makeButton ? props.makeButton(current) : (current && current.display) ? (current.isFunction ? current.display(false, true) : current.display) : "");
     const options = React.useMemo(() => (useOptions.map((a, i) => (<Listbox.Option key={i} value={a.value} as={React.Fragment}>
-		{({active, selected}) => (<div className={(active ? "bg-gray-100" : "") + " w-full flex"}><button className="w-full text-left">{a.display}</button></div>)}
+		{({active, selected}) => (<div className={(active ? "bg-background" : "") + " w-full flex"}><button className="w-full text-left">{a.isFunction ? a.display(active, selected) : a.display}</button></div>)}
 		</Listbox.Option>))), [useOptions]);
 	return (<div className={(props.nowrap ? "whitespace-nowrap" : "break-words") + (props.fullWidth ? " w-full" : " w-fit")}>
 			<div className="flex flex-row w-full">
@@ -151,17 +151,16 @@ export function SelectInput<T_Value extends string | number> (props: CustomInput
 				<Listbox value={controlledValue} onChange={(v) => {updateValue(v);}}>
 					{({open}) => 
 						<div className="relative w-full">
-						<Listbox.Button className={"flex flex-col w-full items-end overflow-hidden " + (customStyle ? "" : inputClassName + " bg-white") + " " + (props.className ? props.className : "") + " " + (props.openClassName ? (open ? props.openClassName : (props.closedClassName ? props.closedClassName : "")) : "")}>
-
+						<Listbox.Button className={"flex flex-col w-full items-end overflow-hidden " + (customStyle ? "" : inputClassName + " ") + (notWhiteBG ? "" : " bg-white ") + " " + (props.className ? props.className : " ") + " " + (props.openClassName ? (open ? props.openClassName : (props.closedClassName ? props.closedClassName : "")) : "")}>
 							<div className="flex flex-row w-full">
 								<div className={"text-left grow"}>
-									{props.makeButton ? props.makeButton(current) : (current && current.display)}
+									{toDisplay}
 								</div>
 								{customStyle ? <></> : <ChevronDown className="flex-none"/>}
 							</div>
 						</Listbox.Button>
-						<Listbox.Options className={"absolute z-50 " + getPositionClassOuter(props)}>
-							<div className={"bg-background max-h-[50vh] " + getPositionClassInner(props) + " " + (groupClassName?groupClassName:"") + (props.horizontal ? "" : " overflow-y-scroll")}>
+						<Listbox.Options className={"absolute z-[100] " + getPositionClassOuter(props)}>
+							<div className={"bg-background max-h-[50vh] z-[100] " + getPositionClassInner(props) + " " + (groupClassName?groupClassName:"") + (props.horizontal ? "" : " overflow-y-scroll")}>
 								<div className="border-l-2 border-black ml-4 min-h-full w-[2px]"></div>
 								{options}
 							</div>
