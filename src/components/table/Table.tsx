@@ -144,7 +144,7 @@ export const Table: <T_Data, T_Filter>(props: TableProps<T_Data, T_Filter>) => J
 		</tfoot> : undefined
 	}, []);
 	return (
-		<div className="p-2 w-full grow-[1] flex flex-col">
+		<div className="p-2 grow-[1] flex flex-col">
 			<table className="table-auto w-full">
 				{header}
 				<tbody>

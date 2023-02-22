@@ -6,9 +6,9 @@ import Theme from "./Theme";
 
 export const StandardLayout = ({ history, children }) => (
 	<Theme>
-		<div className="h-screen w-screen flex flex-col font-primary px-primary my-theme">
+		<span className="h-screen w-screen flex flex-col font-primary px-primary my-theme bg-background">
 			<Header history={history}/>
 			<Content>{children}</Content>
-		</div>
+		</span>
 	</Theme>
 );

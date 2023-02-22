@@ -37,7 +37,7 @@ export type CardProps = CardLayoutChildProps & {
 }
 
 export function Card(props: CardProps){
-    return <div className={(props.weight || FlexSize.S_1) + " flex flex-col basis-0 bg-card p-card " + (props.className || "")}><h2 className="text-xl font-bold leading-none">{props.title}</h2>{props.children}</div>;
+    return <div className={(props.weight || FlexSize.S_1) + " rounded-md flex flex-col basis-0 bg-card p-card " + (props.className || "")}><h2 className="text-xl font-bold leading-none">{props.title}</h2>{props.children}</div>;
 }
 
 type CardLayoutProps = CardLayoutChildProps & {

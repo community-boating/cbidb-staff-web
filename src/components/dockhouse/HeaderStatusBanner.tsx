@@ -154,8 +154,8 @@ function ScrollingDiv(props: {children?: React.ReactNode}){
 }
 
 function HeaderAnnouncements(props: HeaderAnnouncementsProps){
-    return (<div className="grow-[1] shrink-[10] overflow-y-visible h-full min-w-[0] -z-20">
-        <div className="overflow-x-hidden">
+    return (<div className="grow-[1] shrink-[10] overflow-y-visible h-full min-w-[0]">
+        <div className="overflow-x-hidden overflow-y-visible hidden-scrollbar">
             <ScrollingDiv>
                 <div className="whitespace-nowrap">
                     <HeaderAccountment {...props.announcements.filter((a) => a.priority == MessagePriority.HIGH)[0]} className="text-red-500 font-medium"/>
@@ -233,7 +233,7 @@ const WINDDIR: TitleSize = {
 
 function PositionedTitle(props: {value: string, size: TitleSize, className?: string, sub?: React.ReactNode, subClass?: string}){
     const fontClass = props.size
-    return <div className="relative -z-10 top-full">
+    return <div className="relative top-full">
         <div className={"relative " + fontClass.topClass + " " + fontClass.heightClass + " " + fontClass.fontClass}>
             <h1 className={fontClass.fontClass + " " + fontAlignHackClass + (props.className ? (" " + props.className) : "")}>{props.value}</h1>
             {props.sub ? <h1 className={"inline-block align-text-sub leading-none h-[0px]" + (props.subClass ? (" " + props.subClass) : "")}>{props.sub}</h1> : undefined}
@@ -272,9 +272,9 @@ function CBIBoatIcon(props: HeaderProps){
 }
 
 function FlagIcon(props: HeaderProps){
-    return <SelectInput groupClassName="gap-4 border-l-2 border-black pl-4 bg-white" controlledValue={option.some(props.flag)} updateValue={(v) => {
+    return <SelectInput groupClassName="gap-4" controlledValue={option.some(props.flag)} updateValue={(v) => {
         props.setFlag(getFlagColor(v.getOrElse(undefined)));
-    }} selectOptions={allFlags.sort((a, b) => getFlagIcon(b).sortOrder - getFlagIcon(a).sortOrder).map((a) => ({display: <FlagStatusIcon className="h-status_banner_height" flag={getFlagIcon(a)}></FlagStatusIcon>, value: a}))} openClassName="mr-4" closedClassName="border-transparent" customStyle horizontal x={DirectionX.RIGHT} y={DirectionY.UP}/>;
+    }} selectOptions={allFlags.sort((a, b) => getFlagIcon(b).sortOrder - getFlagIcon(a).sortOrder).map((a) => ({display: <FlagStatusIcon className="h-status_banner_height" flag={getFlagIcon(a)}></FlagStatusIcon>, value: a}))} openClassName="" closedClassName="border-transparent" customStyle horizontal x={DirectionX.RIGHT} y={DirectionY.UP}/>;
 }
 
 function HeaderImage(props: HeaderImageProps){

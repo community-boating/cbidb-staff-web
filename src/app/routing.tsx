@@ -30,8 +30,8 @@ const authenticatedRoutes = (asc: AppStateCombined,history: History<any>) => {
 				<Layout history={history}>
 					<Switch>
 						{routes}
+						<Redirect from="*" to="/"/>
 					</Switch>
-					<Redirect from="/*" to="/"/>
 				</Layout>
 			)}
 		/>

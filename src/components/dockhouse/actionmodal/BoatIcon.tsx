@@ -22,6 +22,41 @@ export type BoatIconProps = {
 }
 
 export const BoatIcons = [{
+    hr: "Mercury",
+    key: "C",
+    src: mercury
+},
+{
+    hr: "Keel Mercury",
+    key: "F",
+    src: keelmerc
+},
+{
+    hr: "Sonar",
+    key: "S",
+    src: sonar
+},
+{
+    hr: "Ideal 18",
+    key: "I",
+    src: ideal
+},
+{
+    hr: "420",
+    key: "4",
+    src: b420
+},
+{
+    hr: "Laser",
+    key: "L",
+    src: laser
+},
+{
+    hr: "Windsurfer",
+    key: "W",
+    src: windsurf
+},
+{
     hr: "Stand Up Paddleboard",
     key: "P",
     src: sup
@@ -30,41 +65,6 @@ export const BoatIcons = [{
     hr: "Kayak",
     key: "K",
     src: kayak
-},
-{
-    hr: "420",
-    key: "4",
-    src: b420
-},
-{
-    hr: "Ideal 18",
-    key: "I",
-    src: ideal
-},
-{
-    hr: "Keel Mercury",
-    key: "F",
-    src: keelmerc
-},
-{
-    hr: "Laser",
-    key: "L",
-    src: laser
-},
-{
-    hr: "Sonar",
-    key: "S",
-    src: sonar
-},
-{
-    hr: "Mercury",
-    key: "C",
-    src: mercury
-},
-{
-    hr: "Windsurfer",
-    key: "W",
-    src: windsurf
 }]
 
 export const boatIconsByHR = BoatIcons.reduce((a, b) => {

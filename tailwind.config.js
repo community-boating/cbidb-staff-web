@@ -58,8 +58,8 @@ module.exports = {
           colors: {
             primary: 'red',
             boathouseblue: '#00507D',
-            card: '#C4C4C4',
-            background: 'white'
+            card: '#CCCCCC',
+            background: '#E3E3E3'
           },
           fontFamily: {
             primary: ['Roboto']

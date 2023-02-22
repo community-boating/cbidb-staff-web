@@ -40,15 +40,22 @@ export enum IncidentSubTypes{
     LIFE_JACKET_INSPECTION
 }
 
+function subtypeWithPriority(subtype: IncidentSubTypes, priority: number){
+    return {
+        subtype,
+        priority
+    }
+}
+
 export const incidentSubTypeMapping = {
-    [IncidentTypes.CAPSIZE]: [IncidentSubTypes.GENERAL, IncidentSubTypes.TURTLE],
-    [IncidentTypes.RUNAGROUND]: [IncidentSubTypes.GENERAL],
-    [IncidentTypes.VESSEL_ASSIST]: [IncidentSubTypes.GENERAL, IncidentSubTypes.TOW, IncidentSubTypes.STUCK_IN_BRIDGE, IncidentSubTypes.STUCK_IN_MARINA],
-    [IncidentTypes.PUBLIC_ASSIST]: [IncidentSubTypes.GENERAL, IncidentSubTypes.STANDBY, IncidentSubTypes.CRCK, IncidentSubTypes.MIT, IncidentSubTypes.HARVARD, 
-        IncidentSubTypes.OTHER_BOARHOUSE, IncidentSubTypes.BFD, IncidentSubTypes.CFD, IncidentSubTypes.STATE_POLICE, IncidentSubTypes.USCG, IncidentSubTypes.OTHER_PUBLIC_SAFETY],
-    [IncidentTypes.WATER_RESCUE]: [IncidentSubTypes.GENERAL, IncidentSubTypes.MAN_OVERBOARD, IncidentSubTypes.ENTRAPMENT],
-    [IncidentTypes.MEDICAl]: [IncidentSubTypes.GENERAL, IncidentSubTypes.INJURY, IncidentSubTypes.HEAD_INJURY, IncidentSubTypes.UNCONSCIOUS, IncidentSubTypes.TRAUMA, IncidentSubTypes.DROWNING, IncidentSubTypes.SEIZURE, IncidentSubTypes.ALLERGIC_REACTION],
-    [IncidentTypes.SERVICE]: [IncidentSubTypes.GENERAL, IncidentSubTypes.OUTBOARD, IncidentSubTypes.INBOARD, IncidentSubTypes.SPECIAL_PURPOSE, IncidentSubTypes.RIVER_CHECK, IncidentSubTypes.LIFE_JACKET_INSPECTION]
+    [IncidentTypes.CAPSIZE]: [subtypeWithPriority(IncidentSubTypes.GENERAL,4), subtypeWithPriority(IncidentSubTypes.TURTLE,4)],
+    [IncidentTypes.RUNAGROUND]: [subtypeWithPriority(IncidentSubTypes.GENERAL,5)],
+    [IncidentTypes.VESSEL_ASSIST]: [subtypeWithPriority(IncidentSubTypes.GENERAL,4), subtypeWithPriority(IncidentSubTypes.TOW,5), subtypeWithPriority(IncidentSubTypes.STUCK_IN_BRIDGE,5), subtypeWithPriority(IncidentSubTypes.STUCK_IN_MARINA,4)],
+    [IncidentTypes.PUBLIC_ASSIST]: [subtypeWithPriority(IncidentSubTypes.GENERAL,6), subtypeWithPriority(IncidentSubTypes.STANDBY,7), subtypeWithPriority(IncidentSubTypes.CRCK, 5), subtypeWithPriority(IncidentSubTypes.MIT, 5), subtypeWithPriority(IncidentSubTypes.HARVARD, 5), 
+        subtypeWithPriority(IncidentSubTypes.OTHER_BOARHOUSE, 5), subtypeWithPriority(IncidentSubTypes.BFD, 2), subtypeWithPriority(IncidentSubTypes.CFD, 2), subtypeWithPriority(IncidentSubTypes.STATE_POLICE, 2), subtypeWithPriority(IncidentSubTypes.USCG, 2), subtypeWithPriority(IncidentSubTypes.OTHER_PUBLIC_SAFETY, 2)],
+    [IncidentTypes.WATER_RESCUE]: [subtypeWithPriority(IncidentSubTypes.GENERAL, 4), subtypeWithPriority(IncidentSubTypes.MAN_OVERBOARD, 4), subtypeWithPriority(IncidentSubTypes.ENTRAPMENT, 1)],
+    [IncidentTypes.MEDICAl]: [subtypeWithPriority(IncidentSubTypes.GENERAL, 3), subtypeWithPriority(IncidentSubTypes.INJURY, 2), subtypeWithPriority(IncidentSubTypes.HEAD_INJURY, 2), subtypeWithPriority(IncidentSubTypes.UNCONSCIOUS, 1), subtypeWithPriority(IncidentSubTypes.TRAUMA, 1), subtypeWithPriority(IncidentSubTypes.DROWNING, 1), subtypeWithPriority(IncidentSubTypes.SEIZURE, 1), subtypeWithPriority(IncidentSubTypes.ALLERGIC_REACTION, 1)],
+    [IncidentTypes.SERVICE]: [subtypeWithPriority(IncidentSubTypes.GENERAL, 8), subtypeWithPriority(IncidentSubTypes.OUTBOARD, 8), subtypeWithPriority(IncidentSubTypes.INBOARD,7), subtypeWithPriority(IncidentSubTypes.SPECIAL_PURPOSE,6), subtypeWithPriority(IncidentSubTypes.RIVER_CHECK,8), subtypeWithPriority(IncidentSubTypes.LIFE_JACKET_INSPECTION,8)]
 }
 
 export const incidentTypeValidator = OptionalEnumType("incidentType", IncidentTypes);
@@ -59,6 +66,8 @@ export enum IncidentStatusTypes{
 
 export const incidentStatusTypeValidator = OptionalEnumType("incidentStatusType", IncidentStatusTypes);
 
+export const incidentSubTypeValidator = OptionalEnumType("incidentStatusType", IncidentSubTypes);
+
 const incidentValidator = t.type({
     id: t.number,
     createdBy: t.number,
@@ -68,7 +77,7 @@ const incidentValidator = t.type({
     locationN: OptionalNumber,
     locationW: OptionalNumber,
     type: incidentTypeValidator,
-    subtype: OptionalString,
+    subtype: incidentSubTypeValidator,
     assignedResourcePrimary: OptionalString,
     assignedResourcesOther: OptionalString,//t.array(t.string),
     currentPeople: t.array(t.number), //Person Ids

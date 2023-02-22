@@ -151,7 +151,6 @@ export function SelectInput<T_Value extends string | number> (props: CustomInput
 				<Listbox value={controlledValue} onChange={(v) => {updateValue(v);}}>
 					{({open}) => 
 						<div className="relative w-full">
-					
 						<Listbox.Button className={"flex flex-col w-full items-end overflow-hidden " + (customStyle ? "" : inputClassName + " bg-white") + " " + (props.className ? props.className : "") + " " + (props.openClassName ? (open ? props.openClassName : (props.closedClassName ? props.closedClassName : "")) : "")}>
 
 							<div className="flex flex-row w-full">
@@ -162,7 +161,8 @@ export function SelectInput<T_Value extends string | number> (props: CustomInput
 							</div>
 						</Listbox.Button>
 						<Listbox.Options className={"absolute z-50 " + getPositionClassOuter(props)}>
-							<div className={"bg-white overflow-y-scroll max-h-[50vh] " + getPositionClassInner(props) + " " + (groupClassName?groupClassName:"")}>
+							<div className={"bg-background max-h-[50vh] " + getPositionClassInner(props) + " " + (groupClassName?groupClassName:"") + (props.horizontal ? "" : " overflow-y-scroll")}>
+								<div className="border-l-2 border-black ml-4 min-h-full w-[2px]"></div>
 								{options}
 							</div>
 						</Listbox.Options>

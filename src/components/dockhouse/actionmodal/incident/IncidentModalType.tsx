@@ -24,36 +24,28 @@ export class ActionEditIncident extends Action<IncidentModalType, {}>{
     }
 }
 
-var lowestId = -1;
+var minId = -1;
 
-export class ActionCreateIncident extends Action<IncidentModalType, {}>{
-    constructor(type: option.Option<IncidentTypes> = option.none){
-        super();
-        this.modeInfo = {
-            currentIncident: {
-                id: lowestId,
-                createdBy: -1,
-                createdTime: option.some(moment()),
-                statusRelationship: "",
-                location: option.none,
-                locationN: option.none,
-                locationW: option.none,
-                type: type,
-                subtype: option.none,
-                status: option.some(IncidentStatusTypes.PENDING),
-                priority: option.none,
-                received: option.none,
-                assignedResourcePrimary: option.none,
-                assignedResourcesOther: option.none,//[],
-                currentPeople: [],
-                associatedSignouts: [],
-                description: ""
-            },
-            wasNew: true
-        }
-        lowestId--;
+export function createIncident(type: IncidentTypes): IncidentType{
+    const a = {
+        id: minId,
+        createdBy: -1,
+        createdTime: option.some(moment()),
+        statusRelationship: "",
+        location: option.none,
+        locationN: option.none,
+        locationW: option.none,
+        type: option.some(type),
+        subtype: option.none,
+        status: option.some(IncidentStatusTypes.INPUT),
+        priority: option.none,
+        received: option.none,
+        assignedResourcePrimary: option.none,
+        assignedResourcesOther: option.none,//[],
+        currentPeople: [],
+        associatedSignouts: [],
+        description: ""
     }
-    createModalContent(info: IncidentModalType): ReactNode {
-        return <IncidentModal {...info}/>
-    }
+    minId--;
+    return a;
 }

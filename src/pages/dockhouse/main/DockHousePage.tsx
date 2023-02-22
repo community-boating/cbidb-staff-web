@@ -21,7 +21,8 @@ import { EditTestsAction } from 'components/dockhouse/actionmodal/test/EditTests
 import { ActionChooseClass } from 'components/dockhouse/actionmodal/class/ActionClassType';
 import { RentalsAction } from 'components/dockhouse/actionmodal/rentals/RentalsType';
 import { BoatQueueAction } from 'components/dockhouse/actionmodal/boatqueue/BoatQueueType';
-import { ActionCreateIncident, ActionEditIncident } from 'components/dockhouse/actionmodal/incident/IncidentModalType';
+import { IncidentsContext } from 'components/dockhouse/providers/IncidentsProvider';
+import { isAssigned, isPending } from '../incidents/IncidentsPage';
 
 type CardOrButtonProps = CardProps & {
     //button: React.ReactNode;
@@ -45,7 +46,7 @@ export function ActionCard(props: CardOrButtonProps){
 
 function NumberWithLabel(props: {number: number, label: React.ReactNode}){
     return <div className="flex flex-col leading-none">
-        <h1 className="text-4xl ml-auto mr-auto font-bold leading-none">{props.number}</h1>
+        <h1 className={"text-4xl ml-auto mr-auto font-bold leading-none" + (props.number >= 5 ? " text-red-700" : "")}>{props.number}</h1>
         <h2>{props.label}</h2>
     </div>
 }
@@ -58,6 +59,7 @@ export default function DockHousePage (props) {
     const boatTypes = React.useContext(BoatsContext);
     const ratings = React.useContext(RatingsContext);
     const actionModal = React.useContext(ActionModalContext);
+    const incidents = React.useContext(IncidentsContext);
     const v = t.type({derp: t.boolean});
     const signoutsToday = React.useContext(SignoutsTodayContext);
     const [externalQueue, setExternalQueue] = React.useState(0);
@@ -73,6 +75,7 @@ export default function DockHousePage (props) {
     const filteredSignouts = (signoutsToday.signouts || []).filter(filterActive(true));
     const reassignedHullsMap = {};
     const reassignedSailsMap = {};
+    //const addNewIncident = ()
     makeReassignedMaps(filteredSignouts, reassignedHullsMap, reassignedSailsMap);
     const extraState: SignoutsTablesExtraState = {...extraStateAsync, reassignedHullsMap, reassignedSailsMap} ;
     return (<>
@@ -87,7 +90,7 @@ export default function DockHousePage (props) {
                     <ActionCard title="Boat Queue" onAction={() => {
                         actionModal.pushAction(new BoatQueueAction(signoutsToday.signouts.filter((a) => true)))
                     }}>
-                        <NumberWithLabel number={0} label="Signouts"/>
+                        <NumberWithLabel number={signoutsToday.signouts.length} label="Signouts"/>
                     </ActionCard>
                     <ActionCard title="One Day Rentals" onAction={() => {
                         actionModal.pushAction(new RentalsAction(signoutsToday.signouts.filter((a) => true)))
@@ -107,15 +110,15 @@ export default function DockHousePage (props) {
                         actionModal.pushAction(new ActionChooseClass());
                     }}></ActionCard>
                     <ActionCard title="Incidents" onAction={() => {
-                        actionModal.pushAction(new ActionCreateIncident());
+                        //actionModal.pushAction(new ActionCreateIncident());
                     }}>
                         <div className="flex flex-row gap-2">
-                            <NumberWithLabel number={0} label="Pending"/>
+                            <NumberWithLabel number={incidents.state.filter((a) => isPending(a.status)).length} label="Pending"/>
                             <Spacer/>
-                            <NumberWithLabel number={3} label="Assigned"/>
+                            <NumberWithLabel number={incidents.state.filter((a) => isAssigned(a.status)).length} label="Assigned"/>
                         </div>
                     </ActionCard>
-                    <ActionCard title="testing" onAction={() => {
+                    <ActionCard title="Testing" onAction={() => {
                         const testingSignouts = signoutsToday.signouts.filter((a) => a.signoutType == SignoutType.TEST);
                         const testsToday: TestType[] = testingSignouts.flatMap((a) => [{signoutId: a.signoutId, personId: a.$$skipper.personId, nameFirst: a.$$skipper.nameFirst, nameLast: a.$$skipper.nameLast, testResult: a.testResult, createdBy: 0, createdOn: moment()}].concat(a.$$crew.map((b) => ({signoutId: a.signoutId, testResult: a.testResult, ...b.$$person, createdBy: 0, createdOn: moment()}))));
                         actionModal.pushAction(new EditTestsAction(testingSignouts, testsToday));
@@ -123,7 +126,7 @@ export default function DockHousePage (props) {
                         <div className="flex flex-row gap-2">
                             <NumberWithLabel number={0} label="Queue"/>
                             <Spacer/>
-                            <NumberWithLabel number={3} label="Active"/>
+                            <NumberWithLabel number={signoutsToday.signouts.filter((a) => a.signoutType == SignoutType.TEST).length} label="Active"/>
                         </div>
                     </ActionCard>
                 </CardLayout>

@@ -14,9 +14,10 @@ import { DHGlobals } from "async/staff/dockhouse/dh-globals";
 import { FlagColor, postWrapper as postFlagColor } from "async/staff/dockhouse/flag-color";
 import { AppStateContext } from "app/state/AppStateContext";
 import { ActionModalContext } from "./actionmodal/ActionModal";
-import { ActionCreateIncident } from "./actionmodal/incident/IncidentModalType";
 import { IncidentTypes } from "async/staff/dockhouse/incidents";
 import { option } from "fp-ts";
+import { IncidentsContext } from "./providers/IncidentsProvider";
+import { ActionEditIncident, createIncident } from "./actionmodal/incident/IncidentModalType";
 
 /*
 Flag Banner (close, GYRB, right)
@@ -32,14 +33,22 @@ function getLatestFlag(dhGlobal: DHGlobals){
 	return latestChange ? latestChange.flag : FlagColor.BLACK;
 }
 
+var minId = -1;
+
 const Header = (props: { history, dispatch }) => {
 	const asc = React.useContext(AppStateContext);
 	const dhGlobal = React.useContext(DHGlobalContext);
 	const actionModal = React.useContext(ActionModalContext);
+	const incidents = React.useContext(IncidentsContext);
 	const [flag, setFlag] = React.useState(FlagColor.BLACK);
 	React.useEffect(() => {
 		setFlag(getLatestFlag(dhGlobal));
 	}, [dhGlobal]);
+	const addIncident = (type: IncidentTypes) => {
+		const i = createIncident(type);
+		incidents.setState((s) => s.concat(i));
+		actionModal.pushAction(new ActionEditIncident(i));
+	}
 	const headerState = {
 		flag: flag,
 		localTimeOffset: dhGlobal.localTimeOffset,
@@ -55,15 +64,15 @@ const Header = (props: { history, dispatch }) => {
 		}},
 		{src: capsize, onClick: (e) => {
 			e.preventDefault();
-			actionModal.pushAction(new ActionCreateIncident(option.some(IncidentTypes.CAPSIZE)));
+			addIncident(IncidentTypes.CAPSIZE);
 		}},
         {src: assist, onClick: (e) => {
 			e.preventDefault();
-			actionModal.pushAction(new ActionCreateIncident(option.some(IncidentTypes.VESSEL_ASSIST)));
+			addIncident(IncidentTypes.VESSEL_ASSIST);
 		}},
         {src: runaground, onClick: (e) => {
 			e.preventDefault();
-			actionModal.pushAction(new ActionCreateIncident(option.some(IncidentTypes.RUNAGROUND)));
+			addIncident(IncidentTypes.RUNAGROUND);
 		}}];
 	return (
 		<div className="grow-0 relative">
