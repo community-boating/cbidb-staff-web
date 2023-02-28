@@ -8,17 +8,20 @@ import RadioGroup from 'components/wrapped/RadioGroup';
 import { AppStateContext } from 'app/state/AppStateContext';
 import { SignoutActionMode, SignoutCombinedType, EditSignoutState } from './SignoutCombinedType';
 import { putSignout, SignoutTablesState, SignoutType } from 'async/staff/dockhouse/signouts';
-import { RatingsContext } from 'components/dockhouse/providers/RatingsProvider';
+import { RatingsContext } from 'async/providers/RatingsProvider';
 import { RatingsType } from 'async/staff/dockhouse/ratings';
 import * as moment from 'moment';
 import { buttonClassActive, buttonClasses, buttonClassInactive } from '../styles';
 import BoatIcon, { BoatSelect } from '../BoatIcon';
 import { DetailedPersonInfo, AddEditCrew, getCrewActions } from '../SkipperInfo';
 import { CreateSignoutType } from 'async/staff/dockhouse/create-signout';
-import { ActionModalPropsWithState } from '../ActionModalProps';
+import { ActionModalPropsWithState, getInfo, subStateWithSet } from '../ActionModalProps';
 import SignoutNumbersDropdown from './SignoutNumbersDropdown';
 import { MAGIC_NUMBERS } from 'app/magicNumbers';
-import { SignoutsTodayContext } from 'components/dockhouse/providers/SignoutsTodayProvider';
+import { SignoutsTodayContext } from 'async/providers/SignoutsTodayProvider';
+import ActionBasedEditor, { ActionActionType, EditAction } from 'components/ActionBasedEditor';
+import { EditSignoutActionModalState } from './EditSignoutType';
+import { UpdateSignoutAction } from '../member-action/Actions';
 
 export function DotBox(props: {className?: string, children: React.ReactNode}){
     return <div className={"my-5 py-5 border-dashed border-2 grow-[1] " + props.className}>
@@ -30,23 +33,26 @@ export function DialogOutput(props: {children: React.ReactNode}){
     return <div className="bg-card w-full">{props.children}</div>;
 }
 
-const signoutNumberKeys = ["boatNum", "sailNum", "hullNum"];
+const signoutNumberKeys: (keyof SignoutCombinedType)[] = ['boatNum', 'sailNum', 'hullNum'];
 
-export function EditSignout(props: {state: SignoutCombinedType, setState: React.Dispatch<React.SetStateAction<SignoutCombinedType>>, mode: SignoutActionMode}){
+function setBoatIdAction(actions: ActionActionType<SignoutCombinedType>){
+    return (boatId: option.Option<number>) => {
+        actions.addAction(new UpdateSignoutAction('boatId', boatId));
+    }
+}
+
+export function EditSignout(props: {current: SignoutCombinedType, actions: ActionActionType<SignoutCombinedType>, mode: SignoutActionMode}){
     const [dialogOutput, setDialogOutput] = React.useState<option.Option<string>>(option.none);
-    const setBoatId = (boatId: option.Option<number>) => {
-        props.setState({...props.state, boatId: boatId})
-    };
     const crewActions = getCrewActions(props);
-    const numbersSorted = React.useMemo(() => Object.entries(props.state).filter((a) => signoutNumberKeys.contains(a[0])).sort((a, b) => (signoutNumberKeys.indexOf(a[0]) - signoutNumberKeys.indexOf(b[0]))).map((a) => a[1] as option.Option<number | string>), [props.state]);
+    const numbersSorted = React.useMemo(() => Object.entries(props.current).filter((a) => signoutNumberKeys.contains(a[0] as any)).sort((a, b) => (signoutNumberKeys.indexOf(a[0] as any) - signoutNumberKeys.indexOf(b[0] as any))).map((a) => a[1] as option.Option<number | string>), [props.current]);
     console.log(numbersSorted);
     return (
     <div className="flex flex-col grow-[1] gap-5">
         <div className="flex flex-row grow-[0] gap-5">
-            {props.state.currentPeople.map((a, i) => (<DetailedPersonInfo key={a.personId} currentPerson={props.state.currentPeople[i]} mode={props.mode} setTesting={(a) => {
+            {props.current.currentPeople.map((a, i) => (<DetailedPersonInfo key={a.personId} currentPerson={props.current.currentPeople[i]} mode={props.mode} setTesting={(a) => {
                 crewActions.setTesting(i, a);
             }}/>))}
-            <AddEditCrew currentPeople={props.state.currentPeople} {...crewActions} mode={props.mode} />
+            <AddEditCrew currentPeople={props.current.currentPeople} {...crewActions} mode={props.mode} />
         </div>
         <div className="flex flex-row grow-[1]">
             <DialogOutput>
@@ -57,14 +63,14 @@ export function EditSignout(props: {state: SignoutCombinedType, setState: React.
         <div className="flex flex-row grow-[3]">
             <div className="w-full flex flex-col">
                 <p>Boat Type</p>
-                <BoatIcon boatId={props.state.boatId} setBoatId={setBoatId}/>
+                <BoatIcon boatId={props.current.boatId} setBoatId={setBoatIdAction(props.actions)}/>
                 <div className="flex flex-row gap-5 py-5">
                     <div className="flex flex-col items-end gap-5">
-                        <BoatSelect tabIndex={-1} boatId={props.state.boatId} setBoatId={setBoatId} autoWidth nowrap></BoatSelect>
+                        <BoatSelect tabIndex={-1} boatId={props.current.boatId} setBoatId={setBoatIdAction(props.actions)} autoWidth nowrap></BoatSelect>
                     </div>
                     <div className="flex flex-col items-end gap-5">
                         <SignoutNumbersDropdown numbers={numbersSorted} setNumber={(i, v) => {
-                            props.setState((s) => ({...s, [signoutNumberKeys[i]]: v}))
+                            props.actions.addAction(new UpdateSignoutAction(signoutNumberKeys[i], v as any))
                         }}/>
                     </div>
                 </div>
@@ -105,62 +111,6 @@ export function convertToCreateSignout(state: SignoutCombinedType): CreateSignou
     }
 }
 
-export function adaptSignoutState(state: SignoutTablesState, ratings: RatingsType): EditSignoutState {
-    return {
-        currentPeople: [{
-            personId: state.$$skipper.personId,
-            cardNumber: state.cardNum.getOrElse(undefined),
-            nameFirst: state.$$skipper.nameFirst,
-            nameLast: state.$$skipper.nameLast,
-            bannerComment: state.comments,
-            specialNeeds: option.none,
-            personRatings: state.$$skipper.$$personRatings.map((a) => ({ ...a, ratingName: (ratings.find((b) => b.ratingId == a.ratingId) || {ratingName: ""}).ratingName, status: "" })),
-            isSkipper: true,
-            isTesting: state.signoutType == SignoutType.TEST,
-            testRatingId: state.testRatingId,
-            activeMemberships: [{
-                assignId: 0,
-                membershipTypeId: 0,
-                startDate: option.some(moment()),
-                expirationDate: option.none,
-                discountName: option.none,
-                isDiscountFrozen: false,
-                hasGuestPrivs: true,
-                programId: option.some(state.programId)
-            }],
-            sortOrder: 0
-        }].concat((state.$$crew.map((a, i) => ({
-            personId: a.$$person.personId,
-            cardNumber: a.cardNum.getOrElse(undefined),
-            nameFirst: a.$$person.nameFirst,
-            nameLast: a.$$person.nameLast,
-            bannerComment: option.none,
-            specialNeeds: option.none,
-            personRatings: [],
-            isSkipper: false,
-            isTesting: state.signoutType == SignoutType.TEST,
-            testRatingId: state.testRatingId,
-            activeMemberships: [{
-                assignId: 0,
-                membershipTypeId: 0,
-                startDate: option.some(moment()),
-                expirationDate: option.none,
-                discountName: option.none,
-                isDiscountFrozen: false,
-                hasGuestPrivs: true,
-                programId: option.some(state.programId)
-            }],
-            sortOrder: 1 + i
-        })))),
-        boatId: option.some(state.boatId),
-        signoutType: option.some(state.signoutType),
-        boatNum: option.none,
-        hullNum: state.hullNumber,
-        sailNum: state.sailNumber,
-        testRating: state.testRatingId,
-        signoutId: state.signoutId
-    };
-}
 export function adaptMemberState(state: SignoutCombinedType, currentRow: SignoutTablesState): SignoutTablesState {
     const skipperOrFirstTester = state.currentPeople.find((a) => a.isSkipper) || state.currentPeople.find((a) => a.isTesting);
     return {
@@ -176,29 +126,39 @@ const makeNode = (index: number, display: React.ReactNode) => (checked: boolean,
     return <h1 className={"flex " + (checked ? "text-boathouseblue" : "")} key={index}>{display}</h1>;
 };
 
-export function EditSignoutModal(props: ActionModalPropsWithState<EditSignoutType, SignoutCombinedType>) {
+const setSignoutType = (actions: ActionActionType<SignoutCombinedType>) => {
+    return (value) => {
+        actions.addAction(new UpdateSignoutAction('signoutType', value));
+    }
+}
+
+export function EditSignoutModal(props: ActionModalPropsWithState<SignoutCombinedType, EditSignoutActionModalState>) {
     const ratings = React.useContext(RatingsContext);
-    React.useEffect(() => {
-        props.setState(adaptSignoutState(props.info.currentSignout, ratings));
-    }, [props.info.currentSignout]);
-    if(!props.state){
+    if(!props){
         return<></>;
     }
-    const mode = (props.state.signoutType.isSome() && props.state.signoutType.value == SignoutType.TEST) ? SignoutActionMode.TESTING : SignoutActionMode.SIGNOUT;
+    
+    const [actions, setActions] = subStateWithSet(props.state, props.setState, 'actions');
     return <DefaultModalBody>
-        <ModalHeader className="font-bold text-2xl gap-1">
-            <RadioGroup className="flex flex-row" value={props.state.signoutType} setValue={(v) => props.setState((s) => ({ ...s, signoutType: v }))} makeChildren={signoutTypesHR.map((a, i) => ({ value: a.value, makeNode: (c, s) => { return makeNode(i, a.display)(c, s); } }))} />
-        </ModalHeader>
-        <div className="p-5">
-            <EditSignout state={props.state} setState={props.setState} mode={mode} />
-        </div>
-        <SubmitEditSignout state={props.state} currentRow={props.info.currentSignout} />
+        <ActionBasedEditor originalData={props.info} actions={actions} setActions={setActions} makeChildren={(current, actions) => {
+            const mode = (current.signoutType.isSome() && current.signoutType.value == SignoutType.TEST) ? SignoutActionMode.TESTING : SignoutActionMode.SIGNOUT;
+            return <>
+                <ModalHeader className="font-bold text-2xl gap-1">
+                    <RadioGroup className="flex flex-row" value={current.signoutType} setValue={setSignoutType(actions)} makeChildren={signoutTypesHR.map((a, i) => ({ value: a.value, makeNode: (c, s) => { return makeNode(i, a.display)(c, s); } }))} />
+                </ModalHeader>
+                <div className="p-5">
+                    <EditSignout current={current} actions={actions} mode={mode} />
+                </div>
+                <SubmitEditSignout current={current} actions={actions}/>
+            </>
+        }}/>
+        
     </DefaultModalBody>;
 }
 
 
 
-function SubmitEditSignout(props: { state: SignoutCombinedType; currentRow: SignoutTablesState; }) {
+function SubmitEditSignout(props: { current: SignoutCombinedType; actions: ActionActionType<SignoutCombinedType>; }) {
     const asc = React.useContext(AppStateContext);
     const signouts = React.useContext(SignoutsTodayContext);
     return <div className="flex flex-row gap-2 ml-auto mr-0 mt-auto mb-0">
@@ -209,7 +169,7 @@ function SubmitEditSignout(props: { state: SignoutCombinedType; currentRow: Sign
                     value.setOpen(false);
                 }}>Cancel</Button>
                 <Button className={buttonClasses + " " + buttonClassActive} spinnerOnClick onClick={(e) => {
-                    const adaptedToSignout = adaptMemberState(props.state, props.currentRow);
+                    const adaptedToSignout = adaptMemberState(props.current, signouts.signouts.find((a) => a.signoutId == props.current.signoutId));
                     return putSignout.sendJson(asc, adaptedToSignout).then((a) => {
                         if(a.type == "Success"){
                             signouts.setSignouts((s) => s.map((b) => {

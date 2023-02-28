@@ -9,14 +9,14 @@ import ims from 'assets/img/icons/header/ims.svg';
 import runaground from 'assets/img/icons/header/runaground.svg';
 import capsize from 'assets/img/icons/header/capsize.svg';
 import assist from 'assets/img/icons/header/assist.svg';
-import { DHGlobalContext } from "./providers/DHGlobalProvider";
+import { DHGlobalContext } from "../../async/providers/DHGlobalProvider";
 import { DHGlobals } from "async/staff/dockhouse/dh-globals";
 import { FlagColor, postWrapper as postFlagColor } from "async/staff/dockhouse/flag-color";
 import { AppStateContext } from "app/state/AppStateContext";
 import { ActionModalContext } from "./actionmodal/ActionModal";
 import { IncidentTypes } from "async/staff/dockhouse/incidents";
 import { option } from "fp-ts";
-import { IncidentsContext } from "./providers/IncidentsProvider";
+import { IncidentsContext } from "../../async/providers/IncidentsProvider";
 import { ActionEditIncident, createIncident } from "./actionmodal/incident/IncidentModalType";
 import { ActionViewIncidents } from "./actionmodal/view-incidents/ViewIncidentsType";
 

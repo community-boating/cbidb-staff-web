@@ -1,32 +1,33 @@
 import { MAGIC_NUMBERS } from 'app/magicNumbers';
-import { ClassType, SignupType } from 'async/staff/dockhouse/get-classes';
 import * as React from 'react';
-import { ActionClassType, AttendanceMap } from "./ActionClassType";
+import { AttendanceMap } from "./ActionClassType";
 import { SignoutCombinedType } from '../signouts/SignoutCombinedType';
-import { AddActionType, AddCrewAction, updateAttendanceList, updateClassSignup, updateSignoutCrew } from './Actions';
-import { ClassBoatListActions, SelectableDiv, SelectedType, selectKeyRosterPerson, selectKeySignout } from './ClassSelectableDiv';
+import { AddActionType, AddCrewAction, UpdateSignoutCrew } from './Actions';
+import { ClassBoatListActions, SelectableDiv, selectKeyRosterPerson, selectKeySignout } from './ClassSelectableDiv';
 import { makeNewSignout, NameWithRatingHover } from './ClassSignoutBoatList';
 import RadioGroup from 'components/wrapped/RadioGroup';
 import { AttendanceEntry } from 'async/staff/dockhouse/attendance';
 import { option } from 'fp-ts';
 import { getSelectedSignouts } from "./getSelected";
 import { BoatSelect, boatTypesMapped } from '../BoatIcon';
-import { BoatsContext } from 'components/dockhouse/providers/BoatsProvider';
+import { BoatsContext } from 'async/providers/BoatsProvider';
+import { ApClassSignup, SignupType } from 'async/staff/dockhouse/ap-class-sessions';
+import { ActionClassType } from "./ActionClassType";
 
-function SetAttendance(props: {signup: ClassType['$$apClassSignups'][number], attendance: AttendanceMap} & AddActionType){
+function SetAttendance(props: {signup: ApClassSignup, attendance: AttendanceMap} & AddActionType){
     const current = props.attendance[props.signup.$$person.personId];
     return <RadioGroup<AttendanceEntry> className="flex flex-row gap-2" value={(current != undefined) ? option.some(current) : option.none} setValue={(v) => {
-        props.addAction(updateAttendanceList({[props.signup.$$person.personId]: v.isSome() ? v.value : undefined}))
+        //props.addAction(updateAttendanceList({[props.signup.$$person.personId]: v.isSome() ? v.value : undefined}))
     }} makeChildren={Object.values(AttendanceEntry).filter((a) => typeof a == "string").map((a) => ({value: a as AttendanceEntry, makeNode: (b, c) => {
         return <div className={((a == AttendanceEntry.ABSENT) ? "text-red-500" : ((a == AttendanceEntry.HERE) ? "text-green-500" : "")) + (b ? " border-white border" : "") }>{a.toString()}</div>
     }}))}/>
 }
 
-function RosterRows(props: {signups: ClassType['$$apClassSignups']} & ClassBoatListActions & AddActionType & {singleSelectedSignout: SignoutCombinedType, isWaitlist: boolean, maxSignups?: number, attendance?: AttendanceMap, allBoatType: option.Option<number>, makeNewSignout: (boatId: option.Option<number>) => number}){
+function RosterRows(props: {signups: ApClassSignup[]} & ClassBoatListActions & AddActionType & {singleSelectedSignout: SignoutCombinedType, isWaitlist: boolean, maxSignups?: number, attendance?: AttendanceMap, allBoatType: option.Option<number>, makeNewSignout: (boatId: option.Option<number>) => number, personIdsOnWater: {[key: number]: true}}){
     const boatTypes = React.useContext(BoatsContext);
     const [boatsByHR, boatsById] = boatTypesMapped(boatTypes);
     return <>{props.signups.map((a, i) => <SelectableDiv isInner={false} onClick={() => {
-        const addTo = (signoutId: number) => props.addAction(updateSignoutCrew([new AddCrewAction(({...a.$$person, personRatings: []}) as any)], signoutId));
+        const addTo = (signoutId: number) => props.addAction(new UpdateSignoutCrew([new AddCrewAction(({...a.$$person, personRatings: []}) as any)], signoutId));
         const addToCurrent = () => addTo(props.singleSelectedSignout.signoutId);
         const addToNew = () => {
             const newId = props.makeNewSignout(props.allBoatType);
@@ -35,7 +36,7 @@ function RosterRows(props: {signups: ClassType['$$apClassSignups']} & ClassBoatL
         }
         if(props.isWaitlist){
             if(props.signups.filter((a) => a.signupType == SignupType.ACTIVE).length + 1 <= props.maxSignups){
-                props.addAction(updateClassSignup({signupId: a.signupId, signupType: SignupType.ACTIVE}));
+                //props.addAction(updateClassSignup({signupId: a.signupId, signupType: SignupType.ACTIVE}));
             }else{
                 alert("Max number of people reached");
             }
@@ -53,7 +54,11 @@ function RosterRows(props: {signups: ClassType['$$apClassSignups']} & ClassBoatL
                         addToCurrent();
                     }
                 }else{
-                    addToCurrent();
+                    if(props.singleSelectedSignout.currentPeople.length + 1 <= 8){
+                        addToCurrent();
+                    }else{
+                        alert("Boat is full");
+                    }
                 }
             }else if(props.allBoatType.isSome()){
                 addToNew();
@@ -68,7 +73,7 @@ function RosterRows(props: {signups: ClassType['$$apClassSignups']} & ClassBoatL
                 <NameWithRatingHover {...{...a.$$person, personRatings: []} as any} programId={MAGIC_NUMBERS.PROGRAM_TYPE_ID.ADULT_PROGRAM}/>
             </div>
             <div className="grow-[1] basis-0">
-                {props.isWaitlist ? "Waitlisted" : <SetAttendance signup={a} attendance={props.attendance} addAction={props.addAction}/>}
+                {props.isWaitlist ? <p className="text-yellow-700">Waitlisted</p> : props.personIdsOnWater[a.personId] ? <p className="text-blue-700">On Water</p> : <SetAttendance signup={a} attendance={props.attendance} addAction={props.addAction}/>}
             </div>
         </div>}>
         </SelectableDiv>)}</>
@@ -95,8 +100,8 @@ export default function ClassRosterTable(props: ActionClassType & ClassBoatListA
                     Attendance
                 </div>
             </div>
-            <RosterRows signups={props.currentClass.$$apClassSignups.filter((a) => a.signupType == SignupType.ACTIVE && !personIdsOnWater[a.$$person.personId])} {...props} singleSelectedSignout={singleSelectedSignout} isWaitlist={false} attendance={props.attendanceMap} allBoatType={boatTypeForAll} makeNewSignout={makeNew}/>
+            <RosterRows signups={props.currentClass.$$apClassInstance.$$apClassSignups.filter((a) => a.signupType == SignupType.ACTIVE)} {...props} singleSelectedSignout={singleSelectedSignout} isWaitlist={false} attendance={props.attendanceMap} allBoatType={boatTypeForAll} makeNewSignout={makeNew} personIdsOnWater={personIdsOnWater}/>
             <hr className="border-b-2 border-black"/>
-            <RosterRows signups={props.currentClass.$$apClassSignups.filter((a) => a.signupType == SignupType.WAITLIST && !personIdsOnWater[a.$$person.personId])} {...props} singleSelectedSignout={singleSelectedSignout} isWaitlist maxSignups={props.currentClass.signupMax} allBoatType={boatTypeForAll} makeNewSignout={makeNew}/>
+            <RosterRows signups={props.currentClass.$$apClassInstance.$$apClassSignups.filter((a) => a.signupType == SignupType.WAITLIST)} {...props} singleSelectedSignout={singleSelectedSignout} isWaitlist maxSignups={props.currentClass.$$apClassInstance.signupMax.getOrElse(undefined)} allBoatType={boatTypeForAll} makeNewSignout={makeNew} personIdsOnWater={personIdsOnWater}/>
         </div>;
 }

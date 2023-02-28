@@ -1,21 +1,23 @@
 import * as React from 'react';
 
-import sup from 'assets/img/icons/boats/sup.svg';
-import kayak from 'assets/img/icons/boats/kayak.svg';
-import b420 from 'assets/img/icons/boats/b420.svg';
-import ideal from 'assets/img/icons/boats/ideal.svg';
-import keelmerc from 'assets/img/icons/boats/keelmerc.svg';
-import laser from 'assets/img/icons/boats/laser.svg';
-import mercury from 'assets/img/icons/boats/mercury.svg';
-import windsurf from 'assets/img/icons/boats/windsurf.svg';
-import sonar from 'assets/img/icons/boats/sonar.svg';
+import sup from 'assets/img/icons/boats/boatPaddleboard.svg';
+import kayak from 'assets/img/icons/boats/boatKayak.svg';
+import b420 from 'assets/img/icons/boats/boat420.svg';
+import ideal from 'assets/img/icons/boats/boatIdeal.svg';
+import keelmerc from 'assets/img/icons/boats/boatKeelMerc.svg';
+import laser from 'assets/img/icons/boats/boatLaser.svg';
+import mercury from 'assets/img/icons/boats/boatCenterboardMerc.svg';
+import windsurf from 'assets/img/icons/boats/boatWindsurf.svg';
+import sonar from 'assets/img/icons/boats/boatSonar.svg';
 import IconButton from 'components/wrapped/IconButton';
+import boatUnselected from 'assets/img/icons/boats/boatUnselected.svg';
 import { option } from 'fp-ts';
 import RadioGroup from 'components/wrapped/RadioGroup';
 import { SelectInput } from 'components/wrapped/Input';
-import { makeBoatTypesHR } from "../../../pages/dockhouse/signouts/makeReassignedMaps";
-import { BoatsContext } from 'components/dockhouse/providers/BoatsProvider';
+import { makeBoatTypesHR } from "../../../pages/dockhouse/signouts/functions";
+import { BoatsContext } from 'async/providers/BoatsProvider';
 import { BoatTypesType } from 'async/staff/dockhouse/boats';
+
 export type BoatIconProps = {
     boatId: option.Option<number>
     setBoatId: (boatId: option.Option<number>) => void
@@ -109,5 +111,5 @@ export function BoatSelect(props: BoatIconProps & {label?: string, autoWidth?: b
     const boatTypesSelectOptions = React.useMemo(() => makeBoatTypesHR(boatTypes), [boatTypes]);
     const [boatsByHR, boatsById] = boatTypesMapped(boatTypes);
     return <SelectInput tabIndex={props.tabIndex} label={props.label} controlledValue={props.boatId} updateValue={props.setBoatId} validationResults={[]} selectOptions={boatTypesSelectOptions} selectNone={false} nowrap={props.nowrap} autoWidth={props.autoWidth} fullWidth={props.fullWidth}
-    makeButton={props.useBoatImage ? (a) => a.value.isSome() ? <img src={boatIconsByHR[boatsById[a.value.value].boatName].src} className="h-[8vh] min-w-[8vh]"/> : <>Boat Type</> : undefined} customStyle={props.useBoatImage} className={props.className}></SelectInput>
+    makeButton={props.useBoatImage ? (a) =>  <img src={a.value.isSome() ? boatIconsByHR[boatsById[a.value.value].boatName].src : boatUnselected} className="h-[8vh] min-w-[8vh]"/> : undefined} customStyle={props.useBoatImage} className={props.className} notWhiteBG />
 }

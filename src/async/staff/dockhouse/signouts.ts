@@ -17,7 +17,9 @@ export enum SignoutType{
 	TEST = "T",
 	SAIL = "S",
 	CLASS = "C",
-	RACE = "R"
+	RACE = "R",
+	RIGGING = "G",
+	RENTAL = "N"
 }
 
 export const SignoutTypeValidator = EnumType("signoutType", SignoutType);

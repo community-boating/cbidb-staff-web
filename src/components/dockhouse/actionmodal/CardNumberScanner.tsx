@@ -3,7 +3,7 @@ import { option } from 'fp-ts';
 import { OptionalStringInput } from 'components/wrapped/Input';
 import { ScannedCrewType, ScannedPersonType } from 'async/staff/dockhouse/scan-card';
 import { ScannedPersonsCacheContext } from './ScannedPersonsCache';
-import { RatingsHover } from 'pages/dockhouse/signouts/RatingSorter';
+import { RatingsHover } from 'components/dockhouse/actionmodal/signouts/RatingSorter';
 
 export function findCurrentMembership(person: ScannedPersonType){
     return person.activeMemberships[0];

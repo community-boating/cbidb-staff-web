@@ -1,17 +1,89 @@
-import { SignoutTablesState } from 'async/staff/dockhouse/signouts';
-import { EditSignoutType } from 'pages/dockhouse/signouts/StateTypes';
+import { RatingsType } from 'async/staff/dockhouse/ratings';
+import { SignoutTablesState, SignoutType } from 'async/staff/dockhouse/signouts';
+import { ActionActionType, EditAction } from 'components/ActionBasedEditor';
+import { RatingsContext } from 'async/providers/RatingsProvider';
+import { SignoutsTodayContext } from 'async/providers/SignoutsTodayProvider';
+import { option } from 'fp-ts';
+import * as moment from 'moment';
 import * as React from 'react';
-import { Action } from '../ActionModalProps';
+import { Action, getInfo } from '../ActionModalProps';
 import { EditSignoutModal } from './EditSignoutModal';
+import { EditSignoutState, SignoutCombinedType } from './SignoutCombinedType';
 
-export class EditSignoutAction extends Action<EditSignoutType, {}> {
-    constructor(row: SignoutTablesState) {
+export type EditSignoutActionModalState = {
+    actions: EditAction<SignoutCombinedType>[]
+}
+
+export function adaptSignoutState(state: SignoutTablesState, ratings: RatingsType): EditSignoutState {
+    return {
+        currentPeople: [{
+            personId: state.$$skipper.personId,
+            cardNumber: state.cardNum.getOrElse(undefined),
+            nameFirst: state.$$skipper.nameFirst,
+            nameLast: state.$$skipper.nameLast,
+            bannerComment: state.comments,
+            specialNeeds: option.none,
+            personRatings: state.$$skipper.$$personRatings.map((a) => ({ ...a, ratingName: (ratings.find((b) => b.ratingId == a.ratingId) || {ratingName: ""}).ratingName, status: "" })),
+            isSkipper: true,
+            isTesting: state.signoutType == SignoutType.TEST,
+            testRatingId: state.testRatingId,
+            activeMemberships: [{
+                assignId: 0,
+                membershipTypeId: 0,
+                startDate: option.some(moment()),
+                expirationDate: option.none,
+                discountName: option.none,
+                isDiscountFrozen: false,
+                hasGuestPrivs: true,
+                programId: option.some(state.programId)
+            }],
+            sortOrder: 0
+        }].concat((state.$$crew.map((a, i) => ({
+            personId: a.$$person.personId,
+            cardNumber: a.cardNum.getOrElse(undefined),
+            nameFirst: a.$$person.nameFirst,
+            nameLast: a.$$person.nameLast,
+            bannerComment: option.none,
+            specialNeeds: option.none,
+            personRatings: [],
+            isSkipper: false,
+            isTesting: state.signoutType == SignoutType.TEST,
+            testRatingId: state.testRatingId,
+            activeMemberships: [{
+                assignId: 0,
+                membershipTypeId: 0,
+                startDate: option.some(moment()),
+                expirationDate: option.none,
+                discountName: option.none,
+                isDiscountFrozen: false,
+                hasGuestPrivs: true,
+                programId: option.some(state.programId)
+            }],
+            sortOrder: 1 + i
+        })))),
+        boatId: option.some(state.boatId),
+        signoutType: option.some(state.signoutType),
+        boatNum: option.none,
+        hullNum: state.hullNumber,
+        sailNum: state.sailNumber,
+        testRating: state.testRatingId,
+        signoutId: state.signoutId
+    };
+}
+
+export class EditSignoutAction extends Action<SignoutCombinedType, EditSignoutActionModalState> {
+    constructor(signoutId: number) {
         super();
-        this.modeInfo = {
-            currentSignout: row
+        this.initState = {
+            actions: []
+        };
+        this.modeInfo = () => {
+            const signoutsToday = React.useContext(SignoutsTodayContext);
+            const ratings = React.useContext(RatingsContext);
+            return adaptSignoutState(signoutsToday.signouts.find((a) => a.signoutId == signoutId), ratings);
         };
     }
-    createModalContent(info: EditSignoutType, state, setState) {
-        return <EditSignoutModal info={info} state={state} setState={setState}></EditSignoutModal>;
+    createModalContent(info: SignoutCombinedType, state, setState) {
+        return <EditSignoutModal info={getInfo(info)} state={state} setState={setState}></EditSignoutModal>;
     }
 }

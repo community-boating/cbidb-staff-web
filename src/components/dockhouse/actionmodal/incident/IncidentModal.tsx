@@ -1,5 +1,5 @@
 import { IncidentStatusTypes, incidentSubTypeMapping, IncidentSubTypes, IncidentType, IncidentTypes } from 'async/staff/dockhouse/incidents';
-import { IncidentsContext } from 'components/dockhouse/providers/IncidentsProvider';
+import { IncidentsContext } from 'async/providers/IncidentsProvider';
 import Button from 'components/wrapped/Button';
 import { OptionalNumberInput, OptionalStringInput, SelectInput, SelectOption } from 'components/wrapped/Input';
 import { DefaultModalBody, ModalContext, ModalHeader } from 'components/wrapped/Modal';

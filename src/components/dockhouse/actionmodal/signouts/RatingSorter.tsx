@@ -2,13 +2,13 @@ import { programsValidator, boatsValidator, personRatingValidator, SignoutTables
 import { RatingsType, ratingValidator } from "async/staff/dockhouse/ratings";
 import { option } from "fp-ts";
 import * as React from 'react';
-import { FlagStatusIcons } from "../../../components/dockhouse/FlagStatusIcons"
+import { FlagStatusIcons } from "../../FlagStatusIcons"
 import * as t from "io-ts";
-import { Popover } from "../../../components/wrapped/Popover";
+import { Popover } from "../../../wrapped/Popover";
 import { ReactNode } from "react";
-import { programsHR } from "./Constants";
+import { programsHR } from "../../../../pages/dockhouse/signouts/Constants";
 import { ScannedPersonType } from "async/staff/dockhouse/scan-card";
-import { RatingsContext } from "components/dockhouse/providers/RatingsProvider";
+import { RatingsContext } from "async/providers/RatingsProvider";
 import { MAGIC_NUMBERS } from "app/magicNumbers";
 
 

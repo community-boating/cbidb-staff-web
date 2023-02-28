@@ -10,9 +10,13 @@ import { programsHR, signoutTypesHR } from './Constants';
 import { CellOptionBase, CellOptionTime, CellSelect } from 'util/tableUtil';
 import { InteractiveColumnDef } from '../../../components/table/InteractiveColumnInjector';
 import { Info } from 'react-feather';
-import { SignoutTablesState, SignoutsTablesState } from 'async/staff/dockhouse/signouts';
+import { SignoutTablesState, SignoutsTablesState, putSignout } from 'async/staff/dockhouse/signouts';
 import { SignoutsTablesExtraState } from './StateTypes';
 import { RatingsType } from 'async/staff/dockhouse/ratings';
+import { ScannedCrewType } from 'async/staff/dockhouse/scan-card';
+import { Popover } from 'components/wrapped/Popover';
+import { SignoutsTodayContext } from 'async/providers/SignoutsTodayProvider';
+import { AppStateContext } from 'app/state/AppStateContext';
 
 export const CommentsHover = (props: { row: SignoutTablesState, extraState: SignoutsTablesExtraState }) => {
 	const display = <span className="flex flex-row">Comments{props.row.comments["_tag"] === "Some" ? <Info color="#777" size="1.4em" /> : <></>}</span>;
@@ -43,7 +47,6 @@ const ReassignedIcon = (props: { row: SignoutTablesState, extraState: SignoutsTa
 };
 const FlagIcon = (props: { row: SignoutTablesState; extraState: SignoutsTablesExtraState }) => {
 	const ratings = props.extraState.ratings;
-	console.log("hello" + ratings.length);
 	if (ratings.length == 0) {
 		return <p>Loading...</p>;
 	}
@@ -55,11 +58,26 @@ const FlagIcon = (props: { row: SignoutTablesState; extraState: SignoutsTablesEx
 	const flags = skipperRatings.map((a) => getHighestFlag(a, props.row.programId, props.row.boatId)).flatten<Flag>();
 	return <FlagStatusIcon flag={flags[0]} className={iconClass}/>
 };
-const MakeLinks = (props: { row: SignoutTablesState; isActive: boolean; extraState: SignoutsTablesExtraState }) => {
+const MakeLinks = (props: { row: SignoutTablesState; isActive: boolean }) => {
+	const signouts = React.useContext(SignoutsTodayContext);
+	const asc = React.useContext(AppStateContext);
+	const updateSignedIn = (selected: boolean) => {
+		console.log("doop");
+		const newSignout = {...props.row, signinDatetime: (selected ? option.none : option.some(moment()))};
+		console.log(newSignout);
+		putSignout.sendJson(asc, newSignout).then((a) => {
+			if(a.type == "Success"){
+				console.log("done");
+				signouts.setSignouts((b) => b.map((c) => c.signoutId == props.row.signoutId ? newSignout : c));
+			}else{
+				console.log("issue");
+			}
+		})
+	}
 	if (props.isActive) {
-		return <a onClick={() => props.extraState.handleSingleSignIn(props.row.signoutId, false)}>Sign In</a>;
+		return <a onClick={() => updateSignedIn(false)}>Sign In</a>;
 	} else {
-		return <a onClick={() => props.extraState.handleSingleSignIn(props.row.signoutId, true)}>Undo Sign In</a>;
+		return <a onClick={() => updateSignedIn(true)}>Undo Sign In</a>;
 	}
 };
 const StopwatchIcon = (props: { row: SignoutTablesState; }) => {
@@ -105,6 +123,10 @@ export function getUsersHR(signouts: SignoutsTablesState): SelectOption<string>[
 		foundUsers[a.createdBy.getOrElse("")] = true;
 	});
 	return Object.keys(foundUsers).map((a) => ({ value: a, display: a }));
+}
+
+function CrewHover(props: {crew: SignoutTablesState['$$crew']}){
+	return <Popover hoverProps={props.crew} makeChildren={(a) => <div className="grid grid-rows-2 grid-cols-4">{a.map((a, i) => <div key={i}>{a.$$person.nameFirst} {a.$$person.nameLast}</div>)}</div>} openDisplay={props.crew.length > 0 ? "Crew" : "None"}/>
 }
 
 export type SignoutsTablesColumnDef = InteractiveColumnDef<SignoutTablesState, SignoutsTablesExtraState, any>;
@@ -168,7 +190,8 @@ const columnsBaseUpper: SignoutsTablesColumnDef[] = [
 	{
 		accessorKey: "$$crew",
 		header: "Crew",
-		size: 50
+		size: 50,
+		cell: (a) => <CrewHover crew={a.row.original.$$crew}/>
 	}
 ];
 const columnsBaseLower: (active: boolean) => SignoutsTablesColumnDef[] = (active) => [
@@ -177,7 +200,7 @@ const columnsBaseLower: (active: boolean) => SignoutsTablesColumnDef[] = (active
 		header: "Links",
 		id: "links",
 		size: 90,
-		cellWithExtra: (a, extraState) => <MakeLinks row={a.row.original} isActive={active} extraState={extraState} />
+		cell: (a) => <MakeLinks row={a.row.original} isActive={active}/>
 	}
 ];
 

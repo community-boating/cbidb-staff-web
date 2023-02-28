@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-
+export type InfoProviderType<T_Info> = T_Info | (() => T_Info)
 
 export type ActionModalPropsWithState<T_Info, T_State> = {
     info: T_Info
@@ -18,8 +18,6 @@ export function setStateChain<T_State>(state: React.SetStateAction<T_State>, old
     //console.log(state);
     //console.log(typeof state);
     if(isCallback(state)){
-        console.log("call call");
-        console.log(state(oldState));
         return state(oldState);
     }
     return state;
@@ -34,11 +32,15 @@ export type ActionModalProps = {
     pushAction: (action: Action<any, any>) => void
 };
 
-export abstract class Action<T, T_State> {
-    modeInfo: T
-    createModalContent(info: T, state: T_State, setState: React.Dispatch<React.SetStateAction<T_State>>): React.ReactNode { return undefined; }
+export abstract class Action<T_Info, T_State> {
+    modeInfo: InfoProviderType<T_Info>
+    createModalContent(info: T_Info, state: T_State, setState: React.Dispatch<React.SetStateAction<T_State>>): React.ReactNode { return undefined; }
     initState?: T_State
 }
 
 export class NoneAction extends Action<undefined, undefined> {
+}
+
+export function getInfo<T_Info>(provider: InfoProviderType<T_Info>){
+    return typeof provider == 'function' ? provider.apply(undefined, undefined) : provider
 }

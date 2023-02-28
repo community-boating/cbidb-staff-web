@@ -2,7 +2,6 @@ import * as React from "react";
 
 import { none, Option, some } from "fp-ts/lib/Option";
 import {formUpdateState} from "../util/form-update-state";
-import detectEnter from "../util/detectEnterPress";
 
 import cbiLogo from "../assets/img/icons/boat.svg"
 import { ErrorPopup } from "components/ErrorPopup";
@@ -124,16 +123,15 @@ class SignIn extends React.PureComponent<{}, State, string> {
 								}
 							})
 						}}
-						onKeyDown={detectEnter(loginFunction)}
 					/>
 					</div>
 					<div className="text-center mt-3 p-2 bg-boathouseblue rounded text-gray-100">
 						<Button
-							onSubmit={loginFunction}
+							submit={loginFunction}
 							spinnerOnClick
 							forceSpinner={(this.state || {}).loginProcessing}
 						>
-							Sign in
+							Login
 						</Button>
 					</div>
 				</div>

@@ -1,6 +1,6 @@
 import { AppStateContext } from 'app/state/AppStateContext';
 import { RatingsType } from 'async/staff/dockhouse/ratings';
-import { RatingsContext } from 'components/dockhouse/providers/RatingsProvider';
+import { RatingsContext } from 'async/providers/RatingsProvider';
 import { CheckboxInput} from 'components/wrapped/Input';
 import { option } from 'fp-ts';
 import * as React from 'react';

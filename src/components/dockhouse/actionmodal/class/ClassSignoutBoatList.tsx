@@ -1,22 +1,20 @@
-import { BoatTypesType } from 'async/staff/dockhouse/boats';
-import { SignoutTablesState } from 'async/staff/dockhouse/signouts';
-import { BoatsContext } from 'components/dockhouse/providers/BoatsProvider';
+import { BoatTypesType } from 'async/staff/dockhouse/boats';;
+import { BoatsContext } from 'async/providers/BoatsProvider';
 import { option } from 'fp-ts';
 import * as React from 'react';
-import { ActionClassType } from "./ActionClassType";
-import BoatIcon, { BoatIcons, BoatSelect } from '../BoatIcon';
+import { BoatSelect } from '../BoatIcon';
 import add from 'assets/img/icons/buttons/add.svg';
-import { CustomInputProps, OptionalStringInput } from 'components/wrapped/Input';
+import { OptionalStringInput } from 'components/wrapped/Input';
 import Button from 'components/wrapped/Button';
-import { buttonClassActive, buttonClasses, buttonClassInactive } from '../styles';
-import { RatingsContext } from 'components/dockhouse/providers/RatingsProvider';
-import { ClassBoatListActions, NON_SELECTABLE_CLASS_NAME, SelectableDiv, selectKeySignout, selectKeySignoutPerson } from './ClassSelectableDiv';
+import { buttonClasses, buttonClassInactive } from '../styles';
+import { RatingsContext } from 'async/providers/RatingsProvider';
+import { ClassBoatListActions, SelectableDiv, selectKeySignout, selectKeySignoutPerson } from './ClassSelectableDiv';
 import { SignoutCombinedType } from '../signouts/SignoutCombinedType';
-import { EditAction, ActionBasedEditorProps } from 'components/ActionBasedEditor';
-import { AddActionType, addSignoutAction, findLowestId, updateSignoutAction } from './Actions';
+import { AddActionType, AddSignoutAction, findLowestId, UpdateSignoutAction } from './Actions';
 import { ScannedPersonType } from 'async/staff/dockhouse/scan-card';
-import { RatingsHover } from 'pages/dockhouse/signouts/RatingSorter';
+import { RatingsHover } from 'components/dockhouse/actionmodal/signouts/RatingSorter';
 import { MAGIC_NUMBERS } from 'app/magicNumbers';
+import { ActionClassType } from "./ActionClassType";
 
 function InputWithDelay<T_Value>(props: {makeInput: (value: T_Value, updateValue: (value: T_Value) => void) => JSX.Element, delay: number, value: T_Value, updateValue: (value: T_Value) => void}){
     const [value, updateValue] = React.useState(props.value);
@@ -63,12 +61,17 @@ function ClassBoat(props: SignoutCombinedType & ClassBoatListActions & AddAction
                         <SelectableDiv className="w-full h-full" isInner={false} thisSelect={{[selectKeySignout(props.signoutId)]: true}} {...props} makeNoSelectChildren={(ref) =>
                             <div ref={ref} className="flex flex-row basis-0 grow-[1] my-auto">
                                 <BoatSelect boatId={props.boatId} setBoatId={(v) => {
-                                    props.addAction(updateSignoutAction({signoutId: props.signoutId, boatId: v}));
+                                    props.addAction(new UpdateSignoutAction({signoutId: props.signoutId, boatId: v}));
+                                    props.addAction({
+                                        applyActionLocal(data) {
+                                            return data;
+                                        },
+                                    })
                                 }} useBoatImage className="h-[8vh] w-[8vh]"/>
                                 <InputWithDelay value={props.sailNum} updateValue={(v) => {
-                                    props.addAction(updateSignoutAction({signoutId: props.signoutId, sailNum: v}));
+                                    props.addAction(new UpdateSignoutAction({signoutId: props.signoutId, sailNum: v}));
                                 }} delay={800} makeInput={(value, updateValue) => 
-                                    <OptionalStringInput controlledValue={value} updateValue={updateValue} label={"#"} customStyle className="bg-transparent border-0 text-[8vh] leading-none p-0 m-0 w-[10vh] h-[8vh] overflow-x-visible w-full"></OptionalStringInput>
+                                    <OptionalStringInput controlledValue={value} updateValue={updateValue} label={"#"} placeholder="#" customStyle className="bg-transparent border-0 text-[8vh] leading-none p-0 m-0 w-[10vh] h-[8vh] overflow-x-visible w-full"></OptionalStringInput>
                                 }></InputWithDelay>
                             </div>
                         }>
@@ -93,7 +96,7 @@ export function ClassActionsList(props: {signin, incident, cancel}){
 
 export function makeNewSignout(associatedSignouts: SignoutCombinedType[], newBoatId: option.Option<number>, addAction: AddActionType['addAction']){
     const newId = findLowestId(associatedSignouts) - 1;
-    addAction(addSignoutAction({signoutId: newId, boatId: newBoatId}));
+    addAction(new AddSignoutAction({signoutId: newId, boatId: newBoatId}));
     return newId;
 }
 

@@ -28,11 +28,12 @@ export const SignoutsTable = (props: {
 	const actionModal = React.useContext(ActionModalContext);
 	const f = filterActive(props.isActive);
 	const provider = React.useMemo(() => (new InteractiveColumnInjector(props.isActive ? columnsActive : columnsInactive)), [])
-	var columns = React.useMemo(() => (provider.provideColumns(props.extraState)), [props.extraState]);
+	var columns = React.useMemo(() => (provider.provideColumns(props.extraState)), [props.extraState, provider]);
 	const filteredSignouts = props.state.filter(f);
 	const openEditRow = (row: SignoutTablesState) => {
-		actionModal.pushAction(new EditSignoutAction(row));
+		actionModal.pushAction(new EditSignoutAction(row.signoutId));
 	}
+	console.log(filteredSignouts.length, props.isActive);
 	return <>
 		<Table<SignoutTablesState, SignoutsTableFilterState>
 			globalFilter={props.globalFilter}

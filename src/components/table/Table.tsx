@@ -64,7 +64,7 @@ export const Table: <T_Data, T_Filter>(props: TableProps<T_Data, T_Filter>) => J
 	}]
 	const table = useReactTable({
 		data: dataProp,
-		columns: openEditRow? editColumn.concat(columns) : columns,
+		columns: openEditRow ? editColumn.concat(columns) : columns,
 		globalFilterFn: globalFilter,
 		getCoreRowModel: getCoreRowModel(),
 		getFilteredRowModel: getFilteredRowModel(),

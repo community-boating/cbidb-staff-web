@@ -1,5 +1,5 @@
 import { InstructorType } from 'async/rest/class-instructor';
-import { InstructorsContext } from 'components/dockhouse/providers/InstructorsProvider';
+import { InstructorsContext } from 'async/providers/InstructorsProvider';
 import { SelectInput } from 'components/wrapped/Input';
 import { option } from 'fp-ts';
 import * as React from 'react';

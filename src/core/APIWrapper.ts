@@ -11,6 +11,7 @@ import { HttpMethod } from "./HttpMethod";
 import { PostType, Config, ApiResult, ServerParams } from './APIWrapperTypes';
 import * as moment from 'moment';
 import { AppStateCombined } from 'app/state/AppState';
+import { DefaultDateTimeFormat } from 'util/OptionalTypeValidators';
 
 export const ERROR_DELIMITER = "\\n"
 
@@ -93,7 +94,7 @@ export default class APIWrapper<T_ResponseValidator extends t.Any, T_PostBodyVal
 					code: API_CODE_INSUFFICIENT_PERMISSION
 				});
 		}
-		moment.fn.toJSON = function() { return this.format(this["_f"]); }
+		moment.fn.toJSON = function() { return this.format(DefaultDateTimeFormat); }
 		const serverParams = serverParamsOption.getOrElse((process.env as any).serverToUseForAPI);
 		const self = this;
 		type Return = Promise<ApiResult<t.TypeOf<T_ResponseValidator>>>;

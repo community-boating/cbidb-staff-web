@@ -3,7 +3,6 @@ import APIWrapper, { API_CODE_NOT_LOGGED_IN } from './APIWrapper';
 import * as t from 'io-ts';
 import { AppStateContext } from 'app/state/AppStateContext';
 import { setStateChain } from 'components/dockhouse/actionmodal/ActionModalProps';
-import { getRatings } from 'async/staff/dockhouse/ratings';
 
 export type AsyncStateProviderProps<T_Validator extends t.Any> = {
     apiWrapper: APIWrapper<T_Validator, any, any>
@@ -36,38 +35,20 @@ export default class AsyncStateProvider<T_Validator extends t.Any> extends React
         this.render = this.render.bind(this);
     }
     loadAsync(){
-        //console.log("loading");
-        if(this.props.apiWrapper == getRatings as any){
-            console.log("runnang");
-        }
         this.props.apiWrapper.send(this.context).then((a) => {
             if(!this.mounted){
-                if(this.props.apiWrapper == getRatings as any){
-                    console.log("fooper");
-                }
                 return;
             }
             if(a.type == "Success"){
-                if(this.props.apiWrapper == getRatings as any){
-                    console.log("felper");
-                }
-                //if(a.success['length']){
-                    //console.log(a.success);
-                //}
                 this.setState({mainState: this.props.postGet? this.props.postGet(a.success): a.success, providerState: ProviderState.SUCCESS});
                 this.waitForLogin = false;
             }else{
                 if(a.code == API_CODE_NOT_LOGGED_IN){
-                    if(this.props.apiWrapper == getRatings as any){
-                        console.log("waiting");
-                    }
                     this.waitForLogin = true;
                 }
                 else{
-                    if(this.props.apiWrapper == getRatings as any){
-                        console.log("failing");
-                        console.log(a);
-                    }
+                    console.log("issue");
+                    console.log(a);
                     this.setState((s) => ({...s, providerState: ProviderState.ERROR}));
                 }
             }

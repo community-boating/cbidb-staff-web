@@ -1,6 +1,6 @@
 import * as React from 'react';
 import person from 'assets/img/icons/person.svg';
-import { AddEditCrewProps, MemberActionProps, SignoutCombinedType, SignoutActionMode } from "./signouts/SignoutCombinedType";
+import { AddEditCrewProps, MemberActionProps, SignoutCombinedType, SignoutActionMode, CurrentPeopleType } from "./signouts/SignoutCombinedType";
 import { getProgramHR } from 'util/textAdapter';
 import { ScannedPersonType } from 'async/staff/dockhouse/scan-card';
 
@@ -14,20 +14,23 @@ import { Button } from 'reactstrap';
 import { CardNumberScanner, findCurrentMembership } from './CardNumberScanner';
 import IconButton from 'components/wrapped/IconButton';
 import { option } from 'fp-ts';
+import { Popover } from 'components/wrapped/Popover';
+import { ActionActionType } from 'components/ActionBasedEditor';
+import { AddPersonAction, RemovePersonAction, SetSkipperAction, UpdatePersonAction } from './member-action/Actions';
 
-export function getCrewActions(props: {state: SignoutCombinedType, setState: React.Dispatch<React.SetStateAction<SignoutCombinedType>>, mode: SignoutActionMode}){
+export function getCrewActions(props: {current: SignoutCombinedType, actions: ActionActionType<SignoutCombinedType>, mode: SignoutActionMode}){
     return {
-        add: (newCrew) => {
-            props.setState((s) => ({...s, currentPeople: s.currentPeople.concat(newCrew)}));
+        add: (newCrew: CurrentPeopleType[number]) => {
+            props.actions.addAction(new AddPersonAction(newCrew))
         },
-        remove: (index) => {
-            props.setState((s) => ({...s, currentPeople: s.currentPeople.filter((a, i) => i != index)}));
+        remove: (index: number) => {
+            props.actions.addAction(new RemovePersonAction(index))
         },
-        setSkipper: (index) => {
-            props.setState((s) => ({...s, currentPeople: s.currentPeople.map((a, i) => ({...a, isSkipper: (index == i)}))}));
+        setSkipper: (index: number) => {
+            props.actions.addAction(new SetSkipperAction(index))
         },
-        setTesting: (index, testing) => {
-            props.setState((s) => ({...s, currentPeople: s.currentPeople.map((a, i) => (index == i) ? ({...a, isTesting: testing}) : a)}));
+        setTesting: (index: number, testing: boolean) => {
+            props.actions.addAction(new UpdatePersonAction({isTesting: testing}, index));
         }
     }
 }
@@ -38,8 +41,8 @@ function isHold(crew: ScannedPersonType){
 
 export function CrewIcons(props: {skipper: ScannedPersonType}){
     return <div className="flex flex-row">
-            {props.skipper.bannerComment.isSome() ? <img src={hold} width={50}/> : <></>}
-            {isHold(props.skipper) ? <img src={comments} width={50}/> : <></>}
+            {props.skipper.bannerComment.isSome() ? <Popover hoverProps={{}} openDisplay={<img src={comments} width={50}/>} makeChildren={(a) => <p>{props.skipper.bannerComment.getOrElse(undefined)}</p>}/>: <></>}
+            {isHold(props.skipper) ? <Popover hoverProps={undefined} openDisplay={<img src={hold} width={50}/>} makeChildren={(a) => <p>Yolo</p>}/> : <></>}
         </div>;
 }
 

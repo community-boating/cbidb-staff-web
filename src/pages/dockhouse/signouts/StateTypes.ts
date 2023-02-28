@@ -3,7 +3,7 @@ import { RatingsType, ratingsValidator } from "async/staff/dockhouse/ratings";
 import { SelectOption } from 'components/wrapped/Input';
 
 import * as t from "io-ts";
-import { SortedRatings } from './RatingSorter';
+import { SortedRatings } from '../../../components/dockhouse/actionmodal/signouts/RatingSorter';
 
 export type ReassignedMapType = { [key: string]: { [key: number]: number[] } };
 

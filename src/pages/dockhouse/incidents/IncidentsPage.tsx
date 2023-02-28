@@ -1,6 +1,6 @@
 import { IncidentStatusTypes } from 'async/staff/dockhouse/incidents';
 import { Card, CardLayout, FlexSize, LayoutDirection } from 'components/dockhouse/Card';
-import { IncidentsContext } from 'components/dockhouse/providers/IncidentsProvider';
+import { IncidentsContext } from 'async/providers/IncidentsProvider';
 import { option } from 'fp-ts';
 import * as React from 'react';
 import IncidentsTable from './IncidentsTable';

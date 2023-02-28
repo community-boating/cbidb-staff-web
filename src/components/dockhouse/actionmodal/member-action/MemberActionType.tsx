@@ -1,30 +1,35 @@
 import * as React from 'react';
 import { MemberActionModal } from "./MemberActionModal";
 import { Action } from '../ActionModalProps';
-import { ScannedCrewType } from 'async/staff/dockhouse/scan-card';
+import { ScannedCrewType, ScannedPersonType } from 'async/staff/dockhouse/scan-card';
 import { SignoutCombinedType } from '../signouts/SignoutCombinedType';
 import { option } from 'fp-ts';
+import { EditAction } from 'components/ActionBasedEditor';
 
-export type MemberActionType = {
-    scannedPerson: ScannedCrewType[number];
-};
+export type MemberActionModalStateType = {
+    actions: EditAction<SignoutCombinedType>[]
+}
 
-export class MemberAction extends Action<MemberActionType, SignoutCombinedType> {
-    constructor(scannedPerson: ScannedCrewType[number]) {
+export const defaultSignout: (scannedPerson: ScannedPersonType) => SignoutCombinedType = (scannedPerson) => ({
+    currentPeople: [{ ...scannedPerson, isSkipper: true, isTesting: true, testRatingId: option.none}],
+    boatId: option.none,
+    boatNum: option.none,
+    hullNum: option.none,
+    sailNum: option.none,
+    signoutType: option.none,
+    testRating: option.none,
+    signoutId: -1
+})
+
+export class MemberAction extends Action<SignoutCombinedType, MemberActionModalStateType> {
+    constructor(initialSignout: SignoutCombinedType) {
         super();
-        this.modeInfo = {scannedPerson: scannedPerson};
+        this.modeInfo = initialSignout;
         this.initState = {
-            currentPeople: [{ ...scannedPerson, isSkipper: true, isTesting: true, testRatingId: option.none}],
-            boatId: option.none,
-            boatNum: option.none,
-            hullNum: option.none,
-            sailNum: option.none,
-            signoutType: option.none,
-            testRating: option.none,
-            signoutId: -1
+            actions: []
         }
     }
-    createModalContent(info: MemberActionType, state, setState) {
+    createModalContent(info: SignoutCombinedType, state, setState) {
         return <MemberActionModal info={info} state={state} setState={setState}></MemberActionModal>;
     }
 }

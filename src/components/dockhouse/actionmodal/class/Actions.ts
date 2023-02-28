@@ -1,26 +1,48 @@
-import { ClassType, SignupType } from "async/staff/dockhouse/get-classes";
 import { ScannedPersonType } from "async/staff/dockhouse/scan-card";
-import { SignoutTablesState, SignoutType } from "async/staff/dockhouse/signouts";
+import { SignoutType } from "async/staff/dockhouse/signouts";
 import { EditAction, ActionActionType } from "components/ActionBasedEditor";
 import { option } from "fp-ts";
-import { ActionClassType, AttendanceMap } from "./ActionClassType";
 import { SignoutCombinedType } from "../signouts/SignoutCombinedType";
+import { ApClassSession, ApClassSignup, SignupType } from "async/staff/dockhouse/ap-class-sessions";
+import { ActionClassType } from "./ActionClassType";
 
 export type AddActionType = Pick<ActionActionType<ActionClassType>, 'addAction'>;
 
-export function addPersonAction(person: ScannedPersonType, time: moment.Moment): EditAction<ActionClassType>{
-    return {
-        applyAction: (data) => {
-            return {...data, currentClass: {...data.currentClass, $$apClassSignups: data.currentClass.$$apClassSignups.concat({
-                $$person: person,
-                instanceId: data.currentClass.instanceId,
-                signupId: -1,
-                signupDatetime: time,
-                signupType: SignupType.WAITLIST,
-                personId: person.personId
-            })}};
+export class AddPersonToClassAction extends EditAction<ActionClassType>{
+    person: ScannedPersonType;
+    time: moment.Moment;
+    constructor(person: ScannedPersonType, time: moment.Moment){
+        super();
+        this.person = person;
+        this.time = time;
+    }
+    applyActionLocal(data) {
+            return {...data, currentClass: {...data.currentClass, $$apClassInstance: {
+                ...data.currentClass.$$apClassInstance,
+                $$apClassSignups: data.currentClass.$$apClassInstance.$$apClassSignups.concat({
+                    instanceId: 0,
+                    discountInstanceId: option.none,
+                    voidedOnline: false,
+                    personId: this.person.personId,
+                    orderId: option.none,
+                    price: option.none,
+                    signupId: -1,
+                    $$apClassWaitlistResult: undefined,
+                    $$person: this.person,
+                    closeId: option.none,
+                    ccTransNum: option.none,
+                    paymentMedium: option.none,
+                    paymentLocation: option.none,
+                    voidCloseId: option.none,
+                    sequence: 0,
+                    signupType: SignupType.ACTIVE,
+                    signupNote: option.none,
+                    signupDatetime: this.time
+                } as ApClassSignup)
+            }
         }
     }
+}
 }
 
 export function findLowestId(signouts: SignoutCombinedType[]){
@@ -29,35 +51,40 @@ export function findLowestId(signouts: SignoutCombinedType[]){
     }, 0);
 }
 
-export function addSignoutAction(signout: Partial<SignoutCombinedType> & Pick<SignoutCombinedType, 'signoutId'>): EditAction<ActionClassType>{
-    return {
-        applyAction: (data) => {
-            
-            return {...data, associatedSignouts: data.associatedSignouts.concat({
-                hullNum: option.none,
-                sailNum: option.none,
-                boatNum: option.none,
-                boatId: option.none,
-                signoutType: option.some(SignoutType.CLASS),
-                testRating: option.none,
-                currentPeople: [],
-                ...signout
-            })}
-        }
+export class AddSignoutAction extends EditAction<ActionClassType>{
+    signout: Partial<SignoutCombinedType> & Pick<SignoutCombinedType, 'signoutId'>
+    constructor (signout: Partial<SignoutCombinedType> & Pick<SignoutCombinedType, 'signoutId'>){
+        super();
+        this.signout = signout;
+    }
+    applyActionLocal(data) {
+        return {...data, associatedSignouts: data.associatedSignouts.concat({
+            hullNum: option.none,
+            sailNum: option.none,
+            boatNum: option.none,
+            boatId: option.none,
+            signoutType: option.some(SignoutType.CLASS),
+            testRating: option.none,
+            currentPeople: [],
+            ...this.signout
+        })}
     }
 }
 
-export function updateSignoutAction(signout: Partial<SignoutCombinedType>): EditAction<ActionClassType>{
-    return {
-        applyAction: (data) => {
-            return {...data, associatedSignouts: data.associatedSignouts.map((a) => {
-                if(a.signoutId == signout.signoutId){
-                    return {...a, ...signout};
-                }else{
-                    return a;
-                }
-            })}
-        }
+export class UpdateSignoutAction extends EditAction<ActionClassType>{
+    signout: Partial<SignoutCombinedType>;
+    constructor (signout: Partial<SignoutCombinedType>){
+        super();
+        this.signout = signout;
+    }
+    applyActionLocal(data) {
+        return {...data, associatedSignouts: data.associatedSignouts.map((a) => {
+            if(a.signoutId == this.signout.signoutId){
+                return {...a, ...this.signout};
+            }else{
+                return a;
+            }
+        })}
     }
 }
 
@@ -86,64 +113,74 @@ function makeSkipperIfNone(people: SignoutCombinedType['currentPeople']): Signou
     return people.some((a) => a.isSkipper) ? people : people.map((a, i) => (i > 0) ? a : {...a, isSkipper: true});
 }
 
-export function updateSignoutCrew(actions: UpdateCrewAction[], signoutId: number): EditAction<ActionClassType>{
-    const toRemove = actions.reduce((a, b) => {
-        if(b instanceof RemoveCrewAction){
-            a[b.personId] = true;
-        }
-        return a;
-    }, {} as {[key: number]: boolean});
-    const toAdd = actions.filter((a) => a instanceof AddCrewAction).map((a: AddCrewAction) => ({...a.person, isSkipper: false, isTesting: false, testRatingId: option.none}));
-    return {
-        applyAction: (data) => {
-            return {...data, associatedSignouts: data.associatedSignouts.map((a) => {
-                if(a.signoutId == signoutId){
-                    return {...a, currentPeople: makeSkipperIfNone(a.currentPeople.filter((a) => !toRemove[a.personId]).concat(toAdd))};
-                }else{
-                    return a;
-                }
-            })}
-        }
+export class UpdateSignoutCrew extends EditAction<ActionClassType>{
+    actions: UpdateCrewAction[]
+    signoutId: number
+    constructor(actions: UpdateCrewAction[], signoutId: number){
+        super();
+        this.actions = actions;
+        this.signoutId = signoutId;
+    }
+    applyActionLocal(data) {
+        const toRemove = this.actions.reduce((a, b) => {
+            if(b instanceof RemoveCrewAction){
+                a[b.personId] = true;
+            }
+            return a;
+        }, {} as {[key: number]: boolean});
+        const toAdd = this.actions.filter((a) => a instanceof AddCrewAction).map((a: AddCrewAction) => ({...a.person, isSkipper: false, isTesting: false, testRatingId: option.none}));
+        return {...data, associatedSignouts: data.associatedSignouts.map((a) => {
+            if(a.signoutId == this.signoutId){
+                return {...a, currentPeople: makeSkipperIfNone(a.currentPeople.filter((a) => !toRemove[a.personId]).concat(toAdd))};
+            }else{
+                return a;
+            }
+        })}
     }
 }
 
-export function updateClassSignup (classSignup: Partial<ClassType['$$apClassSignups'][number]>): EditAction<ActionClassType>{
-    return {
-        applyAction: (data) => {
-            return {...data, currentClass: {...data.currentClass, $$apClassSignups: data.currentClass.$$apClassSignups.map((a) => {
-                if(a.signupId == classSignup.signupId)
-                    return {...a, ...classSignup};
-                else
-                    return a;
-            })}}
-        }
-    };
+export class UpdateClassSignup extends EditAction<ActionClassType>{
+    classSignup: Partial<ApClassSignup>;
+    constructor(classSignup: Partial<ApClassSignup>){
+        super();
+        this.classSignup = classSignup;
+    }
+    applyActionLocal(data) {
+        return {...data, currentClass: {...data.currentClass, $$apClassInstance: {...data.currentClass.$$apClassInstance, $$apClassSignups: data.currentClass.$$apClassInstance.$$apClassSignups.map((a) => {
+            if(a.signupId == this.classSignup.signupId)
+                return {...a, ...this.classSignup};
+            else
+                return a;
+        })}}}
+    }
 }
 
-export function updateAttendanceList(attendanceList: AttendanceMap): EditAction<ActionClassType>{
+/*export class UpdateAttendanceList EditAction<ActionClassType>{
     return {
-        applyAction: (data) => {
+        applyActionLocal: (data) => {
             return {...data, attendanceMap: {...data.attendanceMap, ...attendanceList}};
         }
     };
+}*/
+
+export class UpdateClass extends EditAction<ActionClassType>{
+    updatedClass: Partial<ApClassSession>
+    constructor (updatedClass: Partial<ApClassSession>){
+        super();
+        this.updatedClass = updatedClass;
+    }
+    applyActionLocal(data) {
+        return {...data, currentClass: {...data.currentClass, ...this.updatedClass}};
+    }
 }
 
-export function updateClass(updatedClass: Partial<ClassType>): EditAction<ActionClassType>{
-    return {
-        applyAction: (data) => {
-            console.log("applying");
-            console.log(updatedClass);
-            console.log(data.currentClass);
-            console.log({...data.currentClass, ...updatedClass})
-            return {...data, currentClass: {...data.currentClass, ...updatedClass}};
-        }
-    };
-}
-
-export function removeSignouts(signoutIds: number[]): EditAction<ActionClassType>{
-    return {
-        applyAction: (data) => {
-            return {...data, associatedSignouts: data.associatedSignouts.filter((a) => !signoutIds.contains(a.signoutId))};
-        }
+export class RemoveSignouts extends EditAction<ActionClassType>{
+    signoutIds: number[]
+    constructor(signoutIds: number[]){
+        super();
+        this.signoutIds = signoutIds;
+    }
+    applyActionLocal(data) {
+        return {...data, associatedSignouts: data.associatedSignouts.filter((a) => !this.signoutIds.contains(a.signoutId))};
     }
 }

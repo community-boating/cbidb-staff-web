@@ -7,20 +7,21 @@ import { postWrapper as createSignout } from 'async/staff/dockhouse/create-signo
 import { SignoutCombinedType } from '../signouts/SignoutCombinedType';
 import { buttonClassActive, buttonClasses, buttonClassInactive } from '../styles';
 import { adaptMemberState, convertToCreateSignout } from '../signouts/EditSignoutModal';
-import { SignoutsTodayContext } from 'components/dockhouse/providers/SignoutsTodayProvider';
+import { SignoutsTodayContext } from 'async/providers/SignoutsTodayProvider';
 import { SignoutType } from 'async/staff/dockhouse/signouts';
 import * as moment from 'moment';
+import { ActionActionType } from 'components/ActionBasedEditor';
 
-export function CreateQueueSignout(props: { state: SignoutCombinedType; setState: React.Dispatch<React.SetStateAction<SignoutCombinedType>>; }) {
+export function CreateQueueSignout(props: { current: SignoutCombinedType; actions: ActionActionType<SignoutCombinedType>}) {
     const asc = React.useContext(AppStateContext);
     const modal = React.useContext(ModalContext);
     const signouts = React.useContext(SignoutsTodayContext);
     const ref = React.createRef<HTMLButtonElement>();
     const submit = (e) => {
-        return createSignout.sendJson(asc, convertToCreateSignout(props.state)).then((a) => {
+        return createSignout.sendJson(asc, convertToCreateSignout(props.current)).then((a) => {
             if (a.type == "Success") {
                 modal.setOpen(false);
-                signouts.setSignouts((s) => s.concat(adaptMemberState(props.state, {
+                signouts.setSignouts((s) => s.concat(adaptMemberState(props.current, {
                     signoutId: -1,
                     programId: -1,
                     classSessionId: option.none,
@@ -29,7 +30,6 @@ export function CreateQueueSignout(props: { state: SignoutCombinedType; setState
                         personId: -1,
                         nameFirst: "",
                         nameLast: ""
-
                     },
                     apAttendanceId: option.none,
                     jpAttendanceId: option.none,
@@ -52,7 +52,7 @@ export function CreateQueueSignout(props: { state: SignoutCombinedType; setState
                     $$crew: []
                 })));
             } else {
-                props.setState((s) => ({ ...s, dialogOutput: option.some(a.message) }));
+                //props.setState((s) => ({ ...s, dialogOutput: option.some(a.message) }));
             }
         });
     }

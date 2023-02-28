@@ -4,6 +4,7 @@ import { SelectInput, ValidatedTextInput, SelectOption } from 'components/wrappe
 import { signoutTypesHR, programsHR } from '../Constants';
 import { UpdateStateType, wrapForFormComponents } from 'components/table/TableWithModalForm';
 import { SignoutType } from 'async/staff/dockhouse/signouts';
+import { option } from 'fp-ts';
 
 export const SignoutsTableFilter = (props: { tdStyle: React.CSSProperties; labelStyle: React.CSSProperties; filterValue: SignoutsTableFilterState; updateState: UpdateStateType; boatTypesHR: SelectOption<number>[]; setFilterValue: (filterValue: SignoutsTableFilterState) => void; usersHR: SelectOption<string>[]}) => {
 	const tdStyle = props.tdStyle;
@@ -84,7 +85,7 @@ export const SignoutsTableFilter = (props: { tdStyle: React.CSSProperties; label
 
 export type SignoutsTableFilterState = {
 	boatType: number;
-	signoutType: SignoutType;
+	signoutType: option.Option<SignoutType>;
 	programId: number;
 	nameOrCard: string;
 	sail: string;
@@ -93,5 +94,5 @@ export type SignoutsTableFilterState = {
 };
 
 export function makeInitFilter(): SignoutsTableFilterState {
-	return { boatType: -1, nameOrCard: "", sail: "", signoutType: SignoutType.CLASS, programId: -1, personId: "", createdBy: "" };
+	return { boatType: -1, nameOrCard: "", sail: "", signoutType: option.none, programId: -1, personId: "", createdBy: "" };
 }

@@ -1,4 +1,4 @@
-import { IncidentsContext } from 'components/dockhouse/providers/IncidentsProvider';
+import { IncidentsContext } from 'async/providers/IncidentsProvider';
 import { DefaultModalBody, ModalHeader } from 'components/wrapped/Modal';
 import IncidentsPage from 'pages/dockhouse/incidents/IncidentsPage';
 import * as React from 'react';

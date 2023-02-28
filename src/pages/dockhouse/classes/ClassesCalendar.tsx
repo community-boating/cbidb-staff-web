@@ -3,41 +3,34 @@ import * as React from 'react';
 import { Calendar, Event, momentLocalizer, Views } from 'react-big-calendar'
 import withDragAndDrop from 'react-big-calendar/lib/addons/dragAndDrop'
 import * as moment from 'moment'
-import { ClassesContext } from 'components/dockhouse/providers/ClassesProvider';
-import { ClassType, SessionType } from 'async/staff/dockhouse/get-classes';
-import { ClassTypesContext } from 'components/dockhouse/providers/ClassTypesProvider';
+import { ClassTypesContext } from 'async/providers/ClassTypesProvider';
 import { ClassTypeType } from 'async/staff/dockhouse/class-types';
 import { option } from 'fp-ts';
+import { ApClassSession } from 'async/staff/dockhouse/ap-class-sessions';
+import { ActionModalContext } from 'components/dockhouse/actionmodal/ActionModal';
+import { ActionClass } from 'components/dockhouse/actionmodal/class/ActionClass';
+import { ClassesTodayContext } from 'async/providers/ClassesTodayProvider';
+import { formatsById } from './formatsById';
 
 const DnDCalendar = withDragAndDrop(Calendar<Event, object>);
 
-function makeEvent(instance: ClassType, session: SessionType, formatsById: FormatById): Event{
+function makeEvent(session: ApClassSession, formatsById: FormatById): Event{
     const end = session.sessionDateTime.toDate();
     end.setHours(end.getHours() + session.sessionLength);
     return {
-        title: formatsById[instance.formatId].b.typeName + " " + instance.$$apClassSignups.length,
+        title: (formatsById[session.$$apClassInstance.formatId] || {b: {}}).b.typeName + " [Instructor]" + (session.$$apClassInstance.locationString.isSome() ? " @ " + session.$$apClassInstance.locationString.getOrElse("") : ""), 
         start: session.sessionDateTime.toDate(),
         end: end,
-        resource: session.sessionId
+        resource: session
     }
 }
 
-export function formatsById(classTypes: ClassTypeType[]){
-    return classTypes.reduce((a, b) => {
-        return b.$$apClassFormats.reduce((c, d) => {
-            c[''] = {derp: 0};
-            c[d.formatId] = {b: b, d: d};
-            return c;
-        }, a)
-    }, {} as FormatById);
-}
-
-export function getEvents(classes: ClassType[], classTypes: ClassTypeType[]): Event[]{
+export function getEvents(classes: ApClassSession[], classTypes: ClassTypeType[]): Event[]{
     const formats = formatsById(classTypes);
-    return classes.flatMap((a) => (a.$$apClassSessions.map((b) => makeEvent(a, b, formats))));
+    return classes.map((a) => makeEvent(a, formats));
 }
 
-type FormatById = {
+export type FormatById = {
     [key: number]: {
         b: ClassTypeType
         d: ClassTypeType['$$apClassFormats'][number]
@@ -52,26 +45,46 @@ const maxTime = new Date(2020, 1, 0, 19, 0, 0);
 const localizer = momentLocalizer(moment);
 
 export type ClassesProps = {
-    classSession: option.Option<number>
-    setClassSession: React.Dispatch<React.SetStateAction<option.Option<number>>>
+    //classSession: option.Option<number>
+    //setClassSession: React.Dispatch<React.SetStateAction<option.Option<number>>>
 }
 
 export default function ClassesCalendar(props: ClassesProps){
-    const classes = React.useContext(ClassesContext);
+    const modal = React.useContext(ActionModalContext);
+    const classes = React.useContext(ClassesTodayContext);
+    const [classSession, setClassSession] = React.useState<option.Option<number>>(option.none);
+    const openModal = (s) => {
+        const found = !classes.every((a) => {
+                if(a.sessionId == s.getOrElse(undefined)){
+                    modal.pushAction(new ActionClass(a.sessionId));
+                    return false;
+                }
+                return true;
+        });
+        if(found){
+            //setClassSession(s);
+        }else{
+            //TODO
+        }
+    }
     const classTypes = React.useContext(ClassTypesContext);
     const events = React.useMemo(() => getEvents(classes, classTypes), [classes, classTypes]);
-    const current = events.filter((a) => a.resource == props.classSession.getOrElse(undefined))[0];
+    const current = events.filter((a) => a.resource == classSession.getOrElse(undefined))[0];
     return <Calendar
+    className="max-h-[calc(100vh-200px)] overflow-y-scroll"
     localizer={localizer}
     events={events}
     startAccessor="start"
     endAccessor="end"
     defaultView={Views.DAY}
+    
+    views={{month: true, week: true, day: true, agenda: true}}
     selected={current}
     min={minTime}
     max={maxTime}
+    scrollToTime={new Date()}
     onSelectEvent={(e) => {
-        props.setClassSession(option.some(e.resource));
+        openModal(option.some(e.resource.sessionId))
     }}
     popup
   />
