@@ -2,7 +2,7 @@ import * as React from 'react';
 import { putSignout, SignoutsTablesState, SignoutTablesState, signoutValidator } from 'async/staff/dockhouse/signouts';
 import TableWithModalForm, { TableWithModalFormAsync, TableWithModalFormAsyncRaw, UpdateStateType, wrapForFormComponents, wrapForFormComponentsMoment } from 'components/table/TableWithModalForm';
 import { StringifiedProps } from 'util/StringifyObjectProps';
-import { SelectOption, AmPmInput, HourInput, MinuteInput, SelectInput, ValidatedTextInput } from 'components/wrapped/Input';
+import { AmPmInput, HourInput, MinuteInput } from 'components/wrapped/Input';
 import { option, state } from 'fp-ts';
 import * as moment from "moment";
 import { SignoutsTableFilterState } from './input/SignoutsTableFilter';
@@ -33,7 +33,6 @@ export const SignoutsTable = (props: {
 	const openEditRow = (row: SignoutTablesState) => {
 		actionModal.pushAction(new EditSignoutAction(row.signoutId));
 	}
-	console.log(filteredSignouts.length, props.isActive);
 	return <>
 		<Table<SignoutTablesState, SignoutsTableFilterState>
 			globalFilter={props.globalFilter}

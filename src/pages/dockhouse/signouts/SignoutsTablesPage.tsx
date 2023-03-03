@@ -51,8 +51,7 @@ function getPropsMemoDep(state: SignoutsTablesState){
 export const SignoutsTablesPage = (props: {
 	initState: SignoutsTablesState,
 }) => {
-	const {signouts, setSignouts} = React.useContext(SignoutsTodayContext)//React.useState(props.initState);
-	console.log(signouts);
+	const {state, setState} = React.useContext(SignoutsTodayContext)//React.useState(props.initState);
 	const ratings = React.useContext(RatingsContext);
 	const boatTypes = React.useContext(BoatsContext);
 	//React.useEffect(() => {
@@ -63,7 +62,7 @@ export const SignoutsTablesPage = (props: {
 	const [updateCrewModal, setUpdateCrewModal] = React.useState(undefined as number);
 	const [multiSignInSelected, setMultiSignInSelected] = React.useState([] as number[]);
 	const extraStateDepOnMain = React.useMemo(() => {
-		const filteredSignouts = signouts.filter(filterActive(true));
+		const filteredSignouts = state.filter(filterActive(true));
 		const reassignedHullsMap = {};
 		const reassignedSailsMap = {};
 		makeReassignedMaps(filteredSignouts, reassignedHullsMap, reassignedSailsMap);
@@ -72,7 +71,7 @@ export const SignoutsTablesPage = (props: {
 			reassignedSailsMap,
 			handleSingleSignIn: () => {}
 		};
-	}, [signouts]);
+	}, [state]);
 	const [extraStateDepOnAsync, setExtraStateDepOnAsync] = React.useState<SignoutsTablesExtraStateDepOnAsync>({ratings: [], ratingsSorted: {ratingsRows: [], orphanedRatings: []}, boatTypes: [], boatTypesHR: []});
 	const [filterValue, setFilterValue] = React.useState(makeInitFilter());
 	React.useEffect(() => {
@@ -81,7 +80,7 @@ export const SignoutsTablesPage = (props: {
 	React.useEffect(() => {
 		setExtraStateDepOnAsync((s) => ({...s, boatTypes: boatTypes, boatTypesHR: makeBoatTypesHR(boatTypes)}));
 	}, [boatTypes]);
-	const usersHR = React.useMemo(() => getUsersHR(signouts), [signouts]);
+	const usersHR = React.useMemo(() => getUsersHR(state), [state]);
 
 	const updateState = (id: any, value: any) => {
 		const newFilterState = Object.assign({}, filterValue);
@@ -100,10 +99,10 @@ export const SignoutsTablesPage = (props: {
 	const tableContent = React.useMemo(() => {
 		return <>
 			<SignoutsTableFilter tdStyle={tdStyle} labelStyle={labelStyle} filterValue={filterValue} updateState={updateState} boatTypesHR={extraState.boatTypesHR} setFilterValue={setFilterValue} usersHR={usersHR} />
-			<SignoutsTable {...props} state={signouts} setState={setSignouts} extraState={extraState} isActive={true} filterValue={filterValue} globalFilter={filterRows} />
-			<SignoutsTable {...props} state={signouts} setState={setSignouts} extraState={extraState} isActive={false} filterValue={filterValue} globalFilter={filterRows} />
+			<SignoutsTable {...props} state={state} setState={setState} extraState={extraState} isActive={true} filterValue={filterValue} globalFilter={filterRows} />
+			<SignoutsTable {...props} state={state} setState={setState} extraState={extraState} isActive={false} filterValue={filterValue} globalFilter={filterRows} />
 		</>;
-	}, [signouts, extraState, filterValue]);
+	}, [state, extraState, filterValue]);
 
 	return <>
 		{tableContent}

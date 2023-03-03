@@ -14,7 +14,6 @@ import * as t from "io-ts";
 import { BoatsContext } from 'async/providers/BoatsProvider';
 import { RatingsContext } from 'async/providers/RatingsProvider';
 import { SignoutsTodayContext } from 'async/providers/SignoutsTodayProvider';
-import { GoButton } from 'components/wrapped/IconButton';
 import { TestType } from 'async/staff/dockhouse/tests';
 import * as moment from 'moment';
 import { EditTestsAction } from 'components/dockhouse/actionmodal/test/EditTestsType';
@@ -84,7 +83,7 @@ export default function DockHousePage (props) {
         boatTypes: boatTypes,
         boatTypesHR: makeBoatTypesHR(boatTypes)
         }), [ratings, boatTypes]);
-    const filteredSignouts = (signoutsToday.signouts || []).filter(filterActive(true));
+    const filteredSignouts = (signoutsToday.state || []).filter(filterActive(true));
     const reassignedHullsMap = {};
     const reassignedSailsMap = {};
     //const addNewIncident = ()
@@ -102,12 +101,12 @@ export default function DockHousePage (props) {
                         </PreventClick>
                     </ActionCard>
                     <ActionCard title="Boat Queue" onAction={() => {
-                        actionModal.pushAction(new BoatQueueAction(signoutsToday.signouts.filter((a) => true)))
+                        actionModal.pushAction(new BoatQueueAction(signoutsToday.state.filter((a) => true)))
                     }}>
-                        <NumberWithLabel number={signoutsToday.signouts.length} label="Signouts"/>
+                        <NumberWithLabel number={signoutsToday.state.length} label="Signouts"/>
                     </ActionCard>
                     <ActionCard title="One Day Rentals" onAction={() => {
-                        actionModal.pushAction(new RentalsAction(signoutsToday.signouts.filter((a) => true)))
+                        actionModal.pushAction(new RentalsAction(signoutsToday.state.filter((a) => true)))
                     }}>
                         <div className="flex flex-row gap-2 mt-0 mb-auto">
                             <NumberWithLabel number={0} label="Sail"/>
@@ -137,23 +136,23 @@ export default function DockHousePage (props) {
                         </div>
                     </ActionCard>
                     <ActionCard title="Testing" onAction={() => {
-                        const testingSignouts = signoutsToday.signouts.filter((a) => a.signoutType == SignoutType.TEST);
+                        const testingSignouts = signoutsToday.state.filter((a) => a.signoutType == SignoutType.TEST);
                         const testsToday: TestType[] = testingSignouts.flatMap((a) => [{signoutId: a.signoutId, personId: a.$$skipper.personId, nameFirst: a.$$skipper.nameFirst, nameLast: a.$$skipper.nameLast, testResult: a.testResult, createdBy: 0, createdOn: moment()}].concat(a.$$crew.map((b) => ({signoutId: a.signoutId, testResult: a.testResult, ...b.$$person, createdBy: 0, createdOn: moment()}))));
                         actionModal.pushAction(new EditTestsAction(testingSignouts, testsToday));
                     }}>
                         <div className="flex flex-row gap-2">
                             <NumberWithLabel number={0} label="Queue"/>
                             <Spacer/>
-                            <NumberWithLabel number={signoutsToday.signouts.filter((a) => a.signoutType == SignoutType.TEST).length} label="Active"/>
+                            <NumberWithLabel number={signoutsToday.state.filter((a) => a.signoutType == SignoutType.TEST).length} label="Active"/>
                         </div>
                     </ActionCard>
                 </CardLayout>
             </CardLayout>
             <Card title="Active Signouts">
-                {signoutsToday.providerState == ProviderState.SUCCESS ? <SignoutsTable state={signoutsToday.signouts} setState={signoutsToday.setSignouts} extraState={extraState} isActive={true} filterValue={makeInitFilter()} globalFilter={{} as any}/> : <>Loading...</>}
+                {signoutsToday.providerState == ProviderState.SUCCESS ? <SignoutsTable state={signoutsToday.state} setState={signoutsToday.setState} extraState={extraState} isActive={true} filterValue={makeInitFilter()} globalFilter={{} as any}/> : <>Loading...</>}
             </Card>
             <Card title="Completed Signouts">
-                {signoutsToday.providerState == ProviderState.SUCCESS ? <SignoutsTable state={signoutsToday.signouts} setState={signoutsToday.setSignouts} extraState={extraState} isActive={false} filterValue={makeInitFilter()} globalFilter={{} as any}/> : "Loading..."}
+                {signoutsToday.providerState == ProviderState.SUCCESS ? <SignoutsTable state={signoutsToday.state} setState={signoutsToday.setState} extraState={extraState} isActive={false} filterValue={makeInitFilter()} globalFilter={{} as any}/> : "Loading..."}
             </Card>
         </CardLayout>
      </>);

@@ -21,7 +21,7 @@ export function CreateQueueSignout(props: { current: SignoutCombinedType; action
         return createSignout.sendJson(asc, convertToCreateSignout(props.current)).then((a) => {
             if (a.type == "Success") {
                 modal.setOpen(false);
-                signouts.setSignouts((s) => s.concat(adaptMemberState(props.current, {
+                signouts.setState((s) => s.concat(adaptMemberState(props.current, {
                     signoutId: -1,
                     programId: -1,
                     classSessionId: option.none,

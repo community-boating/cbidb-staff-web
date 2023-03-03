@@ -194,7 +194,7 @@ function HeaderSunset(props: HeaderSunsetProps){
             <PositionedTitle value={"Sunset: " +  props.sunset.format(TIME_FORMAT)} size={HALF}></PositionedTitle>
         </div>
         <div className="h-status_banner_height_half text-right">    
-            <PositionedTitle className="ml-auto" value={"Call In: " +  props.sunset.subtract(30, "minutes").format(TIME_FORMAT)} size={HALF}></PositionedTitle>
+            <PositionedTitle className="ml-auto" value={"Call In: " +  props.sunset.clone().subtract(30, "minutes").format(TIME_FORMAT)} size={HALF}></PositionedTitle>
         </div>
     </div>);
 }

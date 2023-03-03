@@ -1,6 +1,6 @@
 import { RatingsType } from 'async/staff/dockhouse/ratings';
 import { SignoutTablesState, SignoutType } from 'async/staff/dockhouse/signouts';
-import { ActionActionType, EditAction } from 'components/ActionBasedEditor';
+import { EditAction } from 'components/ActionBasedEditor';
 import { RatingsContext } from 'async/providers/RatingsProvider';
 import { SignoutsTodayContext } from 'async/providers/SignoutsTodayProvider';
 import { option } from 'fp-ts';
@@ -27,6 +27,8 @@ export function adaptSignoutState(state: SignoutTablesState, ratings: RatingsTyp
             isSkipper: true,
             isTesting: state.signoutType == SignoutType.TEST,
             testRatingId: state.testRatingId,
+            maxFlagsPerBoat: [],
+            apClassSignupsToday: [],
             activeMemberships: [{
                 assignId: 0,
                 membershipTypeId: 0,
@@ -49,6 +51,8 @@ export function adaptSignoutState(state: SignoutTablesState, ratings: RatingsTyp
             isSkipper: false,
             isTesting: state.signoutType == SignoutType.TEST,
             testRatingId: state.testRatingId,
+            maxFlagsPerBoat: [],
+            apClassSignupsToday: [],
             activeMemberships: [{
                 assignId: 0,
                 membershipTypeId: 0,
@@ -80,7 +84,7 @@ export class EditSignoutAction extends Action<SignoutCombinedType, EditSignoutAc
         this.modeInfo = () => {
             const signoutsToday = React.useContext(SignoutsTodayContext);
             const ratings = React.useContext(RatingsContext);
-            return adaptSignoutState(signoutsToday.signouts.find((a) => a.signoutId == signoutId), ratings);
+            return adaptSignoutState(signoutsToday.state.find((a) => a.signoutId == signoutId), ratings);
         };
     }
     createModalContent(info: SignoutCombinedType, state, setState) {

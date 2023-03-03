@@ -6,22 +6,24 @@ import { option } from 'fp-ts';
 import { formatsById } from "pages/dockhouse/classes/formatsById";
 import * as React from 'react';
 import { CardNumberScanner } from '../CardNumberScanner';
-import { AddInstructor, InstructorsList } from './AddEditInstructors';
 import ClassRosterTable from './ClassRosterTable';
-import ClassSignoutBoatList, { ClassActionsList } from './ClassSignoutBoatList';
+import ClassSignoutBoatList, { ClassActionsList, makeNewSignout } from './ClassSignoutBoatList';
 import { SelectedType } from "./ClassSelectableDiv";
-import { AddActionType, AddPersonToClassAction as AddPersonToClassAction, RemoveSignouts, UpdateClass } from './Actions';
+import { AddActionType, AddActionType as AddPersonToClassAction, AddCrewAction, RemoveSignouts, UpdateClass, UpdateCrewAction, UpdateSignoutAction, UpdateSignoutCrew } from './Actions';
 import * as moment from 'moment';
-import { Button, ButtonProps } from 'reactstrap';
-import { buttonClasses, buttonClassInactive, ButtonStyled } from '../styles';
+import { ButtonStyled } from '../styles';
 import { SelectInput } from 'components/wrapped/Input';
 import { ClassLocationsContext } from 'async/providers/ClassLocationsProvider';
 import { RatingsContext } from 'async/providers/RatingsProvider';
 import { InstructorsContext } from 'async/providers/InstructorsProvider';
 import { getSelectedRosterPeople, getSelectedSignoutPeople, getSelectedSignouts } from './getSelected';
-import { ActionModalPropsWithState, getInfo, subStateWithSet } from '../ActionModalProps';
+import { ActionModalPropsWithState, subStateWithSet } from '../ActionModalProps';
 import { Tab } from '@headlessui/react';
 import { ActionClassType, ActionClassModalState } from './ActionClassType';
+import { ClassesTodayContext } from 'async/providers/ClassesTodayProvider';
+import { ApClassSignup, SignupType } from 'async/staff/dockhouse/ap-class-sessions';
+import { ScannedPersonType } from 'async/staff/dockhouse/scan-card';
+import { SignoutsTodayContext } from 'async/providers/SignoutsTodayProvider';
 
 export const selectNone: SelectedType = {
 }
@@ -54,16 +56,8 @@ export function InstructorsSelect(props: { label?: React.ReactNode, className?: 
     return <SelectInput label={props.label} className={props.className} controlledValue={props.currentInstructorId} updateValue={props.setInstructorId} selectOptions={instructorsHR} autoWidth />
 }
 
-export default function ActionClassModal(props: ActionModalPropsWithState<ActionClassType, ActionClassModalState>) {
-
-    const classTypes = React.useContext(ClassTypesContext);
-    const formats = formatsById(classTypes);
-    const [selected, setSelected] = subStateWithSet(props.state, props.setState, 'selected');
-    const [selectType, setSelectType] = subStateWithSet(props.state, props.setState, 'selectType');
-    const [currentRating, setCurrentRating] = subStateWithSet(props.state, props.setState, 'currentRating');
-    const [actions, setActions] = subStateWithSet(props.state, props.setState, 'actions');
-    const [grantingInstructorId, setGrantingInstructorId] = React.useState<option.Option<number>>(option.none);
-    const boatListActions = {
+export function getBoatListActions(selectType, setSelectType, selected, setSelected) {
+    return {
         selectType,
         setSelectType,
         selected: selected,
@@ -78,6 +72,58 @@ export default function ActionClassModal(props: ActionModalPropsWithState<Action
         },
         set: setSelected
     }
+}
+
+function defaultClassSignup(person: ScannedPersonType, time: moment.Moment){
+    return {
+        instanceId: 0,
+        discountInstanceId: option.none,
+        voidedOnline: false,
+        personId: person.personId,
+        orderId: option.none,
+        price: option.none,
+        signupId: -1,
+        $$apClassWaitlistResult: undefined,
+        $$person: person,
+        closeId: option.none,
+        ccTransNum: option.none,
+        paymentMedium: option.none,
+        paymentLocation: option.none,
+        voidCloseId: option.none,
+        sequence: 0,
+        signupType: SignupType.ACTIVE,
+        signupNote: option.none,
+        signupDatetime: time
+    } as ApClassSignup
+}
+
+export function AddPersonScanner(props: {classSessionId: number}){
+    const classes = React.useContext(ClassesTodayContext);
+    return <CardNumberScanner label="" onAction={(a) => {
+        classes.setState((s) => s.map((b) => {
+            if(b.sessionId == props.classSessionId){
+                if(b.$$apClassInstance.$$apClassSignups.some((c) => c.$$person.personId == a.personId)){
+                    alert("Already in the class");
+                    return b;
+                }
+                return {...b, $$apClassInstance: {...b.$$apClassInstance, $$apClassSignups: b.$$apClassInstance.$$apClassSignups.concat(defaultClassSignup(a, moment()))}}
+            }else{
+                return b;
+            }
+        }))
+    }}></CardNumberScanner>
+}
+
+export default function ActionClassModal(props: ActionModalPropsWithState<ActionClassType, ActionClassModalState>) {
+
+    const classTypes = React.useContext(ClassTypesContext);
+    const formats = formatsById(classTypes);
+    const [selected, setSelected] = subStateWithSet(props.state, props.setState, 'selected');
+    const [selectType, setSelectType] = subStateWithSet(props.state, props.setState, 'selectType');
+    const [currentRating, setCurrentRating] = subStateWithSet(props.state, props.setState, 'currentRating');
+    const [actions, setActions] = subStateWithSet(props.state, props.setState, 'actions');
+    const boatListActions = getBoatListActions(selectType, setSelectType, selected, setSelected);
+    const signouts = React.useContext(SignoutsTodayContext);
     return <DefaultModalBody>
         <ActionBasedEditor originalData={props.info} actions={actions} setActions={setActions} makeChildren={(state, { addAction, undo, reset }) => <>
             {console.log(formats)}
@@ -86,14 +132,12 @@ export default function ActionClassModal(props: ActionModalPropsWithState<Action
             </ModalHeader>
             <CardLayout direction={LayoutDirection.HORIZONTAL} weight={FlexSize.S_5} className="min-h-0">
                 <Card title="Class Roster (On Land)" weight={FlexSize.S_0} className="min-h-0 overflow-y-scroll min-w-[30%]">
-                    <ClassRosterTable {...state} {...boatListActions} addAction={addAction} />
-                    <CardNumberScanner label="" onAction={(a) => {
-                        if (state.currentClass.$$apClassInstance.$$apClassSignups.some((b) => b.personId == a.personId)) {
-                            alert("Already in the class")
-                        } else {
-                            addAction(new AddPersonToClassAction({ ...a }, moment()))
-                        }
-                    }}></CardNumberScanner>
+                    <ClassRosterTable {...state} {...boatListActions} makeNewSignout={(boatId) => {
+                                    return makeNewSignout(signouts.state, option.none, addAction);
+                                }} addTo={(signoutId, person) => {
+                                    addAction(new UpdateSignoutCrew([new AddCrewAction({...person, personRatings: []} as any)], signoutId))
+                                }} />
+                    <AddPersonScanner classSessionId={state.currentClass.sessionId}/>
                 </Card>
                 <Tab.Group className="min-h-0 h-full">
                     <Card title={<Tab.List>
@@ -102,7 +146,11 @@ export default function ActionClassModal(props: ActionModalPropsWithState<Action
                     </Tab.List>} className="min-h-0 overflow-y-scroll" weight={FlexSize.S_4}>
                         <Tab.Panels className="min-h-0 h-full">
                             <Tab.Panel className="min-h-0 h-full flex flex-col">
-                                <ClassSignoutBoatList {...state} {...boatListActions} addAction={addAction} />
+                                <ClassSignoutBoatList {...state} {...boatListActions} setSignout={(id, key, value) => {
+                                    addAction(new UpdateSignoutAction({signoutId: id, [key]: value}))
+                                }} makeNewSignout={(boatId) => {
+                                    return makeNewSignout(state.associatedSignouts, boatId, addAction);
+                                }}/>
                                 <div className="flex flex-col gap-2 mt-auto mb-0 whitespace-nowrap">
                                     <ClassActionsList signin={undefined} incident={undefined} cancel={() => {
                                         const signouts = getSelectedSignouts(state.associatedSignouts, selected);
@@ -114,16 +162,6 @@ export default function ActionClassModal(props: ActionModalPropsWithState<Action
                             <Tab.Panel>
                                 <div className="mr-0 ml-auto">
                                     <RatingsSelect label="Rating: " ratingId={currentRating} setRating={setCurrentRating} />
-                                </div>
-                                <div className="mr-0 ml-auto">
-                                    <InstructorsSelect label="Granting: " currentInstructorId={grantingInstructorId} setInstructorId={setGrantingInstructorId} />
-                                </div>
-                                <div className="mr-0 ml-auto">
-                                    <InstructorsSelect label="Current Instructor: " currentInstructorId={option.none} setInstructorId={(v) => {
-                                        //addAction(updateClass({
-                                        //    instructorId: v
-                                        //}));
-                                    }} />
                                 </div>
                                 <ButtonStyled onClick={() => {
                                     const selectedPeopleIds = getSelectedRosterPeople(state.currentClass, selected).map((a) => a.$$person.personId).concat(getSelectedSignoutPeople(state.associatedSignouts, selected).map((a) => a.personId));

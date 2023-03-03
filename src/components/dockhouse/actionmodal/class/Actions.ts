@@ -8,44 +8,7 @@ import { ActionClassType } from "./ActionClassType";
 
 export type AddActionType = Pick<ActionActionType<ActionClassType>, 'addAction'>;
 
-export class AddPersonToClassAction extends EditAction<ActionClassType>{
-    person: ScannedPersonType;
-    time: moment.Moment;
-    constructor(person: ScannedPersonType, time: moment.Moment){
-        super();
-        this.person = person;
-        this.time = time;
-    }
-    applyActionLocal(data) {
-            return {...data, currentClass: {...data.currentClass, $$apClassInstance: {
-                ...data.currentClass.$$apClassInstance,
-                $$apClassSignups: data.currentClass.$$apClassInstance.$$apClassSignups.concat({
-                    instanceId: 0,
-                    discountInstanceId: option.none,
-                    voidedOnline: false,
-                    personId: this.person.personId,
-                    orderId: option.none,
-                    price: option.none,
-                    signupId: -1,
-                    $$apClassWaitlistResult: undefined,
-                    $$person: this.person,
-                    closeId: option.none,
-                    ccTransNum: option.none,
-                    paymentMedium: option.none,
-                    paymentLocation: option.none,
-                    voidCloseId: option.none,
-                    sequence: 0,
-                    signupType: SignupType.ACTIVE,
-                    signupNote: option.none,
-                    signupDatetime: this.time
-                } as ApClassSignup)
-            }
-        }
-    }
-}
-}
-
-export function findLowestId(signouts: SignoutCombinedType[]){
+export function findLowestId(signouts: {signoutId: number}[]){
     return signouts.reduce((a, b) => {
         return Math.min(b.signoutId, a);
     }, 0);

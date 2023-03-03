@@ -3,23 +3,20 @@ import * as React from 'react';
 import { option } from 'fp-ts';
 import { signoutTypesHR } from '../../../../pages/dockhouse/signouts/Constants';
 import Button from 'components/wrapped/Button';
-import { EditSignoutType } from '../../../../pages/dockhouse/signouts/StateTypes';
 import RadioGroup from 'components/wrapped/RadioGroup';
 import { AppStateContext } from 'app/state/AppStateContext';
-import { SignoutActionMode, SignoutCombinedType, EditSignoutState } from './SignoutCombinedType';
+import { SignoutActionMode, SignoutCombinedType } from './SignoutCombinedType';
 import { putSignout, SignoutTablesState, SignoutType } from 'async/staff/dockhouse/signouts';
 import { RatingsContext } from 'async/providers/RatingsProvider';
-import { RatingsType } from 'async/staff/dockhouse/ratings';
-import * as moment from 'moment';
 import { buttonClassActive, buttonClasses, buttonClassInactive } from '../styles';
 import BoatIcon, { BoatSelect } from '../BoatIcon';
 import { DetailedPersonInfo, AddEditCrew, getCrewActions } from '../SkipperInfo';
 import { CreateSignoutType } from 'async/staff/dockhouse/create-signout';
-import { ActionModalPropsWithState, getInfo, subStateWithSet } from '../ActionModalProps';
+import { ActionModalPropsWithState, subStateWithSet } from '../ActionModalProps';
 import SignoutNumbersDropdown from './SignoutNumbersDropdown';
 import { MAGIC_NUMBERS } from 'app/magicNumbers';
 import { SignoutsTodayContext } from 'async/providers/SignoutsTodayProvider';
-import ActionBasedEditor, { ActionActionType, EditAction } from 'components/ActionBasedEditor';
+import ActionBasedEditor, { ActionActionType } from 'components/ActionBasedEditor';
 import { EditSignoutActionModalState } from './EditSignoutType';
 import { UpdateSignoutAction } from '../member-action/Actions';
 
@@ -45,7 +42,6 @@ export function EditSignout(props: {current: SignoutCombinedType, actions: Actio
     const [dialogOutput, setDialogOutput] = React.useState<option.Option<string>>(option.none);
     const crewActions = getCrewActions(props);
     const numbersSorted = React.useMemo(() => Object.entries(props.current).filter((a) => signoutNumberKeys.contains(a[0] as any)).sort((a, b) => (signoutNumberKeys.indexOf(a[0] as any) - signoutNumberKeys.indexOf(b[0] as any))).map((a) => a[1] as option.Option<number | string>), [props.current]);
-    console.log(numbersSorted);
     return (
     <div className="flex flex-col grow-[1] gap-5">
         <div className="flex flex-row grow-[0] gap-5">
@@ -169,10 +165,10 @@ function SubmitEditSignout(props: { current: SignoutCombinedType; actions: Actio
                     value.setOpen(false);
                 }}>Cancel</Button>
                 <Button className={buttonClasses + " " + buttonClassActive} spinnerOnClick onClick={(e) => {
-                    const adaptedToSignout = adaptMemberState(props.current, signouts.signouts.find((a) => a.signoutId == props.current.signoutId));
+                    const adaptedToSignout = adaptMemberState(props.current, signouts.state.find((a) => a.signoutId == props.current.signoutId));
                     return putSignout.sendJson(asc, adaptedToSignout).then((a) => {
                         if(a.type == "Success"){
-                            signouts.setSignouts((s) => s.map((b) => {
+                            signouts.setState((s) => s.map((b) => {
                                 if(b.signoutId == adaptedToSignout.signoutId)
                                     return adaptedToSignout;
                                 return b;

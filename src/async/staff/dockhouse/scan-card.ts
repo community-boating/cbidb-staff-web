@@ -1,7 +1,9 @@
 import * as t from 'io-ts';
 import APIWrapper from 'core/APIWrapper';
 import { HttpMethod } from "core/HttpMethod";
-import { OptionalDate, OptionalNumber, OptionalString } from 'util/OptionalTypeValidators';
+import { DateTime, OptionalDate, OptionalNumber, OptionalString } from 'util/OptionalTypeValidators';
+import { flagEnumValidator } from './flag-color';
+import { signupTypeValidator } from './ap-class-sessions';
 
 const scanCardMembershipValidator = t.type({
 	assignId: t.number,
@@ -21,6 +23,29 @@ const scanCardRatingValidator = t.type({
 	status: t.string // Y | F
 })
 
+const boatTypeValidator = t.type({
+	boatId: t.number
+})
+
+const programTypeValidator = t.type({
+	programId: t.number
+})
+
+const maxFlagPerBoatValidator = t.type({
+	$$boatType: boatTypeValidator,
+	$$programType: programTypeValidator,
+	maxFlag: flagEnumValidator
+})
+
+const classSignupTodayValidator = t.type({
+	instanceId: t.number,
+	personId: t.number,
+	sequence: t.number,
+	signupDatetime: DateTime,
+	signupId: t.number,
+	signupType: signupTypeValidator
+})
+
 export const scanCardValidator = t.type({
 	personId: t.number,
 	cardNumber: t.string,
@@ -29,7 +54,9 @@ export const scanCardValidator = t.type({
 	bannerComment: OptionalString,
 	specialNeeds: OptionalString,
 	activeMemberships: t.array(scanCardMembershipValidator),
-	personRatings: t.array(scanCardRatingValidator)
+	personRatings: t.array(scanCardRatingValidator),
+	maxFlagsPerBoat: t.array(maxFlagPerBoatValidator),
+	apClassSignupsToday: t.array(classSignupTodayValidator)
 })
 
 export type ScannedPersonType = t.TypeOf<typeof scanCardValidator>;

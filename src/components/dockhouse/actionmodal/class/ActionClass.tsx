@@ -15,27 +15,29 @@ import { SignoutType } from 'async/staff/dockhouse/signouts';
 import { RatingsContext } from 'async/providers/RatingsProvider';
 import { adaptSignoutState } from '../signouts/EditSignoutType'
 
+export const getClassInfo = (currentClassSessionId: number) =>  () => {
+    const signoutsToday = React.useContext(SignoutsTodayContext);
+    const classesToday = React.useContext(ClassesTodayContext);
+    const allClasses = React.useContext(AllClassesContext);
+    const ratings = React.useContext(RatingsContext);
+    return React.useMemo(() => {
+        const currentClass = classesToday.state.find((a) => a.sessionId == currentClassSessionId) || allClasses.find((a) => a.sessionId == currentClassSessionId);
+        const allPersons = currentClass.$$apClassInstance.$$apClassSignups.reduce((a, b) => {
+            a[b.personId] = true;
+            return a;
+        }, {});
+        const associatedSignouts = signoutsToday.state.filter((a) => a.signoutType == SignoutType.CLASS).map((a) => adaptSignoutState(a, ratings)).filter((a) => a.currentPeople.some((b) => allPersons[b.personId]));
+        const attendanceMap = [];
+        return {
+            currentClass: currentClass,
+            associatedSignouts: associatedSignouts,
+            attendanceMap: attendanceMap
+}}, [signoutsToday.state, classesToday, allClasses, ratings])};
+
 export class ActionClass extends Action<ActionClassType, ActionClassModalState> {
     constructor(currentClassSessionId: number) {
         super();
-        this.modeInfo = () => {
-            const signoutsToday = React.useContext(SignoutsTodayContext);
-            const classesToday = React.useContext(ClassesTodayContext);
-            const allClasses = React.useContext(AllClassesContext);
-            const ratings = React.useContext(RatingsContext);
-            return React.useMemo(() => {
-                const currentClass = classesToday.find((a) => a.sessionId == currentClassSessionId) || allClasses.find((a) => a.sessionId == currentClassSessionId);
-                const allPersons = currentClass.$$apClassInstance.$$apClassSignups.reduce((a, b) => {
-                    a[b.personId] = true;
-                    return a;
-                }, {});
-                const associatedSignouts = signoutsToday.signouts.filter((a) => a.signoutType == SignoutType.CLASS).map((a) => adaptSignoutState(a, ratings)).filter((a) => a.currentPeople.some((b) => allPersons[b.personId]));
-                const attendanceMap = [];
-                return {
-                    currentClass: currentClass,
-                    associatedSignouts: associatedSignouts,
-                    attendanceMap: attendanceMap
-        }}, [signoutsToday.signouts, classesToday, allClasses, ratings])};
+        this.modeInfo = getClassInfo(currentClassSessionId)
         this.initState = {
             actions: [],
             selected: {},

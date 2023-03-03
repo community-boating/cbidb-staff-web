@@ -6,6 +6,7 @@ import * as moment from "moment";
 import { ClassesTodayContext } from "async/providers/ClassesTodayProvider";
 import { ClassTypesContext } from "async/providers/ClassTypesProvider";
 import { getEvents } from "./ClassesCalendar";
+import { AllClassesContext } from "async/providers/AllClassesProvider";
 
 function CurrentTimeView({
     date,
@@ -83,8 +84,9 @@ const localizer = momentLocalizer(moment);
 
 export default function CurrentTimeCalendar() {
     const classesToday = React.useContext(ClassesTodayContext);
+    const allClasses = React.useContext(AllClassesContext);
     const classTypes = React.useContext(ClassTypesContext);
-    const events = React.useMemo(() => getEvents(classesToday, classTypes), [classesToday, classTypes]);
+    const events = React.useMemo(() => getEvents(classesToday.state, allClasses, classTypes), [classesToday, classTypes]);
     return <Calendar
         className="overflow-y-scroll max-h-full w-full"
         defaultView={'agenda'}
@@ -92,8 +94,6 @@ export default function CurrentTimeCalendar() {
         localizer={localizer}
         views={{ agenda: true }}
         toolbar={false}
-        
-
     />
 }
 

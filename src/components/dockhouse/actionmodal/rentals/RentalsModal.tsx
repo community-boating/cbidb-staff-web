@@ -5,7 +5,7 @@ import * as React from 'react';
 import { RentalsType } from './RentalsType';
 
 function RentalsSingoutsTable(props: RentalsType){
-    return <SignoutsTable state={props.rentedSignouts} setState={() => {}} extraState={{} as any} filterValue={undefined} isActive={false} globalFilter={undefined}/>
+    return <SignoutsTable state={props.rentedSignouts} setState={() => {}} extraState={{} as any} filterValue={undefined} isActive={true} globalFilter={undefined}/>
 }
 
 export default function RentalsModal(props: RentalsType){

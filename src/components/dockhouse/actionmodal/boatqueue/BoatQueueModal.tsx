@@ -5,7 +5,7 @@ import * as React from 'react';
 import { BoatQueueType } from './BoatQueueType';
 
 function BoatQueueSignoutsTable(props: BoatQueueType){
-    return <SignoutsTable state={props.boatQueueSignouts} setState={() => {}} extraState={{} as any} filterValue={undefined} isActive={false} globalFilter={undefined}/>
+    return <SignoutsTable state={props.boatQueueSignouts} setState={() => {}} extraState={{} as any} filterValue={undefined} isActive={true} globalFilter={undefined}/>
 }
 
 export default function BoatQueueModal(props: BoatQueueType){

@@ -11,14 +11,21 @@ import { AppStateContext } from 'app/state/AppStateContext';
 import { grantRatingsValidator, postWrapper as grantRatings } from 'async/staff/dockhouse/grant-ratings';
 import { AddEditCrew, getCrewActions } from '../SkipperInfo';
 import { SignoutActionMode, SignoutCombinedType } from '../signouts/SignoutCombinedType';
-import { MemberActionModalStateType } from "./MemberActionType";
+import { MemberActionModalStateType, MemberActionType } from "./MemberActionType";
 import { buttonClassActive, buttonClasses } from '../styles';
 import { CreateQueueSignout } from "./CreateQueueSignout";
 import { EditSignout } from '../signouts/EditSignoutModal';
 import { ActionModalPropsWithState, subStateWithSet } from '../ActionModalProps';
-import ActionBasedEditor, { ActionActionType } from 'components/ActionBasedEditor';
+import ActionBasedEditor, { ActionActionType, EditAction } from 'components/ActionBasedEditor';
+import { AddPersonScanner, getBoatListActions } from '../class/ActionClassModal';
+import ClassesCalendar from 'pages/dockhouse/classes/ClassesCalendar';
+import { ActionModalContext } from '../ActionModal';
+import { getClassInfo } from '../class/ActionClass';
+import ClassRosterTable from '../class/ClassRosterTable';
+import ClassSignoutBoatList, { ClassBoat } from '../class/ClassSignoutBoatList';
+import { AddActionType } from '../class/Actions';
 
-type GetContentType = (current: SignoutCombinedType, actions: ActionActionType<SignoutCombinedType>) => React.ReactNode;
+type GetContentType = (current: MemberActionType, actions: ActionActionType<MemberActionType>) => React.ReactNode;
 
 const getContentEditSignout: (mode: SignoutActionMode) => GetContentType = (mode) => (current, actions) => {
     return <>
@@ -37,7 +44,7 @@ const memberActionTypes: { title: React.ReactNode; getContent: GetContentType }[
 },
 {
     title: "Classes",
-    getContent: () => (<div>View ap class management for scanned person</div>)
+    getContent: (current, actions) => <MemberActionClasses current={current} actions={actions}/>
 },
 {
     title: "Racing",
@@ -51,9 +58,36 @@ const memberActionTypes: { title: React.ReactNode; getContent: GetContentType }[
     title: "Comments",
     getContent: (current, actions) => (<div>
         <AddEditCrew currentPeople={current.currentPeople} {...getCrewActions({current, actions, mode: SignoutActionMode.COMMENTS})} mode={SignoutActionMode.COMMENTS}></AddEditCrew>
-        <textarea cols={100} rows={20}></textarea>
+        <textarea className="w-full" cols={100} rows={10}></textarea>
     </div>)
 }];
+
+function ClassInfo(props: {current: SignoutCombinedType, currentClassSessionId: number, actions: ActionActionType<MemberActionType>}){
+    const info = getClassInfo(props.currentClassSessionId)();
+    const [selected, setSelected] = React.useState({});
+    const [selectType, setSelectType] = React.useState({});
+    const [selectingInner, setSelectingInner] = React.useState(false);
+    const actions = getBoatListActions(selectType, setSelectType, selected, setSelected);
+    return <div className="flex flex-row h-full">
+        <div className="h-full">
+            <ClassRosterTable {...info} {...actions} makeNewSignout={() => 0} addTo={() => {}}/>
+            <AddPersonScanner classSessionId={props.currentClassSessionId}/>
+        </div>
+        <ClassBoat {...props.current} {...actions} setSignout={() => {}} selectingInner={selectingInner} setSelectingInner={setSelectingInner}/>
+    </div>
+}
+
+function MemberActionClasses(props: { current: SignoutCombinedType; actions: ActionActionType<SignoutCombinedType>}){
+    //
+    const modal = React.useContext(ActionModalContext);
+    
+    const [selectedClass, setSelectedClass] = React.useState<option.Option<number>>(option.none);
+    
+    return <div className="h-full">
+        {selectedClass.isNone() ? <ClassesCalendar handleSelectClass={(s) => {setSelectedClass(option.some(s.sessionId))}}/> : <Button onClick={() => {setSelectedClass(option.none)}}>Choose Class</Button>}
+        {selectedClass.isSome() ? <ClassInfo current={props.current} currentClassSessionId={selectedClass.value} actions={props.actions}/> : <></>}
+    </div>
+}
 
 export type GrantRatingsType = t.TypeOf<typeof grantRatingsValidator>;
 function convertToGrantRatings(state: SignoutCombinedType, programId: number, ratingIds: number[]): GrantRatingsType {
@@ -64,7 +98,7 @@ function convertToGrantRatings(state: SignoutCombinedType, programId: number, ra
         personIds: state.currentPeople.map((a) => a.personId)
     };
 }
-function MemberActionRatings(props: { current: SignoutCombinedType; actions: ActionActionType<SignoutCombinedType> }) {
+function MemberActionRatings(props: { current: MemberActionType; actions: ActionActionType<SignoutCombinedType>}) {
     const asc = React.useContext(AppStateContext);
     const availablePrograms = {};
     props.current.currentPeople.forEach((a) => {
@@ -84,7 +118,7 @@ function MemberActionRatings(props: { current: SignoutCombinedType; actions: Act
     </div>;
 }
 
-export function MemberActionModal(props: ActionModalPropsWithState<SignoutCombinedType, MemberActionModalStateType>) {
+export function MemberActionModal(props: ActionModalPropsWithState<MemberActionType, MemberActionModalStateType>) {
     const [actions, setActions] = subStateWithSet(props.state, props.setState, 'actions');
     return <DefaultModalBody>
         <ActionBasedEditor originalData={props.info} actions={actions} setActions={setActions} makeChildren={(current, actions) => 

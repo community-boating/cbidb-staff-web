@@ -47,8 +47,13 @@ export function NameWithRatingHover(props: ScannedPersonType & {programId: numbe
     }/>
 }
 
-function ClassBoat(props: SignoutCombinedType & ClassBoatListActions & AddActionType & 
-{selectingInner: boolean, setSelectingInner: React.Dispatch<React.SetStateAction<boolean>>}){
+type SetSignoutType = {
+    setSignout: (signoutId: number, key: keyof SignoutCombinedType, value: SignoutCombinedType[typeof key]) => void
+}
+
+export function ClassBoat(props: SignoutCombinedType & ClassBoatListActions & SetSignoutType &
+{selectingInner: boolean, setSelectingInner: React.Dispatch<React.SetStateAction<boolean>>,
+    isBig?: boolean}){
     const boatTypes = React.useContext(BoatsContext);
     const boatsById = React.useMemo(() => boatTypes.reduce((a, b) => {
         a[b.boatId] = b;
@@ -57,19 +62,13 @@ function ClassBoat(props: SignoutCombinedType & ClassBoatListActions & AddAction
     const ratings = React.useContext(RatingsContext);
     const long = props.currentPeople.length > 4;
     return <div className={(long ? "col-span-3 " : "col-span-2 ")}>
-
                         <SelectableDiv className="w-full h-full" isInner={false} thisSelect={{[selectKeySignout(props.signoutId)]: true}} {...props} makeNoSelectChildren={(ref) =>
                             <div ref={ref} className="flex flex-row basis-0 grow-[1] my-auto">
                                 <BoatSelect boatId={props.boatId} setBoatId={(v) => {
-                                    props.addAction(new UpdateSignoutAction({signoutId: props.signoutId, boatId: v}));
-                                    props.addAction({
-                                        applyActionLocal(data) {
-                                            return data;
-                                        },
-                                    })
+                                    props.setSignout(props.signoutId, 'boatId', v);
                                 }} useBoatImage className="h-[8vh] w-[8vh]"/>
                                 <InputWithDelay value={props.sailNum} updateValue={(v) => {
-                                    props.addAction(new UpdateSignoutAction({signoutId: props.signoutId, sailNum: v}));
+                                    props.setSignout(props.signoutId, 'sailNum', v);
                                 }} delay={800} makeInput={(value, updateValue) => 
                                     <OptionalStringInput controlledValue={value} updateValue={updateValue} label={"#"} placeholder="#" customStyle className="bg-transparent border-0 text-[8vh] leading-none p-0 m-0 w-[10vh] h-[8vh] overflow-x-visible w-full"></OptionalStringInput>
                                 }></InputWithDelay>
@@ -94,13 +93,14 @@ export function ClassActionsList(props: {signin, incident, cancel}){
     </div>
 }
 
-export function makeNewSignout(associatedSignouts: SignoutCombinedType[], newBoatId: option.Option<number>, addAction: AddActionType['addAction']){
+export function makeNewSignout(associatedSignouts: {signoutId: number}[], newBoatId: option.Option<number>, addAction: AddActionType['addAction']){
     const newId = findLowestId(associatedSignouts) - 1;
+    console.log(newId);
     addAction(new AddSignoutAction({signoutId: newId, boatId: newBoatId}));
     return newId;
 }
 
-export default function ClassSignoutBoatList(props: ActionClassType & ClassBoatListActions & AddActionType){
+export default function ClassSignoutBoatList(props: ActionClassType & ClassBoatListActions & SetSignoutType & {makeNewSignout: (boatId: option.Option<number>) => number}){
     const [selectingInner, setSelectingInner] = React.useState(false);
     React.useEffect(() => {
         const listener = () => {
@@ -112,10 +112,10 @@ export default function ClassSignoutBoatList(props: ActionClassType & ClassBoatL
         }
     }, [])
     return <div className="flex flex-col grow-[1]">
-        <div className="grid gap-2 grid-cols-6 grid-rows-6 grow-[1] max-h-full">
+        <div className={"grid gap-2 grid-cols-6 grid-rows-6 grow-[1] max-h-full"}>
             <div className="relative col-span-2 border-2 select-none cursor-pointer" onClick={(e) => {
                 e.preventDefault();
-                const newId = makeNewSignout(props.associatedSignouts, option.none, props.addAction);
+                const newId = props.makeNewSignout(option.none);
                 props.set({[selectKeySignout(newId)]: true});
             }}>
                 <div className="relative w-full h-full">

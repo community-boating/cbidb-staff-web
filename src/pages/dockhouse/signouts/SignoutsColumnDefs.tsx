@@ -1,11 +1,11 @@
 import * as React from 'react';
-import { CheckboxInput, SelectOption } from 'components/wrapped/Input';
+import { SelectOption } from 'components/wrapped/Input';
 import { none, Option } from 'fp-ts/lib/Option';
 import { option } from 'fp-ts';
 import * as moment from "moment";
 import reassignedIcon from "assets/img/reassigned.png";
 import stopwatchIcon from "assets/img/stopwatch.jpg";
-import { Flag, FlagStatusIcon, FlagStatusIcons, getFlagIcon } from '../../../components/dockhouse/FlagStatusIcons';
+import { Flag, FlagStatusIcon, getFlagIcon } from '../../../components/dockhouse/FlagStatusIcons';
 import { programsHR, signoutTypesHR } from './Constants';
 import { CellOptionBase, CellOptionTime, CellSelect } from 'util/tableUtil';
 import { InteractiveColumnDef } from '../../../components/table/InteractiveColumnInjector';
@@ -13,10 +13,11 @@ import { Info } from 'react-feather';
 import { SignoutTablesState, SignoutsTablesState, putSignout } from 'async/staff/dockhouse/signouts';
 import { SignoutsTablesExtraState } from './StateTypes';
 import { RatingsType } from 'async/staff/dockhouse/ratings';
-import { ScannedCrewType } from 'async/staff/dockhouse/scan-card';
 import { Popover } from 'components/wrapped/Popover';
 import { SignoutsTodayContext } from 'async/providers/SignoutsTodayProvider';
 import { AppStateContext } from 'app/state/AppStateContext';
+import { BoatsContext } from 'async/providers/BoatsProvider';
+import { makeBoatTypesHR } from './functions';
 
 export const CommentsHover = (props: { row: SignoutTablesState, extraState: SignoutsTablesExtraState }) => {
 	const display = <span className="flex flex-row">Comments{props.row.comments["_tag"] === "Some" ? <Info color="#777" size="1.4em" /> : <></>}</span>;
@@ -47,7 +48,7 @@ const ReassignedIcon = (props: { row: SignoutTablesState, extraState: SignoutsTa
 };
 const FlagIcon = (props: { row: SignoutTablesState; extraState: SignoutsTablesExtraState }) => {
 	const ratings = props.extraState.ratings;
-	if (ratings.length == 0) {
+	if (ratings == undefined || ratings.length == 0) {
 		return <p>Loading...</p>;
 	}
 	const mapped: {[key: string]: RatingsType[number]} = {};
@@ -68,7 +69,7 @@ const MakeLinks = (props: { row: SignoutTablesState; isActive: boolean }) => {
 		putSignout.sendJson(asc, newSignout).then((a) => {
 			if(a.type == "Success"){
 				console.log("done");
-				signouts.setSignouts((b) => b.map((c) => c.signoutId == props.row.signoutId ? newSignout : c));
+				signouts.setState((b) => b.map((c) => c.signoutId == props.row.signoutId ? newSignout : c));
 			}else{
 				console.log("issue");
 			}
@@ -131,6 +132,14 @@ function CrewHover(props: {crew: SignoutTablesState['$$crew']}){
 
 export type SignoutsTablesColumnDef = InteractiveColumnDef<SignoutTablesState, SignoutsTablesExtraState, any>;
 
+function BoatIdHR(props: {boatId: number}){
+	const boats = React.useContext(BoatsContext);
+	const boatsHR = makeBoatTypesHR(boats);
+	if(!boatsHR)
+		return <p>Loading...</p>
+	return <p>{(boatsHR.find((a) => a.value == props.boatId) || {}).value}</p>
+}
+
 const columnsBaseUpper: SignoutsTablesColumnDef[] = [
 	{
 		header: "Time",
@@ -173,7 +182,7 @@ const columnsBaseUpper: SignoutsTablesColumnDef[] = [
 		header: "Boat",
 		accessorKey: "boatId",
 		size: 150,
-		cellWithExtra: (a, extraState) => CellSelect(extraState.boatTypesHR)(a)
+		cell: (a) => <BoatIdHR boatId={a.row.original.boatId}/>
 	},
 	{
 		header: "Sail #",
