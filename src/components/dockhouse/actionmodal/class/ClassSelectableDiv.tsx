@@ -33,8 +33,6 @@ export type ClassBoatListActions = {
     setSelectType?: React.Dispatch<React.SetStateAction<SelectType>>
 };
 
-export const NON_SELECTABLE_CLASS_NAME = "non-selectable";
-
 export function SelectableDiv(props: { thisSelect: SelectedType; children?: React.ReactNode; makeNoSelectChildren?: (ref: React.RefObject<HTMLDivElement>) => React.ReactNode, isInner?: boolean, onClick?: () => void, className?: string} & SelectedInnerType & ClassBoatListActions) {
     const isSelected = !Object.keys(props.thisSelect).some((a) => !props.selected[a]);
     const ref = React.createRef<HTMLDivElement>();

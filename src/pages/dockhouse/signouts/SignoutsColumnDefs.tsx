@@ -48,6 +48,7 @@ const ReassignedIcon = (props: { row: SignoutTablesState, extraState: SignoutsTa
 };
 const FlagIcon = (props: { row: SignoutTablesState; extraState: SignoutsTablesExtraState }) => {
 	const ratings = props.extraState.ratings;
+	return <p>"broken"</p>;
 	if (ratings == undefined || ratings.length == 0) {
 		return <p>Loading...</p>;
 	}
@@ -89,7 +90,8 @@ const StopwatchIcon = (props: { row: SignoutTablesState; }) => {
 	return <></>;
 };
 function getHighestFlag(rating: RatingsType[number], programId: number, boatId: number) {
-	return rating !== undefined ? rating.$$boats.filter((a) => a.programId == programId && a.boatId == boatId).map((a) => getFlagIcon(a.flag)) : undefined;
+	
+	//return rating !== undefined ? rating.$$boats.filter((a) => a.programId == programId && a.boatId == boatId).map((a) => getFlagIcon(a.flag)) : undefined;
 }
 
 export function formatOptional(v: undefined | null | number | string | moment.Moment | Option<any>) {

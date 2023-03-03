@@ -5,7 +5,7 @@ import { signoutTypesHR } from '../../../../pages/dockhouse/signouts/Constants';
 import Button from 'components/wrapped/Button';
 import RadioGroup from 'components/wrapped/RadioGroup';
 import { AppStateContext } from 'app/state/AppStateContext';
-import { SignoutActionMode, SignoutCombinedType } from './SignoutCombinedType';
+import { SignoutCombinedType } from './SignoutCombinedType';
 import { putSignout, SignoutTablesState, SignoutType } from 'async/staff/dockhouse/signouts';
 import { RatingsContext } from 'async/providers/RatingsProvider';
 import { buttonClassActive, buttonClasses, buttonClassInactive } from '../styles';
@@ -19,6 +19,7 @@ import { SignoutsTodayContext } from 'async/providers/SignoutsTodayProvider';
 import ActionBasedEditor, { ActionActionType } from 'components/ActionBasedEditor';
 import { EditSignoutActionModalState } from './EditSignoutType';
 import { UpdateSignoutAction } from '../member-action/Actions';
+import { MemberActionMode } from '../member-action/MemberActionType';
 
 export function DotBox(props: {className?: string, children: React.ReactNode}){
     return <div className={"my-5 py-5 border-dashed border-2 grow-[1] " + props.className}>
@@ -38,7 +39,7 @@ function setBoatIdAction(actions: ActionActionType<SignoutCombinedType>){
     }
 }
 
-export function EditSignout(props: {current: SignoutCombinedType, actions: ActionActionType<SignoutCombinedType>, mode: SignoutActionMode}){
+export function EditSignout(props: {current: SignoutCombinedType, actions: ActionActionType<SignoutCombinedType>, mode: MemberActionMode}){
     const [dialogOutput, setDialogOutput] = React.useState<option.Option<string>>(option.none);
     const crewActions = getCrewActions(props);
     const numbersSorted = React.useMemo(() => Object.entries(props.current).filter((a) => signoutNumberKeys.contains(a[0] as any)).sort((a, b) => (signoutNumberKeys.indexOf(a[0] as any) - signoutNumberKeys.indexOf(b[0] as any))).map((a) => a[1] as option.Option<number | string>), [props.current]);
@@ -137,7 +138,7 @@ export function EditSignoutModal(props: ActionModalPropsWithState<SignoutCombine
     const [actions, setActions] = subStateWithSet(props.state, props.setState, 'actions');
     return <DefaultModalBody>
         <ActionBasedEditor originalData={props.info} actions={actions} setActions={setActions} makeChildren={(current, actions) => {
-            const mode = (current.signoutType.isSome() && current.signoutType.value == SignoutType.TEST) ? SignoutActionMode.TESTING : SignoutActionMode.SIGNOUT;
+            const mode = (current.signoutType.isSome() && current.signoutType.value == SignoutType.TEST) ? MemberActionMode.TESTING : MemberActionMode.SIGNOUT;
             return <>
                 <ModalHeader className="font-bold text-2xl gap-1">
                     <RadioGroup className="flex flex-row" value={current.signoutType} setValue={setSignoutType(actions)} makeChildren={signoutTypesHR.map((a, i) => ({ value: a.value, makeNode: (c, s) => { return makeNode(i, a.display)(c, s); } }))} />

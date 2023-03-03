@@ -12,7 +12,7 @@ import { InteractiveColumnInjector } from '../../../components/table/Interactive
 import { Table } from 'components/table/Table';
 import { SignoutsTablesExtraState } from './StateTypes';
 import { ActionModalContext } from 'components/dockhouse/actionmodal/ActionModal';
-import { EditSignoutAction } from 'components/dockhouse/actionmodal/signouts/EditSignoutType';
+import { EditSignoutAction } from "components/dockhouse/actionmodal/signouts/EditSignoutAction";
 
 export const filterActive = (isActive) => isActive ? (a: SignoutTablesState) => option.isNone(a.signinDatetime) : (a: SignoutTablesState) => option.isSome(a.signinDatetime);
 

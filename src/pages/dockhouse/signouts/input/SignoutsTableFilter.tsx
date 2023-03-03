@@ -28,7 +28,7 @@ export const SignoutsTableFilter = (props: { tdStyle: React.CSSProperties; label
 					</Label>
 				</td>
 				<td>
-					<SelectInput {...wrapForFormComponents(filterValue, updateState, "boatType", [], true)} selectOptions={props.boatTypesHR} showNone={{value: -1, display: "None"}} selectNone={true} isNumber={true} />
+					<SelectInput {...wrapForFormComponents(filterValue, updateState, "boatType", [], true)} selectOptions={props.boatTypesHR} showNone={{value: -1, display: "None"}} selectNone={true} isNumber={true} autoWidth />
 				</td>
 			</tr>
 			<tr>
@@ -46,7 +46,7 @@ export const SignoutsTableFilter = (props: { tdStyle: React.CSSProperties; label
 					</Label>
 				</td>
 				<td style={tdStyle}>
-					<SelectInput {...wrapForFormComponents(filterValue, updateState, "signoutType", [])} selectOptions={signoutTypesHR} showNone={{value: "", display: "None"}} selectNone={true} />
+					<SelectInput {...wrapForFormComponents(filterValue, updateState, "signoutType", [])} selectOptions={signoutTypesHR} showNone={{value: "", display: "None"}} selectNone={true} autoWidth />
 				</td>
 			</tr>
 			<tr>
@@ -56,7 +56,7 @@ export const SignoutsTableFilter = (props: { tdStyle: React.CSSProperties; label
 					</Label>
 				</td>
 				<td style={tdStyle}>
-					<SelectInput {...wrapForFormComponents(filterValue, updateState, "programId", [], true)} selectOptions={programsHR} showNone={{value: -1, display: "None"}} selectNone={true} isNumber={true} />
+					<SelectInput {...wrapForFormComponents(filterValue, updateState, "programId", [], true)} selectOptions={programsHR} showNone={{value: -1, display: "None"}} selectNone={true} isNumber={true} autoWidth />
 				</td>
 				<td style={tdStyle}>
 					<Label style={labelStyle}>
@@ -64,7 +64,7 @@ export const SignoutsTableFilter = (props: { tdStyle: React.CSSProperties; label
 					</Label>
 				</td>
 				<td style={tdStyle}>
-					<SelectInput {...wrapForFormComponents(filterValue, updateState, "createdBy", [])} selectOptions={props.usersHR} showNone={{value: "", display: "None"}} selectNone={true} />
+					<SelectInput {...wrapForFormComponents(filterValue, updateState, "createdBy", [])} selectOptions={props.usersHR} showNone={{value: "", display: "None"}} selectNone={true} autoWidth />
 				</td>
 			</tr>
 			<tr>

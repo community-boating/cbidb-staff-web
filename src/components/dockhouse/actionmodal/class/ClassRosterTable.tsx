@@ -1,10 +1,10 @@
 import { MAGIC_NUMBERS } from 'app/magicNumbers';
 import * as React from 'react';
 import { AttendanceMap } from "./ActionClassType";
-import { CurrentPeopleType, SignoutCombinedType } from '../signouts/SignoutCombinedType';
-import { AddActionType, AddCrewAction, UpdateSignoutCrew } from './Actions';
+import { SignoutCombinedType } from '../signouts/SignoutCombinedType';
+import { AddActionType} from './Actions';
 import { ClassBoatListActions, SelectableDiv, selectKeyRosterPerson, selectKeySignout } from './ClassSelectableDiv';
-import { makeNewSignout, NameWithRatingHover } from './ClassSignoutBoatList';
+import { NameWithRatingHover } from './ClassSignoutBoatList';
 import RadioGroup from 'components/wrapped/RadioGroup';
 import { AttendanceEntry } from 'async/staff/dockhouse/attendance';
 import { option } from 'fp-ts';
@@ -44,7 +44,9 @@ function RosterRows(props: {signups: ApClassSignup[]} & ClassBoatListActions & A
             }
         }else{
             if(props.singleSelectedSignout){
-                if(props.singleSelectedSignout.boatId.isSome()){
+                if(props.personIdsOnWater[a.$$person.personId]){
+                    alert("person already in a boat")
+                }else if(props.singleSelectedSignout.boatId.isSome()){
                     console.log(boatsById[props.singleSelectedSignout.boatId.value].maxCrew);
                     if(boatsById[props.singleSelectedSignout.boatId.value].maxCrew < props.singleSelectedSignout.currentPeople.length + 1){
                         if(props.allBoatType.isSome()){
@@ -62,10 +64,8 @@ function RosterRows(props: {signups: ApClassSignup[]} & ClassBoatListActions & A
                         alert("Boat is full");
                     }
                 }
-            }else if(props.allBoatType.isSome()){
-                addToNew();
             }else{
-                alert("Select a boat, or a boat for all");
+                alert("Select a boat");
             }
         }
     }} key={i}
@@ -81,16 +81,19 @@ function RosterRows(props: {signups: ApClassSignup[]} & ClassBoatListActions & A
         </SelectableDiv>)}</>
 }
 
-export default function ClassRosterTable(props: ActionClassType & ClassBoatListActions & AddToType & {makeNewSignout: (boatId: option.Option<number>) => number}){
-    const [boatTypeForAll, setBoatTypeForAll] = React.useState<option.Option<number>>(option.none);
-    const singleSelectedSignout = getSelectedSignouts(props.associatedSignouts, props.selected)[0];
-    const personIdsOnWater = props.associatedSignouts.flatMap((a) => a.currentPeople).reduce((a, b) => {
+export function getPersonIdsOnWater(associatedSignouts: SignoutCombinedType[]){
+    return associatedSignouts.flatMap((a) => a.currentPeople).reduce((a, b) => {
         a[b.personId] = true;
         return a;
     }, {} as {[key: number]: true})
+}
+
+export default function ClassRosterTable(props: ActionClassType & ClassBoatListActions & AddToType & {makeNewSignout: (boatId: option.Option<number>) => number}){
+    const [boatTypeForAll] = React.useState<option.Option<number>>(option.none);
+    const singleSelectedSignout = getSelectedSignouts(props.associatedSignouts, props.selected)[0];
+    const personIdsOnWater = getPersonIdsOnWater(props.associatedSignouts);
     //<BoatSelect label="Boat for all:" boatId={boatTypeForAll} setBoatId={setBoatTypeForAll} autoWidth/>
     return <div className="flex flex-col gap-2">
-            
             <div className="flex flex-row w-full">
                 <div className="grow-[2] basis-0">
                     Name

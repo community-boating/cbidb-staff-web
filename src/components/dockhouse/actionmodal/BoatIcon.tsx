@@ -106,10 +106,10 @@ export default function(props: BoatIconProps){
     )
 }
 
-export function BoatSelect(props: BoatIconProps & {label?: string, autoWidth?: boolean, nowrap?: boolean, fullWidth?: boolean, useBoatImage?: boolean, className?: string, tabIndex?: number}){
+export function BoatSelect(props: BoatIconProps & {label?: string, autoWidth?: boolean, nowrap?: boolean, fullWidth?: boolean, useBoatImage?: boolean, className?: string, tabIndex?: number, inputClassName?: string}){
     const boatTypes = React.useContext(BoatsContext);
     const boatTypesSelectOptions = React.useMemo(() => makeBoatTypesHR(boatTypes), [boatTypes]);
     const [boatsByHR, boatsById] = boatTypesMapped(boatTypes);
     return <SelectInput tabIndex={props.tabIndex} label={props.label} controlledValue={props.boatId} updateValue={props.setBoatId} validationResults={[]} selectOptions={boatTypesSelectOptions} selectNone={false} nowrap={props.nowrap} autoWidth={props.autoWidth} fullWidth={props.fullWidth}
-    makeButton={props.useBoatImage ? (a) =>  <img src={a.value.isSome() ? boatIconsByHR[boatsById[a.value.value].boatName].src : boatUnselected} className="h-[8vh] min-w-[8vh]"/> : undefined} customStyle={props.useBoatImage} className={props.className} notWhiteBG />
+    makeButton={props.useBoatImage ? (a) =>  <img src={a.value.isSome() ? boatIconsByHR[boatsById[a.value.value].boatName].src : boatUnselected} className={props.inputClassName}/> : undefined} customStyle={props.useBoatImage} className={props.className} notWhiteBG />
 }

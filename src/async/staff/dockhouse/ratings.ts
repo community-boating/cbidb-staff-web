@@ -7,8 +7,8 @@ import { boatsValidator, programsValidator, pathGetRatings } from "./signouts";
 
 export const ratingValidator = t.type({
 	ratingName: t.string,
-	$$boats: t.array(boatsValidator),
-	$$programs: t.array(programsValidator),
+	//$$boats: t.array(boatsValidator),
+	//$$programs: t.array(programsValidator),
 	ratingId: t.number,
 	overriddenBy: OptionalNumber
 });

@@ -1,22 +1,18 @@
 import * as React from 'react';
 
-import { putSignout, SignoutsTablesState, SignoutTablesState } from 'async/staff/dockhouse/signouts';
-import { Option } from 'fp-ts/lib/Option';
+import { SignoutsTablesState, SignoutTablesState } from 'async/staff/dockhouse/signouts';
 import * as moment from "moment";
 
-import { sortRatings } from '../../../components/dockhouse/actionmodal/signouts/RatingSorter';
 import { makeInitFilter, SignoutsTableFilter, SignoutsTableFilterState } from './input/SignoutsTableFilter';
 import { filterActive, SignoutsTable } from './SignoutsTable';
 import { getUsersHR } from './SignoutsColumnDefs';
 import { Row } from '@tanstack/react-table';
-import { AppStateContext } from 'app/state/AppStateContext';
 import { SignoutsTablesExtraStateDepOnAsync, SignoutsTablesExtraState } from './StateTypes';
 import { RatingsContext } from 'async/providers/RatingsProvider';
 import { BoatsContext } from 'async/providers/BoatsProvider';
-import { ActionModalContext } from '../../../components/dockhouse/actionmodal/ActionModal';
-import { makeReassignedMaps, handleSingleSignIn, makeBoatTypesHR } from './functions';
-import { EditSignoutAction } from 'components/dockhouse/actionmodal/signouts/EditSignoutType';
+import { makeReassignedMaps, makeBoatTypesHR } from './functions';
 import { SignoutsTodayContext } from 'async/providers/SignoutsTodayProvider';
+import { Card, CardLayout, CardTitleWithGearDropdown, FlexSize, LayoutDirection } from 'components/dockhouse/Card';
 
 function matchNameOrCard(row: SignoutTablesState, nameOrCard: string) {
 	if(nameOrCard.trim().length === 0){
@@ -72,10 +68,10 @@ export const SignoutsTablesPage = (props: {
 			handleSingleSignIn: () => {}
 		};
 	}, [state]);
-	const [extraStateDepOnAsync, setExtraStateDepOnAsync] = React.useState<SignoutsTablesExtraStateDepOnAsync>({ratings: [], ratingsSorted: {ratingsRows: [], orphanedRatings: []}, boatTypes: [], boatTypesHR: []});
+	const [extraStateDepOnAsync, setExtraStateDepOnAsync] = React.useState<SignoutsTablesExtraStateDepOnAsync>({ratings: [], boatTypes: [], boatTypesHR: []});
 	const [filterValue, setFilterValue] = React.useState(makeInitFilter());
 	React.useEffect(() => {
-		setExtraStateDepOnAsync((s) => ({...s, ratings: ratings, ratingsSorted: sortRatings(ratings)}));
+		setExtraStateDepOnAsync((s) => ({...s, ratings: ratings}));
 	}, [ratings]);
 	React.useEffect(() => {
 		setExtraStateDepOnAsync((s) => ({...s, boatTypes: boatTypes, boatTypesHR: makeBoatTypesHR(boatTypes)}));
@@ -97,11 +93,12 @@ export const SignoutsTablesPage = (props: {
 		setUpdateCrewModal
 	}), [extraStateDepOnMain, extraStateDepOnAsync, multiSignInSelected]);
 	const tableContent = React.useMemo(() => {
-		return <>
-			<SignoutsTableFilter tdStyle={tdStyle} labelStyle={labelStyle} filterValue={filterValue} updateState={updateState} boatTypesHR={extraState.boatTypesHR} setFilterValue={setFilterValue} usersHR={usersHR} />
-			<SignoutsTable {...props} state={state} setState={setState} extraState={extraState} isActive={true} filterValue={filterValue} globalFilter={filterRows} />
-			<SignoutsTable {...props} state={state} setState={setState} extraState={extraState} isActive={false} filterValue={filterValue} globalFilter={filterRows} />
-		</>;
+		return <CardLayout direction={LayoutDirection.HORIZONTAL} className="h-full">
+			<Card title={<CardTitleWithGearDropdown title="Signouts" gearMenu={<SignoutsTableFilter tdStyle={tdStyle} labelStyle={labelStyle} filterValue={filterValue} updateState={updateState} boatTypesHR={extraState.boatTypesHR} setFilterValue={setFilterValue} usersHR={usersHR} />}/>} weight={FlexSize.S_1}>
+				<SignoutsTable {...props} state={state} setState={setState} extraState={extraState} isActive={true} filterValue={filterValue} globalFilter={filterRows} />
+				<SignoutsTable {...props} state={state} setState={setState} extraState={extraState} isActive={false} filterValue={filterValue} globalFilter={filterRows} />
+			</Card>
+		</CardLayout>;
 	}, [state, extraState, filterValue]);
 
 	return <>

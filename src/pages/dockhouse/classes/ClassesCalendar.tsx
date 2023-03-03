@@ -8,12 +8,9 @@ import { ClassTypeType } from 'async/staff/dockhouse/class-types';
 import { option } from 'fp-ts';
 import { ApClassSession } from 'async/staff/dockhouse/ap-class-sessions';
 import { ActionModalContext } from 'components/dockhouse/actionmodal/ActionModal';
-import { ActionClass } from 'components/dockhouse/actionmodal/class/ActionClass';
 import { ClassesTodayContext } from 'async/providers/ClassesTodayProvider';
 import { formatsById } from './formatsById';
 import { AllClassesContext } from 'async/providers/AllClassesProvider';
-import { ModalContextType } from 'components/wrapped/Modal';
-import { ActionModalProps } from 'components/dockhouse/actionmodal/ActionModalProps';
 
 const DnDCalendar = withDragAndDrop(Calendar<Event, object>);
 
@@ -53,10 +50,6 @@ export type ClassesProps = {
     handleSelectClass: (s: ApClassSession) => void
     //classSession: option.Option<number>
     //setClassSession: React.Dispatch<React.SetStateAction<option.Option<number>>>
-}
-
-export const openClassModal = (modal: ActionModalProps) => (s: ApClassSession) => {
-    modal.pushAction(new ActionClass(s.sessionId));
 }
 
 export default function ClassesCalendar(props: ClassesProps){

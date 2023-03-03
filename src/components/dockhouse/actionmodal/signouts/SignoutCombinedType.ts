@@ -21,19 +21,3 @@ export type ActionProps = {
     state: SignoutCombinedType
     setState: React.Dispatch<React.SetStateAction<SignoutCombinedType>>
 }
-
-
-export type AddEditCrewProps = {
-    currentPeople: CurrentPeopleType
-    mode: SignoutActionMode
-    add: (newCrew: SignoutCombinedType['currentPeople'][number]) => void
-    remove: (index: number) => void
-    setSkipper: (index: number) => void
-    setTesting: (index: number, testing: boolean) => void
-}
-
-export type MemberActionProps = ActionProps & {mode: SignoutActionMode}
-
-export enum SignoutActionMode {
-    SIGNOUT, TESTING, CLASSES, RACING, RATINGS, COMMENTS
-}

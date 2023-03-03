@@ -1,7 +1,8 @@
 import * as React from 'react';
 import { CardLayout, Card, LayoutDirection, FlexSize, CardProps } from '../../../components/dockhouse/Card';
 import { ActionModalContext } from '../../../components/dockhouse/actionmodal/ActionModal';
-import { defaultSignout, MemberAction } from "../../../components/dockhouse/actionmodal/member-action/MemberActionType";
+import { defaultMemberAction } from "../../../components/dockhouse/actionmodal/member-action/MemberActionType";
+import { MemberAction } from "../../../components/dockhouse/actionmodal/member-action/MemberAction";
 import { CardNumberScanner } from "../../../components/dockhouse/actionmodal/CardNumberScanner";
 import { ProviderState } from 'core/AsyncStateProvider';
 import { SignoutType } from 'async/staff/dockhouse/signouts';
@@ -9,7 +10,6 @@ import { filterActive, SignoutsTable } from '../signouts/SignoutsTable';
 import { makeInitFilter } from '../signouts/input/SignoutsTableFilter';
 import { SignoutsTablesExtraState, SignoutsTablesExtraStateDepOnAsync } from '../signouts/StateTypes';
 import { makeBoatTypesHR, makeReassignedMaps } from "../signouts/functions"; 
-import { sortRatings } from '../../../components/dockhouse/actionmodal/signouts/RatingSorter';
 import * as t from "io-ts";
 import { BoatsContext } from 'async/providers/BoatsProvider';
 import { RatingsContext } from 'async/providers/RatingsProvider';
@@ -24,6 +24,7 @@ import { IncidentsContext } from 'async/providers/IncidentsProvider';
 import { isAssigned, isPending } from '../incidents/IncidentsPage';
 import { ActionViewIncidents } from 'components/dockhouse/actionmodal/view-incidents/ViewIncidentsType';
 import CurrentTimeCalendar from '../classes/CurrentTimeView';
+import { ClassesTodayContext } from 'async/providers/ClassesTodayProvider';
 
 type CardOrButtonProps = CardProps & {
     //button: React.ReactNode;
@@ -79,13 +80,14 @@ export default function DockHousePage (props) {
     }
     const extraStateAsync: SignoutsTablesExtraStateDepOnAsync = React.useMemo(() => ({
         ratings: ratings,
-        ratingsSorted: sortRatings(ratings),
+        //ratingsSorted: sortRatings(ratings),
         boatTypes: boatTypes,
         boatTypesHR: makeBoatTypesHR(boatTypes)
         }), [ratings, boatTypes]);
     const filteredSignouts = (signoutsToday.state || []).filter(filterActive(true));
     const reassignedHullsMap = {};
     const reassignedSailsMap = {};
+    const classes = React.useContext(ClassesTodayContext);
     //const addNewIncident = ()
     makeReassignedMaps(filteredSignouts, reassignedHullsMap, reassignedSailsMap);
     const extraState: SignoutsTablesExtraState = {...extraStateAsync, reassignedHullsMap, reassignedSailsMap} ;
@@ -96,7 +98,7 @@ export default function DockHousePage (props) {
                     <ActionCard title="Member Actions" onAction={doScanCard}>
                         <PreventClick>
                             <CardNumberScanner label="Card Number:" className="ml-0 mr-auto" autoFocus onAction={(a) => {
-                                actionModal.pushAction(new MemberAction(defaultSignout(a)));
+                                actionModal.pushAction(new MemberAction(defaultMemberAction(a, classes)));
                             }} externalQueueTrigger={externalQueue}></CardNumberScanner>
                         </PreventClick>
                     </ActionCard>

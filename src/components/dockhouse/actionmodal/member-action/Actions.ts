@@ -2,6 +2,18 @@ import { ScannedPersonType } from "async/staff/dockhouse/scan-card";
 import { EditAction } from "components/ActionBasedEditor";
 import { option } from "fp-ts";
 import { CurrentPeopleType, SignoutCombinedType } from "../signouts/SignoutCombinedType";
+import { MemberActionType } from "./MemberActionType";
+
+export class ChangeClassAction extends EditAction<MemberActionType>{
+    classSessionId: option.Option<number>
+    constructor(classSessionId: option.Option<number>){
+        super();
+        this.classSessionId = classSessionId;
+    }
+    applyActionLocal(data: MemberActionType) {
+        return {...data, currentClassSessionId: this.classSessionId}
+    }
+}
 
 export class AddPersonAction extends EditAction<SignoutCombinedType>{
     person: CurrentPeopleType[number]
@@ -11,6 +23,17 @@ export class AddPersonAction extends EditAction<SignoutCombinedType>{
     }
     applyActionLocal(data: SignoutCombinedType) {
         return {...data, currentPeople: data.currentPeople.concat(this.person)}
+    }
+}
+
+export class RemovePersonByIdAction extends EditAction<SignoutCombinedType>{
+    id: number
+    constructor(id: number){
+        super();
+        this.id = id;
+    }
+    applyActionLocal(data: SignoutCombinedType) {
+        return {...data, currentPeople: data.currentPeople.filter((a) => this.id != a.personId)}
     }
 }
 

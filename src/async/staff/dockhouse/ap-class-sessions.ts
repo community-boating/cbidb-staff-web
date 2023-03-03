@@ -96,12 +96,14 @@ const path = "/rest/ap-class-sessions/today"
 const pathAll = "/rest/ap-class-instances/this-season"
 
 export const getAllWrapper = new APIWrapper({
+	permissions: [],
 	path: pathAll,
 	type: HttpMethod.GET,
 	resultValidator: t.array(allApClassInstanceValidator),
 })
 
 export const getWrapper = new APIWrapper({
+	permissions: [],
 	path: path,
 	type: HttpMethod.GET,
 	resultValidator: t.array(apClassSessionValidator),

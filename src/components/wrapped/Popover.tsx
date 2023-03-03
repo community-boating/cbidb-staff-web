@@ -2,6 +2,7 @@ import { ReactNode } from "react";
 import * as React from 'react';
 import { Popover as PopoverHUI } from "@headlessui/react";
 import { memoize } from "lodash";
+import { DropDownProps, getPositionClassInner, getPositionClassOuter } from "./Menu";
 
 const OPEN_STATE_CLOSED = 0;
 const OPEN_STATE_HOVER = 1;
@@ -14,7 +15,7 @@ function getUID() : string{
 	return "ID_" + String(currentUID);
 }
 
-export class Popover<T_ChildProps> extends React.Component<{
+export class Popover<T_ChildProps> extends React.Component<DropDownProps & {
 	makeChildren: (props: T_ChildProps) => ReactNode
 	handleClick?: () => void
 	hoverProps: T_ChildProps
@@ -37,23 +38,23 @@ export class Popover<T_ChildProps> extends React.Component<{
 		return (<div onMouseLeave={() => {
 			setOpen(false);
 		}}>
-			<PopoverHUI className={"z-10 mr-auto"}>
+			<PopoverHUI className={"mr-auto relative"}>
 					{(a) => {
 						return <>
 							<PopoverHUI.Button className="max-w-full" onMouseEnter={() => {
 								setOpen(true);
 							}}
 							onClick={(e) => {
-								console.log(e);
-								console.log("setting");
 								toggleOpen();
 							}}>
 								<a id={this.state.id}>
 									{this.props.openDisplay}
 								</a>
 							</PopoverHUI.Button>
-							<PopoverHUI.Panel className="z-10 absolute bg-white mx-auto" static>
-								{(this.state.open ? this.getChildren(this.props.hoverProps) : <></>)}
+							<PopoverHUI.Panel className={"z-[100] absolute bg-white min-w-fit " + getPositionClassOuter(this.props)} static>
+									<div className={getPositionClassInner(this.props)}>
+										{(this.state.open ? this.getChildren(this.props.hoverProps) : <></>)}
+									</div>
 							</PopoverHUI.Panel>
 						</>
 					}}

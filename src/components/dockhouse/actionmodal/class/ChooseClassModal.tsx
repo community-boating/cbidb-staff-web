@@ -1,5 +1,6 @@
 import { DefaultModalBody, ModalHeader } from 'components/wrapped/Modal';
-import ClassesCalendar, { openClassModal } from 'pages/dockhouse/classes/ClassesCalendar';
+import ClassesCalendar from 'pages/dockhouse/classes/ClassesCalendar';
+import { openClassModal } from "pages/dockhouse/classes/openClassModal";
 import * as React from 'react';
 import { ActionModalContext } from '../ActionModal';
 

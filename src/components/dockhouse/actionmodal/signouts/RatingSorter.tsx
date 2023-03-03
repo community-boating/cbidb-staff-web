@@ -8,14 +8,31 @@ import { Popover } from "../../../wrapped/Popover";
 import { ReactNode } from "react";
 import { programsHR } from "../../../../pages/dockhouse/signouts/Constants";
 import { ScannedPersonType } from "async/staff/dockhouse/scan-card";
-import { RatingsContext } from "async/providers/RatingsProvider";
 import { MAGIC_NUMBERS } from "app/magicNumbers";
+import { RatingsContext } from "async/providers/RatingsProvider";
 
 
 type RatingValidatorState = t.TypeOf<typeof ratingValidator>;
 type ProgramValidatorState = t.TypeOf<typeof programsValidator>;
 type BoatValidatorState = t.TypeOf<typeof boatsValidator>;
 type PersonRatingValidatorState = t.TypeOf<typeof personRatingValidator>;
+
+export const RatingsHover = (props: {person: ScannedPersonType, programId: number, orphanedRatingsShownByDefault: {[key: number]: boolean}, label: React.ReactNode}) => {
+
+	const ratings = React.useContext(RatingsContext);
+
+	//const ratingsSorted = React.useMemo(() => sortRatings(ratings), [ratings]);
+
+	//const makeHover = React.useMemo(() => (props: {person: ScannedPersonType, programId: number, ratingsSorted: SortedRatings, orphanedRatingsShownByDefault: {[key: number]: boolean}}) => getRatingsTable(props.person, props.programId, props.ratingsSorted, props.orphanedRatingsShownByDefault),[]);
+
+	//const hoverProps = React.useMemo(() => ({person: props.person, programId: MAGIC_NUMBERS.PROGRAM_TYPE_ID.ADULT_PROGRAM, ratingsSorted: ratingsSorted, orphanedRatingsShownByDefault: props.orphanedRatingsShownByDefault}), [props.person.personId, props.programId, ratings]);
+
+	return (
+		<Popover makeChildren={(a) => <div>Ratings</div>} hoverProps={{}} openDisplay={props.label}/>
+	)
+}
+
+/*
 
 //Display a precomputed ratingBucket with current ratings and program information for a given person.
 function drawRatingBucket(currentRatings: {[key:number] : PersonRatingValidatorState[]}, ratingBucket: RatingTreeNode[], program: number, isOrphaned: boolean){
@@ -78,21 +95,6 @@ export function getRatingsTable(person: ScannedPersonType, programId: number, so
 			</table></div>)
 	};
 	return makeTable();
-}
-
-export const RatingsHover = (props: {person: ScannedPersonType, programId: number, orphanedRatingsShownByDefault: {[key: number]: boolean}, label: React.ReactNode}) => {
-
-	const ratings = React.useContext(RatingsContext);
-
-	const ratingsSorted = React.useMemo(() => sortRatings(ratings), [ratings]);
-
-	const makeHover = React.useMemo(() => (props: {person: ScannedPersonType, programId: number, ratingsSorted: SortedRatings, orphanedRatingsShownByDefault: {[key: number]: boolean}}) => getRatingsTable(props.person, props.programId, props.ratingsSorted, props.orphanedRatingsShownByDefault),[]);
-
-	const hoverProps = React.useMemo(() => ({person: props.person, programId: MAGIC_NUMBERS.PROGRAM_TYPE_ID.ADULT_PROGRAM, ratingsSorted: ratingsSorted, orphanedRatingsShownByDefault: props.orphanedRatingsShownByDefault}), [props.person.personId, props.programId, ratings]);
-
-	return (
-		<Popover makeChildren={makeHover} hoverProps={hoverProps} openDisplay={props.label}/>
-	)
 }
 
 function makeOrphanedTableRows(currentRatings: {[key: number]: PersonRatingValidatorState[]}, orphanedRatings: RatingTreeNode[], orphanedRatingsShownByDefault: {[key: number] : boolean}, program: number){
@@ -424,3 +426,4 @@ function hasProgram(programId: number, programs: ProgramValidatorState[], boats:
 	}
 	return false;
 }
+*/

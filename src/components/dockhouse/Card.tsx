@@ -1,4 +1,7 @@
+import { Popover } from 'components/wrapped/Popover';
 import * as React from 'react';
+import settings from 'assets/img/icons/header/settings.svg';
+import { DirectionX } from 'components/wrapped/Menu';
 
 export enum LayoutDirection {
     VERTICAL = "layout-vertical",
@@ -37,7 +40,7 @@ export type CardProps = CardLayoutChildProps & {
 }
 
 export function Card(props: CardProps){
-    return <div className={(props.weight || FlexSize.S_1) + " rounded-md flex flex-col basis-0 bg-card p-card " + (props.className || "")}><h2 className="text-xl font-bold leading-none">{props.title}</h2>{props.children}</div>;
+    return <div className={(props.weight || FlexSize.S_1) + " rounded-md flex flex-col basis-0 bg-card p-card " + (props.className || "")}><h2 className="text-xl font-bold leading-none w-full">{props.title}</h2>{props.children}</div>;
 }
 
 type CardLayoutProps = CardLayoutChildProps & {
@@ -49,4 +52,15 @@ type CardLayoutProps = CardLayoutChildProps & {
 export function CardLayout(props: CardLayoutProps){
     var total = 0;
     return <div className={(props.className ? (props.className + " ") : "" ) + (props.direction == LayoutDirection.HORIZONTAL ? "flex flex-row w-full basis-0 space-x-primary " : "flex flex-col h-full basis-0 space-y-primary ") + (props.weight || FlexSize.S_1)}>{props.children}</div>;
+}
+
+export function CardTitleWithGearDropdown(props: {title: React.ReactNode, gearMenu?: React.ReactNode}){
+    return <div className="w-full">
+            <div className="inline-block">
+                <p>{props.title}</p>
+            </div>
+            <div className="inline-block float-right">
+                <Popover makeChildren={() => props.gearMenu} hoverProps={{}} openDisplay={<img className="h-[20px]" src={settings}/>} x={DirectionX.RIGHT}/>
+            </div>
+        </div>
 }

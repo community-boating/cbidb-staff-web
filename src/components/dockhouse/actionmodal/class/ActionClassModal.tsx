@@ -9,7 +9,7 @@ import { CardNumberScanner } from '../CardNumberScanner';
 import ClassRosterTable from './ClassRosterTable';
 import ClassSignoutBoatList, { ClassActionsList, makeNewSignout } from './ClassSignoutBoatList';
 import { SelectedType } from "./ClassSelectableDiv";
-import { AddActionType, AddActionType as AddPersonToClassAction, AddCrewAction, RemoveSignouts, UpdateClass, UpdateCrewAction, UpdateSignoutAction, UpdateSignoutCrew } from './Actions';
+import { AddActionType, AddActionType as AddPersonToClassAction, AddCrewAction, RemoveCrewAction, RemoveSignouts, UpdateClass, UpdateCrewAction, UpdateSignoutAction, UpdateSignoutCrew } from './Actions';
 import * as moment from 'moment';
 import { ButtonStyled } from '../styles';
 import { SelectInput } from 'components/wrapped/Input';
@@ -21,9 +21,9 @@ import { ActionModalPropsWithState, subStateWithSet } from '../ActionModalProps'
 import { Tab } from '@headlessui/react';
 import { ActionClassType, ActionClassModalState } from './ActionClassType';
 import { ClassesTodayContext } from 'async/providers/ClassesTodayProvider';
-import { ApClassSignup, SignupType } from 'async/staff/dockhouse/ap-class-sessions';
-import { ScannedPersonType } from 'async/staff/dockhouse/scan-card';
+import { ApClassSession, ApClassSignup, SignupType } from 'async/staff/dockhouse/ap-class-sessions';
 import { SignoutsTodayContext } from 'async/providers/SignoutsTodayProvider';
+import { ProviderWithSetState } from 'async/providers/ProviderType';
 
 export const selectNone: SelectedType = {
 }
@@ -74,7 +74,7 @@ export function getBoatListActions(selectType, setSelectType, selected, setSelec
     }
 }
 
-function defaultClassSignup(person: ScannedPersonType, time: moment.Moment){
+function defaultClassSignup(person: ApClassSignup['$$person'], time: moment.Moment){
     return {
         instanceId: 0,
         discountInstanceId: option.none,
@@ -100,18 +100,22 @@ function defaultClassSignup(person: ScannedPersonType, time: moment.Moment){
 export function AddPersonScanner(props: {classSessionId: number}){
     const classes = React.useContext(ClassesTodayContext);
     return <CardNumberScanner label="" onAction={(a) => {
-        classes.setState((s) => s.map((b) => {
-            if(b.sessionId == props.classSessionId){
-                if(b.$$apClassInstance.$$apClassSignups.some((c) => c.$$person.personId == a.personId)){
-                    alert("Already in the class");
-                    return b;
-                }
-                return {...b, $$apClassInstance: {...b.$$apClassInstance, $$apClassSignups: b.$$apClassInstance.$$apClassSignups.concat(defaultClassSignup(a, moment()))}}
-            }else{
+        addPersonToClass(props.classSessionId, a, classes);
+    }}></CardNumberScanner>
+}
+
+export function addPersonToClass(classSessionId: number, person: ApClassSignup['$$person'], classes: ProviderWithSetState<ApClassSession[]>){
+    classes.setState((s) => s.map((b) => {
+        if(b.sessionId == classSessionId){
+            if(b.$$apClassInstance.$$apClassSignups.some((c) => c.$$person.personId == person.personId)){
+                alert("Already in the class");
                 return b;
             }
-        }))
-    }}></CardNumberScanner>
+            return {...b, $$apClassInstance: {...b.$$apClassInstance, $$apClassSignups: b.$$apClassInstance.$$apClassSignups.concat(defaultClassSignup(person, moment()))}}
+        }else{
+            return b;
+        }
+    }))
 }
 
 export default function ActionClassModal(props: ActionModalPropsWithState<ActionClassType, ActionClassModalState>) {
@@ -126,7 +130,6 @@ export default function ActionClassModal(props: ActionModalPropsWithState<Action
     const signouts = React.useContext(SignoutsTodayContext);
     return <DefaultModalBody>
         <ActionBasedEditor originalData={props.info} actions={actions} setActions={setActions} makeChildren={(state, { addAction, undo, reset }) => <>
-            {console.log(formats)}
             <ModalHeader className='font-bold text-2xl'>
                 Class {formats[state.currentClass.$$apClassInstance.formatId].b.typeName} @ <SelectClassLocation currentLocation={state.currentClass.$$apClassInstance.locationString} addAction={addAction} />
             </ModalHeader>
@@ -150,7 +153,10 @@ export default function ActionClassModal(props: ActionModalPropsWithState<Action
                                     addAction(new UpdateSignoutAction({signoutId: id, [key]: value}))
                                 }} makeNewSignout={(boatId) => {
                                     return makeNewSignout(state.associatedSignouts, boatId, addAction);
-                                }}/>
+                                }} removePerson={(personId, signoutId) => {
+                                    addAction(new UpdateSignoutCrew([new RemoveCrewAction(personId)], signoutId))
+                                }}
+                                />
                                 <div className="flex flex-col gap-2 mt-auto mb-0 whitespace-nowrap">
                                     <ClassActionsList signin={undefined} incident={undefined} cancel={() => {
                                         const signouts = getSelectedSignouts(state.associatedSignouts, selected);
