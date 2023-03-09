@@ -1,6 +1,5 @@
 import { RatingsType } from 'async/staff/dockhouse/ratings';
-import { ScannedPersonType } from 'async/staff/dockhouse/scan-card';
-import { SignoutTablesState, SignoutType } from 'async/staff/dockhouse/signouts';
+import { SignoutTablesState, SignoutType, TestType } from 'async/staff/dockhouse/signouts';
 import { EditAction } from 'components/ActionBasedEditor';
 import { option } from 'fp-ts';
 import * as moment from 'moment';
@@ -34,14 +33,25 @@ export function adaptPerson(scannedPerson: Partial<SignoutCombinedType['currentP
         isSkipper: false,
         isTesting: false,
         testRatingId: option.none,
-        maxFlagsPerBoat: [],
+        maxBoatFlags: [],
         apClassSignupsToday: [],
         activeMemberships: [defaultMembership(0)],
         ...scannedPerson}
         //sortOrder: 0, ...scannedPerson}
 }
 
+function convertPersonToTest(personId: number, testsByPersonId: {[key: number]: TestType}){
+    return {
+    isTesting: testsByPersonId[personId] != undefined,
+    testRatingId: testsByPersonId[personId] != undefined ? option.some(testsByPersonId[personId].testId) : option.none
+    }
+}
+
 export function adaptSignoutState(state: SignoutTablesState, ratings: RatingsType): EditSignoutState {
+    const testsByPersonId: {[key: number]: TestType} = state.$$tests.reduce((a, b) => {
+        a[b.personId] = b;
+        return a;
+    }, {})
     return {
         currentPeople: [adaptPerson({
             personId: state.$$skipper.personId,
@@ -51,8 +61,7 @@ export function adaptSignoutState(state: SignoutTablesState, ratings: RatingsTyp
             bannerComment: state.comments,
             personRatings: state.$$skipper.$$personRatings.map((a) => ({ ...a, ratingName: (ratings.find((b) => b.ratingId == a.ratingId) || {ratingName: ""}).ratingName, status: "" })),
             isSkipper: true,
-            isTesting: state.signoutType == SignoutType.TEST,
-            testRatingId: state.testRatingId,
+            ...convertPersonToTest(state.$$skipper.personId, testsByPersonId),
             activeMemberships: [defaultMembership(state.programId)],
             //sortOrder: 0
         })].concat((state.$$crew.map((a, i) => (adaptPerson({
@@ -63,8 +72,7 @@ export function adaptSignoutState(state: SignoutTablesState, ratings: RatingsTyp
             bannerComment: option.none,
             specialNeeds: option.none,
             isSkipper: false,
-            isTesting: state.signoutType == SignoutType.TEST,
-            testRatingId: state.testRatingId,
+            ...convertPersonToTest(a.$$person.personId, testsByPersonId),
             activeMemberships: [defaultMembership(state.programId)],
             //sortOrder: 1 + i
         }))))),

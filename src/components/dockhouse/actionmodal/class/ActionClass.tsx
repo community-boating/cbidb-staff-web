@@ -22,10 +22,10 @@ export const getClassInfo = (currentClassSessionId: number) =>  () => {
     const ratings = React.useContext(RatingsContext);
     return React.useMemo(() => {
         const currentClass = classesToday.state.find((a) => a.sessionId == currentClassSessionId) || allClasses.find((a) => a.sessionId == currentClassSessionId);
-        const allPersons = currentClass.$$apClassInstance.$$apClassSignups.reduce((a, b) => {
+        const allPersons = []/*currentClass.$$apClassInstance.$$apClassSignups.reduce((a, b) => {
             a[b.personId] = true;
             return a;
-        }, {});
+        }, {});*/
         const associatedSignouts = signoutsToday.state.filter((a) => a.signoutType == SignoutType.CLASS).map((a) => adaptSignoutState(a, ratings)).filter((a) => a.currentPeople.some((b) => allPersons[b.personId]));
         const attendanceMap = [];
         return {

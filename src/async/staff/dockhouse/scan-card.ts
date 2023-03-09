@@ -23,17 +23,9 @@ const scanCardRatingValidator = t.type({
 	status: t.string // Y | F
 })
 
-const boatTypeValidator = t.type({
-	boatId: t.number
-})
-
-const programTypeValidator = t.type({
-	programId: t.number
-})
-
 const maxFlagPerBoatValidator = t.type({
-	$$boatType: boatTypeValidator,
-	$$programType: programTypeValidator,
+	boatId: t.number,
+	programId: t.number,
 	maxFlag: flagEnumValidator
 })
 
@@ -55,8 +47,8 @@ export const scanCardValidator = t.type({
 	specialNeeds: OptionalString,
 	activeMemberships: t.array(scanCardMembershipValidator),
 	personRatings: t.array(scanCardRatingValidator),
-	maxFlagsPerBoat: t.array(maxFlagPerBoatValidator),
-	apClassSignupsToday: t.array(classSignupTodayValidator)
+	maxBoatFlags: t.array(maxFlagPerBoatValidator),
+	apClassSignupsToday: t.array(classSignupTodayValidator),
 })
 
 export type ScannedPersonType = t.TypeOf<typeof scanCardValidator>;

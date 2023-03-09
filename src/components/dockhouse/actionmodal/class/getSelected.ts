@@ -8,7 +8,7 @@ export function getSelectedSignoutPeople(associatedSignouts: SignoutCombinedType
 }
 
 export function getSelectedRosterPeople(currentClass: ApClassSession, selected: SelectedType) {
-    return currentClass.$$apClassInstance.$$apClassSignups.filter((a) => selected[selectKeyRosterPerson(a.$$person.personId)]);
+    return []//currentClass.$$apClassInstance.$$apClassSignups.filter((a) => selected[selectKeyRosterPerson(a.$$person.personId)]);
 }
 
 export function getSelectedSignouts(associatedSignouts: SignoutCombinedType[], selected: SelectedType) {

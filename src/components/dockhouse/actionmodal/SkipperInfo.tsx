@@ -16,22 +16,24 @@ import IconButton from 'components/wrapped/IconButton';
 import { option } from 'fp-ts';
 import { Popover } from 'components/wrapped/Popover';
 import { ActionActionType } from 'components/ActionBasedEditor';
-import { AddPersonAction, RemovePersonAction, SetSkipperAction, UpdatePersonAction } from './member-action/Actions';
+import { AddPersonAction, RemovePersonByIdAction, SetSkipperAction, UpdatePersonByIdAction } from './member-action/Actions';
 import { AddEditCrewProps, MemberActionMode } from './member-action/MemberActionType';
+import { SelectInput } from 'components/wrapped/Input';
+import { RatingsContext } from 'async/providers/RatingsProvider';
 
 export function getCrewActions(props: {current: SignoutCombinedType, actions: ActionActionType<SignoutCombinedType>, mode: MemberActionMode}){
     return {
         add: (newCrew: CurrentPeopleType[number]) => {
             props.actions.addAction(new AddPersonAction(newCrew))
         },
-        remove: (index: number) => {
-            props.actions.addAction(new RemovePersonAction(index))
+        remove: (personId: number) => {
+            props.actions.addAction(new RemovePersonByIdAction(personId))
         },
-        setSkipper: (index: number) => {
-            props.actions.addAction(new SetSkipperAction(index))
+        setSkipper: (personId: number) => {
+            props.actions.addAction(new SetSkipperAction(personId))
         },
-        setTesting: (index: number, testing: boolean) => {
-            props.actions.addAction(new UpdatePersonAction({isTesting: testing}, index));
+        setTesting: (personId: number, testing: boolean) => {
+            props.actions.addAction(new UpdatePersonByIdAction(personId, {isTesting: testing}));
         }
     }
 }
@@ -47,8 +49,9 @@ export function CrewIcons(props: {skipper: ScannedPersonType}){
         </div>;
 }
 
-export function DetailedPersonInfo(props: {currentPerson: SignoutCombinedType['currentPeople'][number], mode: MemberActionMode, setTesting: (testing: boolean) => void}) {
+export function DetailedPersonInfo(props: {currentPerson: SignoutCombinedType['currentPeople'][number], mode: MemberActionMode, setTesting: (testing: boolean) => void, setTestRatingId: (testRatingId: option.Option<number>) => void}) {
     const currentPerson = props.currentPerson;
+    const ratings = React.useContext(RatingsContext);
     if(!currentPerson.isSkipper && props.mode != MemberActionMode.TESTING)
         return <></>;
     if(!currentPerson.isTesting && props.mode == MemberActionMode.TESTING)
@@ -58,6 +61,9 @@ export function DetailedPersonInfo(props: {currentPerson: SignoutCombinedType['c
     return <div key={currentPerson.personId} className="flex flex-row grow-0 gap-5">
         <div className="flex flex-col">
             <h3 className="font-bold inline-block">{props.mode == MemberActionMode.TESTING ? "Testing:" : "Skipper:"}</h3>
+            {props.mode == MemberActionMode.TESTING ? <SelectInput controlledValue={currentPerson.testRatingId} updateValue={(v) => {
+                props.setTestRatingId(v);
+            }} selectOptions={ratings.map((a) => ({value: a.ratingId, display: a.ratingName}))}/> : <></>}
             <CrewIcons skipper={currentPerson} />
             <h3 className="text-2xl font-bold">{currentPerson.nameFirst} {currentPerson.nameLast}</h3>
             <h3 className="text-xl">{programHR}</h3>
@@ -108,7 +114,7 @@ function EditCrewButton(props: {src: string, onClick: (e) => void, mode: MemberA
 
 export function EditCrew(props: AddEditCrewProps){
     const iconTwo = props.mode == MemberActionMode.TESTING ? add : swap;
-    const crew = <>{props.currentPeople.map((a, i) => {
+    const crew = <>{props.currentPeople.map((a) => {
         switch(props.mode){
             case MemberActionMode.TESTING:
                 if(a.isTesting) return undefined;
@@ -118,13 +124,13 @@ export function EditCrew(props: AddEditCrewProps){
                 if(a.isSkipper) return undefined;
                 break;
         }
-        return (<div key={i} className="whitespace-nowrap">        
+        return (<div key={a.personId} className="whitespace-nowrap">        
             <div className="flex flex-row">
-                <EditCrewButton src={x} onClick={() => {props.remove(i)}} mode={props.mode}/>
+                <EditCrewButton src={x} onClick={() => {props.remove(a.personId)}} mode={props.mode}/>
                 <h3 className="font-medium">{a.nameFirst} {a.nameLast}</h3>
             </div>
             <div className="flex flex-row">
-                <EditCrewButton src={iconTwo} onClick={() => {props.mode == MemberActionMode.TESTING ? props.setTesting(i, true) : props.setSkipper(i)}} mode={props.mode}/>
+                <EditCrewButton src={iconTwo} onClick={() => {props.mode == MemberActionMode.TESTING ? props.setTesting(a.personId, true) : props.setSkipper(a.personId)}} mode={props.mode}/>
                 <h3 className="font-light">{getProgramHR(a.activeMemberships[0].programId.getOrElse(undefined))}</h3>
             </div>
         </div>)})}</>;

@@ -59,8 +59,8 @@ export function CardTitleWithGearDropdown(props: {title: React.ReactNode, gearMe
             <div className="inline-block">
                 <p>{props.title}</p>
             </div>
-            <div className="inline-block float-right">
-                <Popover makeChildren={() => props.gearMenu} hoverProps={{}} openDisplay={<img className="h-[20px]" src={settings}/>} x={DirectionX.RIGHT}/>
+            <div className="inline-block ml-2">
+                <Popover makeChildren={() => props.gearMenu} hoverProps={{}} noHover openDisplay={<img className="h-[15px]" src={settings}/>} />
             </div>
         </div>
 }

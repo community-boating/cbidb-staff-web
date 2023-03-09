@@ -14,8 +14,8 @@ import { SignoutCombinedType } from '../signouts/SignoutCombinedType';
 import { MemberActionModalStateType, MemberActionType, MemberActionMode } from "./MemberActionType";
 import { buttonClassActive, buttonClasses } from '../styles';
 import { CreateQueueSignout } from "./CreateQueueSignout";
-import { EditSignout } from '../signouts/EditSignoutModal';
-import { ActionModalPropsWithState, subStateWithSet } from '../ActionModalProps';
+import { EditSignout } from "../signouts/EditSignout";
+import { ActionModalPropsWithState, subStateWithSet, subStateWithSetO } from '../ActionModalProps';
 import ActionBasedEditor, { ActionActionType } from 'components/ActionBasedEditor';
 import { AddPersonScanner, getBoatListActions } from '../class/ActionClassModal';
 import ClassesCalendar from 'pages/dockhouse/classes/ClassesCalendar';
@@ -25,44 +25,51 @@ import { ClassBoat } from '../class/ClassSignoutBoatList';
 import { AddPersonAction, ChangeClassAction, RemovePersonByIdAction, UpdateSignoutAction } from './Actions';
 import { selectKeySignout } from '../class/ClassSelectableDiv';
 import { adaptPerson } from '../signouts/EditSignoutType';
+import { SignoutType } from 'async/staff/dockhouse/signouts';
 
-type GetContentType = (current: MemberActionType, actions: ActionActionType<MemberActionType>) => React.ReactNode;
+type GetContentType = (current: MemberActionType, actions: ActionActionType<MemberActionType>, dialogOutput: {value: option.Option<string>, setValue: React.Dispatch<React.SetStateAction<option.Option<string>>>}) => React.ReactNode;
 
-const getContentEditSignout: (mode: MemberActionMode) => GetContentType = (mode) => (current, actions) => {
+const getContentEditSignout: (mode: MemberActionMode) => GetContentType = (mode) => (current, actions, dialogOutput) => {
     return <>
-    <EditSignout current={current} actions={actions} mode={mode} />
-    <CreateQueueSignout current={current} actions={actions} />
+    <EditSignout current={current} actions={actions} mode={mode} dialogOutput={dialogOutput.value} />
+    <CreateQueueSignout current={current} actions={actions} setDialogOutput={dialogOutput.setValue}/>
 </>
 }
 
-const memberActionTypes: { title: React.ReactNode; mode: MemberActionMode, getContent: GetContentType }[] = [{
+const memberActionTypes: { title: React.ReactNode; mode: MemberActionMode, signoutType: option.Option<SignoutType>, getContent: GetContentType }[] = [{
     title: "Sign Out",
     mode: MemberActionMode.SIGNOUT,
+    signoutType: option.some(SignoutType.SAIL),
     getContent: getContentEditSignout(MemberActionMode.SIGNOUT)
 },
 {
     title: "Testing",
     mode: MemberActionMode.TESTING,
+    signoutType: option.some(SignoutType.TEST),
     getContent: getContentEditSignout(MemberActionMode.TESTING)
 },
 {
     title: "Classes",
     mode: MemberActionMode.CLASSES,
+    signoutType: option.some(SignoutType.CLASS),
     getContent: (current, actions) => <MemberActionClasses current={current} actions={actions}/>
 },
 {
     title: "Racing",
     mode: MemberActionMode.RACING,
+    signoutType: option.some(SignoutType.RACE),
     getContent: getContentEditSignout(MemberActionMode.RACING)
 },
 {
     title: "Ratings",
     mode: MemberActionMode.RATINGS,
+    signoutType: option.none,
     getContent: (current, actions) => (<MemberActionRatings current={current} actions={actions}></MemberActionRatings>)
 },
 {
     title: "Comments",
     mode: MemberActionMode.COMMENTS,
+    signoutType: option.none,
     getContent: (current, actions) => (<div>
         <AddEditCrew currentPeople={current.currentPeople} {...getCrewActions({current, actions, mode: MemberActionMode.COMMENTS})} mode={MemberActionMode.COMMENTS}></AddEditCrew>
         <textarea className="w-full" cols={100} rows={10}></textarea>
@@ -98,7 +105,7 @@ function MemberActionClasses(props: { current: MemberActionType; actions: Action
     return <div className="h-full">
         {props.current.currentClassSessionId.isNone() ? <ClassesCalendar handleSelectClass={(s) => {setSelectedClass(option.some(s.sessionId))}}/> : <Button onClick={() => {setSelectedClass(option.none)}}>Choose Class</Button>}
         {props.current.currentClassSessionId.isSome() ? <ClassInfo current={props.current} currentClassSessionId={props.current.currentClassSessionId.value} actions={props.actions}/> : <></>}
-        <CreateQueueSignout {...props}/>
+        <CreateQueueSignout {...props} setDialogOutput={() => {}}/>
     </div>
 }
 
@@ -133,10 +140,12 @@ function MemberActionRatings(props: { current: MemberActionType; actions: Action
 
 export function MemberActionModal(props: ActionModalPropsWithState<MemberActionType, MemberActionModalStateType>) {
     const [actions, setActions] = subStateWithSet(props.state, props.setState, 'actions');
+    const dialogOutput = subStateWithSetO(props.state, props.setState, 'dialogOutput');
     return <DefaultModalBody>
         <ActionBasedEditor originalData={props.info} actions={actions} setActions={setActions} makeChildren={(current, actions) => 
             <Tab.Group selectedIndex={memberActionTypes.findIndex((a) => a.mode == props.state.mode)} onChange={(m) => {
                 props.setState((s) => ({...s, mode: memberActionTypes[m].mode}));
+                memberActionTypes[m].signoutType.isSome() && actions.addAction(new UpdateSignoutAction('signoutType', memberActionTypes[m].signoutType))
             }}>
                     <ModalHeader className="text-2xl font-bold">
                         <Tab.List className="flex flex-row gap-primary">
@@ -152,7 +161,7 @@ export function MemberActionModal(props: ActionModalPropsWithState<MemberActionT
                         </Tab.List>
                     </ModalHeader>
                     <Tab.Panels className="h-[80vh] min-w-[80vw] flex flex-col">
-                        {memberActionTypes.map((a, i) => <Tab.Panel className="flex flex-col grow-[1]" key={i}>{a.getContent(current, actions)}</Tab.Panel>)}
+                        {memberActionTypes.map((a, i) => <Tab.Panel className="flex flex-col grow-[1]" key={i}>{a.getContent(current, actions, dialogOutput)}</Tab.Panel>)}
                     </Tab.Panels>
             </Tab.Group>
         }/>

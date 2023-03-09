@@ -19,6 +19,7 @@ import { option } from "fp-ts";
 import { IncidentsContext } from "../../async/providers/IncidentsProvider";
 import { ActionEditIncident, createIncident } from "./actionmodal/incident/IncidentModalType";
 import { ActionViewIncidents } from "./actionmodal/view-incidents/ViewIncidentsType";
+import { toastr } from "react-redux-toastr";
 
 /*
 Flag Banner (close, GYRB, right)
@@ -86,7 +87,7 @@ const Header = (props: { history, dispatch }) => {
 					if(a.type == "Success"){
 						setFlag(flag);
 					}else{
-						alert("Error setting flag color");
+						toastr.error("Flag Color", "Failed setting flag color");
 					}
 				})
 			}}

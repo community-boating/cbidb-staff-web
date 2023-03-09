@@ -26,6 +26,7 @@ export type MemberActionType = SignoutCombinedType & {
 export type MemberActionModalStateType = {
     actions: EditAction<MemberActionType>[]
     mode: MemberActionMode
+    dialogOutput: option.Option<string>
 }
 
 export const defaultMemberAction: (scannedPerson: ScannedPersonType, classes: ProviderWithSetState<ApClassSession[]>) => {signout: MemberActionType, mode: MemberActionMode} = (scannedPerson, classes) => ({signout: {

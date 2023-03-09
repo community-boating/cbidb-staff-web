@@ -37,27 +37,17 @@ export class RemovePersonByIdAction extends EditAction<SignoutCombinedType>{
     }
 }
 
-export class RemovePersonAction extends EditAction<SignoutCombinedType>{
-    index: number
-    constructor(index: number){
-        super();
-        this.index = index;
-    }
-    applyActionLocal(data: SignoutCombinedType) {
-        return {...data, currentPeople: data.currentPeople.filter((a, i) => this.index != i)}
-    }
-}
 
-export class UpdatePersonAction extends EditAction<SignoutCombinedType>{
+export class UpdatePersonByIdAction extends EditAction<SignoutCombinedType>{
     person: Partial<CurrentPeopleType[number]>
-    index: number
-    constructor(person: Partial<CurrentPeopleType[number]>, index: number){
+    id: number
+    constructor(id: number, person: Partial<CurrentPeopleType[number]>){
         super();
         this.person = person;
-        this.index = index;
+        this.id = id;
     }
     applyActionLocal(data: SignoutCombinedType) {
-        return {...data, currentPeople: data.currentPeople.map((a, i) => (this.index == i) ? {...a, ...this.person} : a)}
+        return {...data, currentPeople: data.currentPeople.map((a) => (this.id == a.personId) ? {...a, ...this.person} : a)}
     }
 }
 

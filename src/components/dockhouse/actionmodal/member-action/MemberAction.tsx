@@ -2,6 +2,7 @@ import * as React from 'react';
 import { MemberActionModal } from "./MemberActionModal";
 import { Action } from '../ActionModalProps';
 import { MemberActionType, MemberActionModalStateType, MemberActionMode } from './MemberActionType';
+import { option } from 'fp-ts';
 
 
 export class MemberAction extends Action<MemberActionType, MemberActionModalStateType> {
@@ -9,6 +10,7 @@ export class MemberAction extends Action<MemberActionType, MemberActionModalStat
         super();
         this.modeInfo = memberAction.signout;
         this.initState = {
+            dialogOutput: option.none,
             actions: [],
             mode: memberAction.mode
         };

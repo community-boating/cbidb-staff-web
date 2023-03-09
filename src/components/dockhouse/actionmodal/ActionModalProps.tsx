@@ -27,6 +27,10 @@ export function subStateWithSet<T_State, T_Key extends keyof T_State>(state: T_S
     return [state[key], (v) => setState((s) => ({...s, [key]: setStateChain(v, s[key])}))];
 }
 
+export function subStateWithSetO<T_State, T_Key extends keyof T_State>(state: T_State, setState: React.Dispatch<React.SetStateAction<T_State>>, key: T_Key): {value: T_State[T_Key], setValue: React.Dispatch<React.SetStateAction<T_State[T_Key]>>}{
+    return {value: state[key], setValue: (v) => setState((s) => ({...s, [key]: setStateChain(v, s[key])}))};
+}
+
 export type ActionModalProps = {
     action: Action<any, any>
     pushAction: (action: Action<any, any>) => void

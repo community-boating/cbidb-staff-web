@@ -67,7 +67,7 @@ const apClassInstanceBase = {
 
 const apClassInstanceValidator = t.type({
 	...apClassInstanceBase,
-	$$apClassSignups: t.array(apClassSignupValidator)
+	//$$apClassSignups: t.array(apClassSignupValidator)
 })
 
 const apClassSessionValidator = t.type({
@@ -79,7 +79,7 @@ const allApClassSessionValidator = t.type(apClassSessionBase);
 
 const allApClassInstanceValidator = t.type({
     ...apClassInstanceBase,
-    $$apClassSessions: t.array(allApClassSessionValidator)
+    //$$apClassSessions: t.array(allApClassSessionValidator)
 })
 
 const apClassInstanceBaseValidator = t.type(apClassInstanceBase);

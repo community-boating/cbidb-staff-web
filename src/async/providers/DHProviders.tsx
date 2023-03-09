@@ -19,7 +19,7 @@ const providersList = [
     SignoutsTodayProvider,
     DHGlobalProvider,
     InstructorsProvider,
-    IncidentsProvider,
+    //IncidentsProvider,
     ClassLocationsProvider,
     ScannedPersonsCache,
     AllClassesProvider,

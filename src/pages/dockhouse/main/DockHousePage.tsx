@@ -140,7 +140,7 @@ export default function DockHousePage (props) {
                     <ActionCard title="Testing" onAction={() => {
                         const testingSignouts = signoutsToday.state.filter((a) => a.signoutType == SignoutType.TEST);
                         const testsToday: TestType[] = testingSignouts.flatMap((a) => [{signoutId: a.signoutId, personId: a.$$skipper.personId, nameFirst: a.$$skipper.nameFirst, nameLast: a.$$skipper.nameLast, testResult: a.testResult, createdBy: 0, createdOn: moment()}].concat(a.$$crew.map((b) => ({signoutId: a.signoutId, testResult: a.testResult, ...b.$$person, createdBy: 0, createdOn: moment()}))));
-                        actionModal.pushAction(new EditTestsAction(testingSignouts, testsToday));
+                        actionModal.pushAction(new EditTestsAction());
                     }}>
                         <div className="flex flex-row gap-2">
                             <NumberWithLabel number={0} label="Queue"/>

@@ -18,7 +18,7 @@ function makeEvent(session: ApClassSession, formatsById: FormatById, isToday: bo
     const end = session.sessionDateTime.toDate();
     end.setHours(end.getHours() + session.sessionLength);
     return {
-        title: (formatsById[session.$$apClassInstance.formatId] || {b: {}}).b.typeName + (isToday ? ( " [Instructor]" + (session.$$apClassInstance.locationString.isSome() ? " @ " + session.$$apClassInstance.locationString.getOrElse("") : "") + " " + session.$$apClassInstance.$$apClassSignups.length) : ""), 
+        title: (formatsById[session.$$apClassInstance.formatId] || {b: {}}).b.typeName + (isToday ? ( " [Instructor]" + (session.$$apClassInstance.locationString.isSome() ? " @ " + session.$$apClassInstance.locationString.getOrElse("") : "") + " "/* + session.$$apClassInstance.$$apClassSignups.length*/) : ""), 
         start: session.sessionDateTime.toDate(),
         end: end,
         resource: session

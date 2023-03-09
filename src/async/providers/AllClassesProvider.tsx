@@ -9,5 +9,5 @@ const defaultClasses: ApClassSession[] = [];
 export const AllClassesContext = React.createContext(defaultClasses);
 
 export default function AllClassesProvider(props: {children?: React.ReactNode}){
-    return <AsyncStateProvider apiWrapper={getClasses} initState={[]} makeChildren={(state) => {return <AllClassesContext.Provider value={state.flatMap((a) => (a.$$apClassSessions.map((b) => ({...b, $$apClassInstance: {...a, $$apClassSignups: []}}))))}>{props.children}</AllClassesContext.Provider>}}/>
+    return <AsyncStateProvider apiWrapper={getClasses} initState={[]} makeChildren={(state) => {return <AllClassesContext.Provider value={[]/*state.flatMap((a) => (a.$$apClassSessions.map((b) => ({...b, $$apClassInstance: {...a, $$apClassSignups: []}}))))*/}>{props.children}</AllClassesContext.Provider>}}/>
 }

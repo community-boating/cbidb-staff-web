@@ -13,6 +13,7 @@ import { boatTypesMapped } from '../BoatIcon';
 import { BoatsContext } from 'async/providers/BoatsProvider';
 import { ApClassSignup, SignupType } from 'async/staff/dockhouse/ap-class-sessions';
 import { ActionClassType } from "./ActionClassType";
+import { toastr } from 'react-redux-toastr';
 
 function SetAttendance(props: {signup: ApClassSignup, attendance: AttendanceMap} & AddActionType){
     const current = props.attendance[props.signup.$$person.personId];
@@ -40,19 +41,19 @@ function RosterRows(props: {signups: ApClassSignup[]} & ClassBoatListActions & A
             if(props.signups.filter((a) => a.signupType == SignupType.ACTIVE).length + 1 <= props.maxSignups){
                 //props.addAction(updateClassSignup({signupId: a.signupId, signupType: SignupType.ACTIVE}));
             }else{
-                alert("Max number of people reached");
+                toastr.warning("Waitlist", "Person is already active in class");
             }
         }else{
             if(props.singleSelectedSignout){
                 if(props.personIdsOnWater[a.$$person.personId]){
-                    alert("person already in a boat")
+                    toastr.warning("Add To Boat", "Person is already on the water");
                 }else if(props.singleSelectedSignout.boatId.isSome()){
                     console.log(boatsById[props.singleSelectedSignout.boatId.value].maxCrew);
                     if(boatsById[props.singleSelectedSignout.boatId.value].maxCrew < props.singleSelectedSignout.currentPeople.length + 1){
                         if(props.allBoatType.isSome()){
                             addToNew();
                         }else{
-                            alert("Boat is full");
+                            toastr.warning("Add To Boat", "Boat is full");
                         }
                     }else{
                         addToCurrent();
@@ -61,11 +62,11 @@ function RosterRows(props: {signups: ApClassSignup[]} & ClassBoatListActions & A
                     if(props.singleSelectedSignout.currentPeople.length + 1 <= 8){
                         addToCurrent();
                     }else{
-                        alert("Boat is full");
+                        toastr.warning("Add To Boat", "Boat is full");
                     }
                 }
             }else{
-                alert("Select a boat");
+                toastr.warning("Add To Boat", "Select a boat");
             }
         }
     }} key={i}
@@ -102,8 +103,8 @@ export default function ClassRosterTable(props: ActionClassType & ClassBoatListA
                     Attendance
                 </div>
             </div>
-            <RosterRows signups={props.currentClass.$$apClassInstance.$$apClassSignups.filter((a) => a.signupType == SignupType.ACTIVE)} {...props} singleSelectedSignout={singleSelectedSignout} isWaitlist={false} attendance={props.attendanceMap} allBoatType={boatTypeForAll} personIdsOnWater={personIdsOnWater}/>
+            <RosterRows signups={[].filter((a) => a.signupType == SignupType.ACTIVE)} {...props} singleSelectedSignout={singleSelectedSignout} isWaitlist={false} attendance={props.attendanceMap} allBoatType={boatTypeForAll} personIdsOnWater={personIdsOnWater}/>
             <hr className="border-b-2 border-black"/>
-            <RosterRows signups={props.currentClass.$$apClassInstance.$$apClassSignups.filter((a) => a.signupType == SignupType.WAITLIST)} {...props} singleSelectedSignout={singleSelectedSignout} isWaitlist maxSignups={props.currentClass.$$apClassInstance.signupMax.getOrElse(undefined)} allBoatType={boatTypeForAll} personIdsOnWater={personIdsOnWater}/>
+            <RosterRows signups={[].filter((a) => a.signupType == SignupType.WAITLIST)} {...props} singleSelectedSignout={singleSelectedSignout} isWaitlist maxSignups={props.currentClass.$$apClassInstance.signupMax.getOrElse(undefined)} allBoatType={boatTypeForAll} personIdsOnWater={personIdsOnWater}/>
         </div>;
 }

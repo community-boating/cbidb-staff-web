@@ -12,13 +12,17 @@ import { SignoutType } from 'async/staff/dockhouse/signouts';
 import * as moment from 'moment';
 import { ActionActionType } from 'components/ActionBasedEditor';
 
-export function CreateQueueSignout(props: { current: SignoutCombinedType; actions: ActionActionType<SignoutCombinedType>}) {
+export function CreateQueueSignout(props: { current: SignoutCombinedType; actions: ActionActionType<SignoutCombinedType>, setDialogOutput: React.Dispatch<React.SetStateAction<option.Option<string>>>}) {
     const asc = React.useContext(AppStateContext);
     const modal = React.useContext(ModalContext);
     const signouts = React.useContext(SignoutsTodayContext);
     const ref = React.createRef<HTMLButtonElement>();
     const submit = (e) => {
-        return createSignout.sendJson(asc, convertToCreateSignout(props.current)).then((a) => {
+        console.log("hello");
+        const v = convertToCreateSignout(props.current)
+        console.log(v);
+        console.log(props.current);
+        return createSignout.sendJson(asc, v).then((a) => {
             if (a.type == "Success") {
                 modal.setOpen(false);
                 signouts.setState((s) => s.concat(adaptMemberState(props.current, {
@@ -42,17 +46,18 @@ export function CreateQueueSignout(props: { current: SignoutCombinedType; action
                     signinDatetime: option.none,
                     testRatingId: option.none,
                     testResult: option.none,
-                    signoutType: SignoutType.TEST,
+                    signoutType: SignoutType.SAIL,
                     didCapsize: option.some(false),
                     comments: option.none,
                     createdBy: option.none,
                     updatedBy: option.none,
                     updatedOn: option.none,
                     createdOn: option.none,
-                    $$crew: []
+                    $$crew: [],
+                    $$tests: []
                 })));
             } else {
-                //props.setState((s) => ({ ...s, dialogOutput: option.some(a.message) }));
+                props.setDialogOutput(option.some(a.message));
             }
         });
     }

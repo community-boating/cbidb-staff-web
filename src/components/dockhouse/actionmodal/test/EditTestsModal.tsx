@@ -11,9 +11,9 @@ import * as React from 'react';
 import { BoatSelect } from '../BoatIcon';
 import { EditTestsType } from './EditTestsType';
 
-type SignoutWithTests = SignoutTablesState & {tests: (TestType)[]};
+type SignoutWithTests = SignoutTablesState;
 
-const columns: ColumnDef<SignoutWithTests>[] = [{
+const columns: ColumnDef<SignoutTablesState>[] = [{
     accessorKey: "boatType",
     header: "Boat Type",
     cell: (v) => {
@@ -23,32 +23,32 @@ const columns: ColumnDef<SignoutWithTests>[] = [{
 {
     header: "Name First",
     cell: (v) => {
-        return <div className="flex flex-col">{v.row.original.tests.map((a, i) => <div key={"s" + i} className="">{a.nameFirst}</div>)}</div>
+        return <div className="flex flex-col">{v.row.original.$$tests.map((a, i) => <div key={"s" + i} className="">{a.$$person.nameLast}</div>)}</div>
     }
 },
 {
     header: "Name Last",
     cell: (v) => {
-        return <div className="flex flex-col">{v.row.original.tests.map((a, i) => <div key={"a" + i} className="">{a.nameLast}</div>)}</div>
+        return <div className="flex flex-col">{v.row.original.$$tests.map((a, i) => <div key={"a" + i} className="">{a.$$person.nameLast}</div>)}</div>
     }
 },
 {
     header: "Test Result",
     cell: (v) => { 
-        return <div className="flex flex-col">{v.row.original.tests.map((a, i) => <div key={"d" + i} className="w-min mx-auto"><SelectInput controlledValue={a.testResult} updateValue={undefined} selectOptions={testResultsHR} autoWidth/></div>)}</div>
+        return <div className="flex flex-col">{v.row.original.$$tests.map((a, i) => <div key={"d" + i} className="w-min mx-auto"><SelectInput controlledValue={a.testResult} updateValue={undefined} selectOptions={testResultsHR} autoWidth/></div>)}</div>
     }
 }
 ]
 
 export default function EditTestsModal(props: EditTestsType){
     var i = 0;
-    const signoutsWithTests = props.testingSignouts.map((a) => ({...a, tests: props.tests.filter((b) => a.signoutId == b.signoutId)}));
+    console.log(props.testingSignouts);
     return <DefaultModalBody>
         <ModalHeader>
             <span className="text-2xl font-bold">Edit Tests</span>
         </ModalHeader>
         <div className="grow-[1] w-full bg-white">
-            <Table rows={signoutsWithTests} columns={columns} keyField="signoutId"/>
+            <Table rows={props.testingSignouts} columns={columns} keyField="signoutId"/>
         </div>
     </DefaultModalBody>
 }

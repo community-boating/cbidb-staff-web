@@ -24,6 +24,7 @@ import { ClassesTodayContext } from 'async/providers/ClassesTodayProvider';
 import { ApClassSession, ApClassSignup, SignupType } from 'async/staff/dockhouse/ap-class-sessions';
 import { SignoutsTodayContext } from 'async/providers/SignoutsTodayProvider';
 import { ProviderWithSetState } from 'async/providers/ProviderType';
+import { toastr } from 'react-redux-toastr';
 
 export const selectNone: SelectedType = {
 }
@@ -107,11 +108,11 @@ export function AddPersonScanner(props: {classSessionId: number}){
 export function addPersonToClass(classSessionId: number, person: ApClassSignup['$$person'], classes: ProviderWithSetState<ApClassSession[]>){
     classes.setState((s) => s.map((b) => {
         if(b.sessionId == classSessionId){
-            if(b.$$apClassInstance.$$apClassSignups.some((c) => c.$$person.personId == person.personId)){
-                alert("Already in the class");
+            /*if(b.$$apClassInstance.$$apClassSignups.some((c) => c.$$person.personId == person.personId)){
+                toastr.warning("Not Added", "Person already in class");
                 return b;
-            }
-            return {...b, $$apClassInstance: {...b.$$apClassInstance, $$apClassSignups: b.$$apClassInstance.$$apClassSignups.concat(defaultClassSignup(person, moment()))}}
+            }*/
+            return {...b, $$apClassInstance: {...b.$$apClassInstance, $$apClassSignups: [].concat(defaultClassSignup(person, moment()))}}
         }else{
             return b;
         }
@@ -172,9 +173,9 @@ export default function ActionClassModal(props: ActionModalPropsWithState<Action
                                 <ButtonStyled onClick={() => {
                                     const selectedPeopleIds = getSelectedRosterPeople(state.currentClass, selected).map((a) => a.$$person.personId).concat(getSelectedSignoutPeople(state.associatedSignouts, selected).map((a) => a.personId));
                                     if (selectedPeopleIds.length == 0) {
-                                        alert("Must select people to add ratings");
+                                        toastr.warning("Grant Ratings", "Must select people to grant ratings to")
                                     } else if (currentRating.isNone()) {
-                                        alert("Must select a rating");
+                                        toastr.warning("Grant Ratings", "Must select rating to grant")
                                     }
                                 }}>Grant Ratings</ButtonStyled>
                             </Tab.Panel>

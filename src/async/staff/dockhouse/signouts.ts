@@ -53,6 +53,16 @@ export const skipperValidator = t.type({
 	personId: t.number
 });
 
+export const testValidator = t.type({
+	$$person: crewPersonValidator,
+	instructorString: OptionalString,
+	personId: t.number,
+	ratingId: t.number,
+	signoutId: t.number,
+	testId: t.number,
+	testResult: OptionalString
+});
+
 export const signoutValidator = t.type({
 	signoutId: t.number,
 	programId: t.number,
@@ -76,7 +86,8 @@ export const signoutValidator = t.type({
 	updatedBy: OptionalString,
 	updatedOn: OptionalDateTime,
 	createdOn: OptionalDateTime,
-	$$crew: t.array(signoutCrewValidator)
+	$$crew: t.array(signoutCrewValidator),
+	$$tests: t.array(testValidator)
 });
 
 export const boatsValidator = t.type({
@@ -99,6 +110,8 @@ export type SignoutTablesState = t.TypeOf<typeof signoutValidator>;
 export type SignoutsTablesState = (SignoutTablesState[]);
 export type SignoutsTablesStateRaw = t.TypeOf<typeof signoutsValidator>;
 export type BoatTypesValidatorState = t.TypeOf<typeof boatTypesValidator>;
+
+export type TestType = t.TypeOf<typeof testValidator>;
 
 export type SkipperType = t.TypeOf<typeof skipperValidator>;
 

@@ -22,6 +22,7 @@ export class Popover<T_ChildProps> extends React.Component<DropDownProps & {
 	noMemoChildren?: boolean
 	openDisplay: ReactNode
 	className?: string
+	noHover?: boolean
 }, {
 	id: string
 	open: boolean
@@ -36,16 +37,16 @@ export class Popover<T_ChildProps> extends React.Component<DropDownProps & {
 		const toggleOpen = () => this.setState((s) => ({...s, open: !s.open}));
 		const setOpen = (open) => this.setState((s) => ({...s, open: open}));
 		return (<div onMouseLeave={() => {
-			setOpen(false);
+			//!this.props.noHover && setOpen(false);
 		}}>
-			<PopoverHUI className={"mr-auto relative"}>
+			<PopoverHUI className={"mr-auto relative"} >
 					{(a) => {
+						React.useEffect(() => {
+							setOpen(a.open);
+						}, [a.open]);
 						return <>
 							<PopoverHUI.Button className="max-w-full" onMouseEnter={() => {
-								setOpen(true);
-							}}
-							onClick={(e) => {
-								toggleOpen();
+								//!this.props.noHover && setOpen(true);
 							}}>
 								<a id={this.state.id}>
 									{this.props.openDisplay}
