@@ -18,6 +18,7 @@ import { routeSignoutsTablesPage } from "./routes/dh/signouts-tables";
 import { routeUsersPage } from "./routes/admin/users";
 import { routeManageAccess } from "./routes/admin/manage-permissions";
 import { salesDashboardPageRoute } from "app/routes/reporting/salesDashboard";
+import { routeSyncSlackUsersPage } from "./routes/admin/sync-slack-users";
 
 export type SideBarCategory = {
 	path: string,
@@ -57,6 +58,7 @@ const admin: SideBarCategory = {
 		routeManageClassLocationsPage,
 		routeManageHighSchools,
 		routeManageDonationFundsPage,
+		routeSyncSlackUsersPage
 	],
 	unrenderedChildren: [
 	]

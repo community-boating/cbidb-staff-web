@@ -68,6 +68,20 @@ export default class APIWrapper<T_ResponseValidator extends t.Any, T_PostBodyVal
 	constructor(config: Config<T_ResponseValidator, T_PostBodyValidator, T_FixedParams>) {
 		this.config = config;
 	}
+	postFormData = (formData: FormData) => apiAxios.post((((process.env as any).serverToUseForAPI).pathPrefix || "") + this.config.path, formData)
+	.then((res: AxiosResponse) => {
+		return this.parseResponse(res.data);
+	}, err => {
+		console.log("Send Error: ", err);
+		const ret = Promise.resolve({type: "Failure", code: "fail_during_send", message: "An internal error has occurred.", extra: {err}});
+		console.log(ret);
+		return ret;
+	})
+	.catch(err => {
+		const ret = Promise.resolve({type: "Failure", code: "fail_during_parse", message: "An internal error has occurred.", extra: {err}});
+		console.log("Parse Error: ", err);
+		return ret;
+	})
 	send: () => Promise<ApiResult<t.TypeOf<T_ResponseValidator>>> = () => this.sendWithParams(none)(undefined)
 	sendJson: (data: t.TypeOf<T_PostBodyValidator>) => Promise<ApiResult<t.TypeOf<T_ResponseValidator>>> = data => this.sendWithParams(none)(makePostJSON(data))
 	sendFormUrlEncoded: (data: t.TypeOf<T_PostBodyValidator>) => Promise<ApiResult<t.TypeOf<T_ResponseValidator>>> = data => this.sendWithParams(none)(makePostString(data))

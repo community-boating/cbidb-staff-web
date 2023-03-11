@@ -25,3 +25,4 @@ export const pathSignoutsTables = pathDockhouseBase.appendPathSegment("signouts-
 
 export const pathManagePermissions = pathAdminBase.appendPathSegment("permissions")
 export const pathManageAccess = pathAdminBase.appendPathSegment("access")
+export const pathSyncSlackUsers = pathAdminBase.appendPathSegment("sync-slack-users")
