@@ -172,6 +172,7 @@ const columnsBaseUpper: SignoutsTablesColumnDef[] = [
 	{
 		header: "Name Last",
 		accessorKey: "$$skipper.nameLast",
+		cellWithExtra: CellOption,
 		size: 100,
 	},
 	{
