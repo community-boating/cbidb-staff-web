@@ -2,6 +2,7 @@ import { RatingsType } from 'async/staff/dockhouse/ratings';
 import { SignoutTablesState, SignoutType, TestType } from 'async/staff/dockhouse/signouts';
 import { EditAction } from 'components/ActionBasedEditor';
 import { option } from 'fp-ts';
+import { none } from 'fp-ts/lib/Option';
 import * as moment from 'moment';
 import { EditSignoutState, SignoutCombinedType } from './SignoutCombinedType';
 
@@ -18,23 +19,25 @@ export function defaultMembership(programId: number){
         discountName: option.none,
         isDiscountFrozen: false,
         hasGuestPrivs: true,
-        programId: option.some(programId)
+        programId: programId
     }
 }
 
 export function adaptPerson(scannedPerson: Partial<SignoutCombinedType['currentPeople'][number]>): SignoutCombinedType['currentPeople'][number]{
     return {personId: -1,
         cardNumber: "",
-        nameFirst: "",
-        nameLast: "",
+        nameFirst: none,
+        nameLast: none,
         bannerComment: option.none,
         specialNeeds: option.none,
+        signoutBlockReason: option.none,
         personRatings: [],
         isSkipper: false,
         isTesting: false,
         testRatingId: option.none,
-        maxBoatFlags: [],
+        maxFlagsPerBoat: [],
         apClassSignupsToday: [],
+        jpClassSignupsToday: [],
         activeMemberships: [defaultMembership(0)],
         ...scannedPerson}
         //sortOrder: 0, ...scannedPerson}

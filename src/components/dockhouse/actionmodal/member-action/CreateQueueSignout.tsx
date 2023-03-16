@@ -11,6 +11,7 @@ import { SignoutsTodayContext } from 'async/providers/SignoutsTodayProvider';
 import { SignoutType } from 'async/staff/dockhouse/signouts';
 import * as moment from 'moment';
 import { ActionActionType } from 'components/ActionBasedEditor';
+import { none } from 'fp-ts/lib/Option';
 
 export function CreateQueueSignout(props: { current: SignoutCombinedType; actions: ActionActionType<SignoutCombinedType>, setDialogOutput: React.Dispatch<React.SetStateAction<option.Option<string>>>}) {
     const asc = React.useContext(AppStateContext);
@@ -32,8 +33,8 @@ export function CreateQueueSignout(props: { current: SignoutCombinedType; action
                     $$skipper: {
                         $$personRatings: [],
                         personId: -1,
-                        nameFirst: "",
-                        nameLast: ""
+                        nameFirst: none,
+                        nameLast: none
                     },
                     apAttendanceId: option.none,
                     jpAttendanceId: option.none,

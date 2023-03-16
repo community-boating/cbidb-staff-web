@@ -32,8 +32,8 @@ export const personRatingValidator = t.type({
 
 export const crewPersonValidator = t.type({
 	personId: t.number,
-	nameFirst: t.string,
-	nameLast: t.string
+	nameFirst: OptionalString,
+	nameLast: OptionalString
 })
 
 export const signoutCrewValidator = t.type({
@@ -48,8 +48,8 @@ export const signoutCrewValidator = t.type({
 
 export const skipperValidator = t.type({
 	$$personRatings: t.array(personRatingValidator),
-	nameFirst: t.string,
-	nameLast: t.string,
+	nameFirst: OptionalString,
+	nameLast: OptionalString,
 	personId: t.number
 });
 

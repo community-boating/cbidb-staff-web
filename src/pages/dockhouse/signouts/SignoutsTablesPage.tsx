@@ -18,7 +18,7 @@ function matchNameOrCard(row: SignoutTablesState, nameOrCard: string) {
 	if(nameOrCard.trim().length === 0){
 		return true;
 	}
-	const nameOrCardFromRow = row.$$skipper.nameFirst.concat(row.$$skipper.nameLast).concat(row.cardNum.getOrElse("")).replace(" ", "").toLowerCase();
+	const nameOrCardFromRow = row.$$skipper.nameFirst.getOrElse("").concat(row.$$skipper.nameLast.getOrElse("")).concat(row.cardNum.getOrElse("")).replace(" ", "").toLowerCase();
 	for (const string of nameOrCard.toLowerCase().split(" ")){
 		if(nameOrCardFromRow.includes(string)){
 			return true;
