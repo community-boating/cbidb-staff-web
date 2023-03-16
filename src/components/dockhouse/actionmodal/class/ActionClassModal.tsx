@@ -132,7 +132,7 @@ export default function ActionClassModal(props: ActionModalPropsWithState<Action
     return <DefaultModalBody>
         <ActionBasedEditor originalData={props.info} actions={actions} setActions={setActions} makeChildren={(state, { addAction, undo, reset }) => <>
             <ModalHeader className='font-bold text-2xl'>
-                Class {formats[state.currentClass.$$apClassInstance.formatId].b.typeName} @ <SelectClassLocation currentLocation={state.currentClass.$$apClassInstance.locationString} addAction={addAction} />
+                
             </ModalHeader>
             <CardLayout direction={LayoutDirection.HORIZONTAL} weight={FlexSize.S_5} className="min-h-0">
                 <Card title="Class Roster (On Land)" weight={FlexSize.S_0} className="min-h-0 overflow-y-scroll min-w-[30%]">

@@ -73,6 +73,9 @@ const memberActionTypes: { title: React.ReactNode; mode: MemberActionMode, signo
     getContent: (current, actions) => (<div>
         <AddEditCrew currentPeople={current.currentPeople} {...getCrewActions({current, actions, mode: MemberActionMode.COMMENTS})} mode={MemberActionMode.COMMENTS}></AddEditCrew>
         <textarea className="w-full" cols={100} rows={10}></textarea>
+        <Button className={buttonClasses + " " + buttonClassActive + " ml-auto mr-0 mt-auto mb-0"} spinnerOnClick submit={(e) => {
+            return Promise.resolve();
+        }}>Save Comments</Button>
     </div>)
 }];
 
