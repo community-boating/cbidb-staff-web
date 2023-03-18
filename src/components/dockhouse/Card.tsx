@@ -54,13 +54,17 @@ export function CardLayout(props: CardLayoutProps){
     return <div className={(props.className ? (props.className + " ") : "" ) + (props.direction == LayoutDirection.HORIZONTAL ? "flex flex-row w-full basis-0 space-x-primary " : "flex flex-col h-full basis-0 space-y-primary ") + (props.weight || FlexSize.S_1)}>{props.children}</div>;
 }
 
+export function GearIcon(props){
+    return <img className="h-[15px]" src={settings}/>;
+}
+
 export function CardTitleWithGearDropdown(props: {title: React.ReactNode, gearMenu?: React.ReactNode}){
     return <div className="w-full">
             <div className="inline-block">
                 <p>{props.title}</p>
             </div>
             <div className="inline-block ml-2">
-                <Popover makeChildren={() => props.gearMenu} hoverProps={{}} noHover openDisplay={<img className="h-[15px]" src={settings}/>} />
+                <Popover makeChildren={() => props.gearMenu} hoverProps={{}} noHover openDisplay={<GearIcon/>} />
             </div>
         </div>
 }

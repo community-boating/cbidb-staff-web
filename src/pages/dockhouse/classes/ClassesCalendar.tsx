@@ -52,7 +52,7 @@ export type ClassesProps = {
     //setClassSession: React.Dispatch<React.SetStateAction<option.Option<number>>>
 }
 
-export default function ClassesCalendar(props: ClassesProps){
+export default function ClassesCalendar(props: ClassesProps & {isDLV: boolean}){
     const modal = React.useContext(ActionModalContext);
     const classes = React.useContext(ClassesTodayContext);
     const [classSession, setClassSession] = React.useState<option.Option<number>>(option.none);
@@ -61,22 +61,26 @@ export default function ClassesCalendar(props: ClassesProps){
     const classTypes = React.useContext(ClassTypesContext);
     const events = React.useMemo(() => getEvents(classes.state, allClasses, classTypes), [classes, classTypes]);
     const current = events.filter((a) => a.resource == classSession.getOrElse(undefined))[0];
-    return <Calendar
-    className="max-h-[calc(100vh-200px)] overflow-y-scroll"
-    localizer={localizer}
-    events={events}
-    startAccessor="start"
-    endAccessor="end"
-    defaultView={Views.DAY}
-    
-    views={{month: true, week: true, day: true, agenda: true}}
-    selected={current}
-    min={minTime}
-    max={maxTime}
-    scrollToTime={new Date()}
-    onSelectEvent={(e) => {
-        props.handleSelectClass(e.resource);
-    }}
-    popup
-  />
+        return <div className="flex flex-col grow-[1] basis-1 w-full h-full">
+            <div className="flex flex-col basis-1 grow-[1] w-full">
+            <Calendar
+        className={"h-full overflow-y-scroll basis-1 grow-[1] w-full"}
+        localizer={localizer}
+        events={events}
+        startAccessor="start"
+        endAccessor="end"
+        defaultView={Views.DAY}
+        views={props.isDLV ? {day: true} : {month: true, week: true, day: true, agenda: true}}
+        selected={current}
+        min={minTime}
+        max={maxTime}
+        scrollToTime={new Date()}
+        onSelectEvent={(e) => {
+            props.handleSelectClass(e.resource);
+        }}
+        popup
+        toolbar={!props.isDLV}
+    />
+    </div>
+  </div>
 }

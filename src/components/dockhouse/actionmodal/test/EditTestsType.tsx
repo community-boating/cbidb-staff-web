@@ -24,7 +24,7 @@ export class EditTestsAction extends Action<EditTestsType, {}>{
             }
         }
     }
-    createModalContent(info: EditTestsType): ReactNode {
-        return <EditTestsModal {...getInfo(info)}/>
+    createModalContent(info: EditTestsType, state, setState, isDLV): ReactNode {
+        return <EditTestsModal {...getInfo(info)} isDLV={isDLV}/>
     }
 }

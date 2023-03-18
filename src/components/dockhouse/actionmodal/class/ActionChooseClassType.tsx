@@ -9,7 +9,7 @@ export class ActionChooseClass extends Action<ActionChooseClass, {}> {
     constructor() {
         super();
     }
-    createModalContent(info) {
-        return <ChooseClassModal {...getInfo(info)} />;
+    createModalContent(info, state, setState, isDLV) {
+        return <ChooseClassModal {...getInfo(info)} isDLV={isDLV}/>;
     }
 }

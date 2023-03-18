@@ -4,12 +4,12 @@ import IncidentsPage from 'pages/dockhouse/incidents/IncidentsPage';
 import * as React from 'react';
 import { ViewIncidentsType } from './ViewIncidentsType';
 
-export default function ViewIncidentsModal(props: ViewIncidentsType){
+export default function ViewIncidentsModal(props: ViewIncidentsType & {isDLV: boolean}){
     const incidents = React.useContext(IncidentsContext);
-    return <DefaultModalBody>
+    return !props.isDLV ? <DefaultModalBody>
         <ModalHeader>
             <span className="text-2xl font-bold">New Incident:</span>
         </ModalHeader>
-        <IncidentsPage/>
-    </DefaultModalBody>
+        <IncidentsPage {...props}/>
+    </DefaultModalBody> : <IncidentsPage {...props}/>
 }

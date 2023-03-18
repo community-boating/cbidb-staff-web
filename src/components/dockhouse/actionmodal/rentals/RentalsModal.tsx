@@ -8,12 +8,12 @@ function RentalsSingoutsTable(props: RentalsType){
     return <SignoutsTable state={props.rentedSignouts} setState={() => {}} extraState={{} as any} filterValue={undefined} isActive={true} globalFilter={undefined}/>
 }
 
-export default function RentalsModal(props: RentalsType){
+export default function RentalsModal(props: RentalsType & {isDLV: boolean}){
     var i = 0;
     return <DefaultModalBody>
-        <ModalHeader>
+        {!props.isDLV && <ModalHeader>
             <span className="text-2xl font-bold">Rentals</span>
-        </ModalHeader>
+        </ModalHeader>}
         <CardLayout direction={LayoutDirection.VERTICAL}>
             <Card title="Pending Rentals">
                 <RentalsSingoutsTable {...props}/>

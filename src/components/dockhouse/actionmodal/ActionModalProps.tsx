@@ -38,11 +38,14 @@ export type ActionModalProps = {
 
 export abstract class Action<T_Info, T_State> {
     modeInfo: InfoProviderType<T_Info>
-    createModalContent(info: T_Info, state: T_State, setState: React.Dispatch<React.SetStateAction<T_State>>): React.ReactNode { return undefined; }
+    abstract createModalContent(info: T_Info, state: T_State, setState: React.Dispatch<React.SetStateAction<T_State>>, isDLV: boolean): React.ReactNode
     initState?: T_State
 }
 
 export class NoneAction extends Action<undefined, undefined> {
+    createModalContent(info: undefined, state: undefined, setState: React.Dispatch<(prevState: undefined) => undefined>, isDLV: boolean): React.ReactNode {
+        return undefined;
+    }
 }
 
 export function getInfo<T_Info>(provider: InfoProviderType<T_Info>){

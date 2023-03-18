@@ -41,7 +41,7 @@ export function getPositionClassInner(props: DropDownProps){
 
 export default function Menu(props: Menu){
     return (
-        <div className={"relative  z-50 " + (props.className || "")}>
+        <div className={"relative  z-2 " + (props.className || "")}>
             <MenuHUI>
                 {({close}) => (<>
                 <MenuHUI.Button tabIndex={props.tabIndex} className={(props.className || "")}>{props.title}</MenuHUI.Button>

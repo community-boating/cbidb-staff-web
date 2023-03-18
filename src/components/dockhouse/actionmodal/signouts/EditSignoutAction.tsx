@@ -1,7 +1,7 @@
 import { RatingsContext } from 'async/providers/RatingsProvider';
 import { SignoutsTodayContext } from 'async/providers/SignoutsTodayProvider';
 import * as React from 'react';
-import { Action, getInfo } from '../ActionModalProps';
+import { Action, getInfo, InfoProviderType } from '../ActionModalProps';
 import { EditSignoutModal } from './EditSignoutModal';
 import { SignoutCombinedType } from './SignoutCombinedType';
 import { EditSignoutActionModalState, adaptSignoutState } from './EditSignoutType';
@@ -19,7 +19,7 @@ export class EditSignoutAction extends Action<SignoutCombinedType, EditSignoutAc
             return adaptSignoutState(signoutsToday.state.find((a) => a.signoutId == signoutId), ratings);
         };
     }
-    createModalContent(info: SignoutCombinedType, state, setState) {
+    createModalContent(info: InfoProviderType<SignoutCombinedType>, state, setState) {
         return <EditSignoutModal info={getInfo(info)} state={state} setState={setState}></EditSignoutModal>;
     }
 }
