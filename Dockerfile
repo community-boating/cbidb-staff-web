@@ -8,4 +8,5 @@ find . -type f -exec sed -i 's%\$\$CBI_SENTRY_DSN\$\$%'"$CBI_SENTRY_DSN"'%g' {} 
 find . -type f -exec sed -i 's%\$\$CBI_HOST_NAME\$\$%'"$CBI_HOST_NAME"'%g' {} + && \
 find . -type f -exec sed -i 's%\$\$CBI_PORT\$\$%'"$CBI_PORT"'%g' {} + && \
 find . -type f -exec sed -i 's%\$\$INSTANT_SUDO\$\$%'"$INSTANT_SUDO"'%g' {} + && \
+find . -type f -exec sed -i 's%\$\$CBI_APEX_URL\$\$%'"$CBI_APEX_URL"'%g' {} + && \
 nginx -g 'daemon off;'

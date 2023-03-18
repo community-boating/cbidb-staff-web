@@ -4,3 +4,4 @@ hostName=$$CBI_HOST_NAME$$
 hostNameDev=$$CBI_HOST_NAME$$
 port=$$CBI_PORT$$
 instantSudo=$$INSTANT_SUDO$$
+apexUrl=$$CBI_APEX_URL$$

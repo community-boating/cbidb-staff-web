@@ -7,7 +7,7 @@ import { pathMessageTest } from 'app/paths';
 import MessageTest from 'pages/misc/MessageTest';
 
 export const routeMessageTest = new RouteWrapper({
-	requiresAuth: false,
+	requiresAuth: true,
 	exact: true,
 	pathWrapper: pathMessageTest,
 	sidebarTitle: "Message Test",
