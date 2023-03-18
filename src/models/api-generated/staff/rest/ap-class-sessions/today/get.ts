@@ -16,6 +16,7 @@ export const responseSuccessValidator = t.array(t.type({
 	cancelledDatetime: OptionalDateTime,
 	sessionDatetime: DateTime,
 	sessionLength: t.number,
+	isMakeup: t.boolean,
 	$$apClassInstance: t.type({
 		instanceId: t.number,
 		cancelledDatetime: OptionalDateTime,
@@ -27,6 +28,7 @@ export const responseSuccessValidator = t.array(t.type({
 		hideOnline: t.boolean,
 		cancelByOverride: OptionalDateTime,
 		locationString: OptionalString,
+		doNotAutoCancel: t.boolean,
 		$$apClassSignups: t.array(t.type({
 			instanceId: t.number,
 			discountInstanceId: OptionalNumber,
@@ -55,6 +57,7 @@ export const responseSuccessValidator = t.array(t.type({
 				offerExpDatetime: OptionalDateTime,
 				signupId: t.number,
 				foAlertDatetime: OptionalDateTime,
+				permitOvercrowd: t.boolean,
 			})),
 		})),
 	}),
