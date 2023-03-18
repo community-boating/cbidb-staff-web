@@ -14,6 +14,7 @@ import { BoatsContext } from 'async/providers/BoatsProvider';
 import { ApClassSignup, SignupType } from 'async/staff/dockhouse/ap-class-sessions';
 import { ActionClassType } from "./ActionClassType";
 import { toastr } from 'react-redux-toastr';
+import { Option } from 'fp-ts/lib/Option';
 
 function SetAttendance(props: {signup: ApClassSignup, attendance: AttendanceMap} & AddActionType){
     const current = props.attendance[props.signup.$$person.personId];
@@ -24,7 +25,7 @@ function SetAttendance(props: {signup: ApClassSignup, attendance: AttendanceMap}
     }}))}/>
 }
 
-type AddToType = {addTo: (signoutId: number, person: {personId: number, nameFirst: string, nameLast: string}) => void};
+type AddToType = {addTo: (signoutId: number, person: {personId: number, nameFirst: Option<string>, nameLast: Option<string>}) => void};
 
 function RosterRows(props: {signups: ApClassSignup[]} & ClassBoatListActions & AddToType & {singleSelectedSignout: SignoutCombinedType, isWaitlist: boolean, maxSignups?: number, attendance?: AttendanceMap, allBoatType: option.Option<number>, makeNewSignout: (boatId: option.Option<number>) => number, personIdsOnWater: {[key: number]: true}}){
     const boatTypes = React.useContext(BoatsContext);

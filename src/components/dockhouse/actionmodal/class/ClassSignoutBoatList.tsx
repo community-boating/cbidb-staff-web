@@ -44,7 +44,7 @@ function InputWithDelay<T_Value>(props: {makeInput: (value: T_Value, updateValue
 
 export function NameWithRatingHover(props: ScannedPersonType & {programId: number, isBig?: boolean}){
     return <RatingsHover person={props} programId={props.programId} orphanedRatingsShownByDefault={[]} label={
-        <p className={(props.isBig ? "text-[50px]" : "") + " truncate"}>{props.nameFirst} {props.nameLast}</p>
+        <p className={(props.isBig ? "text-[50px]" : "") + " truncate"}>{props.nameFirst.getOrElse("")} {props.nameLast.getOrElse("")}</p>
     }/>
 }
 

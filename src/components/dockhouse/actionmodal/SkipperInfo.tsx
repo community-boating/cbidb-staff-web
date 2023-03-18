@@ -57,7 +57,7 @@ export function DetailedPersonInfo(props: {currentPerson: SignoutCombinedType['c
     if(!currentPerson.isTesting && props.mode == MemberActionMode.TESTING)
         return <></>;
     const currentMembership = findCurrentMembership(currentPerson);
-    const programHR = getProgramHR(currentMembership.programId.getOrElse(-1));
+    const programHR = getProgramHR(currentMembership.programId);
     return <div key={currentPerson.personId} className="flex flex-row grow-0 gap-5">
         <div className="flex flex-col">
             <h3 className="font-bold inline-block">{props.mode == MemberActionMode.TESTING ? "Testing:" : "Skipper:"}</h3>
@@ -65,7 +65,7 @@ export function DetailedPersonInfo(props: {currentPerson: SignoutCombinedType['c
                 props.setTestRatingId(v);
             }} selectOptions={ratings.map((a) => ({value: a.ratingId, display: a.ratingName}))}/> : <></>}
             <CrewIcons skipper={currentPerson} />
-            <h3 className="text-2xl font-bold">{currentPerson.nameFirst} {currentPerson.nameLast}</h3>
+            <h3 className="text-2xl font-bold">{currentPerson.nameFirst.getOrElse("")} {currentPerson.nameLast.getOrElse("")}</h3>
             <h3 className="text-xl">{programHR}</h3>
             <h3 className="text-xl">{currentMembership.membershipTypeId} TODO make this HR</h3>
             <h3 className="text-xl">{currentMembership.expirationDate.isSome() ? currentMembership.expirationDate.value.format() : "Never"}</h3>
@@ -127,11 +127,11 @@ export function EditCrew(props: AddEditCrewProps){
         return (<div key={a.personId} className="whitespace-nowrap">        
             <div className="flex flex-row">
                 <EditCrewButton src={x} onClick={() => {props.remove(a.personId)}} mode={props.mode}/>
-                <h3 className="font-medium">{a.nameFirst} {a.nameLast}</h3>
+                <h3 className="font-medium">{a.nameFirst.getOrElse("")} {a.nameLast.getOrElse("")}</h3>
             </div>
             <div className="flex flex-row">
                 <EditCrewButton src={iconTwo} onClick={() => {props.mode == MemberActionMode.TESTING ? props.setTesting(a.personId, true) : props.setSkipper(a.personId)}} mode={props.mode}/>
-                <h3 className="font-light">{getProgramHR(a.activeMemberships[0].programId.getOrElse(undefined))}</h3>
+                <h3 className="font-light">{getProgramHR(a.activeMemberships[0].programId)}</h3>
             </div>
         </div>)})}</>;
     return (<div className={"grid grow-[1] gap-5 " + ((props.mode != MemberActionMode.TESTING) ? "grid-cols-4 grid-rows-2" : "grid-cols-2 grid-rows-2")}>{crew}</div>)

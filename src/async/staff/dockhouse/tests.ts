@@ -16,8 +16,8 @@ export const TestResultValidator = OptionalEnumType("testResult", TestResultEnum
 export const testValidator = t.type({
 	signoutId: t.number,
     personId: t.number,
-	nameFirst: t.string,
-	nameLast: t.string,
+	nameFirst: OptionalString,
+	nameLast: OptionalString,
     testResult: TestResultValidator,
     createdBy: t.number,
     createdOn: DateTime

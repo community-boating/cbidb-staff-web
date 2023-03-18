@@ -7,7 +7,7 @@ import reassignedIcon from "assets/img/reassigned.png";
 import stopwatchIcon from "assets/img/stopwatch.jpg";
 import { Flag, FlagStatusIcon, getFlagIcon } from '../../../components/dockhouse/FlagStatusIcons';
 import { programsHR, signoutTypesHR } from './Constants';
-import { CellOptionBase, CellOptionTime, CellSelect } from 'util/tableUtil';
+import { CellOption, CellOptionBase, CellOptionTime, CellSelect } from 'util/tableUtil';
 import { InteractiveColumnDef } from '../../../components/table/InteractiveColumnInjector';
 import { Info } from 'react-feather';
 import { SignoutTablesState, SignoutsTablesState, putSignout } from 'async/staff/dockhouse/signouts';
@@ -129,7 +129,7 @@ export function getUsersHR(signouts: SignoutsTablesState): SelectOption<string>[
 }
 
 function CrewHover(props: {crew: SignoutTablesState['$$crew']}){
-	return <Popover hoverProps={props.crew} makeChildren={(a) => <div className="grid grid-rows-2 grid-cols-4">{a.map((a, i) => <div key={i}>{a.$$person.nameFirst} {a.$$person.nameLast}</div>)}</div>} openDisplay={props.crew.length > 0 ? "Crew" : "None"}/>
+	return <Popover hoverProps={props.crew} makeChildren={(a) => <div className="grid grid-rows-2 grid-cols-4">{a.map((a, i) => <div key={i}>{a.$$person.nameFirst.getOrElse("")} {a.$$person.nameLast.getOrElse("")}</div>)}</div>} openDisplay={props.crew.length > 0 ? "Crew" : "None"}/>
 }
 
 export type SignoutsTablesColumnDef = InteractiveColumnDef<SignoutTablesState, SignoutsTablesExtraState, any>;
@@ -166,11 +166,13 @@ const columnsBaseUpper: SignoutsTablesColumnDef[] = [
 	{
 		header: "Name First",
 		accessorKey: "$$skipper.nameFirst",
+		cellWithExtra: CellOption,
 		size: 100,
 	},
 	{
 		header: "Name Last",
 		accessorKey: "$$skipper.nameLast",
+		cellWithExtra: CellOption,
 		size: 100,
 	},
 	{

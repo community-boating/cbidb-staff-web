@@ -135,7 +135,7 @@ function MemberActionRatings(props: { current: MemberActionType; actions: Action
     const asc = React.useContext(AppStateContext);
     const availablePrograms = {};
     props.current.currentPeople.forEach((a) => {
-        (availablePrograms[a.activeMemberships[0].programId.getOrElse(1)] = true);
+        (availablePrograms[a.activeMemberships[0].programId] = true);
     });
     const [programId, setProgramId] = React.useState<option.Option<number>>(option.none);
     const [selectedRatings, setSelectedRatings] = React.useState<{ [key: number]: boolean; }>({});

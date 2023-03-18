@@ -57,7 +57,7 @@ export function CardNumberScanner(props: ({ label: string; onAction: (result: Sc
         (props.externalQueueTrigger > 0) && doQueue();
     }, [props.externalQueueTrigger]);
     return <div className={props.className || ""}>
-        {((props.showHover && foundPerson.isSome()) ? (<RatingsHover person={foundPerson.value} programId={findCurrentMembership(foundPerson.value).programId.getOrElse(undefined)} orphanedRatingsShownByDefault={{}} label={foundPerson.value.nameFirst + " " + foundPerson.value.nameLast}></RatingsHover>) : "")} 
+        {((props.showHover && foundPerson.isSome()) ? (<RatingsHover person={foundPerson.value} programId={findCurrentMembership(foundPerson.value).programId} orphanedRatingsShownByDefault={{}} label={foundPerson.value.nameFirst.getOrElse("") + " " + foundPerson.value.nameLast.getOrElse("")}></RatingsHover>) : "")} 
         {error.isSome() ? error.value : ""}
         <OptionalStringInput autoFocus={props.autoFocus} tabIndex={props.tabIndex} label={props.label} controlledValue={cardNum} updateValue={(value) => { setCardNum(value.map((a) => a.replace(/[^0-9]*$/, "").substring(0, 7))); }} onEnter={() => {
             doQueue();

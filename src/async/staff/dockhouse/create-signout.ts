@@ -1,36 +1,15 @@
 import * as t from 'io-ts';
 import APIWrapper from 'core/APIWrapper';
 import { HttpMethod } from "core/HttpMethod";
-import { OptionalNumber, OptionalString } from 'util/OptionalTypeValidators';
+import {requestValidator, responseSuccessValidator} from "models/api-generated/staff/dockhouse/create-signout/post"
 
-const createSignoutCrewValidator = t.type({
-	personId: t.number,
-	cardNumber: t.string,
-	testRatingId: OptionalNumber
-});
-
-export const createSignoutValidator = t.type({
-	skipperPersonId: t.number,
-	skipperCardNumber: t.string,
-	skipperTestRatingId: OptionalNumber,
-	boatId: t.number,
-	sailNumber: OptionalString,
-	hullNumber: OptionalString,
-	programId: t.number,
-	classSessionId: OptionalNumber,
-	isRacing: t.boolean,
-	dockmasterOverride: t.boolean,
-	didInformKayakRules: t.boolean,
-	signoutCrew: t.array(createSignoutCrewValidator)
-})
-
-export type CreateSignoutType = t.TypeOf<typeof createSignoutValidator>
+export type CreateSignoutType = t.TypeOf<typeof requestValidator>
 
 const path = "/staff/dockhouse/create-signout"
 
 export const postWrapper = new APIWrapper({
 	path: path,
 	type: HttpMethod.POST,
-	resultValidator: t.any,
-	postBodyValidator: createSignoutValidator
+	resultValidator: responseSuccessValidator,
+	postBodyValidator: requestValidator
 })

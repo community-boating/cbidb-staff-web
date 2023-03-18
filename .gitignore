@@ -28,3 +28,4 @@ yarn-error.log*
 .vscode/
 *.code-workspace
 .prettierrc
+typescript.zip

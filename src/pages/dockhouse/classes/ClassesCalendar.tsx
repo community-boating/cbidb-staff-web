@@ -15,11 +15,11 @@ import { AllClassesContext } from 'async/providers/AllClassesProvider';
 const DnDCalendar = withDragAndDrop(Calendar<Event, object>);
 
 function makeEvent(session: ApClassSession, formatsById: FormatById, isToday: boolean): Event{
-    const end = session.sessionDateTime.toDate();
+    const end = session.sessionDatetime.toDate();
     end.setHours(end.getHours() + session.sessionLength);
     return {
         title: (formatsById[session.$$apClassInstance.formatId] || {b: {}}).b.typeName + (isToday ? ( " [Instructor]" + (session.$$apClassInstance.locationString.isSome() ? " @ " + session.$$apClassInstance.locationString.getOrElse("") : "") + " "/* + session.$$apClassInstance.$$apClassSignups.length*/) : ""), 
-        start: session.sessionDateTime.toDate(),
+        start: session.sessionDatetime.toDate(),
         end: end,
         resource: session
     }
