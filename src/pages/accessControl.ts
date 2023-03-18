@@ -10,6 +10,7 @@ export function canAccessPage(pageName: PageName): boolean {
 		case PageName.STAGGERED_ORDER:
 		case PageName.DOCK_REPORT:
 		case PageName.SALES_DASHBOARD:
+		case PageName.MESSAGE_TEST:
 			return true;
 		case PageName.USERS:
 		case PageName.USERS_EDIT:

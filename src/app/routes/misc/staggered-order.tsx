@@ -1,8 +1,8 @@
 import * as React from 'react';
 import * as t from 'io-ts';
-import RouteWrapper from '../../core/RouteWrapper';
-import PageWrapper from '../../core/PageWrapper';
-import Loader from '../../components/Loader';
+import RouteWrapper from '../../../core/RouteWrapper';
+import PageWrapper from '../../../core/PageWrapper';
+import Loader from '../../../components/Loader';
 import {apiw, validator} from "async/staff/open-order-details"
 import { PageName } from 'pages/pageNames';
 import StaggeredOrder from 'pages/misc/StaggeredOrder';

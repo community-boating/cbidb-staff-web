@@ -7,7 +7,7 @@ import {
 // import { routeUsersEditPage, routeUsersNewPage, routeUsersPage } from "./routes/users";
 import RouteWrapper from "../core/RouteWrapper";
 import { routeJpClassesPage } from "app/routes/jp-classes";
-import { routeStaggeredOrder } from "app/routes/staggered-order";
+import { routeStaggeredOrder } from "app/routes/misc/staggered-order";
 import { routeManageClassInstructorsPage } from "app/routes/admin/class-instructors";
 import { routeManageTagsPage } from "app/routes/admin/tags";
 import { routeManageClassLocationsPage } from "app/routes/admin/class-locations";
@@ -18,6 +18,7 @@ import { routeSignoutsTablesPage } from "./routes/dh/signouts-tables";
 import { routeUsersPage } from "./routes/admin/users";
 import { routeManageAccess } from "./routes/admin/manage-permissions";
 import { salesDashboardPageRoute } from "app/routes/reporting/salesDashboard";
+import { routeMessageTest } from "./routes/misc/message-test";
 
 export type SideBarCategory = {
 	path: string,
@@ -72,6 +73,7 @@ const misc: SideBarCategory = {
 		routeStaggeredOrder,
 		routeDockReportPage,
 		routeSignoutsTablesPage,
+		routeMessageTest,
 	]
 };
 

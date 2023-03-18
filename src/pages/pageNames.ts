@@ -15,4 +15,5 @@ export enum PageName {
 	MANAGE_PERMISSIONS = "manage-permissions",
 	MANAGE_ACCESS = "manage-access",
 	SALES_DASHBOARD = "sales_dashboard",
+	MESSAGE_TEST = "message-test"
 }
