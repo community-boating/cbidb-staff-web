@@ -8,7 +8,7 @@ export default function ClassesPage (props) {
     const modal = React.useContext(ActionModalContext);
     return <CardLayout direction={LayoutDirection.VERTICAL}>
         <Card title="More Classes">
-            <ClassesCalendar handleSelectClass={openClassModal(modal)}/>
+            <ClassesCalendar handleSelectClass={openClassModal(modal)} isDLV={false}/>
         </Card>
     </CardLayout>;
 };

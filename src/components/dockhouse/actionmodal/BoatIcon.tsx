@@ -100,7 +100,7 @@ export default function(props: BoatIconProps){
         }
     }} makeChildren={BoatIcons.map((a, i) => {const boatType = (boatsByHR[a.hr] || {boatId: -1}); return({
         value: boatType.boatId,
-        makeNode: (checked) => <IconButton key={i} src={a.src} onClick={() => props.setBoatId(option.some(boatType.boatId))} className={"min-w-[100px] min-h-[100px] text-black rounded-2 border border-[#00507d]" + (checked? " bg-blue-200 border-gray-200" : "")}/>
+        makeNode: (checked) => <IconButton key={i} src={a.src} onClick={() => props.setBoatId(option.some(boatType.boatId))} className={"min-w-[100px] min-h-[100px] text-black"}/>
     }) }
     )}/>
     )

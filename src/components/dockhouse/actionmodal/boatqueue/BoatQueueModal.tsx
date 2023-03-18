@@ -8,12 +8,12 @@ function BoatQueueSignoutsTable(props: BoatQueueType){
     return <SignoutsTable state={props.boatQueueSignouts} setState={() => {}} extraState={{} as any} filterValue={undefined} isActive={true} globalFilter={undefined}/>
 }
 
-export default function BoatQueueModal(props: BoatQueueType){
+export default function BoatQueueModal(props: BoatQueueType & {isDLV: boolean}){
     var i = 0;
     return <DefaultModalBody>
-        <ModalHeader>
+        {!props.isDLV && <ModalHeader>
             <span className="text-2xl font-bold">Boat Queue</span>
-        </ModalHeader>
+        </ModalHeader>}
         <CardLayout direction={LayoutDirection.VERTICAL}>
             <Card title="Queued Boats">
                 <BoatQueueSignoutsTable {...props}/>

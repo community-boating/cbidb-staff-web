@@ -72,9 +72,22 @@ const memberActionTypes: { title: React.ReactNode; mode: MemberActionMode, signo
     signoutType: option.none,
     getContent: (current, actions) => (<div>
         <AddEditCrew currentPeople={current.currentPeople} {...getCrewActions({current, actions, mode: MemberActionMode.COMMENTS})} mode={MemberActionMode.COMMENTS}></AddEditCrew>
-        <textarea className="w-full" cols={100} rows={10}></textarea>
+        
+        <Button className={buttonClasses + " " + buttonClassActive + " ml-auto mr-0 mt-auto mb-0"} spinnerOnClick submit={(e) => {
+            return Promise.resolve();
+        }}>Save Comments</Button>
     </div>)
 }];
+
+const MAX_CHARS = 4000;
+
+function CommentsInput(props){
+    const [value, setValue] = React.useState("");
+    return <textarea className="w-full" cols={100} rows={10} value={value} onChange={(e) => {
+        e.preventDefault();
+        setValue(e.target.value.substring(0, 4000));
+    }}></textarea>
+}
 
 function ClassInfo(props: {current: MemberActionType, currentClassSessionId: number, actions: ActionActionType<MemberActionType>}){
     const info = getClassInfo(props.currentClassSessionId)();
@@ -103,7 +116,7 @@ function MemberActionClasses(props: { current: MemberActionType; actions: Action
     }
 
     return <div className="h-full">
-        {props.current.currentClassSessionId.isNone() ? <ClassesCalendar handleSelectClass={(s) => {setSelectedClass(option.some(s.sessionId))}}/> : <Button onClick={() => {setSelectedClass(option.none)}}>Choose Class</Button>}
+        {props.current.currentClassSessionId.isNone() ? <ClassesCalendar handleSelectClass={(s) => {setSelectedClass(option.some(s.sessionId))}} isDLV={false}/> : <Button onClick={() => {setSelectedClass(option.none)}}>Choose Class</Button>}
         {props.current.currentClassSessionId.isSome() ? <ClassInfo current={props.current} currentClassSessionId={props.current.currentClassSessionId.value} actions={props.actions}/> : <></>}
         <CreateQueueSignout {...props} setDialogOutput={() => {}}/>
     </div>

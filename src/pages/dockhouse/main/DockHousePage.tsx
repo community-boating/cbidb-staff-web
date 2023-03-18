@@ -25,6 +25,7 @@ import { isAssigned, isPending } from '../incidents/IncidentsPage';
 import { ActionViewIncidents } from 'components/dockhouse/actionmodal/view-incidents/ViewIncidentsType';
 import CurrentTimeCalendar from '../classes/CurrentTimeView';
 import { ClassesTodayContext } from 'async/providers/ClassesTodayProvider';
+import { DynamicLargeView } from './DynamicLargeView';
 
 type CardOrButtonProps = CardProps & {
     //button: React.ReactNode;
@@ -103,12 +104,12 @@ export default function DockHousePage (props) {
                         </PreventClick>
                     </ActionCard>
                     <ActionCard title="Boat Queue" onAction={() => {
-                        actionModal.pushAction(new BoatQueueAction(signoutsToday.state.filter((a) => true)))
+                        actionModal.pushAction(new BoatQueueAction())
                     }}>
                         <NumberWithLabel number={signoutsToday.state.length} label="Signouts"/>
                     </ActionCard>
                     <ActionCard title="One Day Rentals" onAction={() => {
-                        actionModal.pushAction(new RentalsAction(signoutsToday.state.filter((a) => true)))
+                        actionModal.pushAction(new RentalsAction())
                     }}>
                         <div className="flex flex-row gap-2 mt-0 mb-auto">
                             <NumberWithLabel number={0} label="Sail"/>
@@ -118,7 +119,7 @@ export default function DockHousePage (props) {
                     </ActionCard>
                 </CardLayout>
                 <CardLayout direction={LayoutDirection.VERTICAL} weight={FlexSize.S_2}>
-                    <Card title="Dynamic Large View"></Card>
+                    <DynamicLargeView/>
                 </CardLayout>
                 <CardLayout direction={LayoutDirection.VERTICAL}>
                     <ActionCard title="Schedule" onAction={() => {

@@ -4,6 +4,7 @@ import { IncidentsContext } from 'async/providers/IncidentsProvider';
 import { option } from 'fp-ts';
 import * as React from 'react';
 import IncidentsTable from './IncidentsTable';
+import { IncidentDLVType } from 'components/dockhouse/actionmodal/view-incidents/ViewIncidentsType';
 
 function isMultiple(status: option.Option<IncidentStatusTypes>, multi: IncidentStatusTypes[]){
     return status.isSome() && multi.some((a) => status.value == a);
@@ -21,22 +22,24 @@ export function isComplete(status: option.Option<IncidentStatusTypes>){
     return isMultiple(status, [IncidentStatusTypes.COMPLETE, IncidentStatusTypes.REPORT_TO_FOLLOW])
 }
 
-export default function IncidentsPage(props) {
+export default function IncidentsPage(props: {dlvType?: IncidentDLVType, isDLV?: boolean}) {
     const incidents = React.useContext(IncidentsContext);
+    console.log(props.isDLV);
+    console.log(props.dlvType);
     return <>
         <CardLayout direction={LayoutDirection.VERTICAL}>
-            <CardLayout direction={LayoutDirection.HORIZONTAL}>
+            {(!props.isDLV || props.dlvType == IncidentDLVType.PENDING) ? <CardLayout direction={LayoutDirection.HORIZONTAL}>
                 <Card title="Pending Incidents" weight={FlexSize.S_2}>
                     <IncidentsTable incidents={incidents.state.filter((a) => isPending(a.status))}></IncidentsTable>
                 </Card>
                 <Card title="Resources"></Card>
-            </CardLayout>
-            <Card title="Assigned Incidents">
+            </CardLayout> : <></>}
+            {(!props.isDLV || props.dlvType == IncidentDLVType.ASSIGNED) ? <Card title="Assigned Incidents">
                 <IncidentsTable incidents={incidents.state.filter((a) => isAssigned(a.status))}></IncidentsTable>
-            </Card>
-            <Card title="Completed Incidents">
+            </Card> : <></>}
+            {(!props.isDLV || props.dlvType == IncidentDLVType.COMPLETED) ? <Card title="Completed Incidents">
             <IncidentsTable incidents={incidents.state.filter((a) => isComplete(a.status))}></IncidentsTable>
-            </Card>
+            </Card> : <></>}
         </CardLayout>
     </>;
 }

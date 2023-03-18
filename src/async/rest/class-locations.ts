@@ -1,5 +1,5 @@
 import * as t from "io-ts";
-import { makeOptionalPK, OptionalNumber } from "util/OptionalTypeValidators";
+import { makeOptionalPK } from "util/OptionalTypeValidators";
 import APIWrapper from "../../core/APIWrapper";
 import { HttpMethod } from "../../core/HttpMethod";
 

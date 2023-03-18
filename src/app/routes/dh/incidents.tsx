@@ -19,7 +19,6 @@ export const routeIncidentsPage = new RouteWrapper({
 	key="incidents"
 	history={history}
 	component={(urlProps: {}, async) => <IncidentsPage
-		initState={async}
 	/>}
 	urlProps={{}}
 	shadowComponent={<Loader />}

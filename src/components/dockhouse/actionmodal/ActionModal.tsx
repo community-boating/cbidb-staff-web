@@ -5,7 +5,7 @@ import * as React from 'react';
 import { Action, ActionModalProps, NoneAction, setStateChain } from './ActionModalProps';
 
 export default function ActionModal(props: ActionModalProps & {state: any, setState: React.Dispatch<React.SetStateAction<any>>}){
-    const modalContent = props.action.createModalContent(props.action.modeInfo, props.state, props.setState);
+    const modalContent = props.action.createModalContent(props.action.modeInfo, props.state, props.setState, false);
     return (
         <Modal open={props.action && !(props.action instanceof NoneAction)} setOpen={(s) => {if(!s){props.pushAction(new NoneAction())}}} className="bg-gray-100 rounded-lg">
             {modalContent}
