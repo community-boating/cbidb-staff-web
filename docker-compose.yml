@@ -1,0 +1,65 @@
+version: '3.7'
+
+services:
+  ssh-portal:
+    image: coleji/ssh-portal:latest
+    volumes: 
+      - ~/docker-mnt/ssh-portal:/root/.ssh
+    container_name: ssh-portal
+    env_file: docker-compose-env
+    expose:
+      - '15213'
+    # ports:
+    #   - '15213:15213'
+
+  api:
+    build:
+      context: ../cbidb-api
+      dockerfile: Dockerfile.build
+    container_name: cbidb-api
+    expose:
+      - '9000'
+    ports:
+      - '9000:9000'
+
+
+    # command: "ls /root/.ssh"
+    # command: "cat /root/.ssh/id_rsa"
+  # core-nginx:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile.nginx
+  #     target: nginx
+  #   container_name: core-nginx
+  #   expose:
+  #     - '80'
+  #     - '443'
+  #   ports:
+  #     - '80:80'
+  #     - '443:443'
+
+  # core-frontend:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile.build
+  #     target: dev
+  #   volumes:
+  #     - ./src:/app/src
+  #     - ./node_modules:/app/node_modules
+  #     - ./nodemon.json:/app/nodemon.json
+  #   container_name: core-frontend
+  #   expose:
+  #     - '3000'
+
+  # portal-frontend:
+  #   build:
+  #     context: ../portal-frontend
+  #     dockerfile: Dockerfile.build
+  #     target: dev
+  #   volumes:
+  #     - ../portal-frontend/src:/app/src
+  #     - ../portal-frontend/node_modules:/app/node_modules
+  #     - ../portal-frontend/nodemon.json:/app/nodemon.json
+  #   container_name: portal-frontend
+  #   expose:
+  #     - '3001'

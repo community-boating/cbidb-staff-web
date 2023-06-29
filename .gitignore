@@ -29,3 +29,5 @@ yarn-error.log*
 *.code-workspace
 .prettierrc
 typescript.zip
+
+docker-compose-env
