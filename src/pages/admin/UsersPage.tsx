@@ -295,9 +295,9 @@ export default function UsersPage(props: { users: User[], accessState: AccessSta
 						<CustomInput
 							type="checkbox"
 							id="isPwChangeRqd"
-							checked={rowForEdit.pwChangeRequired == "Y"}
+							checked={rowForEdit.pwChangeReqd == "Y"}
 							className="text-left"
-							onChange={(event) => updateState("pwChangeRequired", event.target.checked)}
+							onChange={(event) => updateState("pwChangeReqd", event.target.checked)}
 						/>
 					</Col>
 				</FormGroup>

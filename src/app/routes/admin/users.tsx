@@ -8,6 +8,7 @@ import {getWrapper as getUsers, userValidator} from "async/staff/user"
 import { PageName } from 'pages/pageNames';
 import { pathUsers } from 'app/paths';
 import {getWrapper as getAccessState, accessStateValidator} from 'async/staff/access-state'
+import { combineApis } from 'util/multi-api-combiner';
 
 const userArrayValidator = t.array(userValidator);
 
@@ -33,7 +34,8 @@ export const routeUsersPage = new RouteWrapper({
 		return Promise.all([
 			getUsers.send(),
 			getAccessState.send()
-		]).catch(err => Promise.resolve(null));
+		]).then(combineApis)
+		.catch(err => Promise.resolve(null));
 	}}
 	shadowComponent={<Loader />}
 />);

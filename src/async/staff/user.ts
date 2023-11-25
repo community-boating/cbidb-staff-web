@@ -10,7 +10,7 @@ export const userValidator = t.type({
 	nameLast: OptionalString,
 	email: t.string,
 	locked: t.boolean,
-	pwChangeRequired: t.boolean,
+	pwChangeReqd: t.boolean,
 	active: t.boolean,
 	hideFromClose: t.boolean,
 	pw1: OptionalString,
