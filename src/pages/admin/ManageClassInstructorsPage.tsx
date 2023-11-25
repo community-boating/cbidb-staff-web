@@ -12,15 +12,15 @@ type ClassInstructor = t.TypeOf<typeof classInstructorValidator>;
 export default function ManageClassInstructorsPage(props: { instructors: ClassInstructor[] }) {
 	const columns: ColumnDef<ClassInstructor, any>[] = [
 	{
-		accessorKey: "INSTRUCTOR_ID",
+		accessorKey: "instructorId",
 		header: "ID",
 		size: 80,
 	}, {
-		accessorKey: "NAME_FIRST",
+		accessorKey: "nameFirst",
 		header: "First Name",
 		size: 300,
 	}, {
-		accessorKey: "NAME_LAST",
+		accessorKey: "nameLast",
 		header: "Last Name",
 	}];
 
@@ -31,7 +31,7 @@ export default function ManageClassInstructorsPage(props: { instructors: ClassIn
 			</Label>
 			<Col sm={10} >
 				<div style={{textAlign: "left", padding: "5px 14px"}}>
-					{rowForEdit.INSTRUCTOR_ID || "(none)"}
+					{rowForEdit.instructorId || "(none)"}
 				</div>
 			</Col>
 		</FormGroup>
@@ -44,8 +44,8 @@ export default function ManageClassInstructorsPage(props: { instructors: ClassIn
 					type="text"
 					name="nameFirst"
 					placeholder="First Name"
-					value={rowForEdit.NAME_FIRST}
-					onChange={event => updateState("NAME_FIRST", event.target.value)}
+					value={rowForEdit.nameFirst}
+					onChange={event => updateState("nameFirst", event.target.value)}
 				/>
 			</Col>
 		</FormGroup>
@@ -59,8 +59,8 @@ export default function ManageClassInstructorsPage(props: { instructors: ClassIn
 					name="nameLast"
 					placeholder="Last Name"
 					id="nameLast"
-					value={rowForEdit.NAME_LAST}
-					onChange={event => updateState("NAME_LAST", event.target.value)}
+					value={rowForEdit.nameLast}
+					onChange={event => updateState("nameLast", event.target.value)}
 				/>
 			</Col>
 		</FormGroup>
@@ -69,7 +69,7 @@ export default function ManageClassInstructorsPage(props: { instructors: ClassIn
 	return <ReportWithModalForm
 		rowValidator={classInstructorValidator}
 		rows={props.instructors}
-		primaryKey="INSTRUCTOR_ID"
+		primaryKey="instructorId"
 		columns={columns}
 		formComponents={formComponents}
 		submitRow={putInstructor}

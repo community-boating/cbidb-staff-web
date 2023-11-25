@@ -4,8 +4,8 @@ import APIWrapper from "../../core/APIWrapper";
 import { HttpMethod } from "../../core/HttpMethod";
 
 export const tagValidator = t.type({
-	TAG_ID: t.number,
-	TAG_NAME: t.string,
+	tagId: t.number,
+	tagName: t.string,
 });
 
 export const validator = t.array(tagValidator);
@@ -25,6 +25,6 @@ const resultValidator = t.type({
 export const putWrapper = new APIWrapper({
 	path,
 	type: HttpMethod.POST,
-	postBodyValidator: makeOptionalPK(tagValidator, "TAG_ID"),
+	postBodyValidator: makeOptionalPK(tagValidator, "tagId"),
 	resultValidator,
 });

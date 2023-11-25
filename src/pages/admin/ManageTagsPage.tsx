@@ -17,12 +17,12 @@ export default function ManageTagsPage(props: { tags: Tag[] }) {
 	// Define table columns
 	const columns: ColumnDef<Tag>[] = [
 		{
-			accessorKey: "TAG_ID",
+			accessorKey: "tagId",
 			header: "ID",
 			size: 75,
 		},
 		{
-			accessorKey: "TAG_NAME",
+			accessorKey: "tagName",
 			header: "Tag Name",
 			size: null
 		},
@@ -40,7 +40,7 @@ export default function ManageTagsPage(props: { tags: Tag[] }) {
 				</Label>
 				<Col sm={10}>
 					<div style={{ textAlign: "left", padding: "5px 14px" }}>
-						{rowForEdit.TAG_ID || "(none)"}
+						{rowForEdit.tagId || "(none)"}
 					</div>
 				</Col>
 			</FormGroup>
@@ -53,8 +53,8 @@ export default function ManageTagsPage(props: { tags: Tag[] }) {
 						type="text"
 						name="tagName"
 						placeholder="Tag Name"
-						value={rowForEdit.TAG_NAME}
-						onChange={(event) => updateState("TAG_NAME", event.target.value)}
+						value={rowForEdit.tagName}
+						onChange={(event) => updateState("tagName", event.target.value)}
 					/>
 				</Col>
 			</FormGroup>
@@ -65,7 +65,7 @@ export default function ManageTagsPage(props: { tags: Tag[] }) {
 		<ReportWithModalForm
 			rowValidator={tagValidator}
 			rows={props.tags}
-			primaryKey="TAG_ID"
+			primaryKey="tagId"
 			columns={columns}
 			formComponents={formComponents}
 			submitRow={putTag}

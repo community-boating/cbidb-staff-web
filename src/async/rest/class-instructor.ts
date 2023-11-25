@@ -4,9 +4,9 @@ import APIWrapper from '../../core/APIWrapper';
 import { HttpMethod } from "../../core/HttpMethod";
 
 export const classInstructorValidator = t.type({
-	INSTRUCTOR_ID: t.number,
-	NAME_FIRST: t.string,
-	NAME_LAST: t.string,
+	instructorId: t.number,
+	nameFirst: t.string,
+	nameLast: t.string,
 });
 
 export const validator = t.array(classInstructorValidator);
@@ -20,12 +20,12 @@ export const getWrapper = new APIWrapper({
 });
 
 const resultValidator = t.type({
-	INSTRUCTOR_ID: t.number
+	instructorId: t.number
 })
 
 export const putWrapper = new APIWrapper({
 	path,
 	type: HttpMethod.POST,
-	postBodyValidator: makeOptionalPK(classInstructorValidator, "INSTRUCTOR_ID"),
+	postBodyValidator: makeOptionalPK(classInstructorValidator, "instructorId"),
 	resultValidator,
 });
