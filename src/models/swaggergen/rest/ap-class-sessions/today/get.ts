@@ -1,5 +1,5 @@
 import * as t from 'io-ts';
-import { OptionalNumber, OptionalDateTime, DateTime, OptionalBoolean, OptionalString, makeOptional } from 'util/OptionalTypeValidators';
+import { OptionalNumber, OptionalDateTime, OptionalBoolean, OptionalString, makeOptional } from 'util/OptionalTypeValidators';
 
 export const path = "/staff/rest/ap-class-sessions/today"
 
@@ -14,7 +14,7 @@ export const responseSuccessValidator = t.array(t.type({
 	instanceId: t.number,
 	headcount: OptionalNumber,
 	cancelledDatetime: OptionalDateTime,
-	sessionDatetime: DateTime,
+	sessionDatetime: t.string,
 	sessionLength: t.number,
 	isMakeup: OptionalBoolean,
 	$$apClassInstance: t.type({
@@ -45,7 +45,7 @@ export const responseSuccessValidator = t.array(t.type({
 			voidCloseId: OptionalNumber,
 			signupType: t.string,
 			signupNote: OptionalString,
-			signupDatetime: DateTime,
+			signupDatetime: t.string,
 			$$person: t.type({
 				personId: t.number,
 				nameFirst: OptionalString,
@@ -54,9 +54,9 @@ export const responseSuccessValidator = t.array(t.type({
 			$$apClassWaitlistResult: makeOptional(t.type({
 				wlResult: t.string,
 				foVmDatetime: OptionalDateTime,
-				offerExpDatetime: DateTime,
+				offerExpDatetime: t.string,
 				signupId: t.number,
-				foAlertDatetime: DateTime,
+				foAlertDatetime: t.string,
 				permitOvercrowd: OptionalBoolean,
 			})),
 		})),

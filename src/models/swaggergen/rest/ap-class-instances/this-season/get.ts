@@ -1,5 +1,5 @@
 import * as t from 'io-ts';
-import { OptionalDateTime, OptionalNumber, OptionalBoolean, OptionalString, DateTime, makeOptional } from 'util/OptionalTypeValidators';
+import { OptionalDateTime, OptionalNumber, OptionalBoolean, OptionalString, makeOptional } from 'util/OptionalTypeValidators';
 
 export const path = "/staff/rest/ap-class-instances/this-season"
 
@@ -27,7 +27,7 @@ export const responseSuccessValidator = t.array(t.type({
 		instanceId: t.number,
 		headcount: OptionalNumber,
 		cancelledDatetime: OptionalDateTime,
-		sessionDatetime: DateTime,
+		sessionDatetime: t.string,
 		sessionLength: t.number,
 		isMakeup: OptionalBoolean,
 	})),
