@@ -1,7 +1,7 @@
 import * as t from 'io-ts';
 import { OptionalDateTime, OptionalNumber, OptionalString, DateTime } from 'util/OptionalTypeValidators';
 
-export const path = "/staff/rest/ap-class-instances/this-season"
+export const path = "/rest/ap-class-instances/this-season"
 
 /**
  * !!!!!!!!!!!!

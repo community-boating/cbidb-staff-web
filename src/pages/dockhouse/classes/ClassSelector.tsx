@@ -1,4 +1,3 @@
-import { ClassTypeType } from 'async/staff/dockhouse/class-types';
 import { AllClassesContext } from 'async/providers/AllClassesProvider';
 import { ClassTypesContext } from 'async/providers/ClassTypesProvider';
 import { SelectInput } from 'components/wrapped/Input';

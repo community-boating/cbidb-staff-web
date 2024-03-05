@@ -11,6 +11,7 @@ import InstructorsProvider from './InstructorsProvider';
 import RatingsProvider from './RatingsProvider';
 import SignoutsTodayProvider from './SignoutsTodayProvider';
 import ClassesTodayProvider from './ClassesTodayProvider';
+import FOTVProvider from './FOTVProvider';
 
 const providersList = [
     ActionModalProvider,
@@ -25,6 +26,7 @@ const providersList = [
     AllClassesProvider,
     ClassesTodayProvider,
     ClassTypesProvider,
+    FOTVProvider
 ]
 
 export default function DHProviders(props: {children?: React.ReactNode}){

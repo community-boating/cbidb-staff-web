@@ -11,7 +11,7 @@ import { RatingsContext } from 'async/providers/RatingsProvider';
 import { ClassBoatListActions, SelectableDiv, selectKeySignout } from './ClassSelectableDiv';
 import { SignoutCombinedType } from '../signouts/SignoutCombinedType';
 import { AddActionType, AddSignoutAction, findLowestId } from './Actions';
-import { ScannedPersonType } from 'async/staff/dockhouse/scan-card';
+import { ScannedPersonType } from 'models/typerefs';
 import { RatingsHover } from 'components/dockhouse/actionmodal/signouts/RatingSorter';
 import { MAGIC_NUMBERS } from 'app/magicNumbers';
 import { ActionClassType } from "./ActionClassType";

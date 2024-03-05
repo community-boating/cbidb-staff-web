@@ -17,5 +17,6 @@ export enum PageName {
 	MANAGE_ACCESS = "manage-access",
 	SALES_DASHBOARD = "sales_dashboard",
 	INCIDENTS = "incidents",
-	CLASSES="classes"
+	CLASSES="classes",
+	FOTV_CONTROLLER="fotv_controller"
 }

@@ -3,7 +3,6 @@ import * as React from 'react';
 import { option } from 'fp-ts';
 import Button from 'components/wrapped/Button';
 import { AppStateContext } from 'app/state/AppStateContext';
-import { postWrapper as createSignout } from 'async/staff/dockhouse/create-signout';
 import { SignoutCombinedType } from '../signouts/SignoutCombinedType';
 import { buttonClassActive, buttonClasses, buttonClassInactive } from '../styles';
 import { adaptMemberState, convertToCreateSignout } from '../signouts/EditSignoutModal';
@@ -12,6 +11,7 @@ import { SignoutType } from 'async/staff/dockhouse/signouts';
 import * as moment from 'moment';
 import { ActionActionType } from 'components/ActionBasedEditor';
 import { none } from 'fp-ts/lib/Option';
+import { postCreateSignout } from 'models/apiwrappers';
 
 export function CreateQueueSignout(props: { current: SignoutCombinedType; actions: ActionActionType<SignoutCombinedType>, setDialogOutput: React.Dispatch<React.SetStateAction<option.Option<string>>>}) {
     const asc = React.useContext(AppStateContext);
@@ -23,7 +23,7 @@ export function CreateQueueSignout(props: { current: SignoutCombinedType; action
         const v = convertToCreateSignout(props.current)
         console.log(v);
         console.log(props.current);
-        return createSignout.sendJson(asc, v).then((a) => {
+        return postCreateSignout.sendJson(asc, v).then((a) => {
             if (a.type == "Success") {
                 modal.setOpen(false);
                 signouts.setState((s) => s.concat(adaptMemberState(props.current, {

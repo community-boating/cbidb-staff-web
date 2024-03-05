@@ -8,6 +8,6 @@ export type ProviderWithSetState<T_State> = {
     providerState: ProviderState
 }
 
-export default function GeneticAsyncProvider<T_API extends APIWrapper<any, any, any>>(props: {children?: React.ReactNode, apiWrapper: T_API, refreshRate?: number, contextProvider: React.Context<ProviderWithSetState<any>>['Provider']}){
-    return <AsyncStateProvider apiWrapper={props.apiWrapper} refreshRate={props.refreshRate} initState={[]} makeChildren={(state, setState, providerState) => {return React.createElement(props.contextProvider, {value:{state:state, setState:setState, providerState:providerState}, children: props.children})}}/>
+export default function GeneticAsyncProvider<T_API extends APIWrapper<any, any, any>>(props: {children?: React.ReactNode, apiWrapper: T_API, refreshRate?: number, initState: any, contextProvider: React.Context<ProviderWithSetState<any>>['Provider']}){
+    return <AsyncStateProvider apiWrapper={props.apiWrapper} refreshRate={props.refreshRate} initState={props.initState} makeChildren={(state, setState, providerState) => {return React.createElement(props.contextProvider, {value:{state:state, setState:setState, providerState:providerState}, children: props.children})}}/>
 }

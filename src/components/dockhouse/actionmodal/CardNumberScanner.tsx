@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { option } from 'fp-ts';
 import { OptionalStringInput } from 'components/wrapped/Input';
-import { ScannedCrewType, ScannedPersonType } from 'async/staff/dockhouse/scan-card';
+import { ScannedCrewType, ScannedPersonType } from 'models/typerefs';
 import { ScannedPersonsCacheContext } from './ScannedPersonsCache';
 import { RatingsHover } from 'components/dockhouse/actionmodal/signouts/RatingSorter';
 
@@ -18,6 +18,7 @@ export function CardNumberScanner(props: ({ label: string; onAction: (result: Sc
     const context = React.useContext(ScannedPersonsCacheContext);
     const findCardNum = (cardNum: string) => {
         if (timeoutID.current) {
+            console.log(timeoutID.current);
             clearTimeout(timeoutID.current);
         }
         timeoutID.current = setTimeout(() => {
@@ -31,7 +32,7 @@ export function CardNumberScanner(props: ({ label: string; onAction: (result: Sc
                 }
                 timeoutID.current = undefined;
             });
-        }, 200);
+        }, 500);
     };
     const addCardNumToCrew = () => {
         if (foundPerson.isSome() && actionQueued.isSome() && actionQueued.value == foundPerson.value.cardNumber) {

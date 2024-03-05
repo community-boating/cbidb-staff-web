@@ -23,6 +23,8 @@ export const pathStaggeredOrder = new PathWrapper("staggered-order/:personId");
 
 export const pathClasses = pathDockhouseBase.appendPathSegment("classes");
 
+export const pathFOTVController = pathDockhouseBase.appendPathSegment("fotv-controller");
+
 export const pathSignoutsTables = pathDockhouseBase.appendPathSegment("signouts-tables");
 
 export const pathIncidents = pathDockhouseBase.appendPathSegment("incidents");

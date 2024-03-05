@@ -18,7 +18,8 @@ export type ApiResult<T_Success> = Success<T_Success> | Failure
 export interface ConfigCommon<T_ResponseValidator extends t.Any> {
 	type: string & HttpMethod,
 	path: string,
-	extraHeaders?: object, 
+	extraHeaders?: object,
+	serverIndex?: number,
 	resultValidator: T_ResponseValidator,
 	jsconMap?: any
 	permissions?: number[]

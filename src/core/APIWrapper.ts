@@ -25,10 +25,10 @@ const searchJSCONMetaData: (metaData: any[]) => (toFind: string) => number = met
 	return null;
 }
 
-var apiAxios: AxiosInstance = null;
+var apiAxios: AxiosInstance[] = [];
 
-function getOrCreateAxios(serverParams: ServerParams) {
-	if (apiAxios == null) {
+function getOrCreateAxios(serverParams: ServerParams, serverIndex: number=0) {
+	if (apiAxios[serverIndex] == null) {
 		console.log('instantiating axios');
 		const portString = (function() {
 			if (
@@ -38,7 +38,7 @@ function getOrCreateAxios(serverParams: ServerParams) {
 			else return "";
 		}());
 
-		apiAxios = axios.create({
+		apiAxios[serverIndex] = axios.create({
 			baseURL: `${serverParams.https ? "https://" : "http://"}${serverParams.host}${portString}`,
 			maxRedirects: 0,
 			responseType: "json",
@@ -46,7 +46,7 @@ function getOrCreateAxios(serverParams: ServerParams) {
 			// xsrfHeaderName: "X-XSRF-TOKEN",
 		})
 	}
-	return apiAxios;
+	return apiAxios[serverIndex];
 }
 
 const PostURLEncoded: <T extends {[K: string]: string}>(o: T) => string = o => {
@@ -57,12 +57,11 @@ const PostURLEncoded: <T extends {[K: string]: string}>(o: T) => string = o => {
 	return arr.join('&')
 }
 
-const makePostString: <T_PostJSON extends {[K: string]: string}>(forString: T_PostJSON) => PostString<T_PostJSON> = forString => ({
+export const makePostString: <T_PostJSON extends {[K: string]: string}>(forString: T_PostJSON) => PostString<T_PostJSON> = forString => ({
 	type: "urlEncoded",
 	urlEncodedData: PostURLEncoded(forString)
 })
-const makePostJSON: <T_PostJSON extends object>(jsonData: T_PostJSON) => PostJSON<T_PostJSON> = jsonData => ({type: "json", jsonData})
-
+export const makePostJSON: <T_PostJSON extends object>(jsonData: T_PostJSON) => PostJSON<T_PostJSON> = jsonData => ({type: "json", jsonData})
 
 export const API_CODE_NOT_LOGGED_IN = "API.NOT.LOGGED.IN"
 
@@ -73,6 +72,9 @@ export default class APIWrapper<T_ResponseValidator extends t.Any, T_PostBodyVal
 	config: Config<T_ResponseValidator, T_PostBodyValidator, T_FixedParams>
 	constructor(config: Config<T_ResponseValidator, T_PostBodyValidator, T_FixedParams>) {
 		this.config = config;
+	}
+	sendRaw(params, data): Promise<any> {
+		return getOrCreateAxios(params, this.config.serverIndex).post(this.config.path, data)
 	}
 	send: (asc: AppStateCombined) => Promise<ApiResult<t.TypeOf<T_ResponseValidator>>> = (asc) => this.sendWithParams(asc, none)(undefined)
 	sendJson: (asc: AppStateCombined, data: t.TypeOf<T_PostBodyValidator>, params?: T_Params) => Promise<ApiResult<t.TypeOf<T_ResponseValidator>>> = (asc, data, params) => this.sendWithParams(asc, none, params)(makePostJSON(data))
@@ -144,13 +146,13 @@ export default class APIWrapper<T_ResponseValidator extends t.Any, T_PostBodyVal
 				...postValues.map(pv => pv.headers).getOrElse(null)
 			}
 
-			return (params != undefined ? getOrCreateAxios(serverParams)({
+			return (params != undefined ? getOrCreateAxios(serverParams, self.config.serverIndex || 0)({
 				method: self.config.type,
 				url: (serverParams.pathPrefix || "") + self.config.path,
 				params: params,
 				data: postValues.map(pv => pv.content).getOrElse(null),
 				headers
-			}) : getOrCreateAxios(serverParams)({
+			}) : getOrCreateAxios(serverParams, self.config.serverIndex || 0)({
 				method: self.config.type,
 				url: (serverParams.pathPrefix || "") + self.config.path,
 				data: postValues.map(pv => pv.content).getOrElse(null),
@@ -237,7 +239,8 @@ export default class APIWrapper<T_ResponseValidator extends t.Any, T_PostBodyVal
 			if (decoded.isRight()) {
 				ret = {type: "Success", success: decoded.getOrElse(null)};
 			} else {
-				ret = {type: "Failure", code: "parse_failure", message: "An internal error has occurred.", extra: {parseError: PathReporter.report(decoded).join(", ")}};
+				ret = {type: "Success", success: candidate};
+				//ret = {type: "Failure", code: "parse_failure", message: "An internal error has occurred.", extra: {parseError: PathReporter.report(decoded).join(", ")}};
 			} 
 			return ret;
 		}());

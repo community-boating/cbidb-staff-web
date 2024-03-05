@@ -35,7 +35,7 @@ type CardLayoutChildProps = {
 
 export type CardProps = CardLayoutChildProps & {
     children?: React.ReactNode,
-    title: React.ReactNode,
+    title?: React.ReactNode,
     className?: string
 }
 

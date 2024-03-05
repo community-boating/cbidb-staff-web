@@ -64,8 +64,8 @@ export function OptionalEnumType<T>(name: string, e: T){
 }
 
 
-export function EnumType<T>(name: string, e: T){
-	const revEnum = {};
+export function EnumType<T extends {[key: string]: any}>(name: string, e: T){
+	const revEnum: {[key: string]: any} = {};
 	Object.entries(e).forEach((a) => {
 		revEnum[a[1]] = e[a[0]];
 	});
@@ -104,13 +104,21 @@ export const makeOptionalPK = <T extends t.TypeC<any>>(someValidator: T, PK: key
 	return t.type(newProps);
 }
 
-export const makeOptionalProps = <T extends t.TypeC<any>>(someValidator: T) => {
-	const newProps = Object.assign({}, someValidator.props);
+type OptionalWithKey<A extends {[key: string]: any}, PK extends keyof A> = {
+	[PropertyKey in keyof Omit<A, PK>]: t.Type<option.Option<t.TypeOf<Omit<A, PK>[PropertyKey]>>>
+} & Pick<A, PK>
+
+export const makeOptionalProps = <A extends {[key: string]: any}, PKT extends keyof A>(someValidator: t.TypeC<A>, PK?: PKT) => {
+	const newProps: OptionalWithKey<A, PKT> = {} as any;
 	Object.keys(someValidator.props).forEach((a) => {
-		newProps[a] = makeOptional(someValidator.props[a]);
+		if(a != PK)
+			(newProps as any)[a] = makeOptional(someValidator.props[a]);
 	})
 	return t.type(newProps);
 }
+
+type derp = OptionalWithKey<{derp: string, yolo: string}, 'derp'>;
+
 
 export const allowNullUndefinedProps = <T extends t.TypeC<any>>(someValidator: T) => {
 	const newProps = Object.assign({}, someValidator.props);

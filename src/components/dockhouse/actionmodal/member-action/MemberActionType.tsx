@@ -1,9 +1,9 @@
-import { ScannedPersonType } from 'async/staff/dockhouse/scan-card';
+import { ScannedPersonType } from 'models/typerefs';
 import { ActionProps, CurrentPeopleType, SignoutCombinedType } from '../signouts/SignoutCombinedType';
 import { option } from 'fp-ts';
 import { EditAction } from 'components/ActionBasedEditor';
 import { ProviderWithSetState } from 'async/providers/ProviderType';
-import { ApClassSession } from 'async/staff/dockhouse/ap-class-sessions';
+import { ApClassSessionWithInstance } from 'models/typerefs';
 import { SignoutType } from 'async/staff/dockhouse/signouts';
 
 export type AddEditCrewProps = {
@@ -29,7 +29,7 @@ export type MemberActionModalStateType = {
     dialogOutput: option.Option<string>
 }
 
-export const defaultMemberAction: (scannedPerson: ScannedPersonType, classes: ProviderWithSetState<ApClassSession[]>) => {signout: MemberActionType, mode: MemberActionMode} = (scannedPerson, classes) => ({signout: {
+export const defaultMemberAction: (scannedPerson: ScannedPersonType, classes: ProviderWithSetState<ApClassSessionWithInstance[]>) => {signout: MemberActionType, mode: MemberActionMode} = (scannedPerson, classes) => ({signout: {
     currentPeople: [{ ...scannedPerson, isSkipper: true, isTesting: true, testRatingId: option.none}],
     boatId: option.none,
     boatNum: option.none,
@@ -42,7 +42,7 @@ export const defaultMemberAction: (scannedPerson: ScannedPersonType, classes: Pr
     mode: MemberActionMode.SIGNOUT
 }, mode: scannedPerson.apClassSignupsToday.length > 0 ? MemberActionMode.CLASSES : MemberActionMode.SIGNOUT,})
 
-export const defaultSignout: (scannedPerson: ScannedPersonType, classes: ProviderWithSetState<ApClassSession[]>) => MemberActionType = (scannedPerson, classes) => ({
+export const defaultSignout: (scannedPerson: ScannedPersonType, classes: ProviderWithSetState<ApClassSessionWithInstance[]>) => MemberActionType = (scannedPerson, classes) => ({
     currentPeople: [{ ...scannedPerson, isSkipper: true, isTesting: true, testRatingId: option.none}],
     boatId: option.none,
     boatNum: option.none,

@@ -1,9 +1,9 @@
-import { ScannedPersonType } from "async/staff/dockhouse/scan-card";
+import { ScannedPersonType } from 'models/typerefs';
 import { SignoutType } from "async/staff/dockhouse/signouts";
 import { EditAction, ActionActionType } from "components/ActionBasedEditor";
 import { option } from "fp-ts";
 import { SignoutCombinedType } from "../signouts/SignoutCombinedType";
-import { ApClassSession, ApClassSignup, SignupType } from "async/staff/dockhouse/ap-class-sessions";
+import { ApClassSessionWithInstance, ApClassSignup } from 'models/typerefs';
 import { ActionClassType } from "./ActionClassType";
 
 export type AddActionType = Pick<ActionActionType<ActionClassType>, 'addAction'>;
@@ -127,8 +127,8 @@ export class UpdateClassSignup extends EditAction<ActionClassType>{
 }*/
 
 export class UpdateClass extends EditAction<ActionClassType>{
-    updatedClass: Partial<ApClassSession>
-    constructor (updatedClass: Partial<ApClassSession>){
+    updatedClass: Partial<ApClassSessionWithInstance>
+    constructor (updatedClass: Partial<ApClassSessionWithInstance>){
         super();
         this.updatedClass = updatedClass;
     }

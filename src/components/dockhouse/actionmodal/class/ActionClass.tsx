@@ -3,11 +3,7 @@ import ActionClassModal from './ActionClassModal';
 import { ActionClassModalState, ActionClassType } from "./ActionClassType";
 import { SignoutCombinedType } from '../signouts/SignoutCombinedType';
 import { Action, getInfo } from '../ActionModalProps';
-import { AttendanceEntry, AttendanceType } from 'async/staff/dockhouse/attendance';
-import { SelectedType } from './ClassSelectableDiv';
 import { option } from 'fp-ts';
-import { EditAction } from 'components/ActionBasedEditor';
-import { ApClassSession } from 'async/staff/dockhouse/ap-class-sessions';
 import { SignoutsTodayContext } from 'async/providers/SignoutsTodayProvider';
 import { ClassesTodayContext } from 'async/providers/ClassesTodayProvider';
 import { AllClassesContext } from 'async/providers/AllClassesProvider';
@@ -21,7 +17,7 @@ export const getClassInfo = (currentClassSessionId: number) =>  () => {
     const allClasses = React.useContext(AllClassesContext);
     const ratings = React.useContext(RatingsContext);
     return React.useMemo(() => {
-        const currentClass = classesToday.state.find((a) => a.sessionId == currentClassSessionId) || allClasses.find((a) => a.sessionId == currentClassSessionId);
+        const currentClass = classesToday.state.find((a) => a.sessionId == currentClassSessionId) 
         const allPersons = []/*currentClass.$$apClassInstance.$$apClassSignups.reduce((a, b) => {
             a[b.personId] = true;
             return a;

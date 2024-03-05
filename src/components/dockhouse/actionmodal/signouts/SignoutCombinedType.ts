@@ -1,4 +1,4 @@
-import { ScannedCrewType } from 'async/staff/dockhouse/scan-card';
+import { ScannedCrewType } from 'models/typerefs';
 import { SignoutType } from 'async/staff/dockhouse/signouts';
 import { option } from 'fp-ts';
 

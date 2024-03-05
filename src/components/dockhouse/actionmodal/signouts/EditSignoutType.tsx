@@ -1,5 +1,5 @@
 import { RatingsType } from 'async/staff/dockhouse/ratings';
-import { SignoutTablesState, SignoutType, TestType } from 'async/staff/dockhouse/signouts';
+import { SignoutTablesState, TestType } from 'async/staff/dockhouse/signouts';
 import { EditAction } from 'components/ActionBasedEditor';
 import { option } from 'fp-ts';
 import { none } from 'fp-ts/lib/Option';
@@ -35,7 +35,7 @@ export function adaptPerson(scannedPerson: Partial<SignoutCombinedType['currentP
         isSkipper: false,
         isTesting: false,
         testRatingId: option.none,
-        maxFlagsPerBoat: [],
+        maxBoatFlags: [],
         apClassSignupsToday: [],
         jpClassSignupsToday: [],
         activeMemberships: [defaultMembership(0)],

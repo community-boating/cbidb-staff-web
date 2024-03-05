@@ -1,7 +1,7 @@
 import * as t from 'io-ts';
 import { OptionalNumber, OptionalString } from 'util/OptionalTypeValidators';
 
-export const path = "/staff/rest/ap-class-types"
+export const path = "/rest/ap-class-types"
 
 /**
  * !!!!!!!!!!!!
@@ -24,7 +24,7 @@ export const responseSuccessValidator = t.array(t.type({
 	signupMaxDefault: OptionalNumber,
 	signupMinDefault: OptionalNumber,
 	disallowIfOverkill: t.boolean,
-	$$apClassFormats: t.array(t.type({
+	/*$$apClassFormats: t.array(t.type({
 		formatId: t.number,
 		typeId: t.number,
 		description: OptionalString,
@@ -33,5 +33,5 @@ export const responseSuccessValidator = t.array(t.type({
 		sessionLengthDefault: t.number,
 		signupMaxDefaultOverride: OptionalNumber,
 		signupMinDefaultOverride: OptionalNumber,
-	})),
+	})),*/
 }))

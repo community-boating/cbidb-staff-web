@@ -9,6 +9,7 @@ export const path = "/staff/dockhouse/scan-card"
  * Do not manually alter this file, or your changes will be lost
  * !!!!!!!!!!!!
  */
+
 export const responseSuccessValidator = t.type({
 	personId: t.number,
 	cardNumber: t.string,
@@ -25,7 +26,7 @@ export const responseSuccessValidator = t.type({
 		discountName: OptionalString,
 		isDiscountFrozen: t.boolean,
 		hasGuestPrivs: t.boolean,
-		programId: t.number,
+		programId: t.any,
 	})),
 	personRatings: t.array(t.type({
 		ratingId: t.number,
@@ -49,7 +50,7 @@ export const responseSuccessValidator = t.type({
 		signupDatetime: t.string,
 		sequence: t.number,
 	})),
-	maxFlagsPerBoat: t.array(t.type({
+	maxBoatFlags: t.array(t.type({
 		boatId: t.number,
 		programId: t.number,
 		maxFlag: t.string,

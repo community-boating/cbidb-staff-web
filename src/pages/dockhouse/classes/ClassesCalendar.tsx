@@ -4,9 +4,8 @@ import { Calendar, Event, momentLocalizer, Views } from 'react-big-calendar'
 import withDragAndDrop from 'react-big-calendar/lib/addons/dragAndDrop'
 import * as moment from 'moment'
 import { ClassTypesContext } from 'async/providers/ClassTypesProvider';
-import { ClassTypeType } from 'async/staff/dockhouse/class-types';
 import { option } from 'fp-ts';
-import { ApClassSession } from 'async/staff/dockhouse/ap-class-sessions';
+import { ApClassInstanceWithSignups, ApClassInstance, ApClassSession, ApClassSessionWithInstance, ApClassType } from 'models/typerefs';
 import { ActionModalContext } from 'components/dockhouse/actionmodal/ActionModal';
 import { ClassesTodayContext } from 'async/providers/ClassesTodayProvider';
 import { formatsById } from './formatsById';
@@ -14,28 +13,28 @@ import { AllClassesContext } from 'async/providers/AllClassesProvider';
 
 const DnDCalendar = withDragAndDrop(Calendar<Event, object>);
 
-function makeEvent(session: ApClassSession, formatsById: FormatById, isToday: boolean): Event{
+function makeEvent(session: ApClassSession, instance: ApClassInstanceWithSignups | ApClassInstance/*, formatsById: FormatById*/): Event{
     const end = session.sessionDatetime.toDate();
     end.setHours(end.getHours() + session.sessionLength);
     return {
-        title: (formatsById[session.$$apClassInstance.formatId] || {b: {}}).b.typeName + (isToday ? ( " [Instructor]" + (session.$$apClassInstance.locationString.isSome() ? " @ " + session.$$apClassInstance.locationString.getOrElse("") : "") + " "/* + session.$$apClassInstance.$$apClassSignups.length*/) : ""), 
+        title: (formatsById[instance.formatId] || {b: {}}).b.typeName +
+        "", 
         start: session.sessionDatetime.toDate(),
         end: end,
         resource: session
     }
 }
 
-export function getEvents(classesToday: ApClassSession[], allClasses: ApClassSession[], classTypes: ClassTypeType[]): Event[]{
-    const formats = formatsById(classTypes);
-    return allClasses.filter((a) => !classesToday.some((b) => b.sessionId == a.sessionId)).map((a) => makeEvent(a, formats, false)).concat(
-        classesToday.map((a) => makeEvent(a, formats, true))
-    )
+export function getEvents(classesToday: ApClassSessionWithInstance[], allClasses: ApClassInstance[], classTypes: ApClassType[]): Event[]{
+    //const formats = formatsById(classTypes);
+    console.log(allClasses);
+    return allClasses.flatMap((a) => a.$$apClassSessions.map((b) => makeEvent(b, a/*, formats*/)))
 }
 
 export type FormatById = {
     [key: number]: {
-        b: ClassTypeType
-        d: ClassTypeType['$$apClassFormats'][number]
+        b: ApClassType
+        //d: ApClassType['$$apClassFormats'][number]
     }
 }
 
@@ -47,7 +46,7 @@ const maxTime = new Date(2020, 1, 0, 19, 0, 0);
 const localizer = momentLocalizer(moment);
 
 export type ClassesProps = {
-    handleSelectClass: (s: ApClassSession) => void
+    handleSelectClass: (s: ApClassSessionWithInstance) => void
     //classSession: option.Option<number>
     //setClassSession: React.Dispatch<React.SetStateAction<option.Option<number>>>
 }

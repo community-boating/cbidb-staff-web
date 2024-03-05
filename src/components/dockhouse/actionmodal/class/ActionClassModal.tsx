@@ -21,7 +21,7 @@ import { ActionModalPropsWithState, subStateWithSet } from '../ActionModalProps'
 import { Tab } from '@headlessui/react';
 import { ActionClassType, ActionClassModalState } from './ActionClassType';
 import { ClassesTodayContext } from 'async/providers/ClassesTodayProvider';
-import { ApClassSession, ApClassSignup, SignupType } from 'async/staff/dockhouse/ap-class-sessions';
+import { ApClassSessionWithInstance, ApClassSignup, SignupType } from 'models/typerefs';
 import { SignoutsTodayContext } from 'async/providers/SignoutsTodayProvider';
 import { ProviderWithSetState } from 'async/providers/ProviderType';
 import { toastr } from 'react-redux-toastr';
@@ -105,7 +105,7 @@ export function AddPersonScanner(props: {classSessionId: number}){
     }}></CardNumberScanner>
 }
 
-export function addPersonToClass(classSessionId: number, person: ApClassSignup['$$person'], classes: ProviderWithSetState<ApClassSession[]>){
+export function addPersonToClass(classSessionId: number, person: ApClassSignup['$$person'], classes: ProviderWithSetState<ApClassSessionWithInstance[]>){
     classes.setState((s) => s.map((b) => {
         if(b.sessionId == classSessionId){
             /*if(b.$$apClassInstance.$$apClassSignups.some((c) => c.$$person.personId == person.personId)){

@@ -1,4 +1,3 @@
-import { ScannedPersonType } from "async/staff/dockhouse/scan-card";
 import { EditAction } from "components/ActionBasedEditor";
 import { option } from "fp-ts";
 import { CurrentPeopleType, SignoutCombinedType } from "../signouts/SignoutCombinedType";

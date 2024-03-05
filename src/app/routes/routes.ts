@@ -5,6 +5,7 @@ import { routeSignoutsTablesPage } from "./dh/signouts-tables";
 import { routeDockhousePage } from "app/routes/dh/dockhouse-page";
 import { routeIncidentsPage } from "./dh/incidents";
 import { routeClassesPage } from "./dh/classes";
+import { routeFOTVControllerPage } from "./dh/fotv-controller";
 
 // Dashboard specific routes
 export const dhRoutes: RouteWrapper<any>[] = [
@@ -13,4 +14,5 @@ export const dhRoutes: RouteWrapper<any>[] = [
 	routeClassesPage,
 	routeIncidentsPage,
 	routeDockReportPage,
+	routeFOTVControllerPage
 ];

@@ -8,8 +8,6 @@ import { ActionActionType } from 'components/ActionBasedEditor';
 import { UpdatePersonByIdAction, UpdateSignoutAction } from '../member-action/Actions';
 import { MemberActionMode } from '../member-action/MemberActionType';
 import { signoutNumberKeys, DialogOutput, setBoatIdAction } from './EditSignoutModal';
-import { UpdateCrewAction } from '../class/Actions';
-
 
 export function EditSignout(props: { current: SignoutCombinedType; actions: ActionActionType<SignoutCombinedType>; mode: MemberActionMode; dialogOutput: option.Option<string>; }) {
     const crewActions = getCrewActions(props);

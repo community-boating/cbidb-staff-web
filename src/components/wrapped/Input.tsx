@@ -167,7 +167,6 @@ export function SelectInput<T_Value extends string | number> (props: CustomInput
 						</Listbox.Options>
 						</div>
 					}
-					
 				</Listbox>
 				{props.end}
 			</div>

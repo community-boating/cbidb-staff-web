@@ -1,7 +1,7 @@
 import { EditAction } from 'components/ActionBasedEditor';
 import { option } from 'fp-ts';
 import { SelectedType } from "./ClassSelectableDiv";
-import { ApClassSession } from 'async/staff/dockhouse/ap-class-sessions';
+import { ApClassSessionWithInstance } from 'models/typerefs'
 import { SignoutCombinedType } from '../signouts/SignoutCombinedType';
 import { AttendanceEntry } from 'async/staff/dockhouse/attendance';
 
@@ -10,7 +10,7 @@ export type AttendanceMap = {
 };
 
 export type ActionClassType = {
-    currentClass: ApClassSession;
+    currentClass: ApClassSessionWithInstance;
     associatedSignouts: SignoutCombinedType[];
     attendanceMap: AttendanceMap;
 };

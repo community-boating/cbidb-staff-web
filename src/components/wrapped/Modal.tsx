@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Dialog } from '@headlessui/react'
 import Theme from 'layouts/Theme';
 
-export enum ModalAction{
+export enum ModalAction {
     NONE = 0,
     OPEN = 1
 }

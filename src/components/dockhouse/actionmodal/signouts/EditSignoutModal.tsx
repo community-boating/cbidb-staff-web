@@ -6,7 +6,7 @@ import RadioGroup from 'components/wrapped/RadioGroup';
 import { SignoutCombinedType } from './SignoutCombinedType';
 import { SignoutTablesState, SignoutType } from 'async/staff/dockhouse/signouts';
 import { RatingsContext } from 'async/providers/RatingsProvider';
-import { CreateSignoutType } from 'async/staff/dockhouse/create-signout';
+import { CreateSignoutType } from 'models/typerefs';
 import { ActionModalPropsWithState, subStateWithSet } from '../ActionModalProps';
 import { MAGIC_NUMBERS } from 'app/magicNumbers';
 import ActionBasedEditor, { ActionActionType } from 'components/ActionBasedEditor';

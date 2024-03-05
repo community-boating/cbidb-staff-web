@@ -11,7 +11,7 @@ import { option } from 'fp-ts';
 import { getSelectedSignouts } from "./getSelected";
 import { boatTypesMapped } from '../BoatIcon';
 import { BoatsContext } from 'async/providers/BoatsProvider';
-import { ApClassSignup, SignupType } from 'async/staff/dockhouse/ap-class-sessions';
+import { ApClassSignup, SignupType } from 'models/typerefs';
 import { ActionClassType } from "./ActionClassType";
 import { toastr } from 'react-redux-toastr';
 import { Option } from 'fp-ts/lib/Option';

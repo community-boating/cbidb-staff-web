@@ -15,3 +15,24 @@
 .hidden-scrollbar::-webkit-scrollbar { 
     display: none;  /* Safari and Chrome */
 }
+
+.hidden-x-scrollbar::-webkit-scrollbar {
+  height: 0px;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #00000000;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #88888888;
+  border-radius: 5px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #555555AA;
+}

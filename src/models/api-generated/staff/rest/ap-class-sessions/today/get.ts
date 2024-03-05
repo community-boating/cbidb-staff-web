@@ -1,7 +1,7 @@
 import * as t from 'io-ts';
 import { OptionalNumber, OptionalDateTime, DateTime, OptionalString, makeOptional } from 'util/OptionalTypeValidators';
 
-export const path = "/staff/rest/ap-class-sessions/today"
+export const path = "/rest/ap-class-sessions/today"
 
 /**
  * !!!!!!!!!!!!

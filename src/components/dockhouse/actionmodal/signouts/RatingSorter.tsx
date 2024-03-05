@@ -7,7 +7,7 @@ import * as t from "io-ts";
 import { Popover } from "../../../wrapped/Popover";
 import { ReactNode } from "react";
 import { programsHR } from "../../../../pages/dockhouse/signouts/Constants";
-import { ScannedPersonType } from "async/staff/dockhouse/scan-card";
+import { ScannedPersonType } from 'models/typerefs';
 import { MAGIC_NUMBERS } from "app/magicNumbers";
 import { RatingsContext } from "async/providers/RatingsProvider";
 

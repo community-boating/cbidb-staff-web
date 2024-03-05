@@ -3,6 +3,7 @@ import APIWrapper, { API_CODE_NOT_LOGGED_IN } from './APIWrapper';
 import * as t from 'io-ts';
 import { AppStateContext } from 'app/state/AppStateContext';
 import { setStateChain } from 'components/dockhouse/actionmodal/ActionModalProps';
+import { option } from 'fp-ts';
 
 export type AsyncStateProviderProps<T_Validator extends t.Any> = {
     apiWrapper: APIWrapper<T_Validator, any, any>
@@ -22,6 +23,8 @@ type AsyncStateProviderState<T_Validator extends t.Any> = {
     providerState: ProviderState
 }
 
+export const tempParams = option.some({host: "74.207.231.244", https: false, port:3000});
+
 export default class AsyncStateProvider<T_Validator extends t.Any> extends React.Component<AsyncStateProviderProps<T_Validator>, AsyncStateProviderState<T_Validator>> {
     mounted
     intervalID
@@ -35,7 +38,7 @@ export default class AsyncStateProvider<T_Validator extends t.Any> extends React
         this.render = this.render.bind(this);
     }
     loadAsync(){
-        this.props.apiWrapper.send(this.context).then((a) => {
+        this.props.apiWrapper.sendWithParams(this.context, this.props.apiWrapper.config.serverIndex == 1 ? tempParams : option.none)(null).then((a) => {
             if(!this.mounted){
                 return;
             }
@@ -48,7 +51,6 @@ export default class AsyncStateProvider<T_Validator extends t.Any> extends React
                 }
                 else{
                     console.log("issue");
-                    console.log(a);
                     this.setState((s) => ({...s, providerState: ProviderState.ERROR}));
                 }
             }

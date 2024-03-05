@@ -2,7 +2,7 @@ import * as React from 'react';
 import person from 'assets/img/icons/person.svg';
 import { SignoutCombinedType, CurrentPeopleType } from "./signouts/SignoutCombinedType";
 import { getProgramHR } from 'util/textAdapter';
-import { ScannedPersonType } from 'async/staff/dockhouse/scan-card';
+import { ScannedPersonType } from 'models/typerefs';
 
 import hold from 'assets/img/icons/hold.svg';
 import comments from 'assets/img/icons/comments.svg';

@@ -32,6 +32,7 @@ export function canAccessPage(asc: AppStateCombined, pageName: PageName): boolea
 		case PageName.DOCK_HOUSE_PAGE:
 		case PageName.INCIDENTS:
 		case PageName.CLASSES:
+		case PageName.FOTV_CONTROLLER:
 			return true;
 		default:
 			assertNever(pageName);

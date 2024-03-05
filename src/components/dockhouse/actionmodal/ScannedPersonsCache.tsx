@@ -1,7 +1,8 @@
 import { option } from 'fp-ts';
 import * as React from 'react';
-import { getWrapper, ScannedCrewType } from 'async/staff/dockhouse/scan-card';
 import { AppStateContext } from 'app/state/AppStateContext';
+import { ScannedCrewType } from 'models/typerefs';
+import { getScanCard } from 'models/apiwrappers';
 
 export const ScannedPersonsCacheContext = React.createContext<ScannedPersonsCacheGet>({getCached: undefined})
 
@@ -29,7 +30,7 @@ export default function ScannedPersonsCache(props){
                 return cached;
             }else{
                 if(!scanning.current[cardNum]){
-                    scanning.current[cardNum] = getWrapper(cardNum).send(asc).then((a) => {
+                    scanning.current[cardNum] = getScanCard(cardNum).send(asc).then((a) => {
                         const result: option.Option<ScannedCrewType[number]> = a.type == "Success" ? option.some(a.success) : option.none;
                         setCachedScans((s) => ({...s, ...{[cardNum]: result}}));
                         onResponse && onResponse(result);
