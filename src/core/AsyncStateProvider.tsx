@@ -23,7 +23,7 @@ type AsyncStateProviderState<T_Validator extends t.Any> = {
     providerState: ProviderState
 }
 
-export const tempParams = option.some({host: "74.207.231.244", https: false, port:3000});
+export const tempParams = option.some({host: "159.65.226.25", https: false, port:3000});
 
 export default class AsyncStateProvider<T_Validator extends t.Any> extends React.Component<AsyncStateProviderProps<T_Validator>, AsyncStateProviderState<T_Validator>> {
     mounted
@@ -33,6 +33,8 @@ export default class AsyncStateProvider<T_Validator extends t.Any> extends React
         super(props);
         this.mounted = false;
         this.waitForLogin = false;
+        console.log(props.initState);
+        //console.trace();
         this.state = {mainState:props.initState, providerState: ProviderState.INITIAL};
         this.setState = this.setState.bind(this);
         this.render = this.render.bind(this);
@@ -47,10 +49,9 @@ export default class AsyncStateProvider<T_Validator extends t.Any> extends React
                 this.waitForLogin = false;
             }else{
                 if(a.code == API_CODE_NOT_LOGGED_IN){
-                    this.waitForLogin = true;
+                     this.waitForLogin = true;
                 }
                 else{
-                    console.log("issue");
                     this.setState((s) => ({...s, providerState: ProviderState.ERROR}));
                 }
             }

@@ -4,8 +4,8 @@ import { ProviderWithSetState } from 'async/providers/ProviderType';
 
 export function imageVersionByID(fotv: ProviderWithSetState<FOTVType>) {
     const versionByID = {};
-    fotv.state.images.forEach((a) => {
-        versionByID[a.imageID] = a.version;
+    fotv.state.logoImages.forEach((a) => {
+        versionByID[a.imageID] = a.image.version;
     });
     return versionByID;
 }

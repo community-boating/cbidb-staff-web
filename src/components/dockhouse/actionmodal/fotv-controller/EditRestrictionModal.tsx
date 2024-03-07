@@ -1,5 +1,5 @@
 import { FOTVContext } from 'async/providers/FOTVProvider';
-import { FOTVType, ImageType, RestrictionConditionType, RestrictionType, deleteRestrictionCondition, putRestriction, putRestrictionCondition, uploadLogoImage } from 'async/staff/dockhouse/fotv-controller';
+import { FOTVType, ImageType, LogoImageType, RestrictionConditionType, RestrictionType, deleteRestrictionCondition, putRestriction, putRestrictionCondition, uploadLogoImage } from 'async/staff/dockhouse/fotv-controller';
 import Button from 'components/wrapped/Button';
 import { SelectInput, ValidatedTextInput } from 'components/wrapped/Input';
 import Modal, { DefaultModalBody, ModalContext, ModalHeader } from 'components/wrapped/Modal';
@@ -178,7 +178,7 @@ function RestrictionConditionList(props: {currentData: RestrictionConditionType[
         </div>
         <div>
             <button onClick={(e) => {
-                props.action.addAction(new CreateRestrictionConditionAction({restrictionID: props.currentRestrictionID, conditionAction: option.none, conditionInfo: option.none, conditionType: option.none}))
+                props.action.addAction(new CreateRestrictionConditionAction({conditionAction: option.none, conditionInfo: option.none, conditionType: option.none}))
             } }>New Condition</button>
         </div>
     </div>
@@ -253,11 +253,11 @@ export default function EditRestrictionModal(props: { openRestrictionID: number,
     //const [restriction, setRestriction] = React.useState<RestrictionType>(undefined);
     const fotv = React.useContext(FOTVContext);
     const versionByID = imageVersionByID(fotv);
-    const image = subStateWithSet(fotv.state, fotv.setState, 'images');
+    const image = subStateWithSet(fotv.state, fotv.setState, 'logoImages');
     //restriction != undefined && console.log(restriction.imageID);
     const restrictionConditions = subStateWithSet(fotv.state, fotv.setState, 'restrictionConditions');
     const [actions, setActions] = React.useState([]);
-    const relevantConditions = fotv.state.restrictionConditions.filter((a) => a.restrictionID == props.openRestrictionID);
+    const relevantConditions = fotv.state.restrictionConditions;//.filter((a) => a.restrictionID == props.openRestrictionID);
     const restriction = props.openRestrictionID != undefined ? fotv.state.restrictions.find((a) => a.restrictionID == props.openRestrictionID) : undefined;
     const restrictions = subStateWithSet(fotv.state, fotv.setState, 'restrictions');
     React.useEffect(() => {
@@ -311,7 +311,7 @@ export default function EditRestrictionModal(props: { openRestrictionID: number,
                     uploadLogoImage(imageID, suffix).sendRaw(tempParams, formData).then((a) => {
                         console.log(a);
                         action.addAction(new UpdateRestrictionAction({imageID: option.some(a.data.imageID) }));
-                        image[1]((s) => mergeTable<ImageType, 'imageID', ImageType>(s, [a.data], 'imageID'));
+                        image[1]((s) => mergeTable<LogoImageType, 'logoImageID', LogoImageType>(s, [a.data], 'logoImageID'));
                     })
                     e.preventDefault();
                 }}>

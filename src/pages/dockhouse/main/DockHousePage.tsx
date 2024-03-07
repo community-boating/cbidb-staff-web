@@ -79,17 +79,21 @@ export default function DockHousePage (props) {
     const doScanCard = () => {
         setExternalQueue((s) => s+1);
     }
+    //console.log((signoutsToday.state == undefined ? [] : signoutsToday.state));
     const extraStateAsync: SignoutsTablesExtraStateDepOnAsync = React.useMemo(() => ({
         ratings: ratings,
         //ratingsSorted: sortRatings(ratings),
         boatTypes: boatTypes,
         boatTypesHR: makeBoatTypesHR(boatTypes)
         }), [ratings, boatTypes]);
-    const filteredSignouts = (signoutsToday.state || []).filter(filterActive(true));
+    const filteredSignouts = [];//(signoutsToday.state || []).filter(filterActive(true));
     const reassignedHullsMap = {};
     const reassignedSailsMap = {};
     const classes = React.useContext(ClassesTodayContext);
     //const addNewIncident = ()
+    console.log(signoutsToday.state);
+    console.log(signoutsToday);
+    console.log(classes);
     makeReassignedMaps(filteredSignouts, reassignedHullsMap, reassignedSailsMap);
     const extraState: SignoutsTablesExtraState = {...extraStateAsync, reassignedHullsMap, reassignedSailsMap} ;
     return (<>

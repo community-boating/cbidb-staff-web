@@ -223,7 +223,7 @@ function ImagePanel() {
             console.log('error updating image');
         }
     }
-    const images = subStateWithSet(fotv.state, fotv.setState, 'images');
+    const images = subStateWithSet(fotv.state, fotv.setState, 'logoImages');
     const handleDrop = handleDropGeneric(mappedItems, (items) => {
         putLogoImage.sendWithParams(asc, tempParams)(makePostJSON(items.map((a) => ({...a, logoImageID: a.itemID, itemID: undefined, imageType: a.groupID, groupID: undefined})))).then(updateLogoImagesLocal)
     }, (e, displayOrder, groupID, extraItemsToChange) => {
@@ -244,7 +244,7 @@ function ImagePanel() {
                     putLogoImage.sendWithParams(asc, tempParams)(makePostJSON([{title: 'NEW', displayOrder: displayOrder, imageType: groupID, imageID: b.data.imageID}])).then(updateLogoImagesLocal)
                 }
                 console.log(b.data);
-                images[1]((im) => mergeTable<ImageType, 'imageID', ImageType>(im, [b.data], 'imageID'));
+                images[1]((im) => mergeTable<LogoImageType, 'logoImageID', LogoImageType>(im, [b.data], 'logoImageID'));
             }else{
                 console.log(b);
                 //console.log(b);

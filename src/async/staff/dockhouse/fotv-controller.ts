@@ -3,13 +3,19 @@ import APIWrapper from 'core/APIWrapper';
 import { HttpMethod } from "core/HttpMethod";
 import { OptionalNumber, OptionalString, allowNullUndefinedProps, makeOptionalPK, makeOptionalProps } from 'util/OptionalTypeValidators';
 
+export const imageValidator = t.type({
+    imageID: t.number,
+    imageSuffix: t.string,
+    version: t.number,
+})
+
 export const logoImageValidator = t.type({
     logoImageID: t.number,
     imageID: t.number,
-    imageVersion: t.number,
     title: t.string,
     displayOrder: t.number,
     imageType: t.number,
+    image: imageValidator
 })
 
 export const restrictionConditionValidator = t.type({
@@ -61,6 +67,8 @@ export const validator = t.type({
     restrictions: t.array(restrictionValidator),
     restrictionGroups: t.array(restrictionGroupValidator),
     logoImages: t.array(logoImageValidator),
+    restrictionConditions: t.array(restrictionConditionValidator),
+    //images: t.array(imageValidator),
     activeProgramID: t.number
 })
 
@@ -83,6 +91,8 @@ export type RestrictionType = t.TypeOf<typeof restrictionValidator>;
 export type RestrictionGroupType = t.TypeOf<typeof restrictionGroupValidator>;
 
 export type LogoImageType = t.TypeOf<typeof logoImageValidator>;
+
+export type ImageType = t.TypeOf<typeof imageValidator>;
 
 export type RestrictionConditionType = t.TypeOf<typeof restrictionConditionValidator>;
 
@@ -166,7 +176,7 @@ export function uploadLogoImage(imageID: number, suffix: string) {
             postBodyValidator: t.any,
             serverIndex: 1
         }
-)
+    )
 }
 
 /*export const deleteRestriction = new APIWrapper({

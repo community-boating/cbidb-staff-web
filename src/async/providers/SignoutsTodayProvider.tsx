@@ -9,7 +9,7 @@ const defaultSignoutsToday: ProviderWithSetState<SignoutsTablesState> = {state: 
 export const SignoutsTodayContext = React.createContext(defaultSignoutsToday);
 
 export default function SignoutsTodayProvider(props: {children?: React.ReactNode}){
-    return <GeneticAsyncProvider apiWrapper={getSignoutsToday} refreshRate={30*1000} contextProvider={SignoutsTodayContext.Provider} initState={defaultSignoutsToday}>{props.children}</GeneticAsyncProvider>
+    return <GeneticAsyncProvider apiWrapper={getSignoutsToday} refreshRate={30*1000} contextProvider={SignoutsTodayContext.Provider} initState={defaultSignoutsToday.state}>{props.children}</GeneticAsyncProvider>
 }
 
 /*export default function SignoutsTodayProvider(props: {children?: React.ReactNode}){
