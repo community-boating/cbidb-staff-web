@@ -10,7 +10,7 @@ const defaultFOTVProvider: ProviderWithSetState<FOTVType> = {
         restrictions: [],
         restrictionGroups: [],
         logoImages: [],
-        //images: [],
+        images: [],
         restrictionConditions: [],
         activeProgramID: 0
     },
@@ -23,6 +23,5 @@ const THRESH = 2000;
 export const FOTVContext = React.createContext(defaultFOTVProvider);
 
 export default function FOTVProvider(props: {children?: React.ReactNode}){
-    console.log("RuNNING");
     return <GeneticAsyncProvider apiWrapper={getFOTV} contextProvider={FOTVContext.Provider} initState={defaultFOTVProvider.state} refreshRate={15*1000}>{props.children}</GeneticAsyncProvider>
 }

@@ -1,17 +1,19 @@
 import { FOTVType } from 'async/staff/dockhouse/fotv-controller';
 import { ProviderWithSetState } from 'async/providers/ProviderType';
+import { tempParams } from 'core/AsyncStateProvider';
 
 
 export function imageVersionByID(fotv: ProviderWithSetState<FOTVType>) {
     const versionByID = {};
-    fotv.state.logoImages.forEach((a) => {
-        versionByID[a.imageID] = a.image.version;
+    fotv.state.images.forEach((a) => {
+        versionByID[a.imageID] = a.version;
     });
     return versionByID;
 }
 
-export function getImageSRC(imageID, versionByID) {
-    return "http://74.207.231.244:3000/images/" + imageID + '/' + versionByID[imageID];
+export function getImageSRC(imageID: number, versionByID: {[key: number]: string}) {
+    const params = tempParams.getOrElse({https: false, host: "", port: 0});
+    return (params.https ? "https" : "http") + "://" + params.host + ":" + params.port + "/images/" + imageID + '/' + versionByID[imageID];
 }
 
 export function mergeTable<T_Array, T_KeyName extends keyof T_Array, T_Full extends T_Array & {[a in T_KeyName]: (number)}>(oldValues:(T_Full & T_Array)[], newValues:T_Full[], key: T_KeyName){

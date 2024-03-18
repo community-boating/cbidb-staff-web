@@ -6,7 +6,7 @@ import PageWrapper from 'core/PageWrapper';
 import { Loader } from 'react-feather';
 import FOTVControllerPage from 'pages/dockhouse/fotv-controller/FOTVControllerPage';
 export const routeFOTVControllerPage = new RouteWrapper({
-	requiresAuth: true,
+	requiresAuth: false,
 	exact: true,
 	pathWrapper: pathFOTVController,
 	navTitle: "FOTV Controller",

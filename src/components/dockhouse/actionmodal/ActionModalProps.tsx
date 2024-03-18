@@ -14,9 +14,6 @@ export const isCallback = (
     typeof maybeFunction === 'function'
 
 export function setStateChain<T_State>(state: React.SetStateAction<T_State>, oldState: T_State){
-    //console.log("doop");
-    //console.log(state);
-    //console.log(typeof state);
     if(isCallback(state)){
         return state(oldState);
     }

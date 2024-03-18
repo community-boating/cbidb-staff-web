@@ -10,6 +10,7 @@ import SudoModal from "components/SudoModal";
 import { getAppStateCombined } from "app/state/AppStateAction";
 import { AppState, AppStateCombined } from "app/state/AppState";
 import DHProviders from "async/providers/DHProviders";
+import { option } from "fp-ts";
 
 interface Props {
 	history: any
@@ -44,7 +45,7 @@ class App extends React.Component<Props, AppState> {
 			<Provider store={store}>
 					<AppStateContext.Provider value={asc}>
 						<DHProviders>
-							<Routes authenticatedUserName={this.state.login.authenticatedUserName} history={this.props.history}/>
+							<Routes authenticatedUserName={/*his.state.login.authenticatedUserName*/option.some("temp")} history={this.props.history}/>
 							<ReduxToastr
 								timeOut={15000}
 								newestOnTop={true}

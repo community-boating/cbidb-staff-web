@@ -107,7 +107,6 @@ const priorityClassNames = [
 function SelectInputWithKey(props: {label?: string, className?: string, incident: IncidentType, setIncident: React.Dispatch<React.SetStateAction<IncidentType>>, col: keyof IncidentType, options: SelectOption<string>[]}){
     return <SelectInput className={props.className} label={props.label} controlledValue={props.incident[props.col] as any} updateValue={(v) => {
         props.setIncident((s) => {
-            console.log({...s, ...{[props.col]: v}});
             return ({...s, [props.col]: v});
         });
     }} selectOptions={props.options} fullWidth/>
@@ -143,15 +142,12 @@ export default function IncidentModal(props: IncidentModalType){
         if(incident.type.isSome() && incident.subtype.isSome()){
             const subtype = incident.subtype.value;
             const found = incidentSubTypeMapping[incident.type.value].find((a) => (a.subtype == subtype));
-            console.log(found);
             if(found){
-                //console.log("setting", found.priority);
                 setIncident((s) => ({...s, priority: option.some(found.priority.toString())}))
             }
         }
     }, [incident.subtype])
     const priorityClassName = incident.priority.isSome() ? priorityClassNames[parseInt(incident.priority.value) - 1] : "";
-    console.log(priorityClassName);
     return <DefaultModalBody>
         <ModalHeader>
             <span className="text-2xl font-bold">New Incident:</span>

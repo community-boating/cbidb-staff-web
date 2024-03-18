@@ -15,7 +15,6 @@ export const logoImageValidator = t.type({
     title: t.string,
     displayOrder: t.number,
     imageType: t.number,
-    image: imageValidator
 })
 
 export const restrictionConditionValidator = t.type({
@@ -68,7 +67,7 @@ export const validator = t.type({
     restrictionGroups: t.array(restrictionGroupValidator),
     logoImages: t.array(logoImageValidator),
     restrictionConditions: t.array(restrictionConditionValidator),
-    //images: t.array(imageValidator),
+    images: t.array(imageValidator),
     activeProgramID: t.number
 })
 

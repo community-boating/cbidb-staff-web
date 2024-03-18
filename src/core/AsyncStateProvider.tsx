@@ -23,7 +23,7 @@ type AsyncStateProviderState<T_Validator extends t.Any> = {
     providerState: ProviderState
 }
 
-export const tempParams = option.some({host: "159.65.226.25", https: false, port:3000});
+export const tempParams = option.some({host: "159.65.226.25", https: false, port:6969});
 
 export default class AsyncStateProvider<T_Validator extends t.Any> extends React.Component<AsyncStateProviderProps<T_Validator>, AsyncStateProviderState<T_Validator>> {
     mounted

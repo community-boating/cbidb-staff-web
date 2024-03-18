@@ -189,8 +189,6 @@ export default function TableWithModalForm<T_Row, T_Filter, T_RowEdit>(props: Ta
 
 		const validationErrors = props.validate(rowToValidate);
 
-		console.log("running validate");
-
 		if(validationErrors.length == 0){
 			const rowToSubmit = props.processEditRowForSubmit(formData);
 			console.log("submitting");

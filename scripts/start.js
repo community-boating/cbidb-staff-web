@@ -86,6 +86,8 @@ checkBrowsers(paths.appPath, isInteractive)
 		}
 
 		const config = configFactory('development');
+		//TODO BAD
+		process.env['HTTPS'] = false;
 		const protocol = process.env.HTTPS === 'true' ? 'https' : 'http';
 		const appName = require(paths.appPackageJson).name;
 

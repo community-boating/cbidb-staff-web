@@ -142,7 +142,6 @@ function ConditionStateInfo(props: {condition: RestrictionConditionType, action}
 
 function ConditionTimeInfo(props: {condition: RestrictionConditionType, action}){
     return <ValidatedTimeInput rowForEdit={{conditionInfo: moment(props.condition.conditionInfo.getOrElse(''))}} columnId='conditionInfo' upper={moment().endOf('day')} lower={moment().startOf('day')} updateState={(a, b) => {
-        console.log(a);
         props.action.addAction(new UpdateRestrictionConditionAction({conditionID: props.condition.conditionID, conditionInfo: option.some(b)}))
     }} validationResults={[]}/>
 }
@@ -203,7 +202,6 @@ function resolveActions(actions, setRestrictionConditions: React.Dispatch<React.
             updatesByID[a.value.conditionID] = {...(updatesByID[a.value.conditionID] || {}), ...a.value};
         }
         if(isUpdate(a)){
-            console.log('doop');
             restrictionUpdate = {...restrictionUpdate, ...a.value};
         }
     });
@@ -233,7 +231,6 @@ function resolveActions(actions, setRestrictionConditions: React.Dispatch<React.
         putRestriction.sendWithParams(null, tempParams)(makePostJSON([{...restrictionUpdate, restrictionID: restrictionID}])).then((a) => {
             if(a.type == 'Success'){
                 setRestrictions((s) => s.map((b) => b.restrictionID != restrictionID ? b : a.success[0]))
-                console.log(a.success);
             }else{
                 console.log('Issue doing it');
             }
@@ -309,7 +306,6 @@ export default function EditRestrictionModal(props: { openRestrictionID: number,
                     const suffix = findFileExtension(e.dataTransfer.files[0].name);
                     const imageID = currentData.restriction.imageID.isNone() ? undefined : currentData.restriction.imageID.value;
                     uploadLogoImage(imageID, suffix).sendRaw(tempParams, formData).then((a) => {
-                        console.log(a);
                         action.addAction(new UpdateRestrictionAction({imageID: option.some(a.data.imageID) }));
                         image[1]((s) => mergeTable<LogoImageType, 'logoImageID', LogoImageType>(s, [a.data], 'logoImageID'));
                     })

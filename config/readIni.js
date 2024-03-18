@@ -11,7 +11,7 @@ const serverConfig = (function() {
 			host: config.hostName,
 			https: true,
 			pathPrefix: "/api",
-			port: 443
+			port: config.port || 443
 		}
 	}
 	
@@ -27,6 +27,8 @@ const serverConfig = (function() {
 	
 	return (process.env.NODE_ENV == 'development' ? devConfig : prodConfig);
 }());
+
+console.log(config.hostName);
 
 module.exports = {
 	config,

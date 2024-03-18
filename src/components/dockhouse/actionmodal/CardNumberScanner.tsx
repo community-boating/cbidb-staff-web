@@ -18,7 +18,6 @@ export function CardNumberScanner(props: ({ label: string; onAction: (result: Sc
     const context = React.useContext(ScannedPersonsCacheContext);
     const findCardNum = (cardNum: string) => {
         if (timeoutID.current) {
-            console.log(timeoutID.current);
             clearTimeout(timeoutID.current);
         }
         timeoutID.current = setTimeout(() => {

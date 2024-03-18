@@ -19,10 +19,7 @@ export function CreateQueueSignout(props: { current: SignoutCombinedType; action
     const signouts = React.useContext(SignoutsTodayContext);
     const ref = React.createRef<HTMLButtonElement>();
     const submit = (e) => {
-        console.log("hello");
         const v = convertToCreateSignout(props.current)
-        console.log(v);
-        console.log(props.current);
         return postCreateSignout.sendJson(asc, v).then((a) => {
             if (a.type == "Success") {
                 modal.setOpen(false);

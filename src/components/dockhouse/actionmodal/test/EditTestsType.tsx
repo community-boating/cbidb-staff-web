@@ -17,7 +17,6 @@ export class EditTestsAction extends Action<EditTestsType, {}>{
         this.modeInfo = () => {
             const signouts = React.useContext(SignoutsTodayContext);
             const testingSignouts = signouts.state.filter((a) => a.$$tests.length > 0);
-            console.log("calling", signouts);
 
             return {
                 testingSignouts

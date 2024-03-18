@@ -18,7 +18,9 @@ import { AppStateContext } from "./state/AppStateContext";
 
 const authenticatedRoutes = (asc: AppStateCombined,history: History<any>) => {
 
-	const borderless = asc.state.borderless;
+
+	//TODO CHANGEFORFULLMODE
+	const borderless = true;//asc.state.borderless;
 	const Layout = borderless ? BorderlessLayout : StandardLayout;
 	const routes = dhRoutes.filter(r => !r.requireSudo || asc.state.sudo)
 	.map(r => r.asRoute(asc, history));

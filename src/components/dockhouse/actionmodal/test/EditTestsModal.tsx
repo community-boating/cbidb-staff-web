@@ -42,7 +42,6 @@ const columns: ColumnDef<SignoutTablesState>[] = [{
 
 export default function EditTestsModal(props: EditTestsType & {isDLV: boolean}){
     var i = 0;
-    console.log(props.testingSignouts);
     return !props.isDLV ? <DefaultModalBody>
         <ModalHeader>
             <span className="text-2xl font-bold">Edit Tests</span>
