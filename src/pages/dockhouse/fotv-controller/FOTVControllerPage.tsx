@@ -1,6 +1,6 @@
 import { Tab } from '@headlessui/react';
 import FOTVProvider, { FOTVContext } from 'async/providers/FOTVProvider';
-import { deleteLogoImage, deleteRestriction, FOTVType, ImageType, LogoImageType, putLogoImage, putRestriction, putRestrictionGroup, RestrictionType, restrictionValidator, uploadLogoImage as uploadImage } from 'async/staff/dockhouse/fotv-controller';
+import { deleteLogoImage, deleteRestriction, FOTVType, ImageType, LogoImageType, putLogoImage, putRestriction, putRestrictionGroup, RestrictionGroupType, RestrictionType, restrictionValidator, uploadLogoImage as uploadImage } from 'async/staff/dockhouse/fotv-controller';
 import { ActionModalContext } from 'components/dockhouse/actionmodal/ActionModal';
 import { NoneAction, subStateWithSet } from 'components/dockhouse/actionmodal/ActionModalProps';
 import EditRestrictionModal, { setRestrictionPartial } from 'components/dockhouse/actionmodal/fotv-controller/EditRestrictionModal';
@@ -15,6 +15,7 @@ import { AppStateContext } from 'app/state/AppStateContext';
 import * as t from 'io-ts';
 import { ApiResult, Failure, Success } from 'core/APIWrapperTypes';
 import { imageVersionByID, getImageSRC, mergeTable, findFileExtension } from './shared';
+import { BufferedInput } from 'components/wrapped/Input';
 
 function TabTitle(props: {children: React.ReactNode, active: boolean}){
     return <h2>
@@ -28,8 +29,8 @@ export default function FOTVControllerPage(props) {
                 <Tab.Group className="grow-[1]">
                     <CardLayout direction={LayoutDirection.VERTICAL}>
                         <Card weight={FlexSize.S_1} title={<Tab.List>
-                            <Tab>Restrictions</Tab>
-                            <Tab>Images</Tab>
+                            <Tab className="p-2">Restrictions</Tab>
+                            <Tab className="p-2">Images</Tab>
                         </Tab.List>}>
                             <Tab.Panels className="grow-[1]">
                                 <Tab.Panel className="h-full"><RestrictionsPanel editing={editing} setEditing={setEditing} /></Tab.Panel>
@@ -62,6 +63,7 @@ function RestrictionsPanel(props: {editing: boolean, setEditing: React.Dispatch<
     const [editRestrictionID, setEditRestrictionID] = React.useState<number>(null);
     const fotv = React.useContext(FOTVContext);
     const restrictions = subStateWithSet(fotv.state, fotv.setState, 'restrictions');
+    const restrictionGroups = subStateWithSet(fotv.state, fotv.setState, 'restrictionGroups');
     const after = (a: ApiResult<RestrictionType[]>) => {
         if(a.type == 'Success')
             restrictions[1]((s) => mergeTable<RestrictionType, 'restrictionID', RestrictionType>(s, a.success, 'restrictionID'))
@@ -71,6 +73,15 @@ function RestrictionsPanel(props: {editing: boolean, setEditing: React.Dispatch<
     const restrictionItems = React.useMemo(() => (restrictions[0] || []).map(mapRestrictionToDraggable), [restrictions[0]]);
     if(fotv.state.restrictions == undefined)
         return <p>idiot</p>;
+    const updateGroupName = (name: string, groupID: number) => {
+        putRestrictionGroup.sendWithParams(null, tempParams)(makePostJSON([{title: name, groupID: groupID}])).then((a) => {
+            if(a.type == "Success"){
+                restrictionGroups[1]((s) => mergeTable<RestrictionGroupType, 'groupID', RestrictionGroupType>(s, a.success, 'groupID'))
+            }else{
+                alert("Server error");
+            }
+        })
+    }
     return <div className="flex flex-col h-full gap-4">
         <EditRestrictionModal openRestrictionID={editRestrictionID} setOpen={() => {setEditRestrictionID(null)}}/>
         <div className='flex grow-[1] basis-0 w-full overflow-hidden'>
@@ -85,7 +96,9 @@ function RestrictionsPanel(props: {editing: boolean, setEditing: React.Dispatch<
                 }
                 } handleDrop={(drag, setDrag, groupID, displayOrder, currentItemID) => (e) => {
                     handleRestrictionsDrop(restrictionItems, after)(drag, setDrag, groupID, displayOrder, currentItemID)(e);
-                }}/> : <>Loading...</>)}
+                }}
+                updateGroupName={updateGroupName}
+                /> : <>Loading...</>)}
         </div>
         <div className='flex flex-row gap-4 text-2xl'>
             <button className={'w-fit bg-blue-500 text-white font-bold py-2 px-4 rounded' + (props.editing ? ' bg-blue-700' : '')} onClick={(e) => {
@@ -94,7 +107,7 @@ function RestrictionsPanel(props: {editing: boolean, setEditing: React.Dispatch<
             }}>Toggle Edit Mode</button>
             {props.editing ? <DraggingContext.Consumer>{(drag) => <>
             <div className='rounded border-2 border-green-500 pr-2 cursor-move' draggable onDragStart={(e) => {
-                    drag.setDrag({dragging: true, type: NewAction, itemID: undefined});
+                    drag.setDrag({dragging: true, type: NewAction, itemID: undefined, groupID: undefined});
             }}><Plus className='inline text-green-500'/><p className='inline align-middle'>New Restriction</p>
             </div>
             <div className='rounded border-2 border-red-500 pr-2' onDragOver={(e) => {
@@ -103,11 +116,11 @@ function RestrictionsPanel(props: {editing: boolean, setEditing: React.Dispatch<
                 }}} onDrop={(e) => {
                     const restrictionToDelete = fotv.state.restrictions.find((a) => a.restrictionID == drag.drag.itemID);
                     if(restrictionToDelete != undefined){
-                        const items = getItemsToChangeDisplayOrder(restrictionItems,restrictionToDelete.displayOrder,restrictionToDelete.groupID,false);
+                        const items = getItemsToChangeDisplayOrder(restrictionItems,restrictionToDelete.displayOrder,restrictionToDelete.groupID,false,undefined);
                         if(items.length > 0)
                             putRestriction.sendWithParams(null, tempParams)(makePostJSON(items.map(mapDraggableToRestriction))).then();
                     }
-                    const extra = getItemsToChangeDisplayOrder(restrictionItems, restrictionToDelete.displayOrder, restrictionToDelete.groupID, false);
+                    const extra = getItemsToChangeDisplayOrder(restrictionItems, restrictionToDelete.displayOrder, restrictionToDelete.groupID, false,undefined);
                     deleteRestriction.sendWithParams(null, tempParams)(makePostJSON({restrictionID: drag.drag.itemID})).then((a) => {
                         if(a.type == 'Success'){
                             fotv.setState((s) => ({...s, restrictions: s.restrictions.filter((a) => a.restrictionID != drag.drag.itemID)}));
@@ -138,9 +151,9 @@ type DraggableGridGroup = {title: string, groupID: number}
 
 type DraggableGridData = {items: DraggableGridItem[], groups: DraggableGridGroup[]}
 
-function DraggableGrid(props: { gridData: DraggableGridData, editing: boolean, addGroup: () => void, handleDrop: HandleDropType }) {
+function DraggableGrid(props: { gridData: DraggableGridData, editing: boolean, addGroup: () => void, handleDrop: HandleDropType, updateGroupName: (name: string, groupID: number) => void }) {
     return <div className='grid grid-cols-4 gap-4 w-full max-w-full overflow-scroll custom-scrollbar hidden-x-scrollbar auto-rows-[calc(50%-1rem)]'>
-        {props.gridData.groups.map((g) => <DraggableGroup editing={props.editing} group={g} items={props.gridData.items} handleDrop={props.handleDrop} key={g.groupID}/>)}
+        {props.gridData.groups.map((g) => <DraggableGroup editing={props.editing} group={g} items={props.gridData.items} handleDrop={props.handleDrop} key={g.groupID} updateGroupName={props.updateGroupName}/>)}
         {props.editing ? <><div className='col grow-[1] basis-0 max-w-full'>
             <button className=' grow-[1]' onClick={(e) => {
                     e.preventDefault();
@@ -168,7 +181,7 @@ function mapImageItem(fotv: ProviderWithSetState<FOTVType>, drag, editing?: bool
     }))
 }
 
-function getItemsToChangeDisplayOrder(items: DraggableGridItem[], displayOrder: number, groupID: number, increase: boolean): Partial<DraggableGridItem>[] {
+function getItemsToChangeDisplayOrder(items: DraggableGridItem[], displayOrder: number, groupID: number, increase: boolean, stopOverrideOrder: number): Partial<DraggableGridItem>[] {
     var itemsToCheck = items.filter((a) => a.groupID == groupID).sort((a, b) => a.displayOrder - b.displayOrder);
     var itemsToChange = [];
     if(!increase){
@@ -187,6 +200,9 @@ function getItemsToChangeDisplayOrder(items: DraggableGridItem[], displayOrder: 
         if(!increase){
             console.log(currentCheck.displayOrder);
             console.log(displayOrderDirectlyAfter);
+        }
+        if(i == stopOverrideOrder){
+            break;
         }
         if(displayOrderDirectlyAfter == currentCheck.displayOrder){
             //console.log('happen');
@@ -261,6 +277,7 @@ function ImagePanel() {
     const itemsSmall = mappedItems.filter((a) => a.groupID == -1);
     const bigCols = Math.min(8, itemsBig.length + 1);
     const smallCols = Math.min(8, itemsSmall.length + 1);
+    const updateGroupName = (name: string, groupID: number) => {};
     return <div className='flex grow-[2] flex-col space-y-4 flex-grow overflow-scroll'>
         <div className='flex grow-[1] w-[600px] mx-auto basis-0'>
             <DraggableGroup cols={1} rows={1} hideX={true} editing={true} group={
@@ -271,6 +288,7 @@ function ImagePanel() {
             }
             items={mappedItems.filter((a) => a.groupID == -3)}
             handleDrop={handleDrop}
+            updateGroupName={updateGroupName}
             />
             <DraggableGroup cols={1} rows={1} hideX={true} editing={true} group={
                 {
@@ -280,6 +298,7 @@ function ImagePanel() {
             }
             items={mappedItems.filter((a) => a.groupID == -4)}
             handleDrop={handleDrop}
+            updateGroupName={updateGroupName}
             />
         </div>
         <div className='flex grow-[1] w-[300px] mx-auto basis-0'>
@@ -291,6 +310,7 @@ function ImagePanel() {
             }
             items={mappedItems.filter((a) => a.groupID == -2)}
             handleDrop={handleDrop}
+            updateGroupName={updateGroupName}
             />
             <DraggableGroup cols={1} rows={1} hideX={true} editing={true} group={
                 {
@@ -300,6 +320,7 @@ function ImagePanel() {
             }
             items={mappedItems.filter((a) => a.groupID == -5)}
             handleDrop={handleDrop}
+            updateGroupName={updateGroupName}
             />
         </div>
         <div className='flex grow-[1] basis-0'>
@@ -311,6 +332,7 @@ function ImagePanel() {
             }
             items={itemsBig}
             handleDrop={handleDrop}
+            updateGroupName={updateGroupName}
             />
         </div>
         <div className='flex grow-[1] basis-0'>
@@ -322,6 +344,7 @@ function ImagePanel() {
             }
             items={itemsSmall}
             handleDrop={handleDrop}
+            updateGroupName={updateGroupName}
             />
         </div>
         <div className='rounded border-2 border-red-500 pr-2' onDragOver={(e) => {
@@ -336,7 +359,7 @@ function ImagePanel() {
                         }
                     })
                     const draggedImage = fotv.state.logoImages.find((a) => a.logoImageID == drag.drag.itemID);
-                    const toSend = getItemsToChangeDisplayOrder(mappedItems, draggedImage.displayOrder, draggedImage.imageType, false);
+                    const toSend = getItemsToChangeDisplayOrder(mappedItems, draggedImage.displayOrder, draggedImage.imageType, false, draggedImage.imageID);
                     if(toSend.length > 0){
                         putLogoImage.sendWithParams(null, tempParams)(makePostJSON(toSend.map((a) => ({...a, logoImageID: a.itemID, itemID: undefined})))).then((a) => {
                             if(a.type == 'Success')
@@ -352,9 +375,9 @@ function ImagePanel() {
     </div>
 }
 
-type DragInfo = {dragging: boolean, type: string, itemID: number}
+type DragInfo = {dragging: boolean, type: string, itemID: number, groupID: number}
 
-const defaultDragging: {drag: DragInfo, setDrag: React.Dispatch<React.SetStateAction<DragInfo>>} = {drag: {dragging: false, type: undefined, itemID: undefined}, setDrag: () => {}};
+const defaultDragging: {drag: DragInfo, setDrag: React.Dispatch<React.SetStateAction<DragInfo>>} = {drag: {dragging: false, type: undefined, itemID: undefined, groupID: undefined}, setDrag: () => {}};
 
 const DraggingContext = React.createContext(defaultDragging);
 
@@ -385,18 +408,19 @@ const handleDropGeneric: (currentItems: DraggableGridItem[], updateItems: (i: Pa
         var toSend = [];
         const itemID = drag.itemID;
         //if(currentItemID != undefined){
+            const sameGroup = drag.groupID == groupID;
             const draggedItem = currentItems.find((a) => a.itemID == itemID);
             if(draggedItem != undefined){
-                toSend = toSend.concat(getItemsToChangeDisplayOrder(currentItems, draggedItem.displayOrder, draggedItem.groupID, false))
+                //toSend = toSend.concat(getItemsToChangeDisplayOrder(currentItems, draggedItem.displayOrder, draggedItem.groupID, false, sameGroup ? displayOrder : undefined))
             }
             if(currentItemID != undefined){
-                toSend = toSend.concat(getItemsToChangeDisplayOrder(currentItems, displayOrder, groupID, true))
+                toSend = toSend.concat(getItemsToChangeDisplayOrder(currentItems, displayOrder, groupID, true, sameGroup ? draggedItem.displayOrder : undefined))
             }
         //}
         toSend.push({itemID: itemID, groupID: groupID, displayOrder: displayOrder})
         updateItems(toSend);
     }else{
-        handleCreate(e, displayOrder, groupID, getItemsToChangeDisplayOrder(currentItems, displayOrder, groupID, true));
+        handleCreate(e, displayOrder, groupID, getItemsToChangeDisplayOrder(currentItems, displayOrder, groupID, true, undefined));
     }
     setDrag(defaultDragging.drag);
 }
@@ -406,7 +430,7 @@ const handleDropGeneric: (currentItems: DraggableGridItem[], updateItems: (i: Pa
 function isSlotAcceptableForDrag (e: React.DragEvent<HTMLDivElement>, drag: DragInfo, displayOrder: number, currentItemID: number, groupID: number, maxDisplayOrderForGroup: number){
     console.log(currentItemID);
     console.log(drag.itemID);
-    return !drag.dragging ||((currentItemID == undefined || (drag.itemID != currentItemID)) && displayOrder < maxDisplayOrderForGroup);
+    return !drag.dragging ||((currentItemID == undefined || (drag.itemID != currentItemID)) && (displayOrder < maxDisplayOrderForGroup || drag.groupID == groupID));
 }
 
 function DraggableGroupBucket(props: {handleDrop:HandleDropType, currentItemID: number, children: React.ReactNode, editing?: boolean, groupID: number, displayOrder: number, maxDisplayOrderForGroup: number}) {
@@ -432,7 +456,7 @@ function getMaxDisplayOrderForGroup (items: DraggableGridItem[], groupID: number
     return lastDisplayOrder;
 }
 
-function DraggableGroup(props: {editing: boolean, group: DraggableGridGroup, items: DraggableGridItem[], handleDrop: HandleDropType, cols?: number, rows?: number, hideX?: boolean, }){
+function DraggableGroup(props: {editing: boolean, group: DraggableGridGroup, items: DraggableGridItem[], handleDrop: HandleDropType, cols?: number, rows?: number, hideX?: boolean, updateGroupName: (name: string, groupID: number) => void}){
     const mc = React.useContext(ActionModalContext);
     const groupItems = props.items.filter((r) => r.groupID == props.group.groupID);
     const byDisplayOrder: {[key: number]: DraggableGridItem} = {};
@@ -449,7 +473,10 @@ function DraggableGroup(props: {editing: boolean, group: DraggableGridGroup, ite
     return <div className='flex flex-col grow-[1] bg-background rounded-sm'>
                 <div className='flex flex-row w-full'>
                     <h1 className='p-2 flex'>
-                        {props.group.title}
+                        {props.editing ?<BufferedInput className="w-full bg-transparent" value={props.group.title} onValueChanged={(v) => {
+                            props.updateGroupName(v, props.group.groupID);
+                        }}/>
+                        : <>{props.group.title}</>}
                     </h1>
                     {
                     props.editing ? 
@@ -481,7 +508,7 @@ function Restriction(props: {restriction: FOTVType['restrictions'][number], edit
     return <DraggingContext.Consumer>{(drag) => <div className={'rounded-sm border-2 w-full h-full' + (props.editing ? ' cursor-move' : ' cursor-pointer') + (props.restriction.active ? ' border-red-400' : '')} style={{color: props.restriction.textColor, backgroundColor: props.restriction.backgroundColor, fontWeight: props.restriction.fontWeight}} draggable={props.editing} onDragStart={(e) => {
         e.dataTransfer.setData('type', MoveAction);
         e.dataTransfer.setData('itemID', String(props.restriction.restrictionID));
-        drag.setDrag({dragging: true, type: MoveAction, itemID: props.restriction.restrictionID});
+        drag.setDrag({dragging: true, type: MoveAction, itemID: props.restriction.restrictionID, groupID: props.restriction.groupID});
     }} onDragEnd={(e) => {
         e.preventDefault();
         drag.setDrag(defaultDragging.drag);

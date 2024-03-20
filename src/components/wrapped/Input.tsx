@@ -2,7 +2,7 @@ import * as React from 'react';
 
 import { Option} from 'fp-ts/lib/Option';
 import { option} from 'fp-ts';
-import { ReactNode } from 'react';
+import { DetailedHTMLProps, InputHTMLAttributes, ReactNode } from 'react';
 import * as moment from "moment";
 import { Listbox } from '@headlessui/react';
 import { ChevronDown } from 'react-feather';
@@ -407,4 +407,36 @@ function cloneAndMax(m:moment.Moment,lower:moment.Moment,startOfType:moment.unit
 
 function cloneAndMin(m:moment.Moment,upper:moment.Moment,startOfType:moment.unitOfTime.StartOf) : moment.Moment {
 	return moment.min(m.clone().endOf(startOfType),upper.clone()).clone();
+}
+
+export type BufferedInputProps = DetailedHTMLProps<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement> & {
+	onValueChanged: (value: string) => void;
+	value: string,
+	cooldown?: number
+}
+
+export function BufferedInput(props: BufferedInputProps){
+	const {value, ...otherProps} = props;
+	const [iValue, setIValue] = React.useState(props.value);
+	const ref = React.useRef<NodeJS.Timeout>();
+	const onUpdate = (e) => {
+		setIValue(e.target.value);
+		console.log(ref.current);
+		if(ref.current)
+			clearTimeout(ref.current);
+		ref.current = setTimeout(() => {
+			props.onValueChanged(e.target.value);
+		}, props.cooldown || 300)
+	}
+	React.useEffect(() => {
+		setIValue(props.value);
+		return () => {
+			if(ref.current)
+				clearInterval(ref.current);
+		}
+	}, [props.value])
+	return <input value={iValue} onChange={(e) => {
+		e.preventDefault();
+		onUpdate(e);
+	}} {...otherProps}/>
 }
