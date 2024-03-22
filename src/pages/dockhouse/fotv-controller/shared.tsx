@@ -16,7 +16,7 @@ export function getImageSRC(imageID: number, versionByID: {[key: number]: string
     return (params.https ? "https" : "http") + "://" + params.host + ":" + params.port + "/images/" + imageID + '/' + versionByID[imageID];
 }
 
-export function mergeTable<T_Array, T_KeyName extends keyof T_Array, T_Full extends T_Array & {[a in T_KeyName]: (number)}>(oldValues:(T_Full & T_Array)[], newValues:T_Full[], key: T_KeyName){
+export function mergeTable<T_Array, T_KeyName extends keyof T_Array, T_Full extends T_Array & {[a in T_KeyName]: (number | string)}>(oldValues:(T_Full & T_Array)[], newValues:T_Full[], key: T_KeyName){
     const byID: {[id in T_Full[T_KeyName]]: T_Full} = {} as any;
     const newOnes: T_Full[] = [];
     const oldIDs: {[id in T_Full[T_KeyName]]: boolean} = {} as any;

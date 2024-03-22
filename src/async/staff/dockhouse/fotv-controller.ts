@@ -41,6 +41,7 @@ export const restrictionValidator = t.type({
     backgroundColor: t.string,
     fontWeight: t.string,
     displayOrder: t.number,
+    isPriority: t.boolean
 })
 
 export const restrictionGroupValidator = t.type({
@@ -61,6 +62,11 @@ export const restrictionToRestrictionCondition = t.type({
     conditionID: t.number
 })
 
+export const singletonDataValidator = t.type({
+    data_key: t.string,
+    value: t.string
+})
+
 export const validator = t.type({
     sunset: t.string,
     restrictions: t.array(restrictionValidator),
@@ -68,7 +74,7 @@ export const validator = t.type({
     logoImages: t.array(logoImageValidator),
     restrictionConditions: t.array(restrictionConditionValidator),
     images: t.array(imageValidator),
-    activeProgramID: t.number
+    singletonData: t.array(singletonDataValidator),
 })
 
 const path: string = "/fotv"
@@ -78,6 +84,8 @@ const pathPutRestriction: string = '/restriction';
 const pathPutRestrictionGroup: string = '/restrictionGroup';
 
 const pathPutLogoImage: string = '/logoImage'
+
+const pathPutSingletonData: string = '/singletonData';
 
 const pathPutRestrictionCondition: string = '/restrictionCondition';
 
@@ -94,6 +102,8 @@ export type LogoImageType = t.TypeOf<typeof logoImageValidator>;
 export type ImageType = t.TypeOf<typeof imageValidator>;
 
 export type RestrictionConditionType = t.TypeOf<typeof restrictionConditionValidator>;
+
+export type SingletonDataType = t.TypeOf<typeof singletonDataValidator>;
 
 export const getWrapper = new APIWrapper({
     path: path,
@@ -123,6 +133,22 @@ export const putRestrictionCondition = new APIWrapper({
     type: HttpMethod.POST,
     resultValidator: t.array(restrictionConditionValidator),
     postBodyValidator: t.array(allowNullUndefinedProps(restrictionConditionValidator)),
+    serverIndex: 1
+})
+
+export const putSingletonData = new APIWrapper({
+    path: pathPutSingletonData,
+    type: HttpMethod.POST,
+    resultValidator: t.array(singletonDataValidator),
+    postBodyValidator: t.array(allowNullUndefinedProps(singletonDataValidator)),
+    serverIndex: 1
+})
+
+export const deleteSingletonData = new APIWrapper({
+    path: pathPutSingletonData,
+    type: HttpMethod.DELETE,
+    resultValidator: t.any,
+    postBodyValidator: t.array(t.type({data_key: t.string})),
     serverIndex: 1
 })
 

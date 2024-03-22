@@ -288,6 +288,13 @@ export default function EditRestrictionModal(props: { openRestrictionID: number,
                     action.addAction(new UpdateRestrictionAction({backgroundColor: v}));
                 }} />
                 </span>
+                <span>
+                <label>Priority:</label>
+                    <input className='inline' type="checkbox" checked={currentData.restriction.isPriority} onChange={(e) => {
+                        console.log("updating");
+                        action.addAction(new UpdateRestrictionAction({isPriority: e.target.checked }));
+                    }} />
+                </span>
                 <label>
                     Icon:
                     {currentData.restriction.imageID ? <X className='inline' color={'red'} onClick={(e) => {

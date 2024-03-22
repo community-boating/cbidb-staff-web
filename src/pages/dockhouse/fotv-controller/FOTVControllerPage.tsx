@@ -1,6 +1,6 @@
 import { Tab } from '@headlessui/react';
 import FOTVProvider, { FOTVContext } from 'async/providers/FOTVProvider';
-import { deleteLogoImage, deleteRestriction, FOTVType, ImageType, LogoImageType, putLogoImage, putRestriction, putRestrictionGroup, RestrictionGroupType, RestrictionType, restrictionValidator, uploadLogoImage as uploadImage } from 'async/staff/dockhouse/fotv-controller';
+import { deleteLogoImage, deleteRestriction, FOTVType, ImageType, LogoImageType, putLogoImage, putRestriction, putRestrictionGroup, putSingletonData, RestrictionGroupType, RestrictionType, restrictionValidator, SingletonDataType, uploadLogoImage as uploadImage } from 'async/staff/dockhouse/fotv-controller';
 import { ActionModalContext } from 'components/dockhouse/actionmodal/ActionModal';
 import { NoneAction, subStateWithSet } from 'components/dockhouse/actionmodal/ActionModalProps';
 import EditRestrictionModal, { setRestrictionPartial } from 'components/dockhouse/actionmodal/fotv-controller/EditRestrictionModal';
@@ -16,11 +16,32 @@ import * as t from 'io-ts';
 import { ApiResult, Failure, Success } from 'core/APIWrapperTypes';
 import { imageVersionByID, getImageSRC, mergeTable, findFileExtension } from './shared';
 import { BufferedInput } from 'components/wrapped/Input';
+import { MAGIC_NUMBERS } from 'app/magicNumbers';
 
 function TabTitle(props: {children: React.ReactNode, active: boolean}){
     return <h2>
         {props.children}
     </h2>
+}
+
+function getActiveProgramID(fotvData: FOTVType){
+    return parseInt((fotvData.singletonData.find((a) => a.data_key == "ACTIVE_PROGRAM_ID") || {value: "0"}).value)
+}
+
+function ProgramSwitcher(props: {className: string}){
+    const fotv = React.useContext(FOTVContext);
+    const singletonData = subStateWithSet(fotv.state, fotv.setState, 'singletonData');
+    const programID = getActiveProgramID(fotv.state);
+    return <h1 className={props.className} onClick={(e) => {
+        e.preventDefault();
+        putSingletonData.sendWithParams(null, tempParams)(makePostJSON([{data_key: "ACTIVE_PROGRAM_ID", value: programID == MAGIC_NUMBERS.PROGRAM_TYPE_ID.ADULT_PROGRAM ? MAGIC_NUMBERS.PROGRAM_TYPE_ID.JUNIOR_PROGRAM.toString() : MAGIC_NUMBERS.PROGRAM_TYPE_ID.ADULT_PROGRAM.toString()}])).then((a) => {
+            if(a.type == "Success"){
+                singletonData[1]((s) => mergeTable<SingletonDataType, 'data_key', SingletonDataType>(s, a.success, 'data_key'))
+            }else{
+                alert("Server error");
+            }
+        })
+    }}>{programID == MAGIC_NUMBERS.PROGRAM_TYPE_ID.ADULT_PROGRAM ? "Set JP" : "Set AP"}</h1>
 }
 
 export default function FOTVControllerPage(props) {
@@ -31,6 +52,7 @@ export default function FOTVControllerPage(props) {
                         <Card weight={FlexSize.S_1} title={<Tab.List>
                             <Tab className="p-2">Restrictions</Tab>
                             <Tab className="p-2">Images</Tab>
+                            <ProgramSwitcher className="p2 inline cursor-pointer"/>
                         </Tab.List>}>
                             <Tab.Panels className="grow-[1]">
                                 <Tab.Panel className="h-full"><RestrictionsPanel editing={editing} setEditing={setEditing} /></Tab.Panel>

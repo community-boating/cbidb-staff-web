@@ -12,7 +12,7 @@ const defaultFOTVProvider: ProviderWithSetState<FOTVType> = {
         logoImages: [],
         images: [],
         restrictionConditions: [],
-        activeProgramID: 0
+        singletonData: []
     },
     setState: () => {},
     providerState: ProviderState.INITIAL
