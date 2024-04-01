@@ -144,13 +144,13 @@ export function SelectInput<T_Value extends string | number> (props: CustomInput
 		{({active, selected}) => (<div className={(active ? "bg-background" : "") + " w-full flex"}><button className="w-full text-left">{a.isFunction ? a.display(active, selected) : a.display}</button></div>)}
 		</Listbox.Option>))), [useOptions]);
 	return (<div className={(props.nowrap ? "whitespace-nowrap" : "break-words") + (props.fullWidth ? " w-full" : " w-fit")}>
-			<div className="flex flex-row w-full">
+			<div className="flex flex-row w-full relative min-h-fit">
 				<Label>
 					{props.label}
 				</Label>
 				<Listbox value={controlledValue} onChange={(v) => {updateValue(v);}}>
 					{({open}) => 
-						<div className="relative w-full">
+						<div className="w-full">
 						<Listbox.Button className={"flex flex-col w-full items-end overflow-hidden " + (customStyle ? "" : inputClassName + " ") + (notWhiteBG ? "" : " bg-white ") + " " + (props.className ? props.className : " ") + " " + (props.openClassName ? (open ? props.openClassName : (props.closedClassName ? props.closedClassName : "")) : "")}>
 							<div className="flex flex-row w-full">
 								<div className={"text-left grow"}>
@@ -416,7 +416,7 @@ export type BufferedInputProps = DetailedHTMLProps<InputHTMLAttributes<HTMLInput
 }
 
 export function BufferedInput(props: BufferedInputProps){
-	const {value, ...otherProps} = props;
+	const {value, className, cooldown, onValueChanged, ...otherProps} = props;
 	const [iValue, setIValue] = React.useState(props.value);
 	const ref = React.useRef<NodeJS.Timeout>();
 	const onUpdate = (e) => {
@@ -425,8 +425,9 @@ export function BufferedInput(props: BufferedInputProps){
 		if(ref.current)
 			clearTimeout(ref.current);
 		ref.current = setTimeout(() => {
-			props.onValueChanged(e.target.value);
-		}, props.cooldown || 300)
+			if(e.target.value.length > 0)
+				onValueChanged(e.target.value);
+		}, cooldown || 300)
 	}
 	React.useEffect(() => {
 		setIValue(props.value);
@@ -434,9 +435,10 @@ export function BufferedInput(props: BufferedInputProps){
 			if(ref.current)
 				clearInterval(ref.current);
 		}
-	}, [props.value])
-	return <input value={iValue} onChange={(e) => {
-		e.preventDefault();
-		onUpdate(e);
+	}, [value])
+	const extraClass = iValue.length > 0 ? " border-transparent" : "border-red-500"
+	return <input className={className + " " + extraClass} value={iValue} onChange={(e) => {
+		e.preventDefault()
+		onUpdate(e)
 	}} {...otherProps}/>
 }

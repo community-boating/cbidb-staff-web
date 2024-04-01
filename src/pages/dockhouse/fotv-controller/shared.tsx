@@ -33,7 +33,9 @@ export function mergeTable<T_Array, T_KeyName extends keyof T_Array, T_Full exte
         else
             newOnes.push(a);
     });
-    console.log(newOnes);
+    console.log(oldValues)
+    console.log(newValues)
+    console.log(newOnes)
     return oldValues.map((a) => byID[a[key]] != undefined ? byID[a[key]] : a).concat(newOnes);
 }
 

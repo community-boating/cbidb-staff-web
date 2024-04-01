@@ -2,7 +2,7 @@ import * as React from 'react';
 import { putSignout, SignoutsTablesState, SignoutTablesState, signoutValidator } from 'async/staff/dockhouse/signouts';
 import TableWithModalForm, { TableWithModalFormAsync, TableWithModalFormAsyncRaw, UpdateStateType, wrapForFormComponents, wrapForFormComponentsMoment } from 'components/table/TableWithModalForm';
 import { StringifiedProps } from 'util/StringifyObjectProps';
-import { AmPmInput, HourInput, MinuteInput } from 'components/wrapped/Input';
+import { AmPmInput, DateInput, HourInput, MinuteInput, MonthInput, YearInput } from 'components/wrapped/Input';
 import { option, state } from 'fp-ts';
 import * as moment from "moment";
 import { SignoutsTableFilterState } from './input/SignoutsTableFilter';
@@ -44,6 +44,20 @@ export const SignoutsTable = (props: {
 			/>
 	</>;
 };
+
+export const ValidatedDateInput: (props: { rowForEdit: any, updateState: UpdateStateType, validationResults, columnId: string, lower: moment.Moment, upper: moment.Moment }) => JSX.Element = (props) => {
+	return <div className="flex flex-row">
+		<div>
+			<DateInput {...wrapForFormComponentsMoment(props.rowForEdit, props.updateState, props.columnId, props.validationResults)} lower={props.lower} upper={props.upper} />
+		</div>
+		<div>
+			<MonthInput {...wrapForFormComponentsMoment(props.rowForEdit, props.updateState, props.columnId, props.validationResults)} lower={props.lower} upper={props.upper} />
+		</div>
+		<div>
+			<YearInput {...wrapForFormComponentsMoment(props.rowForEdit, props.updateState, props.columnId, props.validationResults)} lower={props.lower} upper={props.upper} />
+		</div>
+	</div>;
+}
 
 export const ValidatedTimeInput: (props: { rowForEdit: any, updateState: UpdateStateType, validationResults, columnId: string, lower: moment.Moment, upper: moment.Moment }) => JSX.Element = (props) => {
 	return <div className="flex flex-row">
