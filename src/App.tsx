@@ -45,7 +45,7 @@ class App extends React.Component<Props, AppState> {
 			<Provider store={store}>
 					<AppStateContext.Provider value={asc}>
 						<DHProviders>
-							<Routes authenticatedUserName={/*his.state.login.authenticatedUserName*/option.some("temp")} history={this.props.history}/>
+							<Routes authenticatedUserName={this.state.login.authenticatedUserName} history={this.props.history}/>
 							<ReduxToastr
 								timeOut={15000}
 								newestOnTop={true}

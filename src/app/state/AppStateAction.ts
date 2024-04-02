@@ -74,7 +74,11 @@ export function getAppStateCombined(state: AppState, setState: React.Dispatch<Re
             setLoggedIn,
             attemptLogin: (function(userName: string, password: string): Promise<boolean> {
                 return login().sendFormUrlEncoded(asc, {username: userName, password}).then(res => {
-                    if (res.type == "Success" && res.success) {
+                    //console.log("done");
+                    //console.log(res);
+                    if (res.type == "Success" && res.success == true) {
+                        //console.log("done");
+                        console.log("setLoggedIn");
                         setLoggedIn(userName);
                         return true;
                     } else return false;
