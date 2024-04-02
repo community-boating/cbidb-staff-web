@@ -19,6 +19,7 @@ export const logoImageValidator = t.type({
 
 export const restrictionConditionValidator = t.type({
     conditionID: t.number,
+    restrictionID: t.number,
     conditionAction: OptionalNumber,
     conditionType: OptionalNumber,
     conditionInfo: OptionalString
@@ -54,12 +55,6 @@ export const restrictionToRestrictionAction = t.type({
     id: t.number,
     restrictionID: t.number,
     actionID: t.number
-})
-
-export const restrictionToRestrictionCondition = t.type({
-    id: t.number,
-    restrictionID: t.number,
-    conditionID: t.number
 })
 
 export const singletonDataValidator = t.type({

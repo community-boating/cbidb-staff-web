@@ -12,9 +12,10 @@ import { findFileExtension, getImageSRC, imageVersionByID, mergeTable } from 'pa
 import { subStateWithSet } from '../ActionModalProps';
 import { X } from 'react-feather';
 import ActionBasedEditor, { EditAction } from 'components/ActionBasedEditor';
-import { ValidatedTimeInput } from 'pages/dockhouse/signouts/SignoutsTable';
+import { ValidatedDateInput, ValidatedTimeInput } from 'pages/dockhouse/signouts/SignoutsTable';
 import * as moment from 'moment';
 import { Flag, FlagStatusIcon, FlagStatusIcons } from 'components/dockhouse/FlagStatusIcons';
+import CloseIcon from 'components/wrapped/Icons';
 
 export function setRestrictionPartial(setRestrictions: React.Dispatch<React.SetStateAction<FOTVType>>, values: Partial<FOTVType['restrictions'][number]>) {
     return putRestriction.sendWithParams(null, tempParams)(makePostJSON([values])).then((a) => {
@@ -115,12 +116,34 @@ class UpdateRestrictionAction extends EditAction<EditRestrictionActionType>{
     }
 }
 
+const RESTRICTION_CONDITION_TYPES = {
+    ACTIONS: {
+        ENABLE: 0,
+        DISABLE: 1,
+        TOGGLE: 2
+    },
+    TYPES: {
+        TIME: 0,
+        STATE: 1,
+        DELAY: 2
+    },
+    INFOS: {
+        OPEN: 'OPEN',
+        CLOSE: 'CLOSE',
+        GREEN: 'GREEN',
+        YELLOW: 'YELLOW',
+        RED: 'RED',
+        AP: 'AP',
+        JP: 'JP'
+    }
+}
+
 function RestrictionConditionInfo(props: {condition: RestrictionConditionType, action}){
     if(props.condition.conditionType.isNone())
         return <div>Select A Type</div>;
     return <div>
-        {props.condition.conditionType.value == 0 ? <ConditionTimeInfo {...props}/> : <></>}
-        {props.condition.conditionType.value == 1 ? <ConditionStateInfo {...props}/> : <></>}
+        {props.condition.conditionType.value == RESTRICTION_CONDITION_TYPES.TYPES.TIME ? <ConditionTimeInfo {...props}/> : <></>}
+        {props.condition.conditionType.value == RESTRICTION_CONDITION_TYPES.TYPES.STATE ? <ConditionStateInfo {...props}/> : <></>}
     </div>
 }
 
@@ -136,27 +159,31 @@ function ConditionStateInfo(props: {condition: RestrictionConditionType, action}
         <label>State Type:</label>
         <SelectInput controlledValue={props.condition.conditionInfo} updateValue={(v) => {
             props.action.addAction(new UpdateRestrictionConditionAction({conditionID: props.condition.conditionID, conditionInfo: v}))
-        }} selectOptions={[{value: '0', display: 'Open'}, {value: '1', display: 'Closed'}, {value: '2', display: <FlagDisplay flag={FlagStatusIcons.G}/>}, {value: '3', display: <FlagDisplay flag={FlagStatusIcons.Y}/>}, {value: '4', display: <FlagDisplay flag={FlagStatusIcons.R}/>}]} autoWidth/>
+        }} selectOptions={[{value: RESTRICTION_CONDITION_TYPES.INFOS.OPEN, display: 'Open'}, {value: RESTRICTION_CONDITION_TYPES.INFOS.CLOSE, display: 'Closed'}, {value: RESTRICTION_CONDITION_TYPES.INFOS.GREEN, display: <FlagDisplay flag={FlagStatusIcons.G}/>}, {value: RESTRICTION_CONDITION_TYPES.INFOS.YELLOW, display: <FlagDisplay flag={FlagStatusIcons.Y}/>}, {value: RESTRICTION_CONDITION_TYPES.INFOS.RED, display: <FlagDisplay flag={FlagStatusIcons.R}/>}, {value: RESTRICTION_CONDITION_TYPES.INFOS.AP, display: 'AP'}, {value: RESTRICTION_CONDITION_TYPES.INFOS.JP, display: 'JP'}]} autoWidth/>
     </div>
 }
 
 function ConditionTimeInfo(props: {condition: RestrictionConditionType, action}){
-    return <ValidatedTimeInput rowForEdit={{conditionInfo: moment(props.condition.conditionInfo.getOrElse(''))}} columnId='conditionInfo' upper={moment().endOf('day')} lower={moment().startOf('day')} updateState={(a, b) => {
+    return <><ValidatedDateInput rowForEdit={{conditionInfo: moment(props.condition.conditionInfo.getOrElse(''))}} columnId='conditionInfo' upper={moment().add(100, 'months').endOf('day')} lower={moment().startOf('day')} updateState={(a, b) => {
         props.action.addAction(new UpdateRestrictionConditionAction({conditionID: props.condition.conditionID, conditionInfo: option.some(b)}))
     }} validationResults={[]}/>
+    <ValidatedTimeInput rowForEdit={{conditionInfo: moment(props.condition.conditionInfo.getOrElse(''))}} columnId='conditionInfo' upper={moment().add(100, 'months').endOf('day')} lower={moment().startOf('day')} updateState={(a, b) => {
+        props.action.addAction(new UpdateRestrictionConditionAction({conditionID: props.condition.conditionID, conditionInfo: option.some(b)}))
+    }} validationResults={[]}/>
+    </>
 }
 
 function RestrictionConditionList(props: {currentData: RestrictionConditionType[], currentRestrictionID: number, action}){
     
     return <div className='w-full flex flex-col relative'>
         <div className='h-[150px] overflow-scroll flex flex-col h-full gap-2'>
-            {props.currentData.map((a) => <div className='flex flex-row gap-2'>
+            {props.currentData.map((a) => <div className='flex flex-row gap-2 border-t-[1px] border-black pt-0.5' key={a.conditionID}>
                 <div className='flex flex-col gap-2'>
                     <div className='flex flex-row'>
                         <label>Condition Type: </label>
                         <SelectInput controlledValue={a.conditionType} updateValue={(v) => {
                             props.action.addAction(new UpdateRestrictionConditionAction({conditionID: a.conditionID, conditionType: v, conditionInfo: option.none}))
-                        } } selectOptions={[{ value: 0, display: 'Time' }, {value: 1, display: 'State'}]} />
+                        } } selectOptions={[{ value: RESTRICTION_CONDITION_TYPES.TYPES.TIME, display: 'Time' }, {value: RESTRICTION_CONDITION_TYPES.TYPES.STATE, display: 'State'}, {value: RESTRICTION_CONDITION_TYPES.TYPES.DELAY, display: 'Delay'}]} />
                         <label>Condition Action:</label>
                         <SelectInput controlledValue={a.conditionAction} updateValue={(v) => {
                             props.action.addAction(new UpdateRestrictionConditionAction({conditionID: a.conditionID, conditionAction: v}))
@@ -167,17 +194,16 @@ function RestrictionConditionList(props: {currentData: RestrictionConditionType[
                         <RestrictionConditionInfo condition={a} action={props.action}/>
                     </div>
                 </div>
-                <button className='ml-auto mr-0' onClick={(e) => {
+                <CloseIcon className='ml-auto mr-0 mb-auto mt-0' onClick={(e) => {
                     e.preventDefault();
                     props.action.addAction(new DeleteRestrictionConditionAction(a.conditionID));
                 } }>
-                    <X color={'red'} />
-                </button>
+                </CloseIcon>
             </div>)}
         </div>
         <div>
             <button onClick={(e) => {
-                props.action.addAction(new CreateRestrictionConditionAction({conditionAction: option.none, conditionInfo: option.none, conditionType: option.none}))
+                props.action.addAction(new CreateRestrictionConditionAction({conditionAction: option.none, conditionInfo: option.none, conditionType: option.none, restrictionID: props.currentRestrictionID}))
             } }>New Condition</button>
         </div>
     </div>
@@ -246,6 +272,20 @@ function resolveActions(actions, setRestrictionConditions: React.Dispatch<React.
     });*/
 }
 
+function updateAndMergeRI(files: FileList, currentData, action, image) {
+    if(files.length == 0){
+        return;
+    }
+    const formData = new FormData();
+    formData.append('image', files[0]);
+    const suffix = findFileExtension(files[0].name);
+    const imageID = currentData.restriction.imageID.isNone() ? undefined : currentData.restriction.imageID.value;
+    uploadLogoImage(imageID, suffix).sendRaw(tempParams, formData).then((a) => {
+        action.addAction(new UpdateRestrictionAction({imageID: option.some(a.data.imageID) }));
+        image[1]((s) => mergeTable<LogoImageType, 'logoImageID', LogoImageType>(s, [a.data], 'logoImageID'));
+    })
+}
+
 export default function EditRestrictionModal(props: { openRestrictionID: number, setOpen: (open: boolean) => void }) {
     //const [restriction, setRestriction] = React.useState<RestrictionType>(undefined);
     const fotv = React.useContext(FOTVContext);
@@ -254,7 +294,7 @@ export default function EditRestrictionModal(props: { openRestrictionID: number,
     //restriction != undefined && console.log(restriction.imageID);
     const restrictionConditions = subStateWithSet(fotv.state, fotv.setState, 'restrictionConditions');
     const [actions, setActions] = React.useState([]);
-    const relevantConditions = fotv.state.restrictionConditions;//.filter((a) => a.restrictionID == props.openRestrictionID);
+    const relevantConditions = fotv.state.restrictionConditions.filter((a) => a.restrictionID == props.openRestrictionID);
     const restriction = props.openRestrictionID != undefined ? fotv.state.restrictions.find((a) => a.restrictionID == props.openRestrictionID) : undefined;
     const restrictions = subStateWithSet(fotv.state, fotv.setState, 'restrictions');
     React.useEffect(() => {
@@ -297,29 +337,23 @@ export default function EditRestrictionModal(props: { openRestrictionID: number,
                 </span>
                 <label>
                     Icon:
-                    {currentData.restriction.imageID ? <X className='inline' color={'red'} onClick={(e) => {
+                    {currentData.restriction.imageID ? <CloseIcon className='inline' onClick={(e) => {
                         e.preventDefault();
                         action.addAction(new UpdateRestrictionAction({imageID: option.none }));
                     }}/> : <></>}
                 </label>
                 <div className='h-[100px] w-[100px] border-black border-2 border-solid' onDragOver={(e) => {
-                    e.preventDefault();
+                    e.preventDefault()
                 }} onDrop={(e) => {
-                    if(e.dataTransfer.files.length == 0){
-                        return;
-                    }
-                    const formData = new FormData();
-                    formData.append('image', e.dataTransfer.files[0]);
-                    const suffix = findFileExtension(e.dataTransfer.files[0].name);
-                    const imageID = currentData.restriction.imageID.isNone() ? undefined : currentData.restriction.imageID.value;
-                    uploadLogoImage(imageID, suffix).sendRaw(tempParams, formData).then((a) => {
-                        action.addAction(new UpdateRestrictionAction({imageID: option.some(a.data.imageID) }));
-                        image[1]((s) => mergeTable<LogoImageType, 'logoImageID', LogoImageType>(s, [a.data], 'logoImageID'));
-                    })
-                    e.preventDefault();
+                    updateAndMergeRI(e.dataTransfer.files, currentData, action, image)
+                    e.preventDefault()
                 }}>
                     {currentData.restriction.imageID.isSome() ? <img src={getImageSRC(currentData.restriction.imageID.value, versionByID)}/> : <></>}
                 </div>
+                <input type="file" onChange={(e) => {
+                    e.preventDefault()
+                    updateAndMergeRI(e.target.files, currentData, action, image)
+                }}/>
                 <label>Message:</label>
                 <textarea cols={45} rows={15} value={currentData.restriction.message} onChange={(e) => {
                     e.preventDefault();

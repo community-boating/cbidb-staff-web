@@ -17,6 +17,12 @@ import { ApiResult, Failure, Success } from 'core/APIWrapperTypes';
 import { imageVersionByID, getImageSRC, mergeTable, findFileExtension } from './shared';
 import { BufferedInput } from 'components/wrapped/Input';
 import { MAGIC_NUMBERS } from 'app/magicNumbers';
+import { option } from 'fp-ts';
+import CloseIcon from 'components/wrapped/Icons';
+import { FlagColor } from 'async/staff/dockhouse/flag-color';
+import * as moment from "moment";
+import { DHGlobalContext } from 'async/providers/DHGlobalProvider';
+import { getLatestFlag } from 'components/dockhouse/Header';
 
 function TabTitle(props: {children: React.ReactNode, active: boolean}){
     return <h2>
@@ -64,28 +70,93 @@ export default function FOTVControllerPage(props) {
             </DraggingProvider>;
 };
 
+const RESTRICTION_CONDITION_TYPES = {
+    ACTIONS: {
+        ENABLE: 0,
+        DISABLE: 1,
+        TOGGLE: 2
+    },
+    TYPES: {
+        TIME: 0,
+        STATE: 1
+    },
+    INFOS: {
+        OPEN: 'OPEN',
+        CLOSE: 'CLOSE',
+        GREEN: 'GREEN',
+        YELLOW: 'YELLOW',
+        RED: 'RED',
+        AP: 'AP',
+        JP: 'JP'
+    }
+}
+
+const INFO_FLAG_MAP = {
+    [RESTRICTION_CONDITION_TYPES.INFOS.CLOSE]: FlagColor.BLACK,
+    [RESTRICTION_CONDITION_TYPES.INFOS.GREEN]: FlagColor.GREEN,
+    [RESTRICTION_CONDITION_TYPES.INFOS.YELLOW]: FlagColor.YELLOW,
+    [RESTRICTION_CONDITION_TYPES.INFOS.RED]: FlagColor.RED
+}
+
+function processCondition(currentRestrictionStates: {[key: number]: boolean}, restrictionID: number, restrictionConditionAction: number){
+    if(restrictionConditionAction == RESTRICTION_CONDITION_TYPES.ACTIONS.ENABLE)
+        currentRestrictionStates[restrictionID] = true
+    else if(restrictionConditionAction == RESTRICTION_CONDITION_TYPES.ACTIONS.DISABLE)
+        currentRestrictionStates[restrictionID] = false
+    else if(restrictionConditionAction == RESTRICTION_CONDITION_TYPES.ACTIONS.TOGGLE)
+        currentRestrictionStates[restrictionID] = !currentRestrictionStates[restrictionID]
+}
+
+function calculateRestrictionConditions(fotvData: FOTVType, currentFlag: FlagColor){
+    const currentRestrictionStates: {[key: number]: boolean} = {}
+    fotvData.restrictions.forEach((a, i) => {
+        currentRestrictionStates[a.restrictionID] = false
+    })
+    const currentProgramID = getActiveProgramID(fotvData);
+    fotvData.restrictionConditions.forEach((a) => {
+        if(a.conditionType.getOrElse(-1) == RESTRICTION_CONDITION_TYPES.TYPES.STATE){
+            const conditionInfo = a.conditionInfo.getOrElse("");
+            if(conditionInfo == RESTRICTION_CONDITION_TYPES.INFOS.AP && currentProgramID == MAGIC_NUMBERS.PROGRAM_TYPE_ID.ADULT_PROGRAM)
+                processCondition(currentRestrictionStates, a.restrictionID, a.conditionAction.getOrElse(-1))
+            else if(conditionInfo == RESTRICTION_CONDITION_TYPES.INFOS.JP && currentProgramID == MAGIC_NUMBERS.PROGRAM_TYPE_ID.JUNIOR_PROGRAM)
+                processCondition(currentRestrictionStates, a.restrictionID, a.conditionAction.getOrElse(-1))
+            else if(conditionInfo == RESTRICTION_CONDITION_TYPES.INFOS.OPEN && currentFlag != FlagColor.BLACK)
+                processCondition(currentRestrictionStates, a.restrictionID, a.conditionAction.getOrElse(-1))
+            else if(currentFlag == INFO_FLAG_MAP[conditionInfo])
+                processCondition(currentRestrictionStates, a.restrictionID, a.conditionAction.getOrElse(-1))
+        }else if(a.conditionType.getOrElse(-1) == RESTRICTION_CONDITION_TYPES.TYPES.TIME){
+            const time = moment(a.conditionInfo.getOrElse(""));
+            if(moment().isAfter(time))
+                processCondition(currentRestrictionStates, a.restrictionID, a.conditionAction.getOrElse(-1))
+        }
+    })
+    return currentRestrictionStates;
+}
+
 const NewAction = 'New';
 
 const MoveAction = 'Move';
 
-function mapRestrictionData(fotv: ProviderWithSetState<FOTVType>, editRestriction: (id: number) => void, editing?: boolean){
+function mapRestrictionData(fotv: ProviderWithSetState<FOTVType>, editRestriction: (id: number) => void, currentFlag: FlagColor, editing?: boolean){
+    const restrictionConditionActivations = calculateRestrictionConditions(fotv.state, currentFlag)
     return {
         items: fotv.state.restrictions.map((a) => ({
             title: a.title,
             itemID: a.restrictionID,
             groupID: a.groupID,
             displayOrder: a.displayOrder,
-            display: <Restriction restriction={a} setRestrictions={subStateWithSet(fotv.state, fotv.setState, 'restrictions')[1]} editing={editing} editRestriction={editRestriction}/>
+            display: <Restriction restriction={a} setRestrictions={subStateWithSet(fotv.state, fotv.setState, 'restrictions')[1]} editing={editing} editRestriction={editRestriction} restrictionConditionActivations={restrictionConditionActivations}/>
             })),
         groups: fotv.state.restrictionGroups
         }
 }
 
 function RestrictionsPanel(props: {editing: boolean, setEditing: React.Dispatch<React.SetStateAction<boolean>>}) {
-    const [editRestrictionID, setEditRestrictionID] = React.useState<number>(null);
-    const fotv = React.useContext(FOTVContext);
-    const restrictions = subStateWithSet(fotv.state, fotv.setState, 'restrictions');
-    const restrictionGroups = subStateWithSet(fotv.state, fotv.setState, 'restrictionGroups');
+    const [editRestrictionID, setEditRestrictionID] = React.useState<number>(null)
+    const fotv = React.useContext(FOTVContext)
+    const restrictions = subStateWithSet(fotv.state, fotv.setState, 'restrictions')
+    const restrictionGroups = subStateWithSet(fotv.state, fotv.setState, 'restrictionGroups')
+    const flagColor = getLatestFlag(React.useContext(DHGlobalContext))
     const after = (a: ApiResult<RestrictionType[]>) => {
         if(a.type == 'Success')
             restrictions[1]((s) => mergeTable<RestrictionType, 'restrictionID', RestrictionType>(s, a.success, 'restrictionID'))
@@ -96,7 +167,7 @@ function RestrictionsPanel(props: {editing: boolean, setEditing: React.Dispatch<
     if(fotv.state.restrictions == undefined)
         return <p>idiot</p>;
     const updateGroupName = (name: string, groupID: number) => {
-        putRestrictionGroup.sendWithParams(null, tempParams)(makePostJSON([{title: name, groupID: groupID}])).then((a) => {
+        putRestrictionGroup.sendWithParams(null, tempParams)(makePostJSON([{title: option.some(name), groupID: groupID}])).then((a) => {
             if(a.type == "Success"){
                 restrictionGroups[1]((s) => mergeTable<RestrictionGroupType, 'groupID', RestrictionGroupType>(s, a.success, 'groupID'))
             }else{
@@ -107,7 +178,7 @@ function RestrictionsPanel(props: {editing: boolean, setEditing: React.Dispatch<
     return <div className="flex flex-col h-full gap-4">
         <EditRestrictionModal openRestrictionID={editRestrictionID} setOpen={() => {setEditRestrictionID(null)}}/>
         <div className='flex grow-[1] basis-0 w-full overflow-hidden'>
-                {((fotv.providerState == ProviderState.SUCCESS) ? <DraggableGrid gridData={mapRestrictionData(fotv, setEditRestrictionID, props.editing)} editing={props.editing} addGroup={() => {
+                {((fotv.providerState == ProviderState.SUCCESS) ? <DraggableGrid gridData={mapRestrictionData(fotv, setEditRestrictionID, flagColor, props.editing)} editing={props.editing} addGroup={() => {
                     putRestrictionGroup.sendWithParams(null, tempParams)(makePostJSON([{title: 'NEW'}])).then((a) => {
                         if(a.type === 'Success'){
                             fotv.setState((s) => ({...s, restrictionGroups: s.restrictionGroups.concat(a.success)}))
@@ -159,7 +230,7 @@ function RestrictionsPanel(props: {editing: boolean, setEditing: React.Dispatch<
                         }
                 })
             }}>
-                <X className='inline text-red-500'/>
+                <CloseIcon/>
                 <p className='inline align-middle'>Delete Restriction</p>
             </div>
         </>}</DraggingContext.Consumer> : <></>}
@@ -199,7 +270,8 @@ function mapImageItem(fotv: ProviderWithSetState<FOTVType>, drag, editing?: bool
         }} onDragEnd={(e) => {
             e.preventDefault();
             drag.setDrag(defaultDragging.drag);
-        }}><img draggable={false} src={getImageSRC(a.imageID, versionByID)} className='block absolute h-full mx-auto w-full object-contain'/></div>
+        }}>
+            <img draggable={false} src={getImageSRC(a.imageID, versionByID)} className='block absolute h-full mx-auto w-full object-contain'/></div>
     }))
 }
 
@@ -270,21 +342,17 @@ function ImagePanel() {
         e.preventDefault();
         const formData = new FormData();
         formData.append('image', e.dataTransfer.files[0]);
-        console.log(e.dataTransfer.files[0]);
         const suffix = findFileExtension(e.dataTransfer.files[0].name);
         const current = fotv.state.logoImages.find((a) => a.displayOrder == displayOrder && a.imageType == groupID);
         uploadImage(current == undefined ? null : current.imageID,suffix).sendRaw(tempParams, formData).then((b) => {
             if(b.status == 200){
-                console.log(b);
                 if(current == undefined){
                     console.log('making new');
                     //alert('making new');
                     putLogoImage.sendWithParams(asc, tempParams)(makePostJSON([{title: 'NEW', displayOrder: displayOrder, imageType: groupID, imageID: b.data.imageID}])).then(updateLogoImagesLocal)
                 }
-                console.log(b.data);
-                images[1]((im) => mergeTable<LogoImageType, 'logoImageID', LogoImageType>(im, [b.data], 'logoImageID'));
+                images[1]((im) => mergeTable<LogoImageType, 'imageID', LogoImageType>(im, [b.data], 'imageID'));
             }else{
-                console.log(b);
                 //console.log(b);
             }
         })
@@ -300,8 +368,22 @@ function ImagePanel() {
     const bigCols = Math.min(8, itemsBig.length + 1);
     const smallCols = Math.min(8, itemsSmall.length + 1);
     const updateGroupName = (name: string, groupID: number) => {};
+    const customGroupBucket = (onDrop: (e) => void) => {
+        return <input type="file" onChange={(e) => {
+            e.preventDefault();
+            const e2: any = {
+                dataTransfer: {
+                    files: e.target.files
+                },
+                preventDefault: () => {
+
+                }
+            }
+            onDrop(e2)
+        }}/>
+    }
     return <div className='flex grow-[2] flex-col space-y-4 flex-grow overflow-scroll'>
-        <div className='flex grow-[1] w-[600px] mx-auto basis-0'>
+        <div className='flex grow-[1] w-[600px] mx-auto basis-0 space-x-4'>
             <DraggableGroup cols={1} rows={1} hideX={true} editing={true} group={
                 {
                     title: "AP Sliding Image",
@@ -311,6 +393,7 @@ function ImagePanel() {
             items={mappedItems.filter((a) => a.groupID == -3)}
             handleDrop={handleDrop}
             updateGroupName={updateGroupName}
+            extraGroupBucket={customGroupBucket}
             />
             <DraggableGroup cols={1} rows={1} hideX={true} editing={true} group={
                 {
@@ -321,9 +404,10 @@ function ImagePanel() {
             items={mappedItems.filter((a) => a.groupID == -4)}
             handleDrop={handleDrop}
             updateGroupName={updateGroupName}
+            extraGroupBucket={customGroupBucket}
             />
         </div>
-        <div className='flex grow-[1] w-[300px] mx-auto basis-0'>
+        <div className='flex grow-[1] w-[300px] mx-auto basis-0 space-x-4'>
             <DraggableGroup cols={1} rows={1} hideX={true} editing={true} group={
                 {
                     title: "Main Logo Image",
@@ -333,6 +417,7 @@ function ImagePanel() {
             items={mappedItems.filter((a) => a.groupID == -2)}
             handleDrop={handleDrop}
             updateGroupName={updateGroupName}
+            extraGroupBucket={customGroupBucket}
             />
             <DraggableGroup cols={1} rows={1} hideX={true} editing={true} group={
                 {
@@ -343,9 +428,10 @@ function ImagePanel() {
             items={mappedItems.filter((a) => a.groupID == -5)}
             handleDrop={handleDrop}
             updateGroupName={updateGroupName}
+            extraGroupBucket={customGroupBucket}
             />
         </div>
-        <div className='flex grow-[1] basis-0'>
+        <div className='flex grow-[1] basis-0 space-x-4'>
             <DraggableGroup cols={bigCols} rows={1} hideX={true} editing={true} group={
                 {
                     title: "Big Images",
@@ -355,6 +441,7 @@ function ImagePanel() {
             items={itemsBig}
             handleDrop={handleDrop}
             updateGroupName={updateGroupName}
+            extraGroupBucket={customGroupBucket}
             />
         </div>
         <div className='flex grow-[1] basis-0'>
@@ -367,9 +454,10 @@ function ImagePanel() {
             items={itemsSmall}
             handleDrop={handleDrop}
             updateGroupName={updateGroupName}
+            extraGroupBucket={customGroupBucket}
             />
         </div>
-        <div className='rounded border-2 border-red-500 pr-2' onDragOver={(e) => {
+        <div className='rounded border-2 border-red-500 pr-2 space-x-4' onDragOver={(e) => {
                 if(drag.drag.type == MoveAction){
                     e.preventDefault();
                 }}} onDrop={(e) => {
@@ -391,7 +479,7 @@ function ImagePanel() {
                         })
                     }
             }}>
-                <X className='inline text-red-500'/>
+                <CloseIcon className='inline text-red-500'/>
                 <p className='inline align-middle'>Delete Image</p>
             </div>
     </div>
@@ -456,7 +544,7 @@ function isSlotAcceptableForDrag (e: React.DragEvent<HTMLDivElement>, drag: Drag
 }
 
 function DraggableGroupBucket(props: {handleDrop:HandleDropType, currentItemID: number, children: React.ReactNode, editing?: boolean, groupID: number, displayOrder: number, maxDisplayOrderForGroup: number}) {
-    return <DraggingContext.Consumer>{(drag) => <div className={'w-full border-2' + (drag.drag.dragging ? ' border-red-200' : '') + (props.editing ? ' rounded-md' : ' border-transparent')} onDragOver={(e) => {
+    return <DraggingContext.Consumer>{(drag) => <div className={' flex flex-col'} onDragOver={(e) => {
         isSlotAcceptableForDrag(e, drag.drag,props.displayOrder,props.currentItemID,props.groupID,props.maxDisplayOrderForGroup) && e.preventDefault();
         }} onDrop={(e) => {props.handleDrop(drag.drag, drag.setDrag, props.groupID, props.displayOrder, props.currentItemID)(e);}}>
         {props.children}
@@ -478,7 +566,7 @@ function getMaxDisplayOrderForGroup (items: DraggableGridItem[], groupID: number
     return lastDisplayOrder;
 }
 
-function DraggableGroup(props: {editing: boolean, group: DraggableGridGroup, items: DraggableGridItem[], handleDrop: HandleDropType, cols?: number, rows?: number, hideX?: boolean, updateGroupName: (name: string, groupID: number) => void}){
+function DraggableGroup(props: {editing: boolean, group: DraggableGridGroup, items: DraggableGridItem[], handleDrop: HandleDropType, cols?: number, rows?: number, hideX?: boolean, updateGroupName: (name: string, groupID: number) => void, extraGroupBucket?: (onDrop: (e) => void) => React.ReactNode}){
     const mc = React.useContext(ActionModalContext);
     const groupItems = props.items.filter((r) => r.groupID == props.group.groupID);
     const byDisplayOrder: {[key: number]: DraggableGridItem} = {};
@@ -492,31 +580,40 @@ function DraggableGroup(props: {editing: boolean, group: DraggableGridGroup, ite
     for(var i = 0; i <= maxDisplayOrder; i++){
         allGroupBuckets.push(i);
     }
+    const drag = React.useContext(DraggingContext);
+    //yikes
+    const handleDropWrapped = (i) => props.handleDrop({dragging: true, type: NewAction, groupID: props.group.groupID, itemID: byDisplayOrder[i] ? byDisplayOrder[i].itemID : undefined}, () => {}, props.group.groupID, i, byDisplayOrder[i] ? byDisplayOrder[i].itemID : undefined)
     return <div className='flex flex-col grow-[1] bg-background rounded-sm'>
                 <div className='flex flex-row w-full'>
                     <h1 className='p-2 flex'>
-                        {props.editing ?<BufferedInput className="w-full bg-transparent" value={props.group.title} onValueChanged={(v) => {
+                        {props.editing ?<BufferedInput className="w-full bg-transparent rounded-sm border-solid border-2 outline-none" value={props.group.title} onValueChanged={(v) => {
                             props.updateGroupName(v, props.group.groupID);
                         }}/>
                         : <>{props.group.title}</>}
                     </h1>
                     {
-                    props.editing ? 
-                    <button className='flex ml-auto' onClick={(e) => {
+                    (props.editing && !props.hideX) ? 
+                    <CloseIcon className='flex ml-auto align-middle inline mr-0' height="100%" onClick={(e) => {
                         e.preventDefault();
                         mc.pushAction(new ActionConfirmDelete(props.group.groupID));
                     }}>
-                        {!props.hideX && <X className='align-middle inline mr-0 text-red-900' height='100%'/>}
-                    </button>
+                        
+                    </CloseIcon>
                      : <></>}
                 </div>
-            <div className={'flex grow-[1] grid p-2 gap-1'} style={{
+            <div className={'flex grow-[1] grid gap-4'} style={{
                 gridTemplateColumns: 'repeat(' + cols + ', minmax(0, 1fr))',
                 gridTemplateRows: 'repeat(' + rows + ', minmax(0, 1fr))'
         }}>
-            {allGroupBuckets.map((i) => <DraggableGroupBucket currentItemID={byDisplayOrder[i] !== undefined ? byDisplayOrder[i].itemID : undefined} handleDrop={props.handleDrop} groupID={props.group.groupID} displayOrder={i} editing={props.editing} maxDisplayOrderForGroup={getMaxDisplayOrderForGroup(props.items, props.group.groupID, maxDisplayOrder)} key={'i' + i + 'item' + (byDisplayOrder[i] || {itemID: 0}).itemID}>
-            {(byDisplayOrder[i] !== undefined) ? byDisplayOrder[i].display : <></>}
-                </DraggableGroupBucket>)}
+            {allGroupBuckets.map((i) => <>
+                
+                <DraggableGroupBucket currentItemID={byDisplayOrder[i] !== undefined ? byDisplayOrder[i].itemID : undefined} handleDrop={props.handleDrop} groupID={props.group.groupID} displayOrder={i} editing={props.editing} maxDisplayOrderForGroup={getMaxDisplayOrderForGroup(props.items, props.group.groupID, maxDisplayOrder)} key={'i' + i + 'item' + (byDisplayOrder[i] || {itemID: 0}).itemID}>
+                    {props.extraGroupBucket ? props.extraGroupBucket(handleDropWrapped(i)) : <></>}
+                    <div className={'border-2 grow-[1] ' + (drag.drag.dragging ? ' border-red-200' : '') + (props.editing ? ' rounded-md' : ' border-transparent')}>
+                        {(byDisplayOrder[i] !== undefined) ? byDisplayOrder[i].display : <></>}
+                    </div>
+                </DraggableGroupBucket>
+                </>)}
         </div>
     </div>
 }
@@ -525,9 +622,9 @@ function RestrictionInternal(props: {title: React.ReactNode}){
     return <div className="b-black">{props.title}</div>
 }
 
-function Restriction(props: {restriction: FOTVType['restrictions'][number], editing: boolean, setRestrictions: React.Dispatch<React.SetStateAction<FOTVType['restrictions']>>, editRestriction: (restrictionID: number) => void}){
+function Restriction(props: {restriction: FOTVType['restrictions'][number], editing: boolean, setRestrictions: React.Dispatch<React.SetStateAction<FOTVType['restrictions']>>, editRestriction: (restrictionID: number) => void, restrictionConditionActivations: {[key: number] : boolean}}){
     const fotv = React.useContext(FOTVContext);
-    return <DraggingContext.Consumer>{(drag) => <div className={'rounded-sm border-2 w-full h-full' + (props.editing ? ' cursor-move' : ' cursor-pointer') + (props.restriction.active ? ' border-red-400' : '')} style={{color: props.restriction.textColor, backgroundColor: props.restriction.backgroundColor, fontWeight: props.restriction.fontWeight}} draggable={props.editing} onDragStart={(e) => {
+    return <DraggingContext.Consumer>{(drag) => <div className={'rounded-sm border-2 w-full h-full' + (props.editing ? ' cursor-move' : ' cursor-pointer') + (props.restrictionConditionActivations[props.restriction.restrictionID] ? ' border-orange-400' : (props.restriction.active ? ' border-red-400' : ''))} style={{color: props.restriction.textColor, backgroundColor: props.restriction.backgroundColor, fontWeight: props.restriction.fontWeight}} draggable={props.editing} onDragStart={(e) => {
         e.dataTransfer.setData('type', MoveAction);
         e.dataTransfer.setData('itemID', String(props.restriction.restrictionID));
         drag.setDrag({dragging: true, type: MoveAction, itemID: props.restriction.restrictionID, groupID: props.restriction.groupID});

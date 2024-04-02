@@ -1,6 +1,8 @@
 import * as React from 'react';
 import { Dialog } from '@headlessui/react'
 import Theme from 'layouts/Theme';
+import { X } from 'react-feather';
+import CloseIcon from './Icons';
 
 export enum ModalAction {
     NONE = 0,
@@ -26,7 +28,8 @@ export function ModalHeader(props: {className?: string, children?: React.ReactNo
         const context = React.useContext(ModalContext);
         return <Dialog.Title className={"flex flex-row border-b mb-2 border-black w-full " + props.className}>
                     {props.children}
-                    <button className="ml-auto mr-0 text-red-700 font-bold" onClick={(e) => {e.preventDefault();context.setOpen(false);}}>X</button>
+                    <CloseIcon className="ml-auto mr-0" onClick={(e) => {e.preventDefault();context.setOpen(false);}}>
+                    </CloseIcon>
                 </Dialog.Title>
     }
     return <Dialog.Title className={props.className}>{props.children}</Dialog.Title>;

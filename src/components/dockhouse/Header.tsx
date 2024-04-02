@@ -30,7 +30,7 @@ Signout Table:
 Boat order (Merc, Keel Merc, Sonar, Ideal, Laser, 420, Kayak, Paddleboard, Windsurf)
 */
 
-function getLatestFlag(dhGlobal: DHGlobals){
+export function getLatestFlag(dhGlobal: DHGlobals){
 	const latestChange = dhGlobal.flagChanges.sort((a, b) => b.changeDatetime.diff(a.changeDatetime))[0];
 	return latestChange ? latestChange.flag : FlagColor.BLACK;
 }
