@@ -5,7 +5,6 @@ import { HttpMethod } from "../core/HttpMethod";
 const path = "/authenticate-staff"
 
 export const apiw = () => new APIWrapper({
-	serverIndex: 1,
 	path,
 	type: HttpMethod.POST,
 	resultValidator: t.boolean,

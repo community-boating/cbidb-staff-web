@@ -4,7 +4,6 @@ import Button from 'components/wrapped/Button';
 import { SelectInput, ValidatedTextInput } from 'components/wrapped/Input';
 import Modal, { DefaultModalBody, ModalContext, ModalHeader } from 'components/wrapped/Modal';
 import { makePostJSON } from 'core/APIWrapper';
-import { tempParams } from 'core/AsyncStateProvider';
 import { option } from 'fp-ts';
 import * as React from 'react';
 import { buttonClasses, buttonClassActive } from '../styles';
@@ -18,7 +17,7 @@ import { Flag, FlagStatusIcon, FlagStatusIcons } from 'components/dockhouse/Flag
 import CloseIcon from 'components/wrapped/Icons';
 
 export function setRestrictionPartial(setRestrictions: React.Dispatch<React.SetStateAction<FOTVType>>, values: Partial<FOTVType['restrictions'][number]>) {
-    return putRestriction.sendWithParams(null, tempParams)(makePostJSON([values])).then((a) => {
+    return putRestriction.sendJson(null, [values]).then((a) => {
         if (a.type == 'Success')
             setRestrictions((fotv) => ({...fotv, restrictions: [...fotv.restrictions.map((r) => r.restrictionID == a.success[0].restrictionID ? a.success[0] : r)]}));
         else
@@ -233,7 +232,7 @@ function resolveActions(actions, setRestrictionConditions: React.Dispatch<React.
     });
 
     if(deleteIds.length > 0){
-        deleteRestrictionCondition.sendWithParams(null, tempParams)(makePostJSON(deleteIds.map((a) => ({conditionID: a})))).then((b) => {
+        deleteRestrictionCondition.sendJson(null, deleteIds.map((a) => ({conditionID: a}))).then((b) => {
             if (b.type == 'Success') {
                 setRestrictionConditions((s) => s.filter((a) => !deleteIds.contains(a.conditionID)));
             } else {
@@ -244,7 +243,7 @@ function resolveActions(actions, setRestrictionConditions: React.Dispatch<React.
 
     var toUpdate = Object.values(updatesByID) as any;
     if(toUpdate.length > 0){
-        putRestrictionCondition.sendWithParams(null, tempParams)(makePostJSON(toUpdate.map((a) => a.conditionID >= 0 ? a : {...a, conditionID: undefined}))).then((a) => {
+        putRestrictionCondition.sendJson(null, toUpdate.map((a) => a.conditionID >= 0 ? a : {...a, conditionID: undefined})).then((a) => {
             if(a.type == 'Success'){
                 setRestrictionConditions((s) => mergeTable<RestrictionConditionType, 'conditionID', RestrictionConditionType>(s, a.success, 'conditionID'));
             }else{
@@ -254,7 +253,7 @@ function resolveActions(actions, setRestrictionConditions: React.Dispatch<React.
     }
 
     if(Object.keys(restrictionUpdate).length > 0){
-        putRestriction.sendWithParams(null, tempParams)(makePostJSON([{...restrictionUpdate, restrictionID: restrictionID}])).then((a) => {
+        putRestriction.sendJson(null, [{...restrictionUpdate, restrictionID: restrictionID}]).then((a) => {
             if(a.type == 'Success'){
                 setRestrictions((s) => s.map((b) => b.restrictionID != restrictionID ? b : a.success[0]))
             }else{
@@ -280,9 +279,11 @@ function updateAndMergeRI(files: FileList, currentData, action, image) {
     formData.append('image', files[0]);
     const suffix = findFileExtension(files[0].name);
     const imageID = currentData.restriction.imageID.isNone() ? undefined : currentData.restriction.imageID.value;
-    uploadLogoImage(imageID, suffix).sendRaw(tempParams, formData).then((a) => {
+    console.log("CALLING IT");
+    uploadLogoImage(imageID, suffix).sendRaw(option.none, formData).then((a) => {
+        console.log("DOING IT");
         action.addAction(new UpdateRestrictionAction({imageID: option.some(a.data.imageID) }));
-        image[1]((s) => mergeTable<LogoImageType, 'logoImageID', LogoImageType>(s, [a.data], 'logoImageID'));
+        image[1]((s) => mergeTable<ImageType, 'imageID', ImageType>(s, [a.data], 'imageID'));
     })
 }
 
@@ -290,7 +291,7 @@ export default function EditRestrictionModal(props: { openRestrictionID: number,
     //const [restriction, setRestriction] = React.useState<RestrictionType>(undefined);
     const fotv = React.useContext(FOTVContext);
     const versionByID = imageVersionByID(fotv);
-    const image = subStateWithSet(fotv.state, fotv.setState, 'logoImages');
+    const image = subStateWithSet(fotv.state, fotv.setState, 'images');
     //restriction != undefined && console.log(restriction.imageID);
     const restrictionConditions = subStateWithSet(fotv.state, fotv.setState, 'restrictionConditions');
     const [actions, setActions] = React.useState([]);

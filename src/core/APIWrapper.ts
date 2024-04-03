@@ -25,10 +25,10 @@ const searchJSCONMetaData: (metaData: any[]) => (toFind: string) => number = met
 	return null;
 }
 
-var apiAxios: AxiosInstance[] = [];
+var apiAxios: AxiosInstance;
 
-function getOrCreateAxios(serverParams: ServerParams, serverIndex: number=0) {
-	if (apiAxios[serverIndex] == null) {
+function getOrCreateAxios(serverParams: ServerParams) {
+	if (apiAxios == null) {
 		console.log('instantiating axios');
 		const portString = (function() {
 			if (
@@ -38,7 +38,7 @@ function getOrCreateAxios(serverParams: ServerParams, serverIndex: number=0) {
 			else return "";
 		}());
 
-		apiAxios[serverIndex] = axios.create({
+		apiAxios = axios.create({
 			baseURL: `${serverParams.https ? "https://" : "http://"}${serverParams.host}${portString}`,
 			maxRedirects: 0,
 			responseType: "json",
@@ -46,7 +46,7 @@ function getOrCreateAxios(serverParams: ServerParams, serverIndex: number=0) {
 			// xsrfHeaderName: "X-XSRF-TOKEN",
 		})
 	}
-	return apiAxios[serverIndex];
+	return apiAxios;
 }
 
 const PostURLEncoded: <T extends {[K: string]: string}>(o: T) => string = o => {
@@ -74,7 +74,7 @@ export default class APIWrapper<T_ResponseValidator extends t.Any, T_PostBodyVal
 		this.config = config;
 	}
 	sendRaw(params, data): Promise<any> {
-		return getOrCreateAxios(params, this.config.serverIndex).post(this.config.path, data)
+		return getOrCreateAxios(params).post(this.config.path, data)
 	}
 	send: (asc: AppStateCombined) => Promise<ApiResult<t.TypeOf<T_ResponseValidator>>> = (asc) => this.sendWithParams(asc, none)(undefined)
 	sendJson: (asc: AppStateCombined, data: t.TypeOf<T_PostBodyValidator>, params?: T_Params) => Promise<ApiResult<t.TypeOf<T_ResponseValidator>>> = (asc, data, params) => this.sendWithParams(asc, none, params)(makePostJSON(data))
@@ -146,13 +146,13 @@ export default class APIWrapper<T_ResponseValidator extends t.Any, T_PostBodyVal
 				...postValues.map(pv => pv.headers).getOrElse(null)
 			}
 
-			return (params != undefined ? getOrCreateAxios(serverParams, self.config.serverIndex || 0)({
+			return (params != undefined ? getOrCreateAxios(serverParams)({
 				method: self.config.type,
 				url: (serverParams.pathPrefix || "") + self.config.path,
 				params: params,
 				data: postValues.map(pv => pv.content).getOrElse(null),
 				headers
-			}) : getOrCreateAxios(serverParams, self.config.serverIndex || 0)({
+			}) : getOrCreateAxios(serverParams)({
 				method: self.config.type,
 				url: (serverParams.pathPrefix || "") + self.config.path,
 				data: postValues.map(pv => pv.content).getOrElse(null),

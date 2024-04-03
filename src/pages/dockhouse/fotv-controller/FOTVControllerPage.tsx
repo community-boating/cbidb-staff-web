@@ -1,19 +1,17 @@
 import { Tab } from '@headlessui/react';
-import FOTVProvider, { FOTVContext } from 'async/providers/FOTVProvider';
+import { FOTVContext } from 'async/providers/FOTVProvider';
 import { deleteLogoImage, deleteRestriction, FOTVType, ImageType, LogoImageType, putLogoImage, putRestriction, putRestrictionGroup, putSingletonData, RestrictionGroupType, RestrictionType, restrictionValidator, SingletonDataType, uploadLogoImage as uploadImage } from 'async/staff/dockhouse/fotv-controller';
 import { ActionModalContext } from 'components/dockhouse/actionmodal/ActionModal';
-import { NoneAction, subStateWithSet } from 'components/dockhouse/actionmodal/ActionModalProps';
+import { subStateWithSet } from 'components/dockhouse/actionmodal/ActionModalProps';
 import EditRestrictionModal, { setRestrictionPartial } from 'components/dockhouse/actionmodal/fotv-controller/EditRestrictionModal';
 import { Card, CardLayout, FlexSize, LayoutDirection } from 'components/dockhouse/Card';
-import APIWrapper, { makePostJSON } from 'core/APIWrapper';
-import { ProviderState, tempParams } from 'core/AsyncStateProvider';
+import { ProviderState } from 'core/AsyncStateProvider';
 import * as React from 'react';
-import { Edit, Plus, X } from 'react-feather';
-import ActionConfirmDelete from './ActionConfirmDelete';
+import { Delete, Edit, Edit2, LogOut, Plus } from 'react-feather';
+import ActionConfirmDelete from '../../../components/dockhouse/actionmodal/fotv-controller/ActionConfirmDelete';
 import { ProviderWithSetState } from 'async/providers/ProviderType';
 import { AppStateContext } from 'app/state/AppStateContext';
-import * as t from 'io-ts';
-import { ApiResult, Failure, Success } from 'core/APIWrapperTypes';
+import { ApiResult } from 'core/APIWrapperTypes';
 import { imageVersionByID, getImageSRC, mergeTable, findFileExtension } from './shared';
 import { BufferedInput } from 'components/wrapped/Input';
 import { MAGIC_NUMBERS } from 'app/magicNumbers';
@@ -23,6 +21,13 @@ import { FlagColor } from 'async/staff/dockhouse/flag-color';
 import * as moment from "moment";
 import { DHGlobalContext } from 'async/providers/DHGlobalProvider';
 import { getLatestFlag } from 'components/dockhouse/Header';
+import { logout } from 'async/logout';
+import { PERMISSIONS } from 'models/permissions';
+import { UsersContext } from 'async/providers/UsersProvider';
+import { PermissionsContext } from 'async/providers/PermissionsProvider';
+import { ModalContext } from 'components/wrapped/Modal';
+import ActionEditUser from 'components/dockhouse/actionmodal/fotv-controller/EditUser';
+import ActionEditPermissions from 'components/dockhouse/actionmodal/fotv-controller/EditPermissions';
 
 function TabTitle(props: {children: React.ReactNode, active: boolean}){
     return <h2>
@@ -40,7 +45,7 @@ function ProgramSwitcher(props: {className: string}){
     const programID = getActiveProgramID(fotv.state);
     return <h1 className={props.className} onClick={(e) => {
         e.preventDefault();
-        putSingletonData.sendWithParams(null, tempParams)(makePostJSON([{data_key: "ACTIVE_PROGRAM_ID", value: programID == MAGIC_NUMBERS.PROGRAM_TYPE_ID.ADULT_PROGRAM ? MAGIC_NUMBERS.PROGRAM_TYPE_ID.JUNIOR_PROGRAM.toString() : MAGIC_NUMBERS.PROGRAM_TYPE_ID.ADULT_PROGRAM.toString()}])).then((a) => {
+        putSingletonData.sendJson(null, [{data_key: "ACTIVE_PROGRAM_ID", value: programID == MAGIC_NUMBERS.PROGRAM_TYPE_ID.ADULT_PROGRAM ? MAGIC_NUMBERS.PROGRAM_TYPE_ID.JUNIOR_PROGRAM.toString() : MAGIC_NUMBERS.PROGRAM_TYPE_ID.ADULT_PROGRAM.toString()}]).then((a) => {
             if(a.type == "Success"){
                 singletonData[1]((s) => mergeTable<SingletonDataType, 'data_key', SingletonDataType>(s, a.success, 'data_key'))
             }else{
@@ -50,19 +55,75 @@ function ProgramSwitcher(props: {className: string}){
     }}>{programID == MAGIC_NUMBERS.PROGRAM_TYPE_ID.ADULT_PROGRAM ? "Set JP" : "Set AP"}</h1>
 }
 
+function UsersPanel(props){
+    const users = React.useContext(UsersContext);
+    const permissions = React.useContext(PermissionsContext);
+    const modal = React.useContext(ActionModalContext);
+    const permissionsByUserID = React.useMemo(() => {
+        const byUserID = {};
+        permissions.state.forEach((a) => {
+            byUserID[a.userID] = a
+        })
+        return byUserID
+    }, [permissions.state])
+    return <table className='w-full h-full flex flex-col gap-2'>
+        <tbody>
+            {users.state.map((a, i) => <tr className='flex flex-row rounded-md border-black border-solid border-2 mb-[10px]' key={a.userID}>
+                <td width='20%' className='text-center'>
+                    <p>{a.username}</p>
+                </td>
+                <td width='10%' className='text-center'>
+                    <p>{a.userID}</p>
+                </td>
+                <td width='25%' className='text-center cursor-pointer' onClick={(e) => {
+                    e.preventDefault();
+                    modal.pushAction(new ActionEditUser(a.userID));
+                }}>
+                    <p className='inline'>Change Password</p>
+                    <Edit2 className='inline'/>
+                </td>
+                <td width='30%' className='text-center cursor-pointer' onClick={(e) => {
+                    e.preventDefault();
+                    modal.pushAction(new ActionEditPermissions(a.userID));
+                }}>
+                    <p className='inline'>Change Permissions</p>
+                    <Edit2 className='inline'/>
+                </td>
+                <td width='15%' className='text-center cursor-pointer'>
+                    <p className='inline'>Delete</p>
+                    <CloseIcon className='inline'/>
+                </td>
+            </tr>)}
+        </tbody>
+    </table>
+}
+
 export default function FOTVControllerPage(props) {
     const [editing, setEditing] = React.useState(false);
+    const asc = React.useContext(AppStateContext);
+    const canViewUsers = asc.state.login.permissions[PERMISSIONS.VIEW_USERS];
     return <DraggingProvider>
                 <Tab.Group className="grow-[1]">
                     <CardLayout direction={LayoutDirection.VERTICAL}>
                         <Card weight={FlexSize.S_1} title={<Tab.List>
                             <Tab className="p-2">Restrictions</Tab>
                             <Tab className="p-2">Images</Tab>
+                            {canViewUsers ? <Tab className='p-2'>Users</Tab> : <></>}
                             <ProgramSwitcher className="p2 inline cursor-pointer"/>
+                            <button className='inline float-right align-middle' onClick={(e) => {
+                                e.preventDefault();
+                                logout.send(asc).then((a) => {
+                                    asc.stateAction.login.logout();
+                                })
+                            }}>
+                                <LogOut className='inline'/>
+                                <p className='inline'>Logout</p>
+                            </button>
                         </Tab.List>}>
                             <Tab.Panels className="grow-[1]">
                                 <Tab.Panel className="h-full"><RestrictionsPanel editing={editing} setEditing={setEditing} /></Tab.Panel>
                                 <Tab.Panel className="h-full flex flex-col"><ImagePanel/></Tab.Panel>
+                                {canViewUsers ? <Tab.Panel className='h-full'><UsersPanel/></Tab.Panel> : <></>}
                             </Tab.Panels>
                         </Card>
                     </CardLayout>
@@ -167,7 +228,7 @@ function RestrictionsPanel(props: {editing: boolean, setEditing: React.Dispatch<
     if(fotv.state.restrictions == undefined)
         return <p>idiot</p>;
     const updateGroupName = (name: string, groupID: number) => {
-        putRestrictionGroup.sendWithParams(null, tempParams)(makePostJSON([{title: option.some(name), groupID: groupID}])).then((a) => {
+        putRestrictionGroup.sendJson(null, [{title: option.some(name), groupID: groupID}]).then((a) => {
             if(a.type == "Success"){
                 restrictionGroups[1]((s) => mergeTable<RestrictionGroupType, 'groupID', RestrictionGroupType>(s, a.success, 'groupID'))
             }else{
@@ -179,7 +240,7 @@ function RestrictionsPanel(props: {editing: boolean, setEditing: React.Dispatch<
         <EditRestrictionModal openRestrictionID={editRestrictionID} setOpen={() => {setEditRestrictionID(null)}}/>
         <div className='flex grow-[1] basis-0 w-full overflow-hidden'>
                 {((fotv.providerState == ProviderState.SUCCESS) ? <DraggableGrid gridData={mapRestrictionData(fotv, setEditRestrictionID, flagColor, props.editing)} editing={props.editing} addGroup={() => {
-                    putRestrictionGroup.sendWithParams(null, tempParams)(makePostJSON([{title: 'NEW'}])).then((a) => {
+                    putRestrictionGroup.sendJson(null, [{title: 'NEW'}]).then((a) => {
                         if(a.type === 'Success'){
                             fotv.setState((s) => ({...s, restrictionGroups: s.restrictionGroups.concat(a.success)}))
                         }else{
@@ -211,10 +272,10 @@ function RestrictionsPanel(props: {editing: boolean, setEditing: React.Dispatch<
                     if(restrictionToDelete != undefined){
                         const items = getItemsToChangeDisplayOrder(restrictionItems,restrictionToDelete.displayOrder,restrictionToDelete.groupID,false,undefined);
                         if(items.length > 0)
-                            putRestriction.sendWithParams(null, tempParams)(makePostJSON(items.map(mapDraggableToRestriction))).then();
+                            putRestriction.sendJson(null, items.map(mapDraggableToRestriction)).then();
                     }
                     const extra = getItemsToChangeDisplayOrder(restrictionItems, restrictionToDelete.displayOrder, restrictionToDelete.groupID, false,undefined);
-                    deleteRestriction.sendWithParams(null, tempParams)(makePostJSON({restrictionID: drag.drag.itemID})).then((a) => {
+                    deleteRestriction.sendJson(null, {restrictionID: drag.drag.itemID}).then((a) => {
                         if(a.type == 'Success'){
                             fotv.setState((s) => ({...s, restrictions: s.restrictions.filter((a) => a.restrictionID != drag.drag.itemID)}));
                         }else{
@@ -222,7 +283,7 @@ function RestrictionsPanel(props: {editing: boolean, setEditing: React.Dispatch<
                         }
                     })
                     if(extra.length > 0)
-                    putRestriction.sendWithParams(null, tempParams)(makePostJSON(extra.map(mapDraggableToRestriction))).then((a) => {
+                    putRestriction.sendJson(null, extra.map(mapDraggableToRestriction)).then((a) => {
                         if(a.type == 'Success'){
                             restrictions[1]((s) => mergeTable<any, any, any>(s, a.success, 'restrictionID'));
                         }else{
@@ -333,9 +394,9 @@ function ImagePanel() {
             console.log('error updating image');
         }
     }
-    const images = subStateWithSet(fotv.state, fotv.setState, 'logoImages');
+    const images = subStateWithSet(fotv.state, fotv.setState, 'images');
     const handleDrop = handleDropGeneric(mappedItems, (items) => {
-        putLogoImage.sendWithParams(asc, tempParams)(makePostJSON(items.map((a) => ({...a, logoImageID: a.itemID, itemID: undefined, imageType: a.groupID, groupID: undefined})))).then(updateLogoImagesLocal)
+        putLogoImage.sendJson(asc, items.map((a) => ({...a, logoImageID: a.itemID, itemID: undefined, imageType: a.groupID, groupID: undefined}))).then(updateLogoImagesLocal)
     }, (e, displayOrder, groupID, extraItemsToChange) => {
         if(e.dataTransfer.files.length == 0)
             return;
@@ -344,14 +405,14 @@ function ImagePanel() {
         formData.append('image', e.dataTransfer.files[0]);
         const suffix = findFileExtension(e.dataTransfer.files[0].name);
         const current = fotv.state.logoImages.find((a) => a.displayOrder == displayOrder && a.imageType == groupID);
-        uploadImage(current == undefined ? null : current.imageID,suffix).sendRaw(tempParams, formData).then((b) => {
+        uploadImage(current == undefined ? null : current.imageID,suffix).sendRaw(option.none, formData).then((b) => {
             if(b.status == 200){
                 if(current == undefined){
                     console.log('making new');
                     //alert('making new');
-                    putLogoImage.sendWithParams(asc, tempParams)(makePostJSON([{title: 'NEW', displayOrder: displayOrder, imageType: groupID, imageID: b.data.imageID}])).then(updateLogoImagesLocal)
+                    putLogoImage.sendJson(asc, [{title: 'NEW', displayOrder: displayOrder, imageType: groupID, imageID: b.data.imageID}]).then(updateLogoImagesLocal)
                 }
-                images[1]((im) => mergeTable<LogoImageType, 'imageID', LogoImageType>(im, [b.data], 'imageID'));
+                images[1]((im) => mergeTable<ImageType, 'imageID', ImageType>(im, [b.data], 'imageID'));
             }else{
                 //console.log(b);
             }
@@ -461,7 +522,7 @@ function ImagePanel() {
                 if(drag.drag.type == MoveAction){
                     e.preventDefault();
                 }}} onDrop={(e) => {
-                    deleteLogoImage.sendWithParams(null, tempParams)(makePostJSON({logoImageID: drag.drag.itemID})).then((a) => {
+                    deleteLogoImage.sendJson(null, {logoImageID: drag.drag.itemID}).then((a) => {
                         if(a.type == 'Success'){
                             fotv.setState((s) => ({...s, logoImages: s.logoImages.filter((a) => a.logoImageID != drag.drag.itemID)}));
                         }else{
@@ -471,7 +532,7 @@ function ImagePanel() {
                     const draggedImage = fotv.state.logoImages.find((a) => a.logoImageID == drag.drag.itemID);
                     const toSend = getItemsToChangeDisplayOrder(mappedItems, draggedImage.displayOrder, draggedImage.imageType, false, draggedImage.imageID);
                     if(toSend.length > 0){
-                        putLogoImage.sendWithParams(null, tempParams)(makePostJSON(toSend.map((a) => ({...a, logoImageID: a.itemID, itemID: undefined})))).then((a) => {
+                        putLogoImage.sendJson(null, toSend.map((a) => ({...a, logoImageID: a.itemID, itemID: undefined}))).then((a) => {
                             if(a.type == 'Success')
                                 logoImageSet[1]((b) => mergeTable<LogoImageType, 'imageID', LogoImageType>(b, a.success, 'imageID'));
                             else
@@ -506,9 +567,9 @@ const mapRestrictionToDraggable: (a: Partial<RestrictionType> & {groupID: number
 
 const handleRestrictionsDrop: (items: DraggableGridItem[], after: (s: ApiResult<RestrictionType[]>) => void) => HandleDropType = (items, after) => {
     return handleDropGeneric(items, (items) => {
-        putRestriction.sendWithParams(undefined, tempParams)(makePostJSON(items.map(mapDraggableToRestriction))).then(after);
+        putRestriction.sendJson(undefined, items.map(mapDraggableToRestriction)).then(after);
     }, (e, displayOrder, groupID, extraItemsToChange) => {
-        putRestriction.sendWithParams(undefined, tempParams)(makePostJSON(extraItemsToChange.map(mapDraggableToRestriction).concat([{displayOrder: displayOrder, groupID: groupID, title: 'New', message: 'New', imageID: null}]))).then(after)
+        putRestriction.sendJson(undefined, extraItemsToChange.map(mapDraggableToRestriction).concat([{displayOrder: displayOrder, groupID: groupID, title: 'New', message: 'New', imageID: null}])).then(after)
     })
 }
 

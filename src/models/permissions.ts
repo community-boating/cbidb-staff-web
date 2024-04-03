@@ -10,7 +10,21 @@ export const PERMISSIONS = {
 	PERM_UPDATE_EVENTS: 8000,
 	PERM_UPDATE_TAGS: 8001,
 	PERM_UPDATE_DONATION_FUNDS: 11000,
+	DELETE_RESTRICTION: 0,
+	UPDATE_RESTRICTION: 1,
+	TOGGLE_RESTRICTION: 2,
+	DELETE_IMAGE: 3,
+	UPDATE_IMAGE: 4,
+	CHANGE_PROGRAM: 5,
+	CHANGE_OWN_PASSWORD: 6,
+	MANAGE_USERS: 7,
+	VIEW_USERS: 8,
+	VIEW_PERMISSIONS: 9,
+	UPDATE_PERMISSIONS: 10,
+	DELETE_PERMISSIONS: 11
+	
 };
+
 export const ROLES = [ 
 	{ id: 1400, name: 'Update Person variables e.g. Events, Tags', description: 'Update Person variables e.g. Events, Tags' },
 	{ id: 1200, name: 'Dockmaster', description: 'Dockmaster' },

@@ -12,6 +12,8 @@ import RatingsProvider from './RatingsProvider';
 import SignoutsTodayProvider from './SignoutsTodayProvider';
 import ClassesTodayProvider from './ClassesTodayProvider';
 import FOTVProvider from './FOTVProvider';
+import UsersProvider from './UsersProvider';
+import PermissionsProvider from './PermissionsProvider';
 
 const providersList = [
     ActionModalProvider,
@@ -20,6 +22,8 @@ const providersList = [
     SignoutsTodayProvider,
     DHGlobalProvider,
     InstructorsProvider,
+    UsersProvider,
+    PermissionsProvider,
     //IncidentsProvider,
     ClassLocationsProvider,
     ScannedPersonsCache,

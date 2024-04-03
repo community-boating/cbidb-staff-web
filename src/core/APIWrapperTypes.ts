@@ -19,7 +19,6 @@ export interface ConfigCommon<T_ResponseValidator extends t.Any> {
 	type: string & HttpMethod,
 	path: string,
 	extraHeaders?: object,
-	serverIndex?: number,
 	resultValidator: T_ResponseValidator,
 	jsconMap?: any
 	permissions?: number[]

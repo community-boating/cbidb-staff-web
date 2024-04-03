@@ -2,6 +2,7 @@ import * as t from 'io-ts';
 import APIWrapper from 'core/APIWrapper';
 import { HttpMethod } from "core/HttpMethod";
 import { OptionalNumber, OptionalString, allowNullUndefinedProps, makeOptionalPK, makeOptionalProps } from 'util/OptionalTypeValidators';
+import { PERMISSIONS } from 'models/permissions';
 
 export const imageValidator = t.type({
     imageID: t.number,
@@ -72,6 +73,23 @@ export const validator = t.type({
     singletonData: t.array(singletonDataValidator),
 })
 
+export const permissionValidator = t.type({
+    permissionID: t.number,
+    permissionKey: t.number,
+    userID: t.number
+})
+
+export const userValidator = t.type({
+    userID: t.number,
+    username: t.string
+})
+
+const pathUsers = '/users';
+const pathCreateUser = '/create_user';
+const pathChangePassword = '/change_password';
+
+const pathPermissions = '/permissions';
+
 const path: string = "/fotv"
 
 const pathPutRestriction: string = '/restriction';
@@ -84,7 +102,7 @@ const pathPutSingletonData: string = '/singletonData';
 
 const pathPutRestrictionCondition: string = '/restrictionCondition';
 
-const pathUploadLogoImage: string = '/uploadImage'
+const pathUploadLogoImage: string = '/api/uploadImage'
 
 export type FOTVType = t.TypeOf<typeof validator>;
 
@@ -100,19 +118,72 @@ export type RestrictionConditionType = t.TypeOf<typeof restrictionConditionValid
 
 export type SingletonDataType = t.TypeOf<typeof singletonDataValidator>;
 
+export type UserType = t.TypeOf<typeof userValidator>;
+
+export type PermissionType = t.TypeOf<typeof permissionValidator>;
+
 export const getWrapper = new APIWrapper({
     path: path,
     type: HttpMethod.GET,
     resultValidator: validator,
-    serverIndex: 1
 })
+
+export const getUsersWrapper = new APIWrapper({
+    path: pathUsers,
+    type: HttpMethod.GET,
+    resultValidator: t.array(userValidator),
+    permissions: [PERMISSIONS.VIEW_USERS]
+})
+
+export const getPermissionsWrapper = new APIWrapper({
+    path: pathPermissions,
+    type: HttpMethod.GET,
+    resultValidator: t.array(permissionValidator),
+    permissions: [PERMISSIONS.VIEW_PERMISSIONS]
+})
+
+export const createUserWrapper = new APIWrapper({
+    path: pathCreateUser,
+    type: HttpMethod.POST,
+    resultValidator: userValidator,
+    postBodyValidator: t.type({username: t.string, password: t.string})
+})
+
+export const changePasswordWrapper = new APIWrapper({
+    path: pathChangePassword,
+    type: HttpMethod.POST,
+    resultValidator: t.any,
+    postBodyValidator: t.type({username: t.string, userID: t.number, password: t.string})
+})
+
+export const deleteUserWrapper = new APIWrapper({
+    path: pathUsers,
+    type: HttpMethod.DELETE,
+    resultValidator: t.any,
+    postBodyValidator: t.type({userID: t.number})
+})
+
+export const postPermissionWrapper = new APIWrapper({
+    path: pathPermissions,
+    type: HttpMethod.POST,
+    resultValidator: t.array(permissionValidator),
+    postBodyValidator: t.array(allowNullUndefinedProps(permissionValidator))
+})
+
+export const deletePermissionWrapper = new APIWrapper({
+    path: pathPermissions,
+    type: HttpMethod.DELETE,
+    resultValidator: t.any,
+    postBodyValidator: t.type({permissionID: t.number})
+})
+
+
 
 export const putRestrictionGroup = new APIWrapper({
     path: pathPutRestrictionGroup,
     type: HttpMethod.POST,
     resultValidator: t.array(restrictionGroupValidator),
     postBodyValidator: t.array(allowNullUndefinedProps(restrictionGroupValidator)),
-    serverIndex: 1
 })
 
 export const putRestriction = new APIWrapper({
@@ -120,7 +191,6 @@ export const putRestriction = new APIWrapper({
     type: HttpMethod.POST,
     resultValidator: t.array(restrictionValidator),
     postBodyValidator: t.array(allowNullUndefinedProps(restrictionValidator)),
-    serverIndex: 1
 })
 
 export const putRestrictionCondition = new APIWrapper({
@@ -128,7 +198,6 @@ export const putRestrictionCondition = new APIWrapper({
     type: HttpMethod.POST,
     resultValidator: t.array(restrictionConditionValidator),
     postBodyValidator: t.array(allowNullUndefinedProps(restrictionConditionValidator)),
-    serverIndex: 1
 })
 
 export const putSingletonData = new APIWrapper({
@@ -136,7 +205,6 @@ export const putSingletonData = new APIWrapper({
     type: HttpMethod.POST,
     resultValidator: t.array(singletonDataValidator),
     postBodyValidator: t.array(allowNullUndefinedProps(singletonDataValidator)),
-    serverIndex: 1
 })
 
 export const deleteSingletonData = new APIWrapper({
@@ -144,7 +212,6 @@ export const deleteSingletonData = new APIWrapper({
     type: HttpMethod.DELETE,
     resultValidator: t.any,
     postBodyValidator: t.array(t.type({data_key: t.string})),
-    serverIndex: 1
 })
 
 export const deleteRestrictionCondition = new APIWrapper({
@@ -152,7 +219,6 @@ export const deleteRestrictionCondition = new APIWrapper({
     type: HttpMethod.DELETE,
     resultValidator: t.any,
     postBodyValidator: t.array(t.type({conditionID: t.number})),
-    serverIndex: 1
 })
 
 export const deleteRestrictionGroup = new APIWrapper({
@@ -160,7 +226,6 @@ export const deleteRestrictionGroup = new APIWrapper({
     type: HttpMethod.DELETE,
     resultValidator: t.any,
     postBodyValidator: t.type({groupID: t.number}),
-    serverIndex: 1
 })
 
 export const deleteRestriction = new APIWrapper({
@@ -168,7 +233,6 @@ export const deleteRestriction = new APIWrapper({
     type: HttpMethod.DELETE,
     resultValidator: t.any,
     postBodyValidator: t.type({restrictionID: t.number}),
-    serverIndex: 1
 })
 
 export const putLogoImage = new APIWrapper({
@@ -176,7 +240,6 @@ export const putLogoImage = new APIWrapper({
     type: HttpMethod.POST,
     resultValidator: t.array(logoImageValidator),
     postBodyValidator: t.array(allowNullUndefinedProps(logoImageValidator)),
-    serverIndex: 1
 })
 
 export const deleteLogoImage = new APIWrapper({
@@ -184,7 +247,6 @@ export const deleteLogoImage = new APIWrapper({
     type: HttpMethod.DELETE,
     resultValidator: t.any,
     postBodyValidator: t.type({logoImageID: t.number}),
-    serverIndex: 1
 })
 
 export function uploadLogoImage(imageID: number, suffix: string) {
@@ -194,7 +256,6 @@ export function uploadLogoImage(imageID: number, suffix: string) {
             type: HttpMethod.POST,
             resultValidator: logoImageValidator,
             postBodyValidator: t.any,
-            serverIndex: 1
         }
     )
 }
@@ -204,5 +265,4 @@ export function uploadLogoImage(imageID: number, suffix: string) {
     type: HttpMethod.DELETE,
     resultValidator: t.any,
     postBodyValidator: t.type({restrictionID: t.number}),
-    serverIndex: 1
 })*/

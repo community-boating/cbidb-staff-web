@@ -23,7 +23,7 @@ type AsyncStateProviderState<T_Validator extends t.Any> = {
     providerState: ProviderState
 }
 
-export const tempParams = option.some({host: "159.65.226.25", https: false, port:6969});
+export const tempParams = option.some({host: "localhost", https: false, port:6969});
 
 export default class AsyncStateProvider<T_Validator extends t.Any> extends React.Component<AsyncStateProviderProps<T_Validator>, AsyncStateProviderState<T_Validator>> {
     mounted
@@ -40,7 +40,7 @@ export default class AsyncStateProvider<T_Validator extends t.Any> extends React
         this.render = this.render.bind(this);
     }
     loadAsync(){
-        this.props.apiWrapper.sendWithParams(this.context, this.props.apiWrapper.config.serverIndex == 1 ? tempParams : option.none)(null).then((a) => {
+        this.props.apiWrapper.send(this.context).then((a) => {
             if(!this.mounted){
                 return;
             }

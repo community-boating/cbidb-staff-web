@@ -9,7 +9,7 @@ const serverConfig = (function() {
 	
 		SELF: {
 			host: config.hostName,
-			https: true,
+			https: false,
 			pathPrefix: "/api",
 			port: config.port || 443
 		}
