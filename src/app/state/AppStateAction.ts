@@ -7,6 +7,7 @@ import { apiw as login } from "async/authenticate-staff";
 import { getBoatTypes } from "async/staff/dockhouse/boats";
 import { getRatings } from "async/staff/dockhouse/ratings";
 import { AppState, AppStateAction, AppStateCombined } from "./AppState";
+import { logout } from "async/logout";
 
 export function getAppStateCombined(state: AppState, setState: React.Dispatch<React.SetStateAction<AppState>>): AppStateCombined {
 
@@ -85,11 +86,13 @@ export function getAppStateCombined(state: AppState, setState: React.Dispatch<Re
                 })
             }).bind(this),
             logout: () => {
-                setStateP({
-                    login: {
-                        authenticatedUserName: none,
-                        permissions: {}
-                    }
+                logout.sendJson(asc, {}).then((a) => {
+                    setStateP({
+                        login: {
+                            authenticatedUserName: none,
+                            permissions: {}
+                        }
+                    })
                 })
             }
         }

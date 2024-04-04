@@ -21,6 +21,14 @@ export type ModalContextType = {
     setOpen: (open: boolean) => void,
 }
 
+export function ModalCloseButton(props){
+    const modal = React.useContext(ModalContext);
+    return <button className='w-fit bg-grey-500 font-bold py-2 px-4 border-gray-700 border-solid border rounded' onClick={(e) => {
+        e.preventDefault()
+        modal.setOpen(false)
+    }}>Cancel</button>
+}
+
 export const ModalContext = React.createContext<ModalContextType>({open: false, setOpen: undefined})
 
 export function ModalHeader(props: {className?: string, children?: React.ReactNode, custom?: boolean}){

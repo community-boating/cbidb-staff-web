@@ -86,11 +86,17 @@ export const userValidator = t.type({
 
 const pathUsers = '/users';
 const pathCreateUser = '/create_user';
-const pathChangePassword = '/change_password';
+const pathUpdateUser = '/update_user';
 
 const pathPermissions = '/permissions';
 
-const path: string = "/fotv"
+const pathGrantPermissions = '/grant_permissions';
+
+const pathRevokePermissions = '/revoke_permissions';
+
+const path: string = "/fotv";
+
+const pathToggleRestriction: string = '/toggleRestriction';
 
 const pathPutRestriction: string = '/restriction';
 
@@ -145,15 +151,15 @@ export const getPermissionsWrapper = new APIWrapper({
 export const createUserWrapper = new APIWrapper({
     path: pathCreateUser,
     type: HttpMethod.POST,
-    resultValidator: userValidator,
+    resultValidator: t.union([userValidator, t.type({result: t.string})]),
     postBodyValidator: t.type({username: t.string, password: t.string})
 })
 
-export const changePasswordWrapper = new APIWrapper({
-    path: pathChangePassword,
+export const updateUserWrapper = new APIWrapper({
+    path: pathUpdateUser,
     type: HttpMethod.POST,
-    resultValidator: t.any,
-    postBodyValidator: t.type({username: t.string, userID: t.number, password: t.string})
+    resultValidator: t.type({result: t.string}),
+    postBodyValidator: t.type({username: OptionalString, userID: t.number, password: OptionalString, changedUsername: t.boolean, changedPassword: t.boolean, forceLogout: t.boolean})
 })
 
 export const deleteUserWrapper = new APIWrapper({
@@ -163,21 +169,24 @@ export const deleteUserWrapper = new APIWrapper({
     postBodyValidator: t.type({userID: t.number})
 })
 
-export const postPermissionWrapper = new APIWrapper({
-    path: pathPermissions,
+export const permissionChangeType = t.type({
+    permissions: t.array(t.number),
+    userID: t.number
+})
+
+export const grantPermissionWrapper = new APIWrapper({
+    path: pathGrantPermissions,
     type: HttpMethod.POST,
     resultValidator: t.array(permissionValidator),
-    postBodyValidator: t.array(allowNullUndefinedProps(permissionValidator))
+    postBodyValidator: permissionChangeType
 })
 
-export const deletePermissionWrapper = new APIWrapper({
-    path: pathPermissions,
-    type: HttpMethod.DELETE,
-    resultValidator: t.any,
-    postBodyValidator: t.type({permissionID: t.number})
+export const revokePermissionWrapper = new APIWrapper({
+    path: pathRevokePermissions,
+    type: HttpMethod.POST,
+    resultValidator: t.array(permissionValidator),
+    postBodyValidator: permissionChangeType
 })
-
-
 
 export const putRestrictionGroup = new APIWrapper({
     path: pathPutRestrictionGroup,
@@ -191,6 +200,13 @@ export const putRestriction = new APIWrapper({
     type: HttpMethod.POST,
     resultValidator: t.array(restrictionValidator),
     postBodyValidator: t.array(allowNullUndefinedProps(restrictionValidator)),
+})
+
+export const toggleRestriction = new APIWrapper({
+    path: pathToggleRestriction,
+    type: HttpMethod.POST,
+    resultValidator: restrictionValidator,
+    postBodyValidator: t.type({restrictionID: t.number, active: t.boolean}),
 })
 
 export const putRestrictionCondition = new APIWrapper({

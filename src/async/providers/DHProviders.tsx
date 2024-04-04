@@ -17,19 +17,19 @@ import PermissionsProvider from './PermissionsProvider';
 
 const providersList = [
     ActionModalProvider,
-    BoatsProvider,
-    RatingsProvider,
-    SignoutsTodayProvider,
-    DHGlobalProvider,
-    InstructorsProvider,
+    //BoatsProvider,
+    //RatingsProvider,
+    //SignoutsTodayProvider,
+    //DHGlobalProvider,
+    //InstructorsProvider,
     UsersProvider,
     PermissionsProvider,
     //IncidentsProvider,
-    ClassLocationsProvider,
-    ScannedPersonsCache,
-    AllClassesProvider,
-    ClassesTodayProvider,
-    ClassTypesProvider,
+    //ClassLocationsProvider,
+    //ScannedPersonsCache,
+    //AllClassesProvider,
+    //ClassesTodayProvider,
+    //ClassTypesProvider,
     FOTVProvider
 ]
 

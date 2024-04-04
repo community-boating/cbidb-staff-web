@@ -78,9 +78,8 @@ function HeaderLogout(props){
     }
 
     menuItems.push(<a onClick={(e) => {
-        e.preventDefault(); logout.send(asc).then(() => {
-            asc.stateAction.login.logout()
-        })
+        e.preventDefault()
+        asc.stateAction.login.logout()
     }}>Logout</a>);
 
     return <Menu className="h-full" title={<HeaderImage half={true} src={settings}/>} x={DirectionX.RIGHT} items={menuItems}/>;

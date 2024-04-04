@@ -1,13 +1,13 @@
 import { Tab } from '@headlessui/react';
 import { FOTVContext } from 'async/providers/FOTVProvider';
-import { deleteLogoImage, deleteRestriction, FOTVType, ImageType, LogoImageType, putLogoImage, putRestriction, putRestrictionGroup, putSingletonData, RestrictionGroupType, RestrictionType, restrictionValidator, SingletonDataType, uploadLogoImage as uploadImage } from 'async/staff/dockhouse/fotv-controller';
+import { deleteLogoImage, deleteRestriction, FOTVType, ImageType, LogoImageType, putLogoImage, putRestriction, putRestrictionGroup, putSingletonData, RestrictionGroupType, RestrictionType, SingletonDataType, toggleRestriction, uploadLogoImage as uploadImage } from 'async/staff/dockhouse/fotv-controller';
 import { ActionModalContext } from 'components/dockhouse/actionmodal/ActionModal';
 import { subStateWithSet } from 'components/dockhouse/actionmodal/ActionModalProps';
 import EditRestrictionModal, { setRestrictionPartial } from 'components/dockhouse/actionmodal/fotv-controller/EditRestrictionModal';
 import { Card, CardLayout, FlexSize, LayoutDirection } from 'components/dockhouse/Card';
 import { ProviderState } from 'core/AsyncStateProvider';
 import * as React from 'react';
-import { Delete, Edit, Edit2, LogOut, Plus } from 'react-feather';
+import { Edit, Edit2, LogOut, Plus } from 'react-feather';
 import ActionConfirmDelete from '../../../components/dockhouse/actionmodal/fotv-controller/ActionConfirmDelete';
 import { ProviderWithSetState } from 'async/providers/ProviderType';
 import { AppStateContext } from 'app/state/AppStateContext';
@@ -21,13 +21,11 @@ import { FlagColor } from 'async/staff/dockhouse/flag-color';
 import * as moment from "moment";
 import { DHGlobalContext } from 'async/providers/DHGlobalProvider';
 import { getLatestFlag } from 'components/dockhouse/Header';
-import { logout } from 'async/logout';
 import { PERMISSIONS } from 'models/permissions';
 import { UsersContext } from 'async/providers/UsersProvider';
-import { PermissionsContext } from 'async/providers/PermissionsProvider';
-import { ModalContext } from 'components/wrapped/Modal';
-import ActionEditUser from 'components/dockhouse/actionmodal/fotv-controller/EditUser';
+import { ActionEditUser, ActionCreateUser } from 'components/dockhouse/actionmodal/fotv-controller/EditUser';
 import ActionEditPermissions from 'components/dockhouse/actionmodal/fotv-controller/EditPermissions';
+import ActionConfirmDeleteUser from 'components/dockhouse/actionmodal/fotv-controller/ActionConfirmDeleteUser';
 
 function TabTitle(props: {children: React.ReactNode, active: boolean}){
     return <h2>
@@ -56,65 +54,71 @@ function ProgramSwitcher(props: {className: string}){
 }
 
 function UsersPanel(props){
-    const users = React.useContext(UsersContext);
-    const permissions = React.useContext(PermissionsContext);
-    const modal = React.useContext(ActionModalContext);
-    const permissionsByUserID = React.useMemo(() => {
-        const byUserID = {};
-        permissions.state.forEach((a) => {
-            byUserID[a.userID] = a
-        })
-        return byUserID
-    }, [permissions.state])
-    return <table className='w-full h-full flex flex-col gap-2'>
-        <tbody>
-            {users.state.map((a, i) => <tr className='flex flex-row rounded-md border-black border-solid border-2 mb-[10px]' key={a.userID}>
-                <td width='20%' className='text-center'>
-                    <p>{a.username}</p>
-                </td>
-                <td width='10%' className='text-center'>
-                    <p>{a.userID}</p>
-                </td>
-                <td width='25%' className='text-center cursor-pointer' onClick={(e) => {
-                    e.preventDefault();
-                    modal.pushAction(new ActionEditUser(a.userID));
-                }}>
-                    <p className='inline'>Change Password</p>
-                    <Edit2 className='inline'/>
-                </td>
-                <td width='30%' className='text-center cursor-pointer' onClick={(e) => {
-                    e.preventDefault();
-                    modal.pushAction(new ActionEditPermissions(a.userID));
-                }}>
-                    <p className='inline'>Change Permissions</p>
-                    <Edit2 className='inline'/>
-                </td>
-                <td width='15%' className='text-center cursor-pointer'>
-                    <p className='inline'>Delete</p>
-                    <CloseIcon className='inline'/>
-                </td>
-            </tr>)}
-        </tbody>
-    </table>
+    const users = React.useContext(UsersContext)
+    const modal = React.useContext(ActionModalContext)
+    const asc = React.useContext(AppStateContext)
+    return <div className='w-full h-full flex flex-col'>
+        <table className='w-full grow-[1] gap-2'>
+            <tbody>
+                {users.state.map((a, i) => <tr className={'flex flex-row rounded-md border-solid border-2 mb-[10px] ' + (a.username == asc.state.login.authenticatedUserName.getOrElse(undefined) ? "border-blue-400" : "border-black")} key={a.userID}>
+                    <td width='20%' className='text-center'>
+                        <p>{a.username}</p>
+                    </td>
+                    <td width='10%' className='text-center'>
+                        <p>{a.userID}</p>
+                    </td>
+                    <td width='25%' className='text-center cursor-pointer' onClick={(e) => {
+                        e.preventDefault()
+                        modal.pushAction(new ActionEditUser(a.userID))
+                    }}>
+                        <p className='inline'>Change Password</p>
+                        <Edit2 className='inline'/>
+                    </td>
+                    <td width='30%' className='text-center cursor-pointer' onClick={(e) => {
+                        e.preventDefault()
+                        modal.pushAction(new ActionEditPermissions(a.userID))
+                    }}>
+                        <p className='inline'>Change Permissions</p>
+                        <Edit2 className='inline'/>
+                    </td>
+                    <td width='15%' className='text-center cursor-pointer' onClick={(e) => {
+                        e.preventDefault()
+                        modal.pushAction(new ActionConfirmDeleteUser(a.userID))
+                    }}>
+                        <p className='inline'>Delete</p>
+                        <CloseIcon className='inline'/>
+                    </td>
+                </tr>)}
+            </tbody>
+        </table>
+        <div className='rounded border-2 border-green-500 pr-2 cursor-pointer' onClick={(e) => {
+            e.preventDefault();
+            modal.pushAction(new ActionCreateUser())
+        }}>
+            <Plus className='inline text-green-500'/>
+            <p className='inline align-middle'>New User</p>
+        </div>
+    </div>
 }
 
 export default function FOTVControllerPage(props) {
     const [editing, setEditing] = React.useState(false);
     const asc = React.useContext(AppStateContext);
     const canViewUsers = asc.state.login.permissions[PERMISSIONS.VIEW_USERS];
+    const canChangeProgram = asc.state.login.permissions[PERMISSIONS.CHANGE_PROGRAM];
+    const canEditImages = asc.state.login.permissions[PERMISSIONS.UPDATE_IMAGE];
     return <DraggingProvider>
                 <Tab.Group className="grow-[1]">
                     <CardLayout direction={LayoutDirection.VERTICAL}>
                         <Card weight={FlexSize.S_1} title={<Tab.List>
                             <Tab className="p-2">Restrictions</Tab>
-                            <Tab className="p-2">Images</Tab>
+                            {canEditImages ? <Tab className="p-2">Images</Tab> : <></>}
                             {canViewUsers ? <Tab className='p-2'>Users</Tab> : <></>}
-                            <ProgramSwitcher className="p2 inline cursor-pointer"/>
+                            {canChangeProgram ? <ProgramSwitcher className="p2 inline cursor-pointer"/> : <></>}
                             <button className='inline float-right align-middle' onClick={(e) => {
-                                e.preventDefault();
-                                logout.send(asc).then((a) => {
-                                    asc.stateAction.login.logout();
-                                })
+                                //e.preventDefault();
+                                console.log("BUttTTTTTTTTT")
+                                asc.stateAction.login.logout();
                             }}>
                                 <LogOut className='inline'/>
                                 <p className='inline'>Logout</p>
@@ -122,7 +126,7 @@ export default function FOTVControllerPage(props) {
                         </Tab.List>}>
                             <Tab.Panels className="grow-[1]">
                                 <Tab.Panel className="h-full"><RestrictionsPanel editing={editing} setEditing={setEditing} /></Tab.Panel>
-                                <Tab.Panel className="h-full flex flex-col"><ImagePanel/></Tab.Panel>
+                                {canEditImages ? <Tab.Panel className="h-full flex flex-col"><ImagePanel/></Tab.Panel> : <></>}
                                 {canViewUsers ? <Tab.Panel className='h-full'><UsersPanel/></Tab.Panel> : <></>}
                             </Tab.Panels>
                         </Card>
@@ -218,6 +222,8 @@ function RestrictionsPanel(props: {editing: boolean, setEditing: React.Dispatch<
     const restrictions = subStateWithSet(fotv.state, fotv.setState, 'restrictions')
     const restrictionGroups = subStateWithSet(fotv.state, fotv.setState, 'restrictionGroups')
     const flagColor = getLatestFlag(React.useContext(DHGlobalContext))
+    const asc = React.useContext(AppStateContext)
+    const canEdit = asc.state.login.permissions[PERMISSIONS.UPDATE_RESTRICTION];
     const after = (a: ApiResult<RestrictionType[]>) => {
         if(a.type == 'Success')
             restrictions[1]((s) => mergeTable<RestrictionType, 'restrictionID', RestrictionType>(s, a.success, 'restrictionID'))
@@ -255,10 +261,10 @@ function RestrictionsPanel(props: {editing: boolean, setEditing: React.Dispatch<
                 /> : <>Loading...</>)}
         </div>
         <div className='flex flex-row gap-4 text-2xl'>
-            <button className={'w-fit bg-blue-500 text-white font-bold py-2 px-4 rounded' + (props.editing ? ' bg-blue-700' : '')} onClick={(e) => {
+            {canEdit ? <button className={'w-fit bg-blue-500 text-white font-bold py-2 px-4 rounded' + (props.editing ? ' bg-blue-700' : '')} onClick={(e) => {
                 e.preventDefault();
                 props.setEditing((e) => !e);
-            }}>Toggle Edit Mode</button>
+            }}>Toggle Edit Mode</button> : <></>}
             {props.editing ? <DraggingContext.Consumer>{(drag) => <>
             <div className='rounded border-2 border-green-500 pr-2 cursor-move' draggable onDragStart={(e) => {
                     drag.setDrag({dragging: true, type: NewAction, itemID: undefined, groupID: undefined});
@@ -684,7 +690,9 @@ function RestrictionInternal(props: {title: React.ReactNode}){
 }
 
 function Restriction(props: {restriction: FOTVType['restrictions'][number], editing: boolean, setRestrictions: React.Dispatch<React.SetStateAction<FOTVType['restrictions']>>, editRestriction: (restrictionID: number) => void, restrictionConditionActivations: {[key: number] : boolean}}){
-    const fotv = React.useContext(FOTVContext);
+    const fotv = React.useContext(FOTVContext)
+    const restrictions = subStateWithSet(fotv.state, fotv.setState, 'restrictions')
+    const asc = React.useContext(AppStateContext)
     return <DraggingContext.Consumer>{(drag) => <div className={'rounded-sm border-2 w-full h-full' + (props.editing ? ' cursor-move' : ' cursor-pointer') + (props.restrictionConditionActivations[props.restriction.restrictionID] ? ' border-orange-400' : (props.restriction.active ? ' border-red-400' : ''))} style={{color: props.restriction.textColor, backgroundColor: props.restriction.backgroundColor, fontWeight: props.restriction.fontWeight}} draggable={props.editing} onDragStart={(e) => {
         e.dataTransfer.setData('type', MoveAction);
         e.dataTransfer.setData('itemID', String(props.restriction.restrictionID));
@@ -695,7 +703,14 @@ function Restriction(props: {restriction: FOTVType['restrictions'][number], edit
     }} onClick={(e) => {
         e.preventDefault();
         if(!props.editing){
-            setRestrictionPartial(fotv.setState, {restrictionID: props.restriction.restrictionID, active: (!props.restriction.active)})
+            toggleRestriction.sendJson(asc, {restrictionID: props.restriction.restrictionID, active: props.restriction.active == false}).then((a) => {
+                if(a.type == 'Success'){
+                    restrictions[1]((s) => mergeTable<RestrictionType, 'restrictionID', RestrictionType>(s, [a.success], 'restrictionID'))
+                }else{
+                    console.log("FAILED TOGGLING RESTRICTION")
+                }
+            })
+            //setRestrictionPartial(fotv.setState, {restrictionID: props.restriction.restrictionID, active: (!props.restriction.active)})
         }
     }}>
         <RestrictionInternal title={<div className='flex flex-row align-center'>{props.restriction.title}{props.editing ? <Edit height="2em" className="ml-auto mr-0" style={{ cursor: "pointer", color: 'black' }} onClick={(e) => {
