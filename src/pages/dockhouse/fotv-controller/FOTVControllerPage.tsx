@@ -297,7 +297,7 @@ function RestrictionsPanel(props: {editing: boolean, setEditing: React.Dispatch<
                         }
                 })
             }}>
-                <CloseIcon/>
+                <CloseIcon className='inline'/>
                 <p className='inline align-middle'>Delete Restriction</p>
             </div>
         </>}</DraggingContext.Consumer> : <></>}
@@ -652,8 +652,8 @@ function DraggableGroup(props: {editing: boolean, group: DraggableGridGroup, ite
     const handleDropWrapped = (i) => props.handleDrop({dragging: true, type: NewAction, groupID: props.group.groupID, itemID: byDisplayOrder[i] ? byDisplayOrder[i].itemID : undefined}, () => {}, props.group.groupID, i, byDisplayOrder[i] ? byDisplayOrder[i].itemID : undefined)
     return <div className='flex flex-col grow-[1] bg-background rounded-sm'>
                 <div className='flex flex-row w-full'>
-                    <h1 className='p-2 flex'>
-                        {props.editing ?<BufferedInput className="w-full bg-transparent rounded-sm border-solid border-2 outline-none" value={props.group.title} onValueChanged={(v) => {
+                    <h1 className={'p-2 flex border-b-[1px]' + ((props.editing && !props.hideX) ? ' border-solid border-black' : '')}>
+                        {(props.editing && !props.hideX) ?<BufferedInput className="w-full bg-transparent border-0 outline-none" value={props.group.title} onValueChanged={(v) => {
                             props.updateGroupName(v, props.group.groupID);
                         }}/>
                         : <>{props.group.title}</>}
@@ -668,7 +668,7 @@ function DraggableGroup(props: {editing: boolean, group: DraggableGridGroup, ite
                     </CloseIcon>
                      : <></>}
                 </div>
-            <div className={'flex grow-[1] grid gap-4'} style={{
+            <div className={'flex grow-[1] grid gap-[2%]'} style={{
                 gridTemplateColumns: 'repeat(' + cols + ', minmax(0, 1fr))',
                 gridTemplateRows: 'repeat(' + rows + ', minmax(0, 1fr))'
         }}>
@@ -686,13 +686,22 @@ function DraggableGroup(props: {editing: boolean, group: DraggableGridGroup, ite
 }
 
 function RestrictionInternal(props: {title: React.ReactNode}){
-    return <div className="b-black">{props.title}</div>
+    return <div className="b-black h-full">{props.title}</div>
 }
 
 function Restriction(props: {restriction: FOTVType['restrictions'][number], editing: boolean, setRestrictions: React.Dispatch<React.SetStateAction<FOTVType['restrictions']>>, editRestriction: (restrictionID: number) => void, restrictionConditionActivations: {[key: number] : boolean}}){
     const fotv = React.useContext(FOTVContext)
     const restrictions = subStateWithSet(fotv.state, fotv.setState, 'restrictions')
     const asc = React.useContext(AppStateContext)
+    const toggle = () => {
+        toggleRestriction.sendJson(asc, {restrictionID: props.restriction.restrictionID, active: props.restriction.active == false}).then((a) => {
+            if(a.type == 'Success'){
+                restrictions[1]((s) => mergeTable<RestrictionType, 'restrictionID', RestrictionType>(s, [a.success], 'restrictionID'))
+            }else{
+                console.log("FAILED TOGGLING RESTRICTION")
+            }
+        })
+    }
     return <DraggingContext.Consumer>{(drag) => <div className={'rounded-sm border-2 w-full h-full' + (props.editing ? ' cursor-move' : ' cursor-pointer') + (props.restrictionConditionActivations[props.restriction.restrictionID] ? ' border-orange-400' : (props.restriction.active ? ' border-red-400' : ''))} style={{color: props.restriction.textColor, backgroundColor: props.restriction.backgroundColor, fontWeight: props.restriction.fontWeight}} draggable={props.editing} onDragStart={(e) => {
         e.dataTransfer.setData('type', MoveAction);
         e.dataTransfer.setData('itemID', String(props.restriction.restrictionID));
@@ -703,19 +712,21 @@ function Restriction(props: {restriction: FOTVType['restrictions'][number], edit
     }} onClick={(e) => {
         e.preventDefault();
         if(!props.editing){
-            toggleRestriction.sendJson(asc, {restrictionID: props.restriction.restrictionID, active: props.restriction.active == false}).then((a) => {
-                if(a.type == 'Success'){
-                    restrictions[1]((s) => mergeTable<RestrictionType, 'restrictionID', RestrictionType>(s, [a.success], 'restrictionID'))
-                }else{
-                    console.log("FAILED TOGGLING RESTRICTION")
-                }
-            })
+            toggle()
             //setRestrictionPartial(fotv.setState, {restrictionID: props.restriction.restrictionID, active: (!props.restriction.active)})
         }
     }}>
-        <RestrictionInternal title={<div className='flex flex-row align-center'>{props.restriction.title}{props.editing ? <Edit height="2em" className="ml-auto mr-0" style={{ cursor: "pointer", color: 'black' }} onClick={(e) => {
-            e.preventDefault();
-            props.editRestriction(props.restriction.restrictionID);
-        }}/>: <></>}</div>}/>
+        <RestrictionInternal title={<div className='flex flex-row items-center h-full'>
+            {props.restriction.title}
+            {props.editing ? <Edit height="1em" className="ml-auto mr-0" style={{ cursor: "pointer", color: 'black' }} onClick={(e) => {
+                e.preventDefault()
+                e.stopPropagation()
+                props.editRestriction(props.restriction.restrictionID)
+        }}/>: <input type='checkbox' className='ml-auto mr-2 h-full' checked={props.restriction.active} onChange={(e) => {
+            e.preventDefault()
+            e.stopPropagation()
+            toggle()
+        }}/>}
+        </div>}/>
     </div>}</DraggingContext.Consumer>
 }
