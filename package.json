@@ -14,6 +14,7 @@
     "watch:tailwind": "npm-run-all tailwind:watch",
     "watch:js": "node scripts/start.js",
     "start": "npm-run-all -p build:css watch:*",
+    "test": "SET NODE_PATH=./src && mocha --project tsconfig.json",
     "build": "npm-run-all build:css tailwind:build build:js",
     "lint": "eslint src --ext .js,.jsx --fix",
     "testapi": "NODE_PATH=./src ts-node --project tsconfig.json ./src/models/api-generated/staff/rest/ap-class-instances/this-season/get.ts"

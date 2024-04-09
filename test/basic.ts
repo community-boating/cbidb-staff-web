@@ -1,5 +1,3 @@
-import * as assert from "assert"
-
 describe("Mocha Smoketest", function() {
 	it("should pass a basic smoketest", function() {
 		assert.ok(true)
@@ -19,8 +17,8 @@ describe("Mocha Smoketest", function() {
 	})
 	it("can detect a thrown exception", function() {
 		function iThrow() {
-			const u: any = undefined
-			u.foo()
+			//const u: any = undefined
+			//u.foo()
 		}
 		assert.throws(iThrow)
 	})
