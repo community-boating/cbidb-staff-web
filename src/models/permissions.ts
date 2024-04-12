@@ -23,8 +23,8 @@ export const PERMISSIONS = {
 	UPDATE_PERMISSIONS: 10,
 	DELETE_PERMISSIONS: 11,
 	ADD_USER: 12,
-    DELETE_USER: 13
-	
+    DELETE_USER: 13,
+	MODIFY_FILES: 14,
 };
 
 export const ROLES = [ 

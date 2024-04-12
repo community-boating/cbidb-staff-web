@@ -3,8 +3,12 @@
 		"baseUrl": "./src",
 		"outDir": "./dist/test",
 		"sourceMap": true,
+		"paths": 
+		{
+			"@async/*": ["async/*"]
+		},
 	//	"noImplicitAny": true,
-		"module": "commonjs",
+		//"module": "commonjs",
 		"target": "es5",
 		"jsx": "react",
 		// "noUnusedLocals": true,
@@ -13,7 +17,7 @@
 			"es6",
 			"dom",
 			// "es2021"
-		],
+		]
 	},
 	"include": [
 		"./src/**/*",

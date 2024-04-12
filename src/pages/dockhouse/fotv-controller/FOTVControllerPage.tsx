@@ -409,6 +409,7 @@ function ImagePanel() {
         e.preventDefault();
         const formData = new FormData();
         formData.append('image', e.dataTransfer.files[0]);
+        console.log(formData)
         const suffix = findFileExtension(e.dataTransfer.files[0].name);
         const current = fotv.state.logoImages.find((a) => a.displayOrder == displayOrder && a.imageType == groupID);
         uploadImage(current == undefined ? null : current.imageID,suffix).sendRaw(option.none, formData).then((b) => {

@@ -42,6 +42,8 @@ function getOrCreateAxios(serverParams: ServerParams) {
 			baseURL: `${serverParams.https ? "https://" : "http://"}${serverParams.host}${portString}`,
 			maxRedirects: 0,
 			responseType: "json",
+			transformRequest: axios.defaults.transformRequest,
+			transformResponse: axios.defaults.transformResponse
 			// xsrfCookieName: "XSRF-TOKEN",
 			// xsrfHeaderName: "X-XSRF-TOKEN",
 		})
@@ -67,14 +69,16 @@ export const API_CODE_NOT_LOGGED_IN = "API.NOT.LOGGED.IN"
 
 export const API_CODE_INSUFFICIENT_PERMISSION = "API.INSUFFICIENT.PERMISSION"
 
+var testAuth: {uuidCookie: string, idCookie: string} = undefined
+
 // TODO: do we still need do() vs send() vs sendWithHeaders(), can probably tidy this all up into one function that does the thing
 export default class APIWrapper<T_ResponseValidator extends t.Any, T_PostBodyValidator extends t.Any, T_FixedParams = any, T_Params = any> {
 	config: Config<T_ResponseValidator, T_PostBodyValidator, T_FixedParams>
 	constructor(config: Config<T_ResponseValidator, T_PostBodyValidator, T_FixedParams>) {
 		this.config = config;
 	}
-	sendRaw(params, data): Promise<any> {
-		return getOrCreateAxios(params).post(this.config.path, data)
+	sendRaw(params, data, options?): Promise<any> {
+		return getOrCreateAxios(params).post(this.config.path, data, options)
 	}
 	send: (asc: AppStateCombined) => Promise<ApiResult<t.TypeOf<T_ResponseValidator>>> = (asc) => this.sendWithParams(asc, none)(undefined)
 	sendJson: (asc: AppStateCombined, data: t.TypeOf<T_PostBodyValidator>, params?: T_Params) => Promise<ApiResult<t.TypeOf<T_ResponseValidator>>> = (asc, data, params) => this.sendWithParams(asc, none, params)(makePostJSON(data))
@@ -140,7 +144,9 @@ export default class APIWrapper<T_ResponseValidator extends t.Any, T_PostBodyVal
 				type: "Failure", code: "post_body_parse_fail", message: "Invalid submit. Are you missing required fields?", extra: postBodyValidationError.getOrElse(null)
 			})
 		} else {
+			const testAuthHeader = ((process.env.NODE_ENV == "test" && testAuth != undefined) ? {Cookie: testAuth.idCookie + ";" + testAuth.uuidCookie} : {})
 			const headers = {
+				...testAuthHeader,
 				...serverParams.staticHeaders,
 				...(self.config.extraHeaders || {}),
 				...postValues.map(pv => pv.headers).getOrElse(null)
@@ -158,6 +164,18 @@ export default class APIWrapper<T_ResponseValidator extends t.Any, T_PostBodyVal
 				data: postValues.map(pv => pv.content).getOrElse(null),
 				headers
 			})).then((res: AxiosResponse) => {
+				if(process.env.NODE_ENV == "test" && res.headers['set-cookie'] != undefined && res.headers['set-cookie'].length > 0){
+					const sessionUUIDCookieHeader = res.headers['set-cookie'].find((a) => a.startsWith("sessionUUID="))
+					const sessionIDCookieHeader = res.headers['set-cookie'].find((a) => a.startsWith("sessionID="))
+					if(sessionUUIDCookieHeader != undefined && sessionIDCookieHeader != undefined){
+						const sessionUUIDCookie = sessionUUIDCookieHeader.substring(0, sessionUUIDCookieHeader.indexOf("; "))
+						const sessionIDCookie = sessionIDCookieHeader.substring(0, sessionIDCookieHeader.indexOf("; "))
+						testAuth = {
+							uuidCookie: sessionUUIDCookie,
+							idCookie: sessionIDCookie
+						}
+					}
+				}
 				return this.parseResponse(asc, res.data);
 			}, err => {
 				console.log("Send Error: ", err);

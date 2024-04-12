@@ -24,11 +24,25 @@ const serverConfig = (function() {
 			port: config.port || 8081
 		}
 	}
-	
-	return (process.env.NODE_ENV == 'development' ? devConfig : prodConfig);
-}());
 
-console.log(config.hostName);
+	const testConfig = {
+		...prodConfig,
+		SELF: {...prodConfig.SELF,
+			host: "localhost",
+			port: 6969,
+			https: false,
+			pathPrefix: ""
+		}
+	}
+
+	const mapConfigs = {
+		'development': devConfig,
+		'production': prodConfig,
+		'test': testConfig
+	}
+	
+	return (mapConfigs[process.env.NODE_ENV] || devConfig);
+}());
 
 module.exports = {
 	config,

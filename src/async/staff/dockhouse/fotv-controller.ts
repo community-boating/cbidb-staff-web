@@ -108,7 +108,7 @@ const pathPutSingletonData: string = '/singletonData';
 
 const pathPutRestrictionCondition: string = '/restrictionCondition';
 
-const pathUploadLogoImage: string = '/api/uploadImage'
+const pathUploadLogoImage: string = '/uploadImage'
 
 export type FOTVType = t.TypeOf<typeof validator>;
 
@@ -265,10 +265,10 @@ export const deleteLogoImage = new APIWrapper({
     postBodyValidator: t.type({logoImageID: t.number}),
 })
 
-export function uploadLogoImage(imageID: number, suffix: string) {
+export function uploadLogoImage(imageID, suffix: string) {
     return new APIWrapper(
         {
-            path: pathUploadLogoImage + '/' + (imageID || 'NaN') + '/' + suffix,
+            path: pathUploadLogoImage + '/' + (imageID || 'NaN') + '' + suffix,
             type: HttpMethod.POST,
             resultValidator: logoImageValidator,
             postBodyValidator: t.any,

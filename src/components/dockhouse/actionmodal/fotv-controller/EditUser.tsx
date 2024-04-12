@@ -34,18 +34,23 @@ function isUser(value: any): value is UserType {
 }
 
 function EditUserModal(props: {info: EditUserInfo}){
-    const modal = React.useContext(ModalContext);
-    const [username, setUsername] = React.useState(props.info.user.username);
-    const [password, setPassword] = React.useState(props.info.user.password);
-    const [changedUsername, setChangedUsername] = React.useState(false);
-    const [changedPassword, setChangedPassword] = React.useState(false);
-    const [forceLogout, setForceLogout] = React.useState(false);
+    const modal = React.useContext(ModalContext)
+    const [username, setUsername] = React.useState(props.info.user.username)
+    const [password, setPassword] = React.useState(props.info.user.password)
+    const [passwordConfirm, setPasswordConfirm] = React.useState(props.info.user.password)
+    const [changedUsername, setChangedUsername] = React.useState(false)
+    const [changedPassword, setChangedPassword] = React.useState(false)
+    const [forceLogout, setForceLogout] = React.useState(false)
     const updateUsername = (username) => {
         setUsername(username)
         setChangedUsername(true)
     }
     const updatePassword = (password) => {
         setPassword(password)
+        setChangedPassword(true)
+    }
+    const updatePasswordConfirm = (password) => {
+        setPasswordConfirm(password)
         setChangedPassword(true)
     }
     const [error, setError] = React.useState<option.Option<string>>(option.none);
@@ -65,6 +70,8 @@ function EditUserModal(props: {info: EditUserInfo}){
             <SimpleInput controlledValue={username} updateValue={updateUsername}/>
             <label>Password</label>
             <SimpleInput type="password" controlledValue={password} updateValue={updatePassword}/>
+            <label>Confirm Password</label>
+            <SimpleInput type="password" controlledValue={passwordConfirm} updateValue={updatePasswordConfirm}/>
             {!props.info.isNew ? <div className='w-full flex flex-row'>
                 <label className=''>Force Logout</label>
                 <input className='mr-0 ml-auto' type="checkbox" checked={forceLogout} onChange={(e) => {
@@ -75,6 +82,12 @@ function EditUserModal(props: {info: EditUserInfo}){
                 <ModalCloseButton/>
                 <Button spinnerOnClick className='w-fit bg-red-500 text-white font-bold py-2 p-4 rounded mr-0 ml-auto' onClick={(e) => {
                     e.preventDefault()
+                    if(changedPassword){
+                        if(password != passwordConfirm){
+                            setError(option.some("Passwords must match!"))
+                            return
+                        }
+                    }
                     if(props.info.isNew){
                         return createUserWrapper.sendJson(null, {username: username, password: password}).then((a) => {
                             if(a.type == 'Success'){
