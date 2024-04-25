@@ -117,9 +117,6 @@ export const makeOptionalProps = <A extends {[key: string]: any}, PKT extends ke
 	return t.type(newProps);
 }
 
-type derp = OptionalWithKey<{derp: string, yolo: string}, 'derp'>;
-
-
 export const allowNullUndefinedProps = <T extends t.TypeC<any>>(someValidator: T) => {
 	const newProps = Object.assign({}, someValidator.props);
 	Object.keys(someValidator.props).forEach((a) => {

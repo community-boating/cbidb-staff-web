@@ -23,18 +23,11 @@ export function mergeTable<T_Array, T_KeyName extends keyof T_Array, T_Full exte
         oldIDs[a[key]] = true;
     })
     newValues.forEach((a) => {
-        console.log(key);
-        console.log(a);
-        console.log(a[key]);
-        console.log(a[key] != undefined && oldIDs[a[key]] != undefined)
         if(a[key] != undefined && oldIDs[a[key]] != undefined)
             byID[a[key]] = a;
         else
             newOnes.push(a);
     });
-    console.log(oldValues)
-    console.log(newValues)
-    console.log(newOnes)
     return oldValues.map((a) => byID[a[key]] != undefined ? byID[a[key]] : a).concat(newOnes);
 }
 

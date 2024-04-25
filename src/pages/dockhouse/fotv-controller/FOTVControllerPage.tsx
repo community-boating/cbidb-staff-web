@@ -392,8 +392,6 @@ function ImagePanel() {
         
     //}
     const updateLogoImagesLocal = (a) => {
-        console.log('trying');
-        console.log(a);
         if(a.type == 'Success'){
             logoImageSet[1]((s) => mergeTable<LogoImageType, 'logoImageID', LogoImageType>(s, a.success, 'logoImageID'))
         }else{
@@ -409,7 +407,7 @@ function ImagePanel() {
         e.preventDefault();
         const formData = new FormData();
         formData.append('image', e.dataTransfer.files[0]);
-        console.log(formData)
+
         const suffix = findFileExtension(e.dataTransfer.files[0].name);
         const current = fotv.state.logoImages.find((a) => a.displayOrder == displayOrder && a.imageType == groupID);
         uploadImage(current == undefined ? null : current.imageID,suffix).sendRaw(option.none, formData).then((b) => {
@@ -606,8 +604,6 @@ const handleDropGeneric: (currentItems: DraggableGridItem[], updateItems: (i: Pa
 //onDragOver={(e) => {e.preventDefault()}} onDrop={handleDrop(props.group.groupID)}
 
 function isSlotAcceptableForDrag (e: React.DragEvent<HTMLDivElement>, drag: DragInfo, displayOrder: number, currentItemID: number, groupID: number, maxDisplayOrderForGroup: number){
-    console.log(currentItemID);
-    console.log(drag.itemID);
     return !drag.dragging ||((currentItemID == undefined || (drag.itemID != currentItemID)) && (displayOrder < maxDisplayOrderForGroup || drag.groupID == groupID));
 }
 
