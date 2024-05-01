@@ -12,6 +12,7 @@ import { PostType, Config, ApiResult, ServerParams } from './APIWrapperTypes';
 import * as moment from 'moment';
 import { AppStateCombined } from 'app/state/AppState';
 import { DefaultDateTimeFormat } from 'util/OptionalTypeValidators';
+import { option } from 'fp-ts';
 
 export const ERROR_DELIMITER = "\\n"
 
@@ -27,19 +28,33 @@ const searchJSCONMetaData: (metaData: any[]) => (toFind: string) => number = met
 
 var apiAxios: AxiosInstance;
 
+function getServerURL(serverParams: ServerParams){
+	const portString = (function() {
+		if (
+			(serverParams.https && serverParams.port != 443) || 
+			(!serverParams.https && serverParams.port != 80)
+		) return `:${serverParams.port}`
+		else return "";
+	}());
+	return `${serverParams.https ? "https://" : "http://"}${serverParams.host}${portString}`
+}
+
+function getServerParams(serverParamsOption: option.Option<ServerParams>): ServerParams{
+	const serverParams = serverParamsOption.getOrElse((process.env as any).serverToUseForAPI);
+	return {
+		host: serverParams.host || window.location.hostname,
+		https: (serverParams.https != undefined) ? (serverParams.https) : (window.location.protocol == 'https'),
+		port: serverParams.port || parseInt(window.location.port),
+		pathPrefix: serverParams.pathPrefix,
+		staticHeaders: serverParams.staticHeaders
+	}
+}
+
 function getOrCreateAxios(serverParams: ServerParams) {
 	if (apiAxios == null) {
 		console.log('instantiating axios');
-		const portString = (function() {
-			if (
-				(serverParams.https && serverParams.port != 443) || 
-				(!serverParams.https && serverParams.port != 80)
-			) return `:${serverParams.port}`
-			else return "";
-		}());
-
 		apiAxios = axios.create({
-			baseURL: `${serverParams.https ? "https://" : "http://"}${serverParams.host}${portString}`,
+			baseURL: getServerURL(serverParams),
 			maxRedirects: 0,
 			responseType: "json",
 			transformRequest: axios.defaults.transformRequest,
@@ -101,7 +116,7 @@ export default class APIWrapper<T_ResponseValidator extends t.Any, T_PostBodyVal
 				});
 		}
 		moment.fn.toJSON = function() { return this.format(DefaultDateTimeFormat); }
-		const serverParams = serverParamsOption.getOrElse((process.env as any).serverToUseForAPI);
+		const serverParams = getServerParams(serverParamsOption);
 		const self = this;
 		type Return = Promise<ApiResult<t.TypeOf<T_ResponseValidator>>>;
 		const postValues: Option<PostValues> = (function() {
