@@ -159,9 +159,10 @@ export default class APIWrapper<T_ResponseValidator extends t.Any, T_PostBodyVal
 				type: "Failure", code: "post_body_parse_fail", message: "Invalid submit. Are you missing required fields?", extra: postBodyValidationError.getOrElse(null)
 			})
 		} else {
-			const testAuthHeader = ((process.env.NODE_ENV == "test" && testAuth != undefined) ? {Cookie: testAuth.idCookie + ";" + testAuth.uuidCookie} : {})
+			//const testAuthHeader = ((process.env.NODE_ENV == "test" && testAuth != undefined) ? {Authorization: "Bearer "} : {})
 			const headers = {
-				...testAuthHeader,
+				//...testAuthHeader,
+				Authorization: "Bearer " + sessionStorage.getItem("authToken") || "None",
 				...serverParams.staticHeaders,
 				...(self.config.extraHeaders || {}),
 				...postValues.map(pv => pv.headers).getOrElse(null)
@@ -179,18 +180,6 @@ export default class APIWrapper<T_ResponseValidator extends t.Any, T_PostBodyVal
 				data: postValues.map(pv => pv.content).getOrElse(null),
 				headers
 			})).then((res: AxiosResponse) => {
-				if(process.env.NODE_ENV == "test" && res.headers['set-cookie'] != undefined && res.headers['set-cookie'].length > 0){
-					const sessionUUIDCookieHeader = res.headers['set-cookie'].find((a) => a.startsWith("sessionUUID="))
-					const sessionIDCookieHeader = res.headers['set-cookie'].find((a) => a.startsWith("sessionID="))
-					if(sessionUUIDCookieHeader != undefined && sessionIDCookieHeader != undefined){
-						const sessionUUIDCookie = sessionUUIDCookieHeader.substring(0, sessionUUIDCookieHeader.indexOf("; "))
-						const sessionIDCookie = sessionIDCookieHeader.substring(0, sessionIDCookieHeader.indexOf("; "))
-						testAuth = {
-							uuidCookie: sessionUUIDCookie,
-							idCookie: sessionIDCookie
-						}
-					}
-				}
 				return this.parseResponse(asc, res.data);
 			}, err => {
 				console.log("Send Error: ", err);

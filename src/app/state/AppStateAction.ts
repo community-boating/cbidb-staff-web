@@ -1,11 +1,7 @@
 import { none, some } from "fp-ts/lib/Option"
 
-import { showSudoToastr } from 'components/wrapped/Toast';
-
 import { apiw as getPermissions } from "async/staff/user-permissions"
 import { apiw as login } from "async/authenticate-staff";
-import { getBoatTypes } from "async/staff/dockhouse/boats";
-import { getRatings } from "async/staff/dockhouse/ratings";
 import { AppState, AppStateAction, AppStateCombined } from "./AppState";
 import { logout } from "async/logout";
 
@@ -74,15 +70,16 @@ export function getAppStateCombined(state: AppState, setState: React.Dispatch<Re
         stateAction.login = {
             setLoggedIn,
             attemptLogin: (function(userName: string, password: string): Promise<boolean> {
-                return login().sendFormUrlEncoded(asc, {username: userName, password}).then(res => {
+                return login().sendJson(asc, {username: userName, password}).then(res => {
                     //console.log("done");
                     //console.log(res);
-                    if (res.type == "Success" && res.success == true) {
+                    if (res.type == "Success") {
+                        sessionStorage.setItem("authToken", res.success.token)
                         //console.log("done");
-                        console.log("setLoggedIn");
-                        setLoggedIn(userName);
-                        return true;
-                    } else return false;
+                        console.log("setLoggedIn")
+                        setLoggedIn(userName)
+                        return true
+                    } else return false
                 })
             }).bind(this),
             logout: () => {
