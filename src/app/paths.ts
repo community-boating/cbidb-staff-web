@@ -29,7 +29,8 @@ export const pathSignoutsTables = pathDockhouseBase.appendPathSegment("signouts-
 
 export const pathIncidents = pathDockhouseBase.appendPathSegment("incidents");
 
-export const pathDockhousePage = new PathWrapper("/");
+//TODO disable dh main route
+export const pathDockhousePage = new PathWrapper("/dh");
 
 export const pathManagePermissions = pathAdminBase.appendPathSegment("permissions")
 export const pathManageAccess = pathAdminBase.appendPathSegment("access")

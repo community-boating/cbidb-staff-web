@@ -26,13 +26,24 @@ class App extends React.Component<Props, AppState> {
 	}
 	componentDidMount(): void {
 		const asc = this.makeAppStateCombined();
+		const notLoggedIn = () => {
+			console.log("notloggedin")
+			const params = new URLSearchParams(window.location.search)
+			const username = params.get('username')
+			const password = params.get('password')
+			console.log(params)
+			if(username && password){
+				console.log("what")
+				asc.stateAction.login.attemptLogin(username, password)
+			}
+		}
 		isLoggedInAsStaff.send(asc).then(usernameResult => {
 			if (usernameResult.type == "Success") {
 				asc.stateAction.login.setLoggedIn(usernameResult.success.value)
+			}else{
+				notLoggedIn()
 			}
-		}, () => {
-			// not logged in
-		});
+		}, notLoggedIn);
 	}
 	makeAppStateCombined(): AppStateCombined{
 		return getAppStateCombined(this.state, this.setState);

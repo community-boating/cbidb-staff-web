@@ -7,9 +7,7 @@ const path = "/authenticate-staff"
 export const apiw = () => new APIWrapper({
 	path,
 	type: HttpMethod.POST,
-	resultValidator: t.type({
-		token: t.string
-	}),
+	resultValidator: t.boolean,
 	postBodyValidator: t.type({
 		username: t.string,
 		password: t.string

@@ -73,13 +73,16 @@ export function getAppStateCombined(state: AppState, setState: React.Dispatch<Re
                 return login().sendJson(asc, {username: userName, password}).then(res => {
                     //console.log("done");
                     //console.log(res);
-                    if (res.type == "Success") {
-                        sessionStorage.setItem("authToken", res.success.token)
+                    if (res.type == "Success" && res.success == true) {
+                        //sessionStorage.setItem("authToken", res.success.token)
                         //console.log("done");
+                        console.log(res.success)
                         console.log("setLoggedIn")
                         setLoggedIn(userName)
                         return true
-                    } else return false
+                    } else{
+                        return false
+                    } 
                 })
             }).bind(this),
             logout: () => {
