@@ -28,29 +28,31 @@ const searchJSCONMetaData: (metaData: any[]) => (toFind: string) => number = met
 
 var apiAxios: AxiosInstance;
 
-function getServerURL(serverParams: ServerParams){
+export function getServerURL(serverParams: ServerParams){
 	const portString = (function() {
 		if (
-			(serverParams.https && serverParams.port != 443) || 
-			(!serverParams.https && serverParams.port != 80)
+			serverParams.port != undefined && ((serverParams.https && serverParams.port != 443) || 
+			(!serverParams.https && serverParams.port != 80))
 		) return `:${serverParams.port}`
-		else return "";
-	}());
+		else return ""
+	}())
 	return `${serverParams.https ? "https://" : "http://"}${serverParams.host}${portString}`
 }
 
-function getServerParams(serverParamsOption: option.Option<ServerParams>): ServerParams{
-	const serverParams = serverParamsOption.getOrElse((process.env as any).serverToUseForAPI);
+export function getServerParams(serverParamsOption: option.Option<ServerParams>): ServerParams{
+	const serverParams = serverParamsOption.getOrElse((process.env as any).serverToUseForAPI)
+	const portInt = parseInt(window.location.port)
 	return {
 		host: serverParams.host || window.location.hostname,
-		https: (serverParams.https != undefined) ? (serverParams.https) : (window.location.protocol == 'https'),
-		port: serverParams.port || parseInt(window.location.port),
+		https: (serverParams.https != undefined) ? (serverParams.https) : (window.location.protocol.startsWith('https')),
+		port: serverParams.port || isNaN(portInt) ? undefined : portInt,
 		pathPrefix: serverParams.pathPrefix,
 		staticHeaders: serverParams.staticHeaders
 	}
 }
 
 function getOrCreateAxios(serverParams: ServerParams) {
+	console.log(getServerURL(serverParams))
 	if (apiAxios == null) {
 		console.log('instantiating axios');
 		apiAxios = axios.create({
@@ -92,8 +94,9 @@ export default class APIWrapper<T_ResponseValidator extends t.Any, T_PostBodyVal
 	constructor(config: Config<T_ResponseValidator, T_PostBodyValidator, T_FixedParams>) {
 		this.config = config;
 	}
-	sendRaw(params, data, options?): Promise<any> {
-		return getOrCreateAxios(params).post(this.config.path, data, options)
+	sendRaw(paramsOpt: option.Option<ServerParams>, data, options?): Promise<any> {
+		var params = getServerParams(paramsOpt)
+		return getOrCreateAxios(params).post(params.pathPrefix + this.config.path, data, options)
 	}
 	send: (asc: AppStateCombined) => Promise<ApiResult<t.TypeOf<T_ResponseValidator>>> = (asc) => this.sendWithParams(asc, none)(undefined)
 	sendJson: (asc: AppStateCombined, data: t.TypeOf<T_PostBodyValidator>, params?: T_Params) => Promise<ApiResult<t.TypeOf<T_ResponseValidator>>> = (asc, data, params) => this.sendWithParams(asc, none, params)(makePostJSON(data))

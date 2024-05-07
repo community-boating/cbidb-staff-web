@@ -32,7 +32,7 @@ const authenticatedRoutes = (asc: AppStateCombined,history: History<any>) => {
 				<Layout history={history}>
 					<Switch>
 						{routes}
-						<Redirect from="*" to="/"/>
+						<Redirect from="*" to="/dh/fotv-controller"/>
 					</Switch>
 				</Layout>
 			)}

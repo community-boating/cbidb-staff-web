@@ -268,7 +268,7 @@ export const deleteLogoImage = new APIWrapper({
 export function uploadLogoImage(imageID, suffix: string) {
     return new APIWrapper(
         {
-            path: pathUploadLogoImage + '/' + (imageID || 'NaN') + '' + suffix,
+            path: pathUploadLogoImage + '/' + (imageID || 'NaN') + '/' + suffix,
             type: HttpMethod.POST,
             resultValidator: logoImageValidator,
             postBodyValidator: t.any,
