@@ -23,6 +23,10 @@ export type WeatherRecord = t.TypeOf<typeof dockReportWeatherValidator>;
 
 export type SubmitAction = () => Promise<Partial<DockReportState>>
 
+const classesTest = [
+
+]
+
 export const DockReportPage = (props: {
 	dockReportInitState: DockReportState
 }) => {
@@ -99,6 +103,7 @@ export const DockReportPage = (props: {
 		<Modal
 			isOpen={modalContent != null}
 			// toggle={() => setModalContent(null)}
+			scrollable
 			style={{maxWidth: `${modalWidth}px`}}
 		>
 			<ModalHeader toggle={() => setModalContent(null)}>

@@ -91,7 +91,6 @@ export const StaffReport = (props: Props) => <StaffTable {...props} staff={props
 
 /////////////////////////////////////////////////////////////////////////////////
 
-
 const EditStaffTable = (props: {
 	staff: StaffEditable[],
 	setSubmitAction: (submit: SubmitAction) => void,
