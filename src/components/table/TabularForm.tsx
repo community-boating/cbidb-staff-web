@@ -3,6 +3,7 @@ import { faPlusCircle } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Input, Table } from 'reactstrap';
 import { ColumnDef, flexRender, getCoreRowModel, getFilteredRowModel, getPaginationRowModel, getSortedRowModel, useReactTable } from '@tanstack/react-table';
+import * as PerfectScrollbarAll from "react-perfect-scrollbar";
 
 const EditableCell: (props: {
 	value: any,
@@ -116,13 +117,15 @@ export function TabularForm<T>(props: {
 		getCoreRowModel: getCoreRowModel(),
 		getFilteredRowModel: getFilteredRowModel(),
 		getSortedRowModel: getSortedRowModel(),
-		getPaginationRowModel: getPaginationRowModel(),
+		//getPaginationRowModel: getPaginationRowModel(),
 		enableColumnFilters: false,
 		autoResetAll: false,
 	});
 
 	return React.useMemo(() => {
 		const firstRow = table.getRowModel().rows[0]
+
+		const PerfectScrollbar: any = PerfectScrollbarAll;
 	
 		const addRowElement = (
 			blankRow == null
