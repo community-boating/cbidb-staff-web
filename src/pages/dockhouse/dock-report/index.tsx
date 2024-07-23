@@ -14,6 +14,7 @@ import { dockReportValidator, dockReportWeatherValidator, getDockReport, putDock
 import { DATE_FORMAT_LOCAL_DATE, DATE_FORMAT_LOCAL_DATETIME } from 'util/dateUtil';
 import { ButtonWrapper } from 'components/ButtonWrapper';
 import { ERROR_DELIMITER } from 'core/APIWrapper';
+import { option } from 'fp-ts';
 
 const POLL_FREQ_SEC = 10
 
@@ -24,7 +25,216 @@ export type WeatherRecord = t.TypeOf<typeof dockReportWeatherValidator>;
 export type SubmitAction = () => Promise<Partial<DockReportState>>
 
 const classesTest = [
-
+	{
+		DOCK_REPORT_AP_CLASS_ID: option.none,
+		DOCK_REPORT_ID: option.none,
+		AP_INSTANCE_ID: option.none,
+		CLASS_NAME: 'HELLO',
+		CLASS_DATETIME: 'today',
+		LOCATION: option.none,
+		INSTRUCTOR: option.none,
+		ATTEND: option.none
+	},
+	{
+		DOCK_REPORT_AP_CLASS_ID: option.none,
+		DOCK_REPORT_ID: option.none,
+		AP_INSTANCE_ID: option.none,
+		CLASS_NAME: 'HELLO',
+		CLASS_DATETIME: 'today',
+		LOCATION: option.none,
+		INSTRUCTOR: option.none,
+		ATTEND: option.none
+	},
+	{
+		DOCK_REPORT_AP_CLASS_ID: option.none,
+		DOCK_REPORT_ID: option.none,
+		AP_INSTANCE_ID: option.none,
+		CLASS_NAME: 'HELLO',
+		CLASS_DATETIME: 'today',
+		LOCATION: option.none,
+		INSTRUCTOR: option.none,
+		ATTEND: option.none
+	},
+	{
+		DOCK_REPORT_AP_CLASS_ID: option.none,
+		DOCK_REPORT_ID: option.none,
+		AP_INSTANCE_ID: option.none,
+		CLASS_NAME: 'HELLO',
+		CLASS_DATETIME: 'today',
+		LOCATION: option.none,
+		INSTRUCTOR: option.none,
+		ATTEND: option.none
+	},
+	{
+		DOCK_REPORT_AP_CLASS_ID: option.none,
+		DOCK_REPORT_ID: option.none,
+		AP_INSTANCE_ID: option.none,
+		CLASS_NAME: 'HELLO',
+		CLASS_DATETIME: 'today',
+		LOCATION: option.none,
+		INSTRUCTOR: option.none,
+		ATTEND: option.none
+	},
+	{
+		DOCK_REPORT_AP_CLASS_ID: option.none,
+		DOCK_REPORT_ID: option.none,
+		AP_INSTANCE_ID: option.none,
+		CLASS_NAME: 'HELLO',
+		CLASS_DATETIME: 'today',
+		LOCATION: option.none,
+		INSTRUCTOR: option.none,
+		ATTEND: option.none
+	},
+	{
+		DOCK_REPORT_AP_CLASS_ID: option.none,
+		DOCK_REPORT_ID: option.none,
+		AP_INSTANCE_ID: option.none,
+		CLASS_NAME: 'HELLO',
+		CLASS_DATETIME: 'today',
+		LOCATION: option.none,
+		INSTRUCTOR: option.none,
+		ATTEND: option.none
+	},
+	{
+		DOCK_REPORT_AP_CLASS_ID: option.none,
+		DOCK_REPORT_ID: option.none,
+		AP_INSTANCE_ID: option.none,
+		CLASS_NAME: 'HELLO',
+		CLASS_DATETIME: 'today',
+		LOCATION: option.none,
+		INSTRUCTOR: option.none,
+		ATTEND: option.none
+	},
+	{
+		DOCK_REPORT_AP_CLASS_ID: option.none,
+		DOCK_REPORT_ID: option.none,
+		AP_INSTANCE_ID: option.none,
+		CLASS_NAME: 'HELLO',
+		CLASS_DATETIME: 'today',
+		LOCATION: option.none,
+		INSTRUCTOR: option.none,
+		ATTEND: option.none
+	},
+	{
+		DOCK_REPORT_AP_CLASS_ID: option.none,
+		DOCK_REPORT_ID: option.none,
+		AP_INSTANCE_ID: option.none,
+		CLASS_NAME: 'HELLO',
+		CLASS_DATETIME: 'today',
+		LOCATION: option.none,
+		INSTRUCTOR: option.none,
+		ATTEND: option.none
+	},
+	{
+		DOCK_REPORT_AP_CLASS_ID: option.none,
+		DOCK_REPORT_ID: option.none,
+		AP_INSTANCE_ID: option.none,
+		CLASS_NAME: 'HELLO',
+		CLASS_DATETIME: 'today',
+		LOCATION: option.none,
+		INSTRUCTOR: option.none,
+		ATTEND: option.none
+	},
+	{
+		DOCK_REPORT_AP_CLASS_ID: option.none,
+		DOCK_REPORT_ID: option.none,
+		AP_INSTANCE_ID: option.none,
+		CLASS_NAME: 'HELLO',
+		CLASS_DATETIME: 'today',
+		LOCATION: option.none,
+		INSTRUCTOR: option.none,
+		ATTEND: option.none
+	},
+	{
+		DOCK_REPORT_AP_CLASS_ID: option.none,
+		DOCK_REPORT_ID: option.none,
+		AP_INSTANCE_ID: option.none,
+		CLASS_NAME: 'HELLO',
+		CLASS_DATETIME: 'today',
+		LOCATION: option.none,
+		INSTRUCTOR: option.none,
+		ATTEND: option.none
+	},
+	{
+		DOCK_REPORT_AP_CLASS_ID: option.none,
+		DOCK_REPORT_ID: option.none,
+		AP_INSTANCE_ID: option.none,
+		CLASS_NAME: 'HELLO',
+		CLASS_DATETIME: 'today',
+		LOCATION: option.none,
+		INSTRUCTOR: option.none,
+		ATTEND: option.none
+	},
+	{
+		DOCK_REPORT_AP_CLASS_ID: option.none,
+		DOCK_REPORT_ID: option.none,
+		AP_INSTANCE_ID: option.none,
+		CLASS_NAME: 'HELLO',
+		CLASS_DATETIME: 'today',
+		LOCATION: option.none,
+		INSTRUCTOR: option.none,
+		ATTEND: option.none
+	},
+	{
+		DOCK_REPORT_AP_CLASS_ID: option.none,
+		DOCK_REPORT_ID: option.none,
+		AP_INSTANCE_ID: option.none,
+		CLASS_NAME: 'HELLO',
+		CLASS_DATETIME: 'today',
+		LOCATION: option.none,
+		INSTRUCTOR: option.none,
+		ATTEND: option.none
+	},
+	{
+		DOCK_REPORT_AP_CLASS_ID: option.none,
+		DOCK_REPORT_ID: option.none,
+		AP_INSTANCE_ID: option.none,
+		CLASS_NAME: 'HELLO',
+		CLASS_DATETIME: 'today',
+		LOCATION: option.none,
+		INSTRUCTOR: option.none,
+		ATTEND: option.none
+	},
+	{
+		DOCK_REPORT_AP_CLASS_ID: option.none,
+		DOCK_REPORT_ID: option.none,
+		AP_INSTANCE_ID: option.none,
+		CLASS_NAME: 'HELLO',
+		CLASS_DATETIME: 'today',
+		LOCATION: option.none,
+		INSTRUCTOR: option.none,
+		ATTEND: option.none
+	},
+	{
+		DOCK_REPORT_AP_CLASS_ID: option.none,
+		DOCK_REPORT_ID: option.none,
+		AP_INSTANCE_ID: option.none,
+		CLASS_NAME: 'HELLO',
+		CLASS_DATETIME: 'today',
+		LOCATION: option.none,
+		INSTRUCTOR: option.none,
+		ATTEND: option.none
+	},
+	{
+		DOCK_REPORT_AP_CLASS_ID: option.none,
+		DOCK_REPORT_ID: option.none,
+		AP_INSTANCE_ID: option.none,
+		CLASS_NAME: 'HELLO',
+		CLASS_DATETIME: 'today',
+		LOCATION: option.none,
+		INSTRUCTOR: option.none,
+		ATTEND: option.none
+	},
+	{
+		DOCK_REPORT_AP_CLASS_ID: option.none,
+		DOCK_REPORT_ID: option.none,
+		AP_INSTANCE_ID: option.none,
+		CLASS_NAME: 'HELLO',
+		CLASS_DATETIME: 'today',
+		LOCATION: option.none,
+		INSTRUCTOR: option.none,
+		ATTEND: option.none
+	}
 ]
 
 export const DockReportPage = (props: {
@@ -41,6 +251,7 @@ export const DockReportPage = (props: {
 	const [refreshTimeout, setRefreshTimeout] = React.useState(null as NodeJS.Timeout)
 
 	function updateStateForever() {
+		return;
 		return getDockReport.send().then(res => {
 			if (res.type == "Success") {
 				setDockReportState(res.success)
@@ -102,7 +313,7 @@ export const DockReportPage = (props: {
 	return <>
 		<Modal
 			isOpen={modalContent != null}
-			// toggle={() => setModalContent(null)}
+			/*toggle={() => setModalContent(null)}*/
 			scrollable
 			style={{maxWidth: `${modalWidth}px`}}
 		>
@@ -117,7 +328,6 @@ export const DockReportPage = (props: {
 				<Button color="secondary" outline onClick={() => setModalContent(null)}>
 					Cancel
 				</Button>
-				{" "}
 				<ButtonWrapper spinnerOnClick color="secondary" onClick={() => {
 					setModalErrors(null)
 					return submitAction().then(additionalState => {
@@ -164,6 +374,7 @@ export const DockReportPage = (props: {
 					setSubmitAction={(submitAction: SubmitAction) => setSubmitAction(() => submitAction)}
 					classes={dockReportState.apClasses}
 					reportDate={dockReportState.REPORT_DATE}
+					setDockReportClasses={(classes) => {setDockReportState({...dockReportState, apClasses: classes});console.log("setting classes")}}
 				/>
 			</Col>
 			<Col md="5">

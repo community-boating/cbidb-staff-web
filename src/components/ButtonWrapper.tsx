@@ -4,13 +4,15 @@ import {
 	Button, ButtonProps,
 } from "reactstrap";
 
-interface Props extends ButtonProps {
+export interface Props extends ButtonProps {
 	spinnerOnClick?: boolean,
 	forceSpinner?: boolean,
 	onClick?: (e: React.MouseEvent<any>) => Promise<any>
+	customRender?: (state: State) => React.ReactNode
+	customSetClicked?: () => boolean
 }
 
-type State = {
+export type State = {
 	clicked: boolean
 }
 
@@ -36,7 +38,7 @@ export class ButtonWrapper extends React.Component<Props, State>{
 
 	setClicked() {
 		const startingUnclicked = !this.state.clicked;
-		if (startingUnclicked) {
+		if (startingUnclicked && (this.props.customSetClicked == undefined || this.props.customSetClicked())) {
 			this.setState({
 				...this.state,
 				clicked: true
@@ -58,6 +60,7 @@ export class ButtonWrapper extends React.Component<Props, State>{
 		let ret = { ... this.props }
 		delete ret.spinnerOnClick;
 		delete ret.forceSpinner;
+		delete ret.customRender;
 		return ret;
 	}.bind(this)());
 
@@ -75,12 +78,17 @@ export class ButtonWrapper extends React.Component<Props, State>{
 	}
 
 	render() {
-		const spinner = <img height="14px" style={{marginTop: "-3px"}} src="/images/spinner-white.gif" />;
-		const maybeSpinner = this.props.forceSpinner || (this.state.clicked && this.props.spinnerOnClick) ? <span>&nbsp;&nbsp;{spinner}</span> : "";
-
+		const defaultRender = (state: State) => {
+			const spinner = <img height="14px" style={{marginTop: "-3px"}} src="/images/spinner-white.gif" />;
+			const maybeSpinner = this.props.forceSpinner || (state.clicked && this.props.spinnerOnClick) ? <span>&nbsp;&nbsp;{spinner}</span> : "";
+			return <>
+				{this.props.children}
+				{maybeSpinner}
+			</>
+		}
+		const renderToUse = this.props.customRender || defaultRender
 		return <Button {...this.propsForDOM} onClick={this.onClick.bind(this)}>
-			{this.props.children}
-			{maybeSpinner}
+			{renderToUse(this.state)}
 		</Button>
 	}
 }

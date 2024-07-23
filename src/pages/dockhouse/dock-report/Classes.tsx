@@ -1,4 +1,4 @@
-import { dockReportApClassValidator } from 'async/rest/dock-report';
+import { dockReportApClassValidator, refreshDockReportClass, refreshDockReportClasses } from 'async/rest/dock-report';
 import * as t from "io-ts";
 import { TabularForm } from 'components/table/TabularForm';
 import * as React from 'react';
@@ -13,6 +13,7 @@ import { combineValidations, validateMilitaryTime, validateNotBlank, validateNum
 import { ERROR_DELIMITER } from 'core/APIWrapper';
 import { sortOnCol } from 'util/sort';
 import { ColumnDef } from '@tanstack/react-table';
+import SpinnyButton from 'components/SpinnyButton';
 
 type Class = t.TypeOf<typeof dockReportApClassValidator>
 
@@ -26,7 +27,7 @@ const mapToDisplay: (c: Class) => ClassEditable = c => ({
 	CLASS_DATETIME:toMomentFromLocalDateTime(c.CLASS_DATETIME).format("HH:mm"),
 	LOCATION: c.LOCATION.getOrElse(""),
 	INSTRUCTOR: c.INSTRUCTOR.getOrElse(""),
-	ATTEND: c.ATTEND.map(String).getOrElse("")
+	ATTEND: c.ATTEND.map(String).getOrElse(""),
 })
 
 const mapToDto: (reportDate: string) => (c: ClassEditable) => Class = reportDate => c => ({
@@ -40,20 +41,32 @@ const mapToDto: (reportDate: string) => (c: ClassEditable) => Class = reportDate
 
 const sort = (a: ClassEditable, b: ClassEditable) => sortOnCol(a, b, x => x.CLASS_DATETIME)
 
+var clerp = undefined
+
 export default (props: {
 	classes: Class[],
 	openModal: (content: JSX.Element) => void,
 	setSubmitAction: (submit: SubmitAction) => void,
-	reportDate: string
+	reportDate: string,
+	setDockReportClasses: (classes: Class[]) => void
 }) => {
 	const classes = props.classes.map(mapToDisplay)
+	console.log(classes == clerp)
+	clerp = classes
 	return <Card>
 		<CardHeader style={{borderBottom: "none", paddingBottom: 0}}>
+			
 			<Edit height="18px" className="float-right" style={{ cursor: "pointer" }} onClick={() => props.openModal(
-					<EditClassTable classes={classes} setSubmitAction={props.setSubmitAction} statekey={"apClasses"} reportDate={props.reportDate} />
+					<EditClassTable classes={classes} setSubmitAction={props.setSubmitAction} statekey={"apClasses"} reportDate={props.reportDate}
+					setDockReportClasses={props.setDockReportClasses} setDockReportClass={(clazz) => props.setDockReportClasses([...props.classes.map(a => (a.DOCK_REPORT_AP_CLASS_ID.getOrElse(-1) == clazz.DOCK_REPORT_AP_CLASS_ID.getOrElse(-1) ? clazz : a))])} />
 			)} />
-			<CardTitle><h4>Classes</h4></CardTitle>
-
+			<CardTitle><h4>
+				Classes
+				<SpinnyButton className='float-right ml-2 mr-2'
+				onClick={(e) => refreshDockReportClasses.send()}
+				customSetClicked={() => confirm("ARE YOU SURE")}/></h4>
+				
+			</CardTitle>
 		</CardHeader>
 		<CardBody>
 			<Table size="sm">
@@ -84,9 +97,16 @@ const EditClassTable = (props: {
 	classes: ClassEditable[],
 	setSubmitAction: (submit: SubmitAction) => void,
 	statekey: keyof DockReportState,
-	reportDate: string
+	reportDate: string,
+	setDockReportClasses: (classes: Class[]) => void,
+	setDockReportClass: (clazz: Class) => void
 }) => {
 	const [classes, setClasses] = React.useState(props.classes.sort(sort));
+	console.log(classes)
+	React.useEffect(() => {
+		console.log("effecting")
+		setClasses(props.classes.sort(sort))
+	}, [props.classes])
 
 	React.useEffect(() => {
 		props.setSubmitAction(() => {
@@ -126,7 +146,27 @@ const EditClassTable = (props: {
 	}, {
 		header: "Instructor",
 		accessorKey: "INSTRUCTOR"
-	}];
+	}, {
+		header: "Refresh",
+		size: 75,
+		meta: {
+			readonly: true
+		},
+		accessorFn: (r, i) => <div className='w-full text-center'>
+			<SpinnyButton className=''
+				onClick={(e) => refreshDockReportClass(r.DOCK_REPORT_AP_CLASS_ID.getOrElse(-1)).send().then((a) => {
+					if(a.type == 'Success'){
+						props.setDockReportClass(a.success)
+					}else{
+						console.log(a)
+					}
+				})}
+				customSetClicked={() => confirm("ARE YOU SURE")}/>
+		</div>
+		
+	}
+	
+];
 
 	return <div className="form-group row">
 		<TabularForm columns={columns} data={classes} setData={setClasses}/>

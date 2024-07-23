@@ -85,3 +85,21 @@ export const putDockReport = new APIWrapper({
 	postBodyValidator: dockReportValidator,
 	resultValidator: dockReportValidator,
 });
+
+const pathRefreshClasses = '/staff/refresh-dock-report-classes'
+
+export const refreshDockReportClasses = new APIWrapper({
+	path: pathRefreshClasses,
+	type: HttpMethod.POST,
+	postBodyValidator: t.any,
+	resultValidator: t.array(dockReportApClassValidator)
+})
+
+const pathRefreshClass = '/staff/refresh-dock-report-class'
+
+export const refreshDockReportClass = (dockReportApClassId: number) => new APIWrapper({
+	path: pathRefreshClass + "?dockReportApClassId=" + dockReportApClassId,
+	type: HttpMethod.POST,
+	postBodyValidator: t.any,
+	resultValidator: dockReportApClassValidator
+})
