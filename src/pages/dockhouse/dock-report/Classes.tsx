@@ -1,4 +1,4 @@
-import { dockReportApClassValidator, refreshDockReportClass, refreshDockReportClasses } from 'async/rest/dock-report';
+import { dockReportApClassValidator, refreshDockReportClasses } from 'async/rest/dock-report';
 import * as t from "io-ts";
 import { TabularForm } from 'components/table/TabularForm';
 import * as React from 'react';
@@ -146,24 +146,6 @@ const EditClassTable = (props: {
 	}, {
 		header: "Instructor",
 		accessorKey: "INSTRUCTOR"
-	}, {
-		header: "Refresh",
-		size: 75,
-		meta: {
-			readonly: true
-		},
-		accessorFn: (r, i) => <div className='w-full text-center'>
-			<SpinnyButton className=''
-				onClick={(e) => refreshDockReportClass(r.DOCK_REPORT_AP_CLASS_ID.getOrElse(-1)).send().then((a) => {
-					if(a.type == 'Success'){
-						props.setDockReportClass(a.success)
-					}else{
-						console.log(a)
-					}
-				})}
-				customSetClicked={() => confirm("ARE YOU SURE")}/>
-		</div>
-		
 	}
 	
 ];
