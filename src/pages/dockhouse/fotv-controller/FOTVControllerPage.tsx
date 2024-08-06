@@ -403,10 +403,10 @@ function ImagePanel() {
         putLogoImage.sendJson(asc, items.map((a) => ({...a, logoImageID: a.itemID, itemID: undefined, imageType: a.groupID, groupID: undefined}))).then(updateLogoImagesLocal)
     }, (e, displayOrder, groupID, extraItemsToChange) => {
         if(e.dataTransfer.files.length == 0)
-            return;
-        e.preventDefault();
-        const formData = new FormData();
-        formData.append('image', e.dataTransfer.files[0]);
+            return
+        e.preventDefault()
+        const formData = new FormData()
+        formData.append('image', e.dataTransfer.files[0])
 
         const suffix = findFileExtension(e.dataTransfer.files[0].name);
         const current = fotv.state.logoImages.find((a) => a.displayOrder == displayOrder && a.imageType == groupID);
@@ -448,26 +448,28 @@ function ImagePanel() {
             onDrop(e2)
         }}/>
     }
+    const apItems = mappedItems.filter((a) => a.groupID == -3)
+    const jpItems = mappedItems.filter((a) => a.groupID == -4)
     return <div className='flex grow-[2] flex-col space-y-4 flex-grow overflow-scroll'>
         <div className='flex grow-[1] w-[600px] mx-auto basis-0 space-x-4'>
-            <DraggableGroup cols={1} rows={1} hideX={true} editing={true} group={
+            <DraggableGroup cols={apItems.length + 1} rows={1} hideX={true} editing={true} group={
                 {
                     title: "AP Sliding Image",
                     groupID: -3
                 }
             }
-            items={mappedItems.filter((a) => a.groupID == -3)}
+            items={apItems}
             handleDrop={handleDrop}
             updateGroupName={updateGroupName}
             extraGroupBucket={customGroupBucket}
             />
-            <DraggableGroup cols={1} rows={1} hideX={true} editing={true} group={
+            <DraggableGroup cols={jpItems.length + 1} rows={1} hideX={true} editing={true} group={
                 {
                     title: "JP Sliding Image",
                     groupID: -4
                 }
             }
-            items={mappedItems.filter((a) => a.groupID == -4)}
+            items={jpItems}
             handleDrop={handleDrop}
             updateGroupName={updateGroupName}
             extraGroupBucket={customGroupBucket}
