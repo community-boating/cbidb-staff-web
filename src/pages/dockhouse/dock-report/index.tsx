@@ -1,9 +1,9 @@
 import * as React from 'react';
-import { Button, Card, CardBody, CardHeader, CardTitle, Col, Container, Modal, ModalBody, ModalFooter, ModalHeader, Row, Table } from 'reactstrap';
+import { Button, Col, Modal, ModalBody, ModalFooter, ModalHeader, Row } from 'reactstrap';
 import * as t from "io-ts";
 import Classes from './Classes';
 import {DateHeader} from './DateHeader';
-import HullCounts, { HullType } from './HullCounts';
+import HullCounts from './HullCounts';
 import {DockmastersReport, StaffReport} from './FullStaff';
 import UapAppointments from './UapAppointments';
 import WeatherTable from './WeatherTable';
@@ -14,7 +14,6 @@ import { dockReportValidator, dockReportWeatherValidator, getDockReport, putDock
 import { DATE_FORMAT_LOCAL_DATE, DATE_FORMAT_LOCAL_DATETIME } from 'util/dateUtil';
 import { ButtonWrapper } from 'components/ButtonWrapper';
 import { ERROR_DELIMITER } from 'core/APIWrapper';
-import { option } from 'fp-ts';
 
 const POLL_FREQ_SEC = 10
 
@@ -23,219 +22,6 @@ export type DockReportState = t.TypeOf<typeof dockReportValidator>;
 export type WeatherRecord = t.TypeOf<typeof dockReportWeatherValidator>;
 
 export type SubmitAction = () => Promise<Partial<DockReportState>>
-
-const classesTest = [
-	{
-		DOCK_REPORT_AP_CLASS_ID: option.none,
-		DOCK_REPORT_ID: option.none,
-		AP_INSTANCE_ID: option.none,
-		CLASS_NAME: 'HELLO',
-		CLASS_DATETIME: 'today',
-		LOCATION: option.none,
-		INSTRUCTOR: option.none,
-		ATTEND: option.none
-	},
-	{
-		DOCK_REPORT_AP_CLASS_ID: option.none,
-		DOCK_REPORT_ID: option.none,
-		AP_INSTANCE_ID: option.none,
-		CLASS_NAME: 'HELLO',
-		CLASS_DATETIME: 'today',
-		LOCATION: option.none,
-		INSTRUCTOR: option.none,
-		ATTEND: option.none
-	},
-	{
-		DOCK_REPORT_AP_CLASS_ID: option.none,
-		DOCK_REPORT_ID: option.none,
-		AP_INSTANCE_ID: option.none,
-		CLASS_NAME: 'HELLO',
-		CLASS_DATETIME: 'today',
-		LOCATION: option.none,
-		INSTRUCTOR: option.none,
-		ATTEND: option.none
-	},
-	{
-		DOCK_REPORT_AP_CLASS_ID: option.none,
-		DOCK_REPORT_ID: option.none,
-		AP_INSTANCE_ID: option.none,
-		CLASS_NAME: 'HELLO',
-		CLASS_DATETIME: 'today',
-		LOCATION: option.none,
-		INSTRUCTOR: option.none,
-		ATTEND: option.none
-	},
-	{
-		DOCK_REPORT_AP_CLASS_ID: option.none,
-		DOCK_REPORT_ID: option.none,
-		AP_INSTANCE_ID: option.none,
-		CLASS_NAME: 'HELLO',
-		CLASS_DATETIME: 'today',
-		LOCATION: option.none,
-		INSTRUCTOR: option.none,
-		ATTEND: option.none
-	},
-	{
-		DOCK_REPORT_AP_CLASS_ID: option.none,
-		DOCK_REPORT_ID: option.none,
-		AP_INSTANCE_ID: option.none,
-		CLASS_NAME: 'HELLO',
-		CLASS_DATETIME: 'today',
-		LOCATION: option.none,
-		INSTRUCTOR: option.none,
-		ATTEND: option.none
-	},
-	{
-		DOCK_REPORT_AP_CLASS_ID: option.none,
-		DOCK_REPORT_ID: option.none,
-		AP_INSTANCE_ID: option.none,
-		CLASS_NAME: 'HELLO',
-		CLASS_DATETIME: 'today',
-		LOCATION: option.none,
-		INSTRUCTOR: option.none,
-		ATTEND: option.none
-	},
-	{
-		DOCK_REPORT_AP_CLASS_ID: option.none,
-		DOCK_REPORT_ID: option.none,
-		AP_INSTANCE_ID: option.none,
-		CLASS_NAME: 'HELLO',
-		CLASS_DATETIME: 'today',
-		LOCATION: option.none,
-		INSTRUCTOR: option.none,
-		ATTEND: option.none
-	},
-	{
-		DOCK_REPORT_AP_CLASS_ID: option.none,
-		DOCK_REPORT_ID: option.none,
-		AP_INSTANCE_ID: option.none,
-		CLASS_NAME: 'HELLO',
-		CLASS_DATETIME: 'today',
-		LOCATION: option.none,
-		INSTRUCTOR: option.none,
-		ATTEND: option.none
-	},
-	{
-		DOCK_REPORT_AP_CLASS_ID: option.none,
-		DOCK_REPORT_ID: option.none,
-		AP_INSTANCE_ID: option.none,
-		CLASS_NAME: 'HELLO',
-		CLASS_DATETIME: 'today',
-		LOCATION: option.none,
-		INSTRUCTOR: option.none,
-		ATTEND: option.none
-	},
-	{
-		DOCK_REPORT_AP_CLASS_ID: option.none,
-		DOCK_REPORT_ID: option.none,
-		AP_INSTANCE_ID: option.none,
-		CLASS_NAME: 'HELLO',
-		CLASS_DATETIME: 'today',
-		LOCATION: option.none,
-		INSTRUCTOR: option.none,
-		ATTEND: option.none
-	},
-	{
-		DOCK_REPORT_AP_CLASS_ID: option.none,
-		DOCK_REPORT_ID: option.none,
-		AP_INSTANCE_ID: option.none,
-		CLASS_NAME: 'HELLO',
-		CLASS_DATETIME: 'today',
-		LOCATION: option.none,
-		INSTRUCTOR: option.none,
-		ATTEND: option.none
-	},
-	{
-		DOCK_REPORT_AP_CLASS_ID: option.none,
-		DOCK_REPORT_ID: option.none,
-		AP_INSTANCE_ID: option.none,
-		CLASS_NAME: 'HELLO',
-		CLASS_DATETIME: 'today',
-		LOCATION: option.none,
-		INSTRUCTOR: option.none,
-		ATTEND: option.none
-	},
-	{
-		DOCK_REPORT_AP_CLASS_ID: option.none,
-		DOCK_REPORT_ID: option.none,
-		AP_INSTANCE_ID: option.none,
-		CLASS_NAME: 'HELLO',
-		CLASS_DATETIME: 'today',
-		LOCATION: option.none,
-		INSTRUCTOR: option.none,
-		ATTEND: option.none
-	},
-	{
-		DOCK_REPORT_AP_CLASS_ID: option.none,
-		DOCK_REPORT_ID: option.none,
-		AP_INSTANCE_ID: option.none,
-		CLASS_NAME: 'HELLO',
-		CLASS_DATETIME: 'today',
-		LOCATION: option.none,
-		INSTRUCTOR: option.none,
-		ATTEND: option.none
-	},
-	{
-		DOCK_REPORT_AP_CLASS_ID: option.none,
-		DOCK_REPORT_ID: option.none,
-		AP_INSTANCE_ID: option.none,
-		CLASS_NAME: 'HELLO',
-		CLASS_DATETIME: 'today',
-		LOCATION: option.none,
-		INSTRUCTOR: option.none,
-		ATTEND: option.none
-	},
-	{
-		DOCK_REPORT_AP_CLASS_ID: option.none,
-		DOCK_REPORT_ID: option.none,
-		AP_INSTANCE_ID: option.none,
-		CLASS_NAME: 'HELLO',
-		CLASS_DATETIME: 'today',
-		LOCATION: option.none,
-		INSTRUCTOR: option.none,
-		ATTEND: option.none
-	},
-	{
-		DOCK_REPORT_AP_CLASS_ID: option.none,
-		DOCK_REPORT_ID: option.none,
-		AP_INSTANCE_ID: option.none,
-		CLASS_NAME: 'HELLO',
-		CLASS_DATETIME: 'today',
-		LOCATION: option.none,
-		INSTRUCTOR: option.none,
-		ATTEND: option.none
-	},
-	{
-		DOCK_REPORT_AP_CLASS_ID: option.none,
-		DOCK_REPORT_ID: option.none,
-		AP_INSTANCE_ID: option.none,
-		CLASS_NAME: 'HELLO',
-		CLASS_DATETIME: 'today',
-		LOCATION: option.none,
-		INSTRUCTOR: option.none,
-		ATTEND: option.none
-	},
-	{
-		DOCK_REPORT_AP_CLASS_ID: option.none,
-		DOCK_REPORT_ID: option.none,
-		AP_INSTANCE_ID: option.none,
-		CLASS_NAME: 'HELLO',
-		CLASS_DATETIME: 'today',
-		LOCATION: option.none,
-		INSTRUCTOR: option.none,
-		ATTEND: option.none
-	},
-	{
-		DOCK_REPORT_AP_CLASS_ID: option.none,
-		DOCK_REPORT_ID: option.none,
-		AP_INSTANCE_ID: option.none,
-		CLASS_NAME: 'HELLO',
-		CLASS_DATETIME: 'today',
-		LOCATION: option.none,
-		INSTRUCTOR: option.none,
-		ATTEND: option.none
-	}
-]
 
 export const DockReportPage = (props: {
 	dockReportInitState: DockReportState
@@ -251,7 +37,6 @@ export const DockReportPage = (props: {
 	const [refreshTimeout, setRefreshTimeout] = React.useState(null as NodeJS.Timeout)
 
 	function updateStateForever() {
-		return;
 		return getDockReport.send().then(res => {
 			if (res.type == "Success") {
 				setDockReportState(res.success)
@@ -374,7 +159,7 @@ export const DockReportPage = (props: {
 					setSubmitAction={(submitAction: SubmitAction) => setSubmitAction(() => submitAction)}
 					classes={dockReportState.apClasses}
 					reportDate={dockReportState.REPORT_DATE}
-					setDockReportClasses={(classes) => {setDockReportState({...dockReportState, apClasses: classes});console.log("setting classes")}}
+					setDockReportClasses={(classes) => setDockReportState({...dockReportState, apClasses: classes})}
 				/>
 			</Col>
 			<Col md="5">

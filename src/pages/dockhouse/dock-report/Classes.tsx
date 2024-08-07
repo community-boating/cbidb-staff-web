@@ -41,8 +41,6 @@ const mapToDto: (reportDate: string) => (c: ClassEditable) => Class = reportDate
 
 const sort = (a: ClassEditable, b: ClassEditable) => sortOnCol(a, b, x => x.CLASS_DATETIME)
 
-var clerp = undefined
-
 export default (props: {
 	classes: Class[],
 	openModal: (content: JSX.Element) => void,
@@ -51,8 +49,6 @@ export default (props: {
 	setDockReportClasses: (classes: Class[]) => void
 }) => {
 	const classes = props.classes.map(mapToDisplay)
-	console.log(classes == clerp)
-	clerp = classes
 	return <Card>
 		<CardHeader style={{borderBottom: "none", paddingBottom: 0}}>
 			
@@ -102,9 +98,7 @@ const EditClassTable = (props: {
 	setDockReportClass: (clazz: Class) => void
 }) => {
 	const [classes, setClasses] = React.useState(props.classes.sort(sort));
-	console.log(classes)
 	React.useEffect(() => {
-		console.log("effecting")
 		setClasses(props.classes.sort(sort))
 	}, [props.classes])
 
@@ -149,7 +143,6 @@ const EditClassTable = (props: {
 	}
 	
 ];
-
 	return <div className="form-group row">
 		<TabularForm columns={columns} data={classes} setData={setClasses}/>
 	</div>
