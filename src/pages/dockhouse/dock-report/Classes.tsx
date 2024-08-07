@@ -60,8 +60,7 @@ export default (props: {
 				Classes
 				<SpinnyButton className='float-right ml-2 mr-2'
 				onClick={(e) => refreshDockReportClasses.send()}
-				customSetClicked={() => confirm("ARE YOU SURE")}/></h4>
-				
+				customSetClicked={() => confirm("Are you sure? This will reset any changes made to today's classes!")}/></h4>
 			</CardTitle>
 		</CardHeader>
 		<CardBody>
