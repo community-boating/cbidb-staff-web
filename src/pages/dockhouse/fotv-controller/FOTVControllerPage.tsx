@@ -382,6 +382,16 @@ function getItemsToChangeDisplayOrder(items: DraggableGridItem[], displayOrder: 
     return itemsToChange;
 }
 
+const allowedFileTypes = ['img', 'svg', 'webp', 'jpeg', 'jpg', 'png', 'gif']
+
+function validateImageFile(file: File){
+    if(!allowedFileTypes.contains(findFileExtension(file.name)))
+        return 'Invalid file type'
+    if(file.size > 1 * 1024 * 1024)
+        return 'File must be less than 1MB'
+    return undefined
+}
+
 function ImagePanel() {
     const fotv = React.useContext(FOTVContext);
     const asc = React.useContext(AppStateContext);
@@ -405,9 +415,13 @@ function ImagePanel() {
         if(e.dataTransfer.files.length == 0)
             return
         e.preventDefault()
+        const validationError = validateImageFile(e.dataTransfer.files[0])
+        if(validationError){
+            alert(validationError)
+            return
+        }
         const formData = new FormData()
         formData.append('image', e.dataTransfer.files[0])
-
         const suffix = findFileExtension(e.dataTransfer.files[0].name);
         const current = fotv.state.logoImages.find((a) => a.displayOrder == displayOrder && a.imageType == groupID);
         uploadImage(current == undefined ? null : current.imageID,suffix).sendRaw(option.none, formData).then((b) => {
@@ -435,7 +449,7 @@ function ImagePanel() {
     const smallCols = Math.min(8, itemsSmall.length + 1);
     const updateGroupName = (name: string, groupID: number) => {};
     const customGroupBucket = (onDrop: (e) => void) => {
-        return <input type="file" onChange={(e) => {
+        return <input type="file" accept={allowedFileTypes.map(a => '.' + a).join(',')} onChange={(e) => {
             e.preventDefault();
             const e2: any = {
                 dataTransfer: {
