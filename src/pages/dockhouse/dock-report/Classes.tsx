@@ -27,7 +27,7 @@ const mapToDisplay: (c: Class) => ClassEditable = c => ({
 	CLASS_DATETIME:toMomentFromLocalDateTime(c.CLASS_DATETIME).format("HH:mm"),
 	LOCATION: c.LOCATION.getOrElse(""),
 	INSTRUCTOR: c.INSTRUCTOR.getOrElse(""),
-	ATTEND: c.ATTEND.map(String).getOrElse(""),
+	ATTEND: c.ATTEND.map(String).getOrElse("")
 })
 
 const mapToDto: (reportDate: string) => (c: ClassEditable) => Class = reportDate => c => ({
@@ -39,7 +39,7 @@ const mapToDto: (reportDate: string) => (c: ClassEditable) => Class = reportDate
 	ATTEND: optionify(c.ATTEND).map(Number)
 })
 
-const sort = (a: ClassEditable, b: ClassEditable) => sortOnCol(a, b, x => x.CLASS_DATETIME)
+const sort = (a: ClassEditable, b: ClassEditable) => sortOnCol(a, b, x => x.CLASS_DATETIME + x.AP_INSTANCE_ID.getOrElse(-1))
 
 export default (props: {
 	classes: Class[],
