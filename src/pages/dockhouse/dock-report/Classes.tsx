@@ -54,7 +54,7 @@ export default (props: {
 			
 			<Edit height="18px" className="float-right" style={{ cursor: "pointer" }} onClick={() => props.openModal(
 					<EditClassTable classes={classes} setSubmitAction={props.setSubmitAction} statekey={"apClasses"} reportDate={props.reportDate}
-					setDockReportClasses={props.setDockReportClasses} setDockReportClass={(clazz) => props.setDockReportClasses([...props.classes.map(a => (a.DOCK_REPORT_AP_CLASS_ID.getOrElse(-1) == clazz.DOCK_REPORT_AP_CLASS_ID.getOrElse(-1) ? clazz : a))])} />
+					setDockReportClasses={props.setDockReportClasses}/>
 			)} />
 			<CardTitle><h4>
 				Classes
@@ -94,7 +94,6 @@ const EditClassTable = (props: {
 	statekey: keyof DockReportState,
 	reportDate: string,
 	setDockReportClasses: (classes: Class[]) => void,
-	setDockReportClass: (clazz: Class) => void
 }) => {
 	const [classes, setClasses] = React.useState(props.classes.sort(sort));
 	React.useEffect(() => {
