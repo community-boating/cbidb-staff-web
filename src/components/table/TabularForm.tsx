@@ -2,7 +2,7 @@ import * as React from 'react';
 import { faPlusCircle } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Input, Table } from 'reactstrap';
-import { ColumnDef, flexRender, getCoreRowModel, getFilteredRowModel, getSortedRowModel, useReactTable } from '@tanstack/react-table';
+import { ColumnDef, flexRender, getCoreRowModel, getFilteredRowModel, getPaginationRowModel, getSortedRowModel, useReactTable } from '@tanstack/react-table';
 
 const EditableCell: (props: {
 	value: any,
@@ -123,7 +123,7 @@ export function TabularForm<T>(props: {
 
 	return React.useMemo(() => {
 		const firstRow = table.getRowModel().rows[0]
-
+	
 		const addRowElement = (
 			blankRow == null
 			? null
