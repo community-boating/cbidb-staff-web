@@ -1,4 +1,4 @@
-import { dockReportApClassValidator } from 'async/rest/dock-report';
+import { dockReportApClassValidator, refreshDockReportClasses } from 'async/rest/dock-report';
 import * as t from "io-ts";
 import { TabularForm } from 'components/table/TabularForm';
 import * as React from 'react';
@@ -13,6 +13,7 @@ import { combineValidations, validateMilitaryTime, validateNotBlank, validateNum
 import { ERROR_DELIMITER } from 'core/APIWrapper';
 import { sortOnCol } from 'util/sort';
 import { ColumnDef } from '@tanstack/react-table';
+import SpinnyButton from 'components/SpinnyButton';
 
 type Class = t.TypeOf<typeof dockReportApClassValidator>
 
@@ -38,22 +39,29 @@ const mapToDto: (reportDate: string) => (c: ClassEditable) => Class = reportDate
 	ATTEND: optionify(c.ATTEND).map(Number)
 })
 
-const sort = (a: ClassEditable, b: ClassEditable) => sortOnCol(a, b, x => x.CLASS_DATETIME)
+const sort = (a: ClassEditable, b: ClassEditable) => sortOnCol(a, b, x => x.CLASS_DATETIME + x.AP_INSTANCE_ID.getOrElse(-1))
 
 export default (props: {
 	classes: Class[],
 	openModal: (content: JSX.Element) => void,
 	setSubmitAction: (submit: SubmitAction) => void,
-	reportDate: string
+	reportDate: string,
+	setDockReportClasses: (classes: Class[]) => void
 }) => {
 	const classes = props.classes.map(mapToDisplay)
 	return <Card>
 		<CardHeader style={{borderBottom: "none", paddingBottom: 0}}>
+			
 			<Edit height="18px" className="float-right" style={{ cursor: "pointer" }} onClick={() => props.openModal(
-					<EditClassTable classes={classes} setSubmitAction={props.setSubmitAction} statekey={"apClasses"} reportDate={props.reportDate} />
+					<EditClassTable classes={classes} setSubmitAction={props.setSubmitAction} statekey={"apClasses"} reportDate={props.reportDate}
+					setDockReportClasses={props.setDockReportClasses}/>
 			)} />
-			<CardTitle><h4>Classes</h4></CardTitle>
-
+			<CardTitle><h4>
+				Classes
+				<SpinnyButton className='float-right ml-2 mr-2'
+				onClick={(e) => refreshDockReportClasses.send()}
+				customSetClicked={() => confirm("Are you sure? This will reset any changes made to today's classes!")}/></h4>
+			</CardTitle>
 		</CardHeader>
 		<CardBody>
 			<Table size="sm">
@@ -84,9 +92,13 @@ const EditClassTable = (props: {
 	classes: ClassEditable[],
 	setSubmitAction: (submit: SubmitAction) => void,
 	statekey: keyof DockReportState,
-	reportDate: string
+	reportDate: string,
+	setDockReportClasses: (classes: Class[]) => void,
 }) => {
 	const [classes, setClasses] = React.useState(props.classes.sort(sort));
+	React.useEffect(() => {
+		setClasses(props.classes.sort(sort))
+	}, [props.classes])
 
 	React.useEffect(() => {
 		props.setSubmitAction(() => {
@@ -126,8 +138,9 @@ const EditClassTable = (props: {
 	}, {
 		header: "Instructor",
 		accessorKey: "INSTRUCTOR"
-	}];
-
+	}
+	
+];
 	return <div className="form-group row">
 		<TabularForm columns={columns} data={classes} setData={setClasses}/>
 	</div>

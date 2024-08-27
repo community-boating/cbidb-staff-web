@@ -1,9 +1,9 @@
 import * as React from 'react';
-import { Button, Card, CardBody, CardHeader, CardTitle, Col, Container, Modal, ModalBody, ModalFooter, ModalHeader, Row, Table } from 'reactstrap';
+import { Button, Col, Modal, ModalBody, ModalFooter, ModalHeader, Row } from 'reactstrap';
 import * as t from "io-ts";
 import Classes from './Classes';
 import {DateHeader} from './DateHeader';
-import HullCounts, { HullType } from './HullCounts';
+import HullCounts from './HullCounts';
 import {DockmastersReport, StaffReport} from './FullStaff';
 import UapAppointments from './UapAppointments';
 import WeatherTable from './WeatherTable';
@@ -102,7 +102,7 @@ export const DockReportPage = (props: {
 	return <>
 		<Modal
 			isOpen={modalContent != null}
-			// toggle={() => setModalContent(null)}
+			/*toggle={() => setModalContent(null)}*/
 			scrollable
 			style={{maxWidth: `${modalWidth}px`}}
 		>
@@ -117,7 +117,6 @@ export const DockReportPage = (props: {
 				<Button color="secondary" outline onClick={() => setModalContent(null)}>
 					Cancel
 				</Button>
-				{" "}
 				<ButtonWrapper spinnerOnClick color="secondary" onClick={() => {
 					setModalErrors(null)
 					return submitAction().then(additionalState => {
@@ -164,6 +163,7 @@ export const DockReportPage = (props: {
 					setSubmitAction={(submitAction: SubmitAction) => setSubmitAction(() => submitAction)}
 					classes={dockReportState.apClasses}
 					reportDate={dockReportState.REPORT_DATE}
+					setDockReportClasses={(classes) => setDockReportState({...dockReportState, apClasses: classes})}
 				/>
 			</Col>
 			<Col md="5">

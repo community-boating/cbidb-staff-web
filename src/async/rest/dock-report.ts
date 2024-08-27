@@ -1,4 +1,4 @@
-import { makeOptionalPK, OptionalBoolean, OptionalNumber, OptionalString } from "util/OptionalTypeValidators";
+import { OptionalBoolean, OptionalNumber, OptionalString } from "util/OptionalTypeValidators";
 import * as t from "io-ts";
 import APIWrapper from "../../core/APIWrapper";
 import { HttpMethod } from "../../core/HttpMethod";
@@ -85,3 +85,12 @@ export const putDockReport = new APIWrapper({
 	postBodyValidator: dockReportValidator,
 	resultValidator: dockReportValidator,
 });
+
+const pathRefreshClasses = '/staff/dockhouse/dock-report/refresh-classes'
+
+export const refreshDockReportClasses = new APIWrapper({
+	path: pathRefreshClasses,
+	type: HttpMethod.POST,
+	postBodyValidator: t.any,
+	resultValidator: t.array(dockReportApClassValidator)
+})
